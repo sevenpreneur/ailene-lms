@@ -117,10 +117,7 @@ export async function scheduleQuizAutoSubmit(
 ): Promise<void> {
   try {
     const qstash = GetQStashClient();
-    const apiDomain =
-      process.env.DOMAIN_MODE === "staging"
-        ? "api.sevenpreneur.net"
-        : "api.sevenpreneur.com";
+    const apiDomain = "api.sevenpreneur.net";
     const res = await qstash.publishJSON({
       url: `https://${apiDomain}/qstash/auto-submit-quiz`,
       body: { submission_id: submissionId },

@@ -16,11 +16,9 @@ export default function AppLoginContainer() {
     redirectTo && isValidRedirectUrl(redirectTo) ? redirectTo : "/";
   const [isLoading, setIsLoading] = useState(false);
 
-  let domain = "sevenpreneur.com";
+  let domain = "sevenpreneur.net";
   if (process.env.NEXT_PUBLIC_DOMAIN_MODE === "local") {
     domain = "example.com:3000";
-  } else if (process.env.NEXT_PUBLIC_DOMAIN_MODE === "staging") {
-    domain = "sevenpreneur.net";
   }
 
   // Return token from Google

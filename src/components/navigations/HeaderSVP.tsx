@@ -85,11 +85,9 @@ export default function HeaderSVP(props: HeaderSVPProps) {
 
   const nickName = props.userName?.split(" ")[0];
 
-  let domain = "sevenpreneur.com";
+  let domain = "sevenpreneur.net";
   if (process.env.NEXT_PUBLIC_DOMAIN_MODE === "local") {
     domain = "example.com:3000";
-  } else if (process.env.NEXT_PUBLIC_DOMAIN_MODE === "staging") {
-    domain = "sevenpreneur.net";
   }
 
   // Validate Ticker Based on Start Date and End Date

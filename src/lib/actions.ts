@@ -31,11 +31,9 @@ export async function DeleteSession() {
   setSecretKey(process.env.SECRET_KEY_PUBLIC_API!);
   const loggedOut = await trpc.auth.logout({ token: sessionData.value });
 
-  let domain = "sevenpreneur.com";
+  let domain = "sevenpreneur.net";
   if (process.env.DOMAIN_MODE === "local") {
     domain = "example.com";
-  } else if (process.env.DOMAIN_MODE === "staging") {
-    domain = "sevenpreneur.net";
   }
 
   // Delete token on Cookie

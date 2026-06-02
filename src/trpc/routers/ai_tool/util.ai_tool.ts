@@ -98,15 +98,13 @@ export function AIFormatOutputZod<T extends z.ZodObject>(
   );
 }
 
-let baseURL = "https://api.sevenpreneur.com/";
+let baseURL = "https://api.sevenpreneur.net/";
 if (process.env.DOMAIN_MODE === "local") {
   baseURL = "https://api.example.com:3000/";
   const ngrokDomain = process.env.NGROK_DOMAIN;
   if (ngrokDomain !== undefined && ngrokDomain !== "") {
     baseURL = "https://" + ngrokDomain + "/";
   }
-} else if (process.env.DOMAIN_MODE === "staging") {
-  baseURL = "https://api.sevenpreneur.net/";
 }
 
 export async function AIGenerate<T extends AutoParseableTextFormat<U>, U>(

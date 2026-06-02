@@ -7,23 +7,9 @@ export function isValidRedirectUrl(url: string): boolean {
     const domainMode = process.env.DOMAIN_MODE;
     let allowedDomains: string[];
     if (domainMode === "local") {
-      allowedDomains = [
-        "www.example.com:3000",
-        "admin.example.com:3000",
-        "agora.example.com:3000",
-      ];
-    } else if (domainMode === "staging") {
-      allowedDomains = [
-        "www.sevenpreneur.net",
-        "admin.sevenpreneur.net",
-        "agora.sevenpreneur.net",
-      ];
+      allowedDomains = ["example.com:3000", "www.example.com:3000"];
     } else {
-      allowedDomains = [
-        "www.sevenpreneur.com",
-        "admin.sevenpreneur.com",
-        "agora.sevenpreneur.com",
-      ];
+      allowedDomains = ["sevenpreneur.net", "www.sevenpreneur.net"];
     }
 
     return allowedDomains.includes(redirect.host);

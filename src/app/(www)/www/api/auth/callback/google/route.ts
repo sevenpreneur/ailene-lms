@@ -13,11 +13,9 @@ export async function POST(request: Request) {
   const user = loggedIn.registered_user;
 
   if (sessionToken) {
-    let domain = "sevenpreneur.com";
+    let domain = "sevenpreneur.net";
     if (process.env.DOMAIN_MODE === "local") {
       domain = "example.com";
-    } else if (process.env.DOMAIN_MODE === "staging") {
-      domain = "sevenpreneur.net";
     }
 
     const cookieStore = await cookies();

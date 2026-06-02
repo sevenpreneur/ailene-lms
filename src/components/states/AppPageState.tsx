@@ -50,11 +50,9 @@ interface AppPageStateProps {
 export default function AppPageState(props: AppPageStateProps) {
   const { title, message, image } = variantStyles[props.variant];
 
-  let domain = "sevenpreneur.com";
+  let domain = "sevenpreneur.net";
   if (process.env.NEXT_PUBLIC_DOMAIN_MODE === "local") {
     domain = "example.com:3000";
-  } else if (process.env.NEXT_PUBLIC_DOMAIN_MODE === "staging") {
-    domain = "sevenpreneur.net";
   }
 
   return (

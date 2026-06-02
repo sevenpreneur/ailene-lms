@@ -9,17 +9,12 @@ const isOriginAllowed = (origin: string | null) => {
   }
 
   const domainMode = process.env.DOMAIN_MODE;
-  let baseURL = "sevenpreneur.com";
+  let baseURL = "sevenpreneur.net";
   if (domainMode === "local") {
     baseURL = "example.com:3000";
-  } else if (domainMode === "staging") {
-    baseURL = "sevenpreneur.net";
   }
 
   const allowedOrigins = [
-    `https://admin.${baseURL}`,
-    `https://agora.${baseURL}`,
-    `https://ailene.${baseURL}`,
     `https://api.${baseURL}`,
     `https://www.${baseURL}`,
     `https://${baseURL}`,

@@ -37,70 +37,16 @@ const nextConfig = {
   },
   async redirects() {
     return [
-      {
-        source: "/(.*)",
-        has: [
-          {
-            type: "header",
-            key: "host",
-            value: "(agora|admin|ailene).sevenpreneur.com.*",
-          },
-        ],
-        missing: [
-          {
-            type: "cookie",
-            key: "session_token",
-          },
-        ],
-        destination: "https://www.sevenpreneur.com/auth/login",
-        basePath: false,
-        permanent: false,
-      },
-      {
-        source: "/(.*)",
-        has: [
-          {
-            type: "header",
-            key: "host",
-            value: "(agora|admin|ailene).sevenpreneur.net.*",
-          },
-        ],
-        missing: [
-          {
-            type: "cookie",
-            key: "session_token",
-          },
-        ],
-        destination: "https://www.sevenpreneur.net/auth/login",
-        basePath: false,
-        permanent: false,
-      },
-      {
-        source: "/(.*)",
-        has: [
-          {
-            type: "header",
-            key: "host",
-            value: "(agora|admin|ailene).example.com:3000.*",
-          },
-        ],
-        missing: [
-          {
-            type: "cookie",
-            key: "session_token",
-          },
-        ],
-        destination: "https://www.example.com:3000/auth/login",
-        basePath: false,
-        permanent: false,
-      },
+      // Unauthenticated visitors are bounced to /auth/login by the gated
+      // dashboard layout: src/app/(www)/www/(dashboard)/layout.tsx.
+      // Logged-in users who land on an auth page are sent to the dashboard.
       {
         source: "/auth(.*)",
         has: [
           {
             type: "header",
             key: "host",
-            value: "www.(sevenpreneur.(com|net)|example.com).*",
+            value: "(www.)?(sevenpreneur.net|example.com).*",
           },
           {
             type: "cookie",
@@ -124,34 +70,24 @@ const nextConfig = {
     return {
       beforeFiles: [
         {
-          source: "/(admin|agora|ailene|api|www)",
+          source: "/(api|www)",
           destination: "/_not-found/page",
         },
       ],
       afterFiles: [
+        // Apex domain + www subdomain → the app (served from the www group).
         {
           source: "/:path*",
           has: [
             {
               type: "header",
               key: "host",
-              value:
-                "(?<subdomain>[^.]+).(sevenpreneur.(com|net)|example.com).*",
-            },
-          ],
-          destination: "/:subdomain/:path*",
-        },
-        {
-          source: "/:path*",
-          has: [
-            {
-              type: "header",
-              key: "host",
-              value: "(sevenpreneur.(com|net)|example.com).*",
+              value: "(www.)?(sevenpreneur.net|example.com).*",
             },
           ],
           destination: "/www/:path*",
         },
+        // Vercel preview deployments → the app.
         {
           source: "/:path*",
           has: [
@@ -163,6 +99,19 @@ const nextConfig = {
           ],
           destination: "/www/:path*",
         },
+        // tRPC + webhooks live under the api subdomain.
+        {
+          source: "/:path*",
+          has: [
+            {
+              type: "header",
+              key: "host",
+              value: "api.(sevenpreneur.net|example.com).*",
+            },
+          ],
+          destination: "/api/:path*",
+        },
+        // ngrok tunnel (local dev) → api.
         {
           source: "/:path*",
           has: [
@@ -181,8 +130,6 @@ const nextConfig = {
   experimental: {
     serverActions: {
       allowedOrigins: [
-        "sevenpreneur.com",
-        "*.sevenpreneur.com",
         "sevenpreneur.net",
         "*.sevenpreneur.net",
         "example.com",

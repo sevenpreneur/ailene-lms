@@ -42,11 +42,9 @@ export default function AvatarBadgeSVP(props: AvatarBadgeSVPProps) {
   }, []);
 
   // Domain Logic
-  let domain = "sevenpreneur.com";
+  let domain = "sevenpreneur.net";
   if (process.env.NEXT_PUBLIC_DOMAIN_MODE === "local") {
     domain = "example.com:3000";
-  } else if (process.env.NEXT_PUBLIC_DOMAIN_MODE === "staging") {
-    domain = "sevenpreneur.net";
   }
 
   // Sign out function

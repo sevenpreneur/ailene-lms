@@ -5,7 +5,7 @@ export async function GET() {
   const secretKey = process.env.SECRET_KEY_PUBLIC_API;
   setSecretKey(secretKey!);
 
-  let domain = "sevenpreneur.com";
+  let domain = "sevenpreneur.net";
   if (process.env.DOMAIN_MODE === "local") {
     domain = "example.com:3000";
   }

@@ -40,11 +40,9 @@ interface EmptyStateSVPProps extends HTMLAttributes<HTMLDivElement> {
 export default function EmptyStateSVP(props: EmptyStateSVPProps) {
   const { title, message, image } = variantStyles[props.variant];
 
-  let domain = "sevenpreneur.com";
+  let domain = "sevenpreneur.net";
   if (process.env.NEXT_PUBLIC_DOMAIN_MODE === "local") {
     domain = "example.com:3000";
-  } else if (process.env.NEXT_PUBLIC_DOMAIN_MODE === "staging") {
-    domain = "sevenpreneur.net";
   }
 
   return (

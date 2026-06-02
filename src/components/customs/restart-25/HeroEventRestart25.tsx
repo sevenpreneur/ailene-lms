@@ -6,11 +6,9 @@ import AppButton from "../../buttons/AppButton";
 import CountdownTimerRestart25 from "./CountdownTimerRestart25";
 
 export default function HeroEventRestart25() {
-  let domain = "sevenpreneur.com";
+  let domain = "sevenpreneur.net";
   if (process.env.NEXT_PUBLIC_DOMAIN_MODE === "local") {
     domain = "example.com:3000";
-  } else if (process.env.NEXT_PUBLIC_DOMAIN_MODE === "staging") {
-    domain = "sevenpreneur.net";
   }
 
   return (

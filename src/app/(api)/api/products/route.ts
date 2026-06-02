@@ -75,10 +75,7 @@ export async function POST(req: NextRequest) {
     }),
   ]);
 
-  const baseUrl =
-    process.env.DOMAIN_MODE === "staging"
-      ? "https://www.sevenpreneur.net"
-      : "https://www.sevenpreneur.com";
+  const baseUrl = "https://www.sevenpreneur.net";
 
   const list = [
     ...cohorts.map((item) => ({

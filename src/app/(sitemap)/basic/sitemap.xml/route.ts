@@ -1,7 +1,7 @@
 import { NextResponse } from "next/server";
 
 export function GET() {
-  let domain = "sevenpreneur.com";
+  let domain = "sevenpreneur.net";
   if (process.env.DOMAIN_MODE === "local") {
     domain = "example.com:3000";
   }

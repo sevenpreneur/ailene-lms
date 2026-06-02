@@ -1,94 +1,60 @@
 import "@/app/globals.css";
-import FooterSVP from "@/components/navigations/FooterSVP";
-import HeaderSVP from "@/components/navigations/HeaderSVP";
-import { StatusType } from "@/lib/app-types";
+import AppPageState from "@/components/states/AppPageState";
+import { SidebarProvider } from "@/contexts/SidebarContext";
 import { TRPCProvider } from "@/trpc/client";
-import { setSecretKey, setSessionToken, trpc } from "@/trpc/server";
 import { Metadata } from "next";
 import { ThemeProvider } from "next-themes";
-import { cookies } from "next/headers";
-import { ReactNode } from "react";
 import { Toaster } from "sonner";
 
-let baseURL = "https://api.sevenpreneur.com/trpc";
-if (process.env.DOMAIN_MODE === "local")
-  baseURL = "https://api.example.com:3000/trpc";
-else if (process.env.DOMAIN_MODE === "staging")
-  baseURL = "https://api.sevenpreneur.net/trpc";
-
-const wwwBaseURL =
-  process.env.DOMAIN_MODE === "staging"
-    ? "https://www.sevenpreneur.net"
-    : "https://www.sevenpreneur.com";
+const appBaseURL = "https://sevenpreneur.net";
 
 export const metadata: Metadata = {
-  metadataBase: new URL(wwwBaseURL),
-  alternates: {
-    canonical: "/",
+  title: {
+    template: "%s | Ailene Sevenpreneur",
+    default: "Ailene Sevenpreneur",
+  },
+  description: "Platform pelatihan AI internal Sevenpreneur",
+  metadataBase: new URL(appBaseURL),
+  alternates: { canonical: "/" },
+  openGraph: {
+    images: [
+      {
+        url: "https://tskubmriuclmbcfmaiur.supabase.co/storage/v1/object/public/sevenpreneur/meta-og-image-sevenpreneur-2.webp",
+        width: 800,
+        height: 600,
+      },
+    ],
   },
 };
 
-interface MainLayoutProps {
-  children: ReactNode;
-}
+let baseURL = "https://api.sevenpreneur.net/trpc";
+if (process.env.DOMAIN_MODE === "local")
+  baseURL = "https://api.example.com:3000/trpc";
 
-export default async function MainLayout({ children }: MainLayoutProps) {
-  const secretKey = process.env.SECRET_KEY_PUBLIC_API;
-  setSecretKey(secretKey!);
-
-  // Get Token for Header Navbar
-  const cookieStore = await cookies();
-  const sessionToken = cookieStore.get("session_token")?.value;
-
-  if (sessionToken) {
-    setSessionToken(sessionToken);
-  }
-
-  let userData = null;
-
-  if (sessionToken) {
-    try {
-      const userSession = (await trpc.auth.checkSession()).user;
-      userData = userSession ?? null;
-    } catch {
-      userData = null;
-    }
-  }
-
-  let tickerDataRaw = null;
-  try {
-    tickerDataRaw = (await trpc.read.ad.ticker({ id: 1 })).ticker;
-  } catch {
-    tickerDataRaw = null;
-  }
-  const tickerData = {
-    ...tickerDataRaw,
-    start_date: tickerDataRaw?.start_date.toISOString(),
-    end_date: tickerDataRaw?.end_date.toISOString(),
-  };
-
+// Shell only. Authentication is enforced per-section (champion/student/sponsor
+// layouts + the root page redirect), so that the public /auth/login page can
+// render under this same layout without being gated.
+export default function AileneLayout(
+  props: Readonly<{ children: React.ReactNode }>
+) {
   return (
     <TRPCProvider baseURL={baseURL}>
-      <div>
-        <ThemeProvider attribute="class" defaultTheme="light">
-          <HeaderSVP
-            userName={userData?.full_name ?? null}
-            userAvatar={userData?.avatar ?? null}
-            userRole={userData?.role_id ?? null}
-            userEmail={userData?.email ?? null}
-            isLoggedIn={!!userData}
-            tickerTitle={tickerData.title ?? ""}
-            tickerCallout={tickerData.callout ?? ""}
-            tickerTargetURL={tickerData.target_url ?? ""}
-            tickerStatus={tickerData.status as StatusType}
-            tickerStartDate={tickerData.start_date ?? ""}
-            tickerEndDate={tickerData.end_date ?? ""}
-          />
-          {children}
-          <Toaster richColors position="top-center" />
-          <FooterSVP />
-        </ThemeProvider>
-      </div>
+      <ThemeProvider
+        attribute="class"
+        defaultTheme="light"
+        enableSystem={false}
+        storageKey="ailene-theme"
+      >
+        <SidebarProvider>
+          <div className="font-geist-sans min-h-screen bg-dashboard-bg dark:bg-black">
+            {props.children}
+            <div className="lg:hidden">
+              <AppPageState variant="ONLY_MOBILE" />
+            </div>
+            <Toaster richColors position="top-center" />
+          </div>
+        </SidebarProvider>
+      </ThemeProvider>
     </TRPCProvider>
   );
 }

@@ -130,11 +130,9 @@ async function createTransaction(
   const needToPay = !calculatedPrice.finalPrice.isZero();
   let invoiceUrl = "-";
   if (needToPay) {
-    let domain = "sevenpreneur.com";
+    let domain = "sevenpreneur.net";
     if (process.env.DOMAIN_MODE === "local") {
       domain = "example.com:3000";
-    } else if (process.env.DOMAIN_MODE === "staging") {
-      domain = "sevenpreneur.net";
     }
     let xenditResponse: XenditInvoiceResponse;
     try {
