@@ -119,6 +119,7 @@ export default function SubmitPromptAILN({
 
   useEffect(() => {
     if (!a) return;
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     setFormData({
       input: a.input ?? "",
       output: a.output ?? "",

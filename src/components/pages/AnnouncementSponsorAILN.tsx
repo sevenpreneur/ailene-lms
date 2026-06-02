@@ -15,8 +15,8 @@ type Announcement = {
   title: string;
   callout: string | null;
   status: string;
-  start_date: string | Date;
-  end_date: string | Date;
+  start_date: string | Date | null;
+  end_date: string | Date | null;
   updated_at?: string | Date;
 };
 

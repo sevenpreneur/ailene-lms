@@ -99,7 +99,7 @@ const nextConfig = {
           ],
           destination: "/www/:path*",
         },
-        // tRPC + webhooks live under the api subdomain.
+        // tRPC lives under the api subdomain.
         {
           source: "/:path*",
           has: [

@@ -22,18 +22,6 @@ export async function GET() {
         url: `https://www.${domain}/cohorts/sitemap.xml`,
         lastModified: new Date(),
       },
-      {
-        url: `https://www.${domain}/events/sitemap.xml`,
-        lastModified: new Date(),
-      },
-      {
-        url: `https://www.${domain}/playlists/sitemap.xml`,
-        lastModified: new Date(),
-      },
-      {
-        url: `https://www.${domain}/insights/sitemap.xml`,
-        lastModified: new Date(),
-      },
     ];
     const sitemapIndexXML = await buildSitemap(sitemaps);
     return new NextResponse(sitemapIndexXML, {

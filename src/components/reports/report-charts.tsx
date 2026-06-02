@@ -206,12 +206,14 @@ export function DonutChartPDF({
   const circ = 2 * Math.PI * r;
   const total = segments.reduce((s, x) => s + x.value, 0) || 1;
 
-  let offset = 0;
   const arcs = segments.map((seg, i) => {
     const len = (seg.value / total) * circ;
+    const offset = segments
+      .slice(0, i)
+      .reduce((sum, prev) => sum + (prev.value / total) * circ, 0);
     // Position each arc with a leading 0-dash + gap of `offset` (CircleProps has
     // no strokeDashoffset), then the visible dash of length `len`.
-    const el = (
+    return (
       <Circle
         key={i}
         cx={cx}
@@ -223,8 +225,6 @@ export function DonutChartPDF({
         strokeDasharray={`0 ${offset} ${len} ${circ}`}
       />
     );
-    offset += len;
-    return el;
   });
 
   return (

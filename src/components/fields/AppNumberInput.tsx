@@ -1,5 +1,4 @@
 "use client";
-import { trpc } from "@/trpc/client";
 import { NumberConfig, PlatformType } from "@/lib/app-types";
 import { ChevronDown } from "lucide-react";
 import Image from "next/image";
@@ -58,6 +57,16 @@ const variantStyles: Record<
     font: "font-geist-sans",
   },
 };
+
+const countryCodes = [
+  {
+    id: 1,
+    country_name: "Indonesia",
+    phone_code: "62",
+    emoji: "ID",
+    icon: "",
+  },
+];
 
 export const NumberVariant: Record<
   NumberConfig,
@@ -130,19 +139,14 @@ export default function AppNumberInputSVP({
   const styles = variantStyles[variant];
   const isPhone = inputConfig === "phone_number";
 
-  const { data: countryCodes } = trpc.list.phoneCountryCodes.useQuery(
-    undefined,
-    { enabled: isPhone }
-  );
-
-  // Derive selected country — default to Indonesia, fall back to first in list
+  // Derive selected country: default to Indonesia, fall back to first in list.
   const selectedCountry = useMemo(() => {
-    const list = countryCodes?.list ?? [];
+    const list = countryCodes;
     if (selectedCountryId !== null) {
       return list.find((c) => c.id === selectedCountryId) ?? null;
     }
     return list.find((c) => c.phone_code === "62") ?? list[0] ?? null;
-  }, [countryCodes, selectedCountryId]);
+  }, [selectedCountryId]);
 
   // Close dropdown on click outside
   useEffect(() => {
@@ -241,7 +245,7 @@ export default function AppNumberInputSVP({
 
             {countryOpen && (
               <div className="absolute top-full left-0 z-50 mt-1 w-60 max-h-56 overflow-y-auto rounded-md border border-dashboard-border bg-card-bg shadow-lg">
-                {(countryCodes?.list ?? []).map((c) => (
+                {countryCodes.map((c) => (
                   <button
                     key={c.id}
                     type="button"

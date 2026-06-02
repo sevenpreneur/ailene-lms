@@ -78,6 +78,7 @@ export default function ReviewPromptSubmissionChampionAILN({
   const [comment, setComment] = useState("");
 
   useEffect(() => {
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     if (s) setComment(s.comment ?? "");
   }, [s]);
 
