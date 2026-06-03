@@ -1,5 +1,4 @@
 "use client";
-import { FeatureTrackingProps, MetaObjectProps } from "@/lib/feature-tracking";
 import React, { ButtonHTMLAttributes, ForwardedRef, forwardRef } from "react";
 
 export type VariantType =
@@ -36,11 +35,7 @@ export type SizeType =
   | "largeIconRounded";
 export type FontType = "brand" | "bodycopy" | "ui";
 
-interface AppButtonProps
-  extends
-    ButtonHTMLAttributes<HTMLButtonElement>,
-    FeatureTrackingProps,
-    MetaObjectProps {
+interface AppButtonProps extends ButtonHTMLAttributes<HTMLButtonElement> {
   children: React.ReactNode;
   variant?: VariantType;
   size?: SizeType;
@@ -51,33 +46,12 @@ interface AppButtonProps
 const AppButton = forwardRef<HTMLButtonElement, AppButtonProps>(
   (
     {
-      onClick,
       children,
       variant = "primary",
       size = "default",
       font = "bodycopy",
       disabled = false,
       className,
-      featureName,
-      featureId,
-      featureProductCategory,
-      featureProductName,
-      featureProductAmount,
-      featurePagePoint,
-      featurePlacement,
-      featurePosition,
-      metaEventName,
-      metaEventId,
-      metaContentIds,
-      metaContentType,
-      metaContentCategory,
-      metaContentName,
-      metaCurrency,
-      metaValue,
-      metaNumItems,
-      metaExternalId,
-      metaFirstName,
-      metaEmail,
       ...rest // -- ... rest for calls the remaining props that haven't been explicitly fetched from props.
     },
     ref: ForwardedRef<HTMLButtonElement>
@@ -155,57 +129,10 @@ const AppButton = forwardRef<HTMLButtonElement, AppButtonProps>(
       className,
     ].join(" ");
 
-    // Tracking Handle
-    const handleClick = (e: React.MouseEvent<HTMLButtonElement>) => {
-      // Google Tag Manager
-      const eventData: Record<string, unknown> = {
-        event: "click",
-        feature_id: featureId,
-        feature_name: featureName,
-        feature_product_category: featureProductCategory,
-        feature_product_name: featureProductName,
-        feature_product_amount: featureProductAmount,
-        feature_page_point: featurePagePoint,
-        feature_placement: featurePlacement,
-        feature_position: featurePosition,
-      };
-      Object.keys(eventData).forEach(
-        (key) => eventData[key] === null && delete eventData[key]
-      );
-      window.dataLayer?.push(eventData);
-
-      // Meta Pixel
-      if (typeof window !== "undefined" && window.fbq && metaEventName) {
-        const fbqData: Record<string, unknown> = {
-          event_id: metaEventId,
-          content_ids: metaContentIds,
-          content_type: metaContentType,
-          content_name: metaContentName,
-          content_category: metaContentCategory,
-          currency: metaCurrency,
-          value: metaValue,
-          num_items: metaNumItems,
-          external_id: metaExternalId,
-          fn: metaFirstName,
-          em: metaEmail,
-        };
-        Object.keys(fbqData).forEach(
-          (key) => fbqData[key] === null && delete fbqData[key]
-        );
-        window.fbq("track", metaEventName, fbqData);
-      }
-
-      // Panggil onClick props jika ada
-      if (onClick) {
-        onClick(e);
-      }
-    };
-
     return (
       <button
         ref={ref}
         disabled={disabled}
-        onClick={handleClick}
         className={finalClasses}
         {...rest}
         suppressHydrationWarning

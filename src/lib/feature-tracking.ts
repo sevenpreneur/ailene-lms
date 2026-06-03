@@ -1,6 +1,16 @@
 "use client";
 import { useEffect, useRef } from "react";
 
+type TrackingWindow = Window &
+  typeof globalThis & {
+    dataLayer?: Record<string, unknown>[];
+  };
+
+function getDataLayer() {
+  if (typeof window === "undefined") return undefined;
+  return (window as TrackingWindow).dataLayer;
+}
+
 export interface FeatureTrackingProps {
   featureName?: string;
   featureId?: string;
@@ -48,7 +58,7 @@ export function useTrackView<T extends HTMLElement>(
           const viewedSet = viewedSetRef.current;
 
           if (entry.isIntersecting && !viewedSet.has(props.featureId!)) {
-            window.dataLayer?.push({
+            getDataLayer()?.push({
               event: "view",
               feature_name: props.featureName,
               feature_id: props.featureId,
@@ -101,9 +111,7 @@ export function useTrackClick(props: FeatureTrackingProps) {
     Object.keys(eventData).forEach(
       (key) => eventData[key] === null && delete eventData[key],
     );
-    if (typeof window !== "undefined" && window.dataLayer) {
-      window.dataLayer?.push(eventData);
-    }
+    getDataLayer()?.push(eventData);
   };
 
   return trackClick;
