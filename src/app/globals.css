@@ -214,6 +214,11 @@
   --destructive: oklch(0.577 0.245 27.325);
   --background: oklch(1 0 0);
   --foreground: oklch(0.145 0 0);
+
+  /* Stakeholder identity accents — one color per platform (see STYLE.md) */
+  --stakeholder-student: oklch(0.577 0.245 27.325);   /* red */
+  --stakeholder-champion: oklch(0.6 0.13 160);         /* green */
+  --stakeholder-sponsor: oklch(0.5 0.2 262);           /* blue */
 }
 
 .dark {
@@ -282,6 +287,11 @@
   --muted: oklch(0.269 0 0);
   --muted-foreground: oklch(0.708 0 0);
   --destructive: oklch(0.704 0.191 22.216);
+
+  /* Stakeholder identity accents (dark) */
+  --stakeholder-student: oklch(0.704 0.191 22.216);    /* red */
+  --stakeholder-champion: oklch(0.7 0.14 162);         /* green */
+  --stakeholder-sponsor: oklch(0.62 0.19 260);         /* blue */
 }
 
 @theme inline {
@@ -356,6 +366,9 @@
   --color-secondary: var(--secondary);
   --color-primary-foreground: var(--primary-foreground);
   --color-primary: var(--primary);
+  --color-stakeholder-student: var(--stakeholder-student);
+  --color-stakeholder-champion: var(--stakeholder-champion);
+  --color-stakeholder-sponsor: var(--stakeholder-sponsor);
   --radius-2xl: calc(var(--radius) * 1.8);
   --radius-3xl: calc(var(--radius) * 2.2);
   --radius-4xl: calc(var(--radius) * 2.6);
