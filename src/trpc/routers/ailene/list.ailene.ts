@@ -324,15 +324,38 @@ export const listAilene = {
 
       const memberIds = members.map((m) => m.id);
 
-      const [levels, xpAgg] = await Promise.all([
-        opts.ctx.prisma.ailLevel.findMany({
-          where: { status: "ACTIVE" },
-          orderBy: { level_number: "asc" },
-        }),
+      const [
+        xpAgg,
+        totalMaterials,
+        totalVideos,
+        totalQuizzes,
+        matDone,
+        vidDone,
+        quizDoneRows,
+      ] = await Promise.all([
         opts.ctx.prisma.ailXpEarning.groupBy({
           by: ["member_id"],
           _sum: { xp_earned: true },
           where: { member_id: { in: memberIds } },
+        }),
+        opts.ctx.prisma.ailMaterial.count(),
+        opts.ctx.prisma.ailVideo.count(),
+        opts.ctx.prisma.ailQuiz.count(),
+        opts.ctx.prisma.ailMaterialCompletion.groupBy({
+          by: ["member_id"],
+          _count: { _all: true },
+          where: { member_id: { in: memberIds } },
+        }),
+        opts.ctx.prisma.ailVideoCompletion.groupBy({
+          by: ["member_id"],
+          _count: { _all: true },
+          where: { member_id: { in: memberIds } },
+        }),
+        // distinct completed quizzes per member (a quiz may have several attempts)
+        opts.ctx.prisma.ailQuizSubmission.findMany({
+          where: { member_id: { in: memberIds }, is_completed: true },
+          select: { member_id: true, quiz_id: true },
+          distinct: ["member_id", "quiz_id"],
         }),
       ]);
 
@@ -340,32 +363,39 @@ export const listAilene = {
         xpAgg.map((x) => [x.member_id, x._sum.xp_earned ?? 0])
       );
 
+      // Completion-based progress: done tasks / total tasks across the journey.
+      const totalTasks = totalMaterials + totalVideos + totalQuizzes;
+      const matByMember = new Map<number, number>(
+        matDone.map((r) => [r.member_id, r._count._all])
+      );
+      const vidByMember = new Map<number, number>(
+        vidDone.map((r) => [r.member_id, r._count._all])
+      );
+      const quizByMember = new Map<number, number>();
+      for (const r of quizDoneRows) {
+        quizByMember.set(r.member_id, (quizByMember.get(r.member_id) ?? 0) + 1);
+      }
+
       const now = dayjs();
 
       const list = members
         .map((m) => {
           const total_xp = xpByMember.get(m.id) ?? 0;
           const currentLevel = m.current_level;
-          const nextLevel = levels.find(
-            (l) => l.level_number === currentLevel.level_number + 1
-          );
 
-          let progress_percent = 100;
-          if (nextLevel) {
-            const span = nextLevel.min_xp - currentLevel.min_xp;
-            progress_percent =
-              span <= 0
-                ? 100
-                : Math.max(
-                    0,
-                    Math.min(
-                      100,
-                      Math.round(
-                        ((total_xp - currentLevel.min_xp) / span) * 100
-                      )
-                    )
-                  );
-          }
+          // Progress = % of all learning tasks (materials + videos + quizzes)
+          // this member has actually completed. 100% only when everything done.
+          const doneTasks =
+            (matByMember.get(m.id) ?? 0) +
+            (vidByMember.get(m.id) ?? 0) +
+            (quizByMember.get(m.id) ?? 0);
+          const progress_percent =
+            totalTasks === 0
+              ? 0
+              : Math.max(
+                  0,
+                  Math.min(100, Math.round((doneTasks / totalTasks) * 100))
+                );
 
           const last_active_at = m.last_active_at;
 
