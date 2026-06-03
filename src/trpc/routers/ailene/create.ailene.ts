@@ -78,6 +78,37 @@ async function resolveAssignmentTargets(
   return members.map((m) => m.id);
 }
 
+// Placeholder for AilPrompt.expected_output on self-initiated practice — there
+// is no champion-defined target output, the champion reviews the actual I/O.
+const SELF_PRACTICE_PLACEHOLDER = "(Latihan mandiri — tanpa target output)";
+
+// Resolve the champion that a self-initiated practice should be routed to.
+// A student must belong to a group; the entry is assigned to that group's
+// champion so it lands in the champion's review queue.
+async function resolveMemberChampion(
+  prisma: PrismaClient,
+  memberGroupId: number | null
+): Promise<number> {
+  if (!memberGroupId) {
+    throw new TRPCError({
+      code: STATUS_BAD_REQUEST,
+      message:
+        "Kamu belum tergabung dalam grup, jadi belum bisa menambah latihan mandiri.",
+    });
+  }
+  const group = await prisma.ailGroup.findUnique({
+    where: { id: memberGroupId },
+    select: { champion_id: true },
+  });
+  if (!group) {
+    throw new TRPCError({
+      code: STATUS_NOT_FOUND,
+      message: "Group not found.",
+    });
+  }
+  return group.champion_id;
+}
+
 const aiUseFrequencyEnum = z.enum([
   "NEVER",
   "TRIED",
@@ -650,6 +681,212 @@ export const createAilene = {
         assigned_count: result.assignedCount,
         target_total: memberIds.length,
         skipped: memberIds.length - result.assignedCount,
+      };
+    }),
+
+  // ── Self-initiated practice ──────────────────────────────────────────────
+  // A student logs a prompt / use case they did on their own. Unlike the
+  // champion-assigned flow, the student authors the library item AND submits
+  // their work in one shot. The entry is routed to the student's group champion
+  // (assigned_by_id) so it lands in the champion's review queue exactly like an
+  // assigned task that's already been submitted (status: AWAITING_REVIEW).
+
+  selfPrompt: ailMemberProcedure
+    .input(
+      z.object({
+        name: z.string().trim().min(1).max(255),
+        scenario: z.string().trim().min(1),
+        input: z.string().trim().min(1).max(5000),
+        output: z.string().trim().min(1).max(10000),
+        category_ids: z
+          .array(z.number().int().positive())
+          .min(1, "Pilih minimal 1 kategori.")
+          .max(2, "Maksimal 2 kategori."),
+      })
+    )
+    .mutation(async (opts) => {
+      const member = opts.ctx.ail_member;
+      const { name, scenario, input, output, category_ids } = opts.input;
+
+      const championId = await resolveMemberChampion(
+        opts.ctx.prisma,
+        member.group_id
+      );
+
+      const uniqueCategoryIds = Array.from(new Set(category_ids));
+      const categories = await opts.ctx.prisma.ailCategory.findMany({
+        where: { id: { in: uniqueCategoryIds } },
+        select: { id: true },
+      });
+      if (categories.length !== uniqueCategoryIds.length) {
+        throw new TRPCError({
+          code: STATUS_NOT_FOUND,
+          message: "Some categories were not found.",
+        });
+      }
+
+      const level = await opts.ctx.prisma.ailLevel.findUnique({
+        where: { level_number: 2 },
+        select: { id: true },
+      });
+      if (!level) {
+        throw new TRPCError({
+          code: STATUS_NOT_FOUND,
+          message: "Prompt level (L2) not found.",
+        });
+      }
+
+      const result = await opts.ctx.prisma.$transaction(async (tx) => {
+        const prompt = await tx.ailPrompt.create({
+          data: {
+            level_id: level.id,
+            name,
+            scenario,
+            // Self-practice has no champion-defined target output.
+            expected_output: SELF_PRACTICE_PLACEHOLDER,
+            status: "ACTIVE",
+            categories: {
+              create: uniqueCategoryIds.map((cid) => ({
+                category: { connect: { id: cid } },
+              })),
+            },
+          },
+          select: { id: true },
+        });
+
+        const submission = await tx.ailPromptSubmission.create({
+          data: {
+            member_id: member.id,
+            prompt_id: prompt.id,
+            assigned_by_id: championId,
+            input,
+            output,
+            submitted_at: new Date(),
+          },
+          select: { id: true },
+        });
+
+        return { promptId: prompt.id, submissionId: submission.id };
+      });
+
+      return {
+        code: STATUS_OK,
+        message: "Self prompt practice submitted",
+        prompt_id: result.promptId,
+        submission_id: result.submissionId,
+      };
+    }),
+
+  selfUseCase: ailMemberProcedure
+    .input(
+      z.object({
+        name: z.string().trim().min(1).max(255),
+        category_ids: z
+          .array(z.number().int().positive())
+          .min(1, "Pilih minimal 1 kategori.")
+          .max(2, "Maksimal 2 kategori."),
+        outcome_proof: z.string().trim().min(1).max(500),
+        hours_saved: z.number().min(0).max(9999.99),
+        hours_without_ai: z.number().min(0).max(9999.99),
+        description: z.string().trim().min(1).max(5000),
+        ai_tool: z.string().trim().min(1).max(255),
+        frequency: z.enum(["DAILY", "WEEKLY", "MONTHLY", "OCCASIONALLY"]),
+        type: z.enum([
+          "WORKFLOW_AUTOMATION",
+          "CONTENT_CREATION",
+          "DATA_ANALYSIS",
+          "RESEARCH",
+          "COMMUNICATION",
+          "DECISION_SUPPORT",
+          "LEARNING",
+          "OTHER",
+        ]),
+      })
+    )
+    .mutation(async (opts) => {
+      const member = opts.ctx.ail_member;
+      const {
+        name,
+        category_ids,
+        outcome_proof,
+        hours_saved,
+        hours_without_ai,
+        description,
+        ai_tool,
+        frequency,
+        type,
+      } = opts.input;
+
+      const championId = await resolveMemberChampion(
+        opts.ctx.prisma,
+        member.group_id
+      );
+
+      const uniqueCategoryIds = Array.from(new Set(category_ids));
+      const categories = await opts.ctx.prisma.ailCategory.findMany({
+        where: { id: { in: uniqueCategoryIds } },
+        select: { id: true },
+      });
+      if (categories.length !== uniqueCategoryIds.length) {
+        throw new TRPCError({
+          code: STATUS_NOT_FOUND,
+          message: "Some categories were not found.",
+        });
+      }
+
+      const level = await opts.ctx.prisma.ailLevel.findUnique({
+        where: { level_number: 3 },
+        select: { id: true },
+      });
+      if (!level) {
+        throw new TRPCError({
+          code: STATUS_NOT_FOUND,
+          message: "Use case level (L3) not found.",
+        });
+      }
+
+      const result = await opts.ctx.prisma.$transaction(async (tx) => {
+        const useCase = await tx.ailUseCase.create({
+          data: {
+            level_id: level.id,
+            name,
+            // The student's write-up doubles as the use case description.
+            description,
+            status: "ACTIVE",
+            categories: {
+              create: uniqueCategoryIds.map((cid) => ({
+                category: { connect: { id: cid } },
+              })),
+            },
+          },
+          select: { id: true },
+        });
+
+        const submission = await tx.ailUseCaseSubmission.create({
+          data: {
+            member_id: member.id,
+            use_case_id: useCase.id,
+            assigned_by_id: championId,
+            outcome_proof,
+            hours_saved,
+            hours_without_ai,
+            description,
+            ai_tool,
+            frequency,
+            type,
+            submitted_at: new Date(),
+          },
+          select: { id: true },
+        });
+
+        return { useCaseId: useCase.id, submissionId: submission.id };
+      });
+
+      return {
+        code: STATUS_OK,
+        message: "Self use case practice submitted",
+        use_case_id: result.useCaseId,
+        submission_id: result.submissionId,
       };
     }),
 };

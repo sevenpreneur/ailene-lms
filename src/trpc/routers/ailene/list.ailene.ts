@@ -456,6 +456,16 @@ export const listAilene = {
     return { code: STATUS_OK, message: "Success", list };
   }),
 
+  // Member-accessible category list — used by students when adding their own
+  // self-initiated practice (prompt / use case) from /student/practice/create.
+  memberCategories: ailMemberProcedure.query(async (opts) => {
+    const list = await opts.ctx.prisma.ailCategory.findMany({
+      orderBy: { name: "asc" },
+      select: { id: true, name: true },
+    });
+    return { code: STATUS_OK, message: "Success", list };
+  }),
+
   useCaseLibrary: championProcedure.query(async (opts) => {
     const useCases = await opts.ctx.prisma.ailUseCase.findMany({
       where: { status: "ACTIVE" },
