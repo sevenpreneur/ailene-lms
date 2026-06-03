@@ -5,7 +5,7 @@ import {
   type ReportProps,
 } from "@/components/reports/AileneReportPDF";
 import ButtonAILN from "@/components/buttons/ButtonAILN";
-import ScorecardAILN from "@/components/cards/ScorecardAILN";
+import ScorecardStripAILN from "@/components/cards/ScorecardStripAILN";
 import PageContainerAILN from "@/components/pages/PageContainerAILN";
 import {
   ChartContainer,
@@ -15,7 +15,7 @@ import {
 } from "@/components/ui/chart";
 import { setSessionToken, trpc } from "@/trpc/client";
 import dayjs from "dayjs";
-import { Download } from "lucide-react";
+import { BadgeCheck, Clock, Coins, Download, Gauge } from "lucide-react";
 import { useEffect } from "react";
 import {
   Area,
@@ -141,7 +141,11 @@ export default function DashboardOutcomeAILN({
         centerValue: `${Math.round((achieved / distTotal) * 100)}%`,
         centerLabel: `≥ L${TARGET_LEVEL}`,
         segments: [
-          { label: `Capai ≥ L${TARGET_LEVEL}`, value: achieved, color: "#1f5f4e" },
+          {
+            label: `Capai ≥ L${TARGET_LEVEL}`,
+            value: achieved,
+            color: "#1f5f4e",
+          },
           {
             label: "Belum",
             value: Math.max(distTotal - achieved, 0),
@@ -168,7 +172,15 @@ export default function DashboardOutcomeAILN({
       sections.push({
         type: "table",
         title: "Top Performers Org-Wide",
-        columns: ["#", "Karyawan", "Departemen", "Level", "Skor", "Use case", "Jam"],
+        columns: [
+          "#",
+          "Karyawan",
+          "Departemen",
+          "Level",
+          "Skor",
+          "Use case",
+          "Jam",
+        ],
         align: ["right", "left", "left", "left", "right", "right", "right"],
         rows: performers.map((p) => [
           p.rank,
@@ -199,13 +211,13 @@ export default function DashboardOutcomeAILN({
         {/* Header */}
         <div className="flex flex-wrap items-start justify-between gap-4">
           <div className="min-w-0">
-            <div className="text-[11px] font-semibold tracking-widest text-gray-500 dark:text-gray-400">
+            <div className="text-[11px] font-semibold tracking-widest text-muted-foreground">
               SPONSOR · LAPORAN AKHIR PROGRAM
             </div>
-            <h1 className="mt-1 text-3xl font-bold leading-tight text-gray-900 dark:text-white">
+            <h1 className="mt-1 text-3xl font-bold leading-tight text-foreground">
               Outcome Report
             </h1>
-            <p className="mt-1 text-sm text-gray-500 dark:text-gray-400">
+            <p className="mt-1 text-sm text-muted-foreground">
               {AILENE_PROGRAM_NAME} ·{" "}
               {overview
                 ? `${formatInt(overview.member_count)} karyawan · ${overview.department_count} departemen`
@@ -226,49 +238,61 @@ export default function DashboardOutcomeAILN({
           </div>
         </div>
 
-        {/* 4 KPI cards — same ScorecardAILN cards as the executive summary */}
-        <div className="grid grid-cols-2 gap-4 xl:grid-cols-4">
-          <ScorecardAILN
-            title="Jam Dihemat Kumulatif"
-            value={overview ? formatHours(overview.hours_saved_total) : "—"}
-            unit="jam"
-          >
-            <KpiCaption>
-              {overview
-                ? `≈ ${formatScore(overview.fte_equivalent)} FTE setahun`
-                : "—"}
-            </KpiCaption>
-          </ScorecardAILN>
-          <ScorecardAILN
-            title="ROI Estimasi"
-            value={overview ? `Rp ${roi.value}` : "—"}
-            unit={roi.unit}
-          >
-            <KpiCaption>
-              {overview
-                ? `basis Rp${formatInt(overview.roi_rate_per_hour)}/jam dihemat`
-                : "—"}
-            </KpiCaption>
-          </ScorecardAILN>
-          <ScorecardAILN
-            title="Avg Level Saat Ini"
-            value={overview ? formatScore(overview.avg_level) : "—"}
-            unit={overview ? `/ ${overview.max_level_number}` : "/ —"}
-          >
-            <KpiCaption>
-              {overview ? `skala L0–L${overview.max_level_number}` : "—"}
-            </KpiCaption>
-          </ScorecardAILN>
-          <ScorecardAILN
-            title="Karyawan Tersertifikasi"
-            value={overview ? formatInt(overview.certified_count) : "—"}
-            unit={overview ? `/ ${overview.member_count}` : "/ —"}
-          >
-            <KpiCaption>
-              {overview ? `${overview.certified_percent}% selesai ≥ L1` : "—"}
-            </KpiCaption>
-          </ScorecardAILN>
-        </div>
+        {/* KPI cards — statistics-02 style with icons (same as executive view) */}
+        <ScorecardStripAILN
+          items={[
+            {
+              title: "Jam Dihemat Kumulatif",
+              icon: Clock,
+              value: overview ? formatHours(overview.hours_saved_total) : "—",
+              unit: "jam",
+              footer: (
+                <KpiCaption>
+                  {overview
+                    ? `≈ ${formatScore(overview.fte_equivalent)} FTE setahun`
+                    : "—"}
+                </KpiCaption>
+              ),
+            },
+            {
+              title: "ROI Estimasi",
+              icon: Coins,
+              value: overview ? `Rp ${roi.value}` : "—",
+              unit: roi.unit,
+              footer: (
+                <KpiCaption>
+                  {overview
+                    ? `basis Rp${formatInt(overview.roi_rate_per_hour)}/jam dihemat`
+                    : "—"}
+                </KpiCaption>
+              ),
+            },
+            {
+              title: "Avg Level Saat Ini",
+              icon: Gauge,
+              value: overview ? formatScore(overview.avg_level) : "—",
+              unit: overview ? `/ ${overview.max_level_number}` : "/ —",
+              footer: (
+                <KpiCaption>
+                  {overview ? `skala L0–L${overview.max_level_number}` : "—"}
+                </KpiCaption>
+              ),
+            },
+            {
+              title: "Karyawan Tersertifikasi",
+              icon: BadgeCheck,
+              value: overview ? formatInt(overview.certified_count) : "—",
+              unit: overview ? `/ ${overview.member_count}` : "/ —",
+              footer: (
+                <KpiCaption>
+                  {overview
+                    ? `${overview.certified_percent}% selesai ≥ L1`
+                    : "—"}
+                </KpiCaption>
+              ),
+            },
+          ]}
+        />
 
         {/* Progres menuju level target — proses (kiri) + hasil akhir (kanan) */}
         <div className="grid grid-cols-1 gap-4 lg:grid-cols-[1.7fr_1fr]">
@@ -328,7 +352,7 @@ export default function DashboardOutcomeAILN({
 // Footer caption inside ScorecardAILN's divided zone (matches executive view).
 function KpiCaption({ children }: { children: React.ReactNode }) {
   return (
-    <span className="text-xs font-medium text-gray-500 dark:text-gray-400">
+    <span className="text-xs font-medium text-muted-foreground">
       {children}
     </span>
   );
@@ -351,17 +375,13 @@ function Section({
     <div className="flex flex-col rounded-lg border border-dashboard-border bg-white p-5 shadow-sm dark:bg-card-bg dark:shadow-[0_0_16px_rgba(0,53,157,0.06)]">
       <div className="mb-4 flex items-start justify-between gap-3">
         <div className="flex flex-col gap-0.5">
-          <div className="text-base font-bold text-gray-900 dark:text-white">
-            {title}
-          </div>
+          <div className="text-base font-bold text-foreground">{title}</div>
           {subtitle && (
-            <p className="text-sm text-gray-500 dark:text-gray-400">
-              {subtitle}
-            </p>
+            <p className="text-sm text-muted-foreground">{subtitle}</p>
           )}
         </div>
         {badge && (
-          <span className="shrink-0 rounded-full border border-dashboard-border bg-gray-50 px-2.5 py-0.5 text-[11px] font-semibold text-gray-500 dark:bg-card-inside-bg dark:text-gray-400">
+          <span className="shrink-0 rounded-full border border-dashboard-border bg-muted px-2.5 py-0.5 text-[11px] font-semibold text-muted-foreground dark:bg-card-inside-bg dark:text-muted-foreground">
             {badge}
           </span>
         )}
@@ -466,7 +486,7 @@ function ProcessArea({ distribution }: { distribution: LevelDist }) {
           />
         </AreaChart>
       </ChartContainer>
-      <p className="mt-2 text-xs text-gray-400 dark:text-gray-500">
+      <p className="mt-2 text-xs text-muted-foreground">
         Sumbu Y = % capai ≥ L{TARGET_LEVEL} · 30 hari terakhir · tren ilustratif
       </p>
     </div>
@@ -477,7 +497,12 @@ function ProcessArea({ distribution }: { distribution: LevelDist }) {
 function ResultDonut({ distribution }: { distribution: LevelDist }) {
   const { reached, below, currentPct } = deriveTarget(distribution);
   const donutData = [
-    { key: "reached", label: `≥ L${TARGET_LEVEL}`, value: reached, fill: OUTCOME_GREEN },
+    {
+      key: "reached",
+      label: `≥ L${TARGET_LEVEL}`,
+      value: reached,
+      fill: OUTCOME_GREEN,
+    },
     { key: "below", label: "Belum", value: below, fill: OUTCOME_GRAY },
   ];
 
@@ -503,10 +528,10 @@ function ResultDonut({ distribution }: { distribution: LevelDist }) {
           </PieChart>
         </ChartContainer>
         <div className="pointer-events-none absolute inset-0 flex flex-col items-center justify-center">
-          <span className="font-geist-mono text-2xl font-bold leading-none text-gray-900 dark:text-white">
+          <span className="font-geist-mono text-2xl font-bold leading-none text-foreground">
             {currentPct}%
           </span>
-          <span className="mt-0.5 text-[10px] text-gray-500 dark:text-gray-400">
+          <span className="mt-0.5 text-[10px] text-muted-foreground">
             ≥ L{TARGET_LEVEL}
           </span>
         </div>
@@ -538,8 +563,8 @@ function LegendStat({
         className="size-2.5 shrink-0 rounded-sm"
         style={{ backgroundColor: color }}
       />
-      <span className="text-gray-700 dark:text-gray-200">{label}</span>
-      <span className="ml-auto font-geist-mono font-bold text-gray-900 dark:text-white">
+      <span className="text-muted-foreground dark:text-gray-200">{label}</span>
+      <span className="ml-auto font-geist-mono font-bold text-foreground">
         {formatInt(value)}
       </span>
     </div>
@@ -566,7 +591,7 @@ function TopPerformersTable({
     <div className="max-h-[640px] overflow-auto">
       <table className="w-full text-sm">
         <thead className="sticky top-0 z-10 bg-white dark:bg-card-bg">
-          <tr className="border-b border-dashboard-border text-left text-[11px] uppercase tracking-wider text-gray-500 dark:text-gray-400">
+          <tr className="border-b border-dashboard-border text-left text-[11px] uppercase tracking-wider text-muted-foreground">
             <th className="pb-2 pr-3 font-semibold">#</th>
             <th className="pb-2 pr-3 font-semibold">Karyawan</th>
             <th className="pb-2 pr-3 font-semibold">Departemen</th>
@@ -582,23 +607,23 @@ function TopPerformersTable({
               key={p.member_id}
               className="border-b border-dashboard-border/60 last:border-0"
             >
-              <td className="py-2.5 pr-3 tabular-nums text-gray-400 dark:text-gray-500">
+              <td className="py-2.5 pr-3 tabular-nums text-muted-foreground">
                 {p.rank}
               </td>
-              <td className="py-2.5 pr-3 font-medium text-gray-900 dark:text-white">
+              <td className="py-2.5 pr-3 font-medium text-foreground">
                 {p.full_name}
               </td>
-              <td className="py-2.5 pr-3 text-gray-600 dark:text-gray-300">
+              <td className="py-2.5 pr-3 text-muted-foreground">
                 {p.department}
               </td>
               <td className="py-2.5 pr-3">
-                <span className="inline-flex items-center rounded-full border border-dashboard-border bg-gray-50 px-2 py-0.5 text-[11px] font-semibold text-gray-600 dark:bg-card-inside-bg dark:text-gray-300">
+                <span className="inline-flex items-center rounded-full border border-dashboard-border bg-muted px-2 py-0.5 text-[11px] font-semibold text-muted-foreground dark:bg-card-inside-bg ">
                   {p.level_code}
                 </span>
               </td>
               <td className="py-2.5 pr-3">
                 <div className="flex items-center gap-2">
-                  <div className="h-1.5 w-24 overflow-hidden rounded-full bg-gray-100 dark:bg-dashboard-border">
+                  <div className="h-1.5 w-24 overflow-hidden rounded-full bg-muted">
                     <div
                       className="h-full rounded-full bg-emerald-600 dark:bg-emerald-500"
                       style={{
@@ -606,15 +631,15 @@ function TopPerformersTable({
                       }}
                     />
                   </div>
-                  <span className="w-7 text-right tabular-nums font-semibold text-gray-900 dark:text-white">
+                  <span className="w-7 text-right tabular-nums font-semibold text-foreground">
                     {p.composite}
                   </span>
                 </div>
               </td>
-              <td className="py-2.5 pr-3 text-right tabular-nums text-gray-700 dark:text-gray-300">
+              <td className="py-2.5 pr-3 text-right tabular-nums text-muted-foreground">
                 {p.use_case_count}
               </td>
-              <td className="py-2.5 text-right tabular-nums text-gray-700 dark:text-gray-300">
+              <td className="py-2.5 text-right tabular-nums text-muted-foreground">
                 {formatHours(p.hours)}j
               </td>
             </tr>
@@ -629,15 +654,13 @@ function TopPerformersTable({
 
 function Skeleton({ className }: { className?: string }) {
   return (
-    <div
-      className={`animate-pulse rounded-md bg-gray-100 dark:bg-dashboard-border ${className ?? ""}`}
-    />
+    <div className={`animate-pulse rounded-md bg-muted ${className ?? ""}`} />
   );
 }
 
 function EmptyHint() {
   return (
-    <div className="flex h-32 items-center justify-center text-sm text-gray-400 dark:text-gray-500">
+    <div className="flex h-32 items-center justify-center text-sm text-muted-foreground">
       Belum ada data.
     </div>
   );
