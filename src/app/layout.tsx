@@ -14,9 +14,13 @@ import {
   JetBrains_Mono,
   Mona_Sans,
   Plus_Jakarta_Sans,
+  Manrope,
 } from "next/font/google";
 import localFont from "next/font/local";
 import { Toaster } from "sonner";
+import { cn } from "@/lib/utils";
+
+const manrope = Manrope({ subsets: ["latin"], variable: "--font-sans" });
 
 const plusJakartaSans = Plus_Jakarta_Sans({
   variable: "--font-plus-jakarta-sans",
@@ -143,7 +147,7 @@ export default function RootLayout(
   return (
     <html
       lang="en"
-      className={`scroll-smooth ${monaSans.variable} ${plusJakartaSans.variable} ${openSauceOne.variable} ${inter.variable} ${fraunces.variable} ${cormorantGaramond.variable} ${jetbrainsMono.variable} ${geistSans.variable} ${geistMono.variable} antialiased`}
+      className={cn("scroll-smooth", "antialiased", monaSans.variable, plusJakartaSans.variable, openSauceOne.variable, inter.variable, fraunces.variable, cormorantGaramond.variable, jetbrainsMono.variable, geistSans.variable, geistMono.variable, "font-sans", manrope.variable)}
       suppressHydrationWarning
     >
       <body suppressHydrationWarning>
@@ -156,7 +160,7 @@ export default function RootLayout(
               storageKey="ailene-theme"
             >
               <SidebarProvider>
-                <div className="font-geist-sans min-h-screen bg-dashboard-bg dark:bg-black">
+                <div className="font-sans min-h-screen bg-dashboard-bg dark:bg-black">
                   {props.children}
                   <div className="lg:hidden">
                     <AppPageState variant="ONLY_MOBILE" />

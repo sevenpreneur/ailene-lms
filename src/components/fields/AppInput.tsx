@@ -39,7 +39,7 @@ const variantStyles: Record<
     border: "border border-dashboard-border",
     background: "bg-card-inside-bg",
     disabled: "bg-card-inside-bg text-muted-foreground dark:text-foreground/30",
-    font: "font-geist-sans",
+    font: "font-sans",
   },
 };
 
