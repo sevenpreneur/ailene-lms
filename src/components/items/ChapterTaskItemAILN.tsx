@@ -69,18 +69,21 @@ type ChapterTaskItemAILNProps =
       unlocked: boolean;
       quiz: Quiz;
       lockedMessage?: string;
+      isNext?: boolean;
     }
   | {
       variant: "Video";
       unlocked: boolean;
       video: Video;
       lockedMessage?: string;
+      isNext?: boolean;
     }
   | {
       variant: "Material";
       unlocked: boolean;
       material: Material;
       lockedMessage?: string;
+      isNext?: boolean;
     };
 
 export default function ChapterTaskItemAILN(props: ChapterTaskItemAILNProps) {
@@ -193,16 +196,21 @@ export default function ChapterTaskItemAILN(props: ChapterTaskItemAILNProps) {
   }
 
   const locked = !props.unlocked;
+  // The "continue here" item: unlocked, not yet done, flagged by the parent as
+  // the next task to tackle in this chapter.
+  const isNext = !!props.isNext && !locked && !hasMark;
   const quizQuestionCount =
     props.variant === "Quiz" ? props.quiz.question_count : 0;
   const quizId = props.variant === "Quiz" ? props.quiz.id : "";
 
   return (
     <div
-      className={`flex items-center gap-3 rounded-lg border border-dashboard-border p-3 ${
+      className={`flex items-center gap-3 rounded-lg border p-3 transition-shadow ${
         locked
-          ? "bg-gray-50 dark:bg-red-500/[0.03]"
-          : "bg-white dark:bg-red-500/5 dark:shadow-[0_0_10px_rgba(239,68,68,0.1)]"
+          ? "border-dashboard-border bg-gray-50 dark:bg-red-500/[0.03]"
+          : isNext
+            ? "border-red-500 bg-red-50/60 ring-1 ring-red-500 dark:border-red-400 dark:bg-red-500/10 dark:ring-red-400/60 dark:shadow-[0_0_16px_rgba(239,68,68,0.25)]"
+            : "border-dashboard-border bg-white dark:bg-red-500/5 dark:shadow-[0_0_10px_rgba(239,68,68,0.1)]"
       }`}
     >
       <div
@@ -230,6 +238,11 @@ export default function ChapterTaskItemAILN(props: ChapterTaskItemAILNProps) {
           <span className="text-xs text-gray-500 dark:text-gray-400">
             {meta}
           </span>
+          {isNext && (
+            <span className="inline-flex items-center rounded-full bg-red-500 px-2 py-0.5 text-[10px] font-bold uppercase tracking-wide text-white">
+              Lanjutkan
+            </span>
+          )}
         </div>
       </div>
       <div className="w-32 shrink-0">{cta}</div>
