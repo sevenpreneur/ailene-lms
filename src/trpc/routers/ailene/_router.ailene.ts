@@ -92,6 +92,7 @@ export const aileneRouter = createTRPCRouter({
     programHealth: readAilene.programHealth,
     recentActivity: readAilene.recentActivity,
     weeklyTrends: readAilene.weeklyTrends,
+    proficiencyTrends: readAilene.proficiencyTrends,
     levelDistribution: readAilene.levelDistribution,
     organizationLeaderboard: readAilene.organizationLeaderboard,
     // champion only

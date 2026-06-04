@@ -1185,6 +1185,92 @@ export const readAilene = {
     return { code: STATUS_OK, message: "Success", weeks };
   }),
 
+  // Proficiency over time — the executive "are people actually getting better?"
+  // trend. Reconstructed from each member's level_history ({ level_id,
+  // unlocked_at }) so we get the org-average level (0..4) and the cumulative
+  // share at Level 1+ at the end of each of the last 12 weeks. No schema change.
+  proficiencyTrends: sponsorProcedure.query(async (opts) => {
+    const weekCount = 12;
+    const end = dayjs().endOf("week");
+    const start = end.subtract(weekCount - 1, "week").startOf("week");
+
+    const [levels, members] = await Promise.all([
+      opts.ctx.prisma.ailLevel.findMany({
+        select: { id: true, level_number: true },
+      }),
+      opts.ctx.prisma.ailMember.findMany({
+        select: {
+          created_at: true,
+          current_level: { select: { level_number: true } },
+          level_history: true,
+        },
+      }),
+    ]);
+
+    const levelNumberById = new Map(
+      levels.map((l) => [l.id, l.level_number])
+    );
+
+    // Per member: creation time, current level, and dated unlock events.
+    const timelines = members.map((m) => {
+      const unlocks: { at: number; level: number }[] = [];
+      if (Array.isArray(m.level_history)) {
+        for (const entry of m.level_history as unknown[]) {
+          if (!entry || typeof entry !== "object") continue;
+          const row = entry as Record<string, unknown>;
+          if (typeof row.unlocked_at !== "string") continue;
+          const level =
+            typeof row.level_id === "number"
+              ? levelNumberById.get(row.level_id) ?? 0
+              : 0;
+          unlocks.push({ at: dayjs(row.unlocked_at).valueOf(), level });
+        }
+      }
+      return {
+        createdAt: dayjs(m.created_at).valueOf(),
+        currentLevel: m.current_level?.level_number ?? 0,
+        unlocks,
+      };
+    });
+
+    const weeks = Array.from({ length: weekCount }).map((_, index) => {
+      const weekStart = start.add(index, "week");
+      const cutoff = weekStart.endOf("week").valueOf();
+
+      let sumLevel = 0;
+      let existing = 0;
+      let atLeastL1 = 0;
+
+      for (const t of timelines) {
+        if (t.createdAt > cutoff) continue; // member didn't exist yet
+        existing += 1;
+        // Level at cutoff = highest unlock on/before cutoff. When a member has
+        // no recorded history (seeded rows), fall back to their current level
+        // so the latest point stays consistent with the headline KPI.
+        let level = 0;
+        if (t.unlocks.length === 0) {
+          level = t.currentLevel;
+        } else {
+          for (const u of t.unlocks) {
+            if (u.at <= cutoff && u.level > level) level = u.level;
+          }
+        }
+        sumLevel += level;
+        if (level >= 1) atLeastL1 += 1;
+      }
+
+      return {
+        label: weekStart.format("D MMM"),
+        avg_level: existing === 0 ? 0 : Math.round((sumLevel / existing) * 100) / 100,
+        level1_plus_percent:
+          existing === 0 ? 0 : Math.round((atLeastL1 / existing) * 100),
+        highlight: index === weekCount - 1,
+      };
+    });
+
+    return { code: STATUS_OK, message: "Success", weeks };
+  }),
+
   levelDistribution: sponsorProcedure.query(async (opts) => {
     const weeklyActiveThreshold = dayjs().subtract(7, "day").toDate();
     const levelNumbers = [0, 1, 2, 3];
@@ -1311,7 +1397,6 @@ export const readAilene = {
   }),
 
   organizationLeaderboard: sponsorProcedure.query(async (opts) => {
-    const monthStart = dayjs().startOf("month").toDate();
     const [groups, submissions] = await Promise.all([
       opts.ctx.prisma.ailGroup.findMany({
         orderBy: { name: "asc" },
@@ -1323,7 +1408,7 @@ export const readAilene = {
       }),
       opts.ctx.prisma.ailUseCaseSubmission.findMany({
         where: {
-          submitted_at: { not: null, gte: monthStart },
+          submitted_at: { not: null },
         },
         select: {
           hours_saved: true,

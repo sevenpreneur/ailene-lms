@@ -5,7 +5,7 @@ import {
   type ReportProps,
 } from "@/components/reports/AileneReportPDF";
 import ButtonAILN from "@/components/buttons/ButtonAILN";
-import ScorecardAILN from "@/components/cards/ScorecardAILN";
+import ScorecardStripAILN from "@/components/cards/ScorecardStripAILN";
 import PageContainerAILN from "@/components/pages/PageContainerAILN";
 import {
   ShareBarList,
@@ -27,7 +27,15 @@ import {
 } from "chart.js";
 import dayjs from "dayjs";
 import "dayjs/locale/id";
-import { Building2, ChevronDown, Download } from "lucide-react";
+import {
+  BookOpen,
+  Building2,
+  ChevronDown,
+  ClipboardCheck,
+  Download,
+  Gauge,
+  Zap,
+} from "lucide-react";
 import { useTheme } from "next-themes";
 import { useEffect, useMemo, useState } from "react";
 import { Radar } from "react-chartjs-2";
@@ -71,8 +79,7 @@ export default function DashboardPreAssesmentAILN({
   const maturityQ =
     trpc.ailene.read.preAssessment.teamMaturity.useQuery(filter);
   const safetyQ = trpc.ailene.read.preAssessment.safetyGaps.useQuery(filter);
-  const useCasesQ =
-    trpc.ailene.read.preAssessment.topUseCases.useQuery(filter);
+  const useCasesQ = trpc.ailene.read.preAssessment.topUseCases.useQuery(filter);
   const voiceQ = trpc.ailene.read.preAssessment.voice.useQuery(filter);
 
   const overview = overviewQ.data;
@@ -227,41 +234,45 @@ export default function DashboardPreAssesmentAILN({
           </div>
         </div>
 
-        {/* 4 KPI tiles — same ScorecardAILN cards as the executive summary */}
-        <div className="grid grid-cols-2 gap-4 xl:grid-cols-4">
-          <ScorecardAILN
-            title="Partisipasi Pre-assessment"
-            value={overview ? `${overview.participation_percent}` : "—"}
-            unit="%"
-          >
-            <KpiCaption>
-              {overview
-                ? `${overview.completed_count} dari ${overview.total_members} karyawan`
-                : "—"}
-            </KpiCaption>
-          </ScorecardAILN>
-          <ScorecardAILN
-            title="Pemakai AI Rutin"
-            value={overview ? `${overview.routine_users_percent}` : "—"}
-            unit="%"
-          >
-            <KpiCaption>harian atau lebih sering (q1)</KpiCaption>
-          </ScorecardAILN>
-          <ScorecardAILN
-            title="Literasi Dasar Memadai"
-            value={overview ? `${overview.basic_literacy_percent}` : "—"}
-            unit="%"
-          >
-            <KpiCaption>paham konsep dasar ke atas (q4)</KpiCaption>
-          </ScorecardAILN>
-          <ScorecardAILN
-            title="Kesiapan Rata-rata Pillar"
-            value={pillarsQ.data ? formatScore(pillarsQ.data.org_avg) : "—"}
-            unit="/ 5"
-          >
-            <KpiCaption>self-rating 6 pillar</KpiCaption>
-          </ScorecardAILN>
-        </div>
+        {/* KPI tiles — statistics-02 style with icons (same as executive view) */}
+        <ScorecardStripAILN
+          items={[
+            {
+              title: "Partisipasi Pre-assessment",
+              icon: ClipboardCheck,
+              value: overview ? `${overview.participation_percent}` : "—",
+              unit: "%",
+              footer: (
+                <KpiCaption>
+                  {overview
+                    ? `${overview.completed_count} dari ${overview.total_members} karyawan`
+                    : "—"}
+                </KpiCaption>
+              ),
+            },
+            {
+              title: "Pemakai AI Rutin",
+              icon: Zap,
+              value: overview ? `${overview.routine_users_percent}` : "—",
+              unit: "%",
+              footer: <KpiCaption>harian atau lebih sering (q1)</KpiCaption>,
+            },
+            {
+              title: "Literasi Dasar Memadai",
+              icon: BookOpen,
+              value: overview ? `${overview.basic_literacy_percent}` : "—",
+              unit: "%",
+              footer: <KpiCaption>paham konsep dasar ke atas (q4)</KpiCaption>,
+            },
+            {
+              title: "Kesiapan Rata-rata Pillar",
+              icon: Gauge,
+              value: pillarsQ.data ? formatScore(pillarsQ.data.org_avg) : "—",
+              unit: "/ 5",
+              footer: <KpiCaption>self-rating 6 pillar</KpiCaption>,
+            },
+          ]}
+        />
 
         {/* Pillars radar + usage frequency */}
         <div className="grid grid-cols-1 gap-4 lg:grid-cols-2">
@@ -431,7 +442,11 @@ export default function DashboardPreAssesmentAILN({
                   </div>
                   <div className="flex flex-wrap gap-2">
                     {voiceQ.data.challenges.map((c) => (
-                      <VoiceChip key={c.label} label={c.label} count={c.count} />
+                      <VoiceChip
+                        key={c.label}
+                        label={c.label}
+                        count={c.count}
+                      />
                     ))}
                   </div>
                 </div>
@@ -488,12 +503,8 @@ function DepartmentFilter({
   onChange: (id: number | undefined) => void;
 }) {
   const [open, setOpen] = useState(false);
-  const selected = groupId
-    ? departments.find((d) => d.id === groupId)
-    : null;
-  const label = selected
-    ? selected.name
-    : `Semua (${departments.length})`;
+  const selected = groupId ? departments.find((d) => d.id === groupId) : null;
+  const label = selected ? selected.name : `Semua (${departments.length})`;
 
   return (
     <div className="relative">
@@ -574,7 +585,7 @@ function DeptItem({
 // Footer caption inside ScorecardAILN's divided zone (matches executive view).
 function KpiCaption({ children }: { children: React.ReactNode }) {
   return (
-    <span className="text-xs font-medium text-gray-500 dark:text-gray-400">
+    <span className="text-xs font-medium text-muted-foreground">
       {children}
     </span>
   );
