@@ -1,6 +1,5 @@
 @import "tailwindcss";
 @import "tw-animate-css";
-@import "shadcn/tailwind.css";
 
 @custom-variant dark (&:is(.dark *));
 
@@ -297,19 +296,6 @@
 @theme inline {
   /* --- UI Design System --- */
 
-  /* Typography */
-  --font-brand: var(--font-mona-sans);
-  --font-bodycopy: var(--font-plus-jakarta-sans);
-  --font-read: var(--font-inter);
-  --font-ui: var(--font-open-sauce-one);
-  --font-fraunces: var(--font-fraunces);
-  --font-cormorant: var(--font-cormorant-garamond);
-  --font-jetbrains: var(--font-jetbrains-mono);
-  /* Geist utilities now resolve to the preset font (sans) and a non-Geist mono,
-     so any lingering font-geist-* class follows the preset — no Geist anywhere. */
-  --font-geist-sans: var(--font-sans);
-  --font-geist-mono: var(--font-jetbrains);
-
   /* --- Default Shadcn --- */
 
   --color-background: var(--background);
@@ -349,8 +335,6 @@
   --color-sb-indicator: var(--sb-indicator);
   --color-sb-group-text: var(--sb-group-text);
   --color-sb-avatar-bg: var(--sb-avatar-bg);
-  --font-heading: var(--font-sans);
-  --font-sans: var(--font-sans);
   --color-sidebar-ring: var(--sidebar-ring);
   --color-sidebar-border: var(--sidebar-border);
   --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
@@ -372,6 +356,10 @@
   --radius-2xl: calc(var(--radius) * 1.8);
   --radius-3xl: calc(var(--radius) * 2.2);
   --radius-4xl: calc(var(--radius) * 2.6);
+
+  /* --- fonts --- */
+  --font-manrope: var(--font-manrope);
+  --font-jetbrains-mono: var(--font-jetbrains-mono);
 }
 
 @layer base {
@@ -382,10 +370,6 @@
     @apply bg-background text-foreground;
     background: var(--background);
     color: var(--foreground);
-    font-family: Arial, Helvetica, sans-serif;
-  }
-  html {
-    @apply font-sans;
   }
 }
 

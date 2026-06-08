@@ -1,6 +1,6 @@
 "use client";
 import Image from "next/image";
-import AppButton from "../buttons/AppButton";
+import ButtonAILN from "../buttons/ButtonAILN";
 import Link from "next/link";
 
 export type PageStateType =
@@ -68,15 +68,15 @@ export default function AppPageState(props: AppPageStateProps) {
           />
         </div>
         <div className="state-text flex flex-col gap-2 items-center">
-          <h2 className="state-title flex font-bold font-bodycopy text-center tracking-tight text-2xl dark:text-sevenpreneur-white">
+          <h2 className="state-title flex font-bold  text-center tracking-tight text-2xl dark:text-sevenpreneur-white">
             {title}
           </h2>
-          <p className="state-description font-bodycopy text-center font-medium text-emphasis dark:text-foreground">
+          <p className="state-description  text-center font-medium text-emphasis dark:text-foreground">
             {message}
           </p>
         </div>
         <Link href={`https://www.${domain}`}>
-          <AppButton>Back to Home</AppButton>
+          <ButtonAILN>Back to Home</ButtonAILN>
         </Link>
       </div>
     </div>

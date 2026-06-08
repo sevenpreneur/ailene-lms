@@ -239,7 +239,7 @@ function StatLine({
       : "text-foreground dark:text-white";
   return (
     <div className="flex items-baseline gap-2">
-      <span className={`font-geist-mono text-3xl font-bold ${valColor}`}>
+      <span className={` text-3xl font-bold ${valColor}`}>
         {value}
       </span>
       <span className="text-xs text-gray-500 dark:text-gray-400">{label}</span>

@@ -168,7 +168,7 @@ export default function MemberDetailsChampionAILN({
                     <span className="text-gray-500 dark:text-gray-400">
                       {dimension.label}
                     </span>
-                    <span className="font-geist-mono font-bold text-gray-900 dark:text-white">
+                    <span className=" font-bold text-gray-900 dark:text-white">
                       {formatDecimal(dimension.score)}
                     </span>
                   </div>
@@ -292,7 +292,7 @@ function MetricCard({
         {label}
       </div>
       <div className="mt-3 flex items-end gap-1.5">
-        <span className="font-geist-mono text-4xl font-bold leading-none text-gray-900 dark:text-white">
+        <span className=" text-4xl font-bold leading-none text-gray-900 dark:text-white">
           {value}
         </span>
         <span className="pb-1 text-sm font-semibold text-gray-500 dark:text-gray-400">

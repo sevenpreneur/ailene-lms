@@ -476,7 +476,7 @@ function HealthMetric({
       <p className="text-sm font-medium text-foreground">{label}</p>
       <p className="text-xs text-muted-foreground">{name}</p>
       <p
-        className={`font-geist-mono text-2xl font-bold tabular-nums ${tone.text}`}
+        className={` text-2xl font-bold tabular-nums ${tone.text}`}
       >
         {percent.toLocaleString("id-ID")}%
       </p>

@@ -228,7 +228,7 @@ function ReportContent({
                         }}
                       />
                     </div>
-                    <span className="text-right font-geist-mono font-bold text-gray-900 dark:text-white">
+                    <span className="text-right  font-bold text-gray-900 dark:text-white">
                       {movement.count}
                     </span>
                     <span className="truncate text-xs text-gray-500 dark:text-gray-400">
@@ -300,7 +300,7 @@ function KpiTile({
         {label}
       </div>
       <div className="mt-3 flex items-end gap-1.5">
-        <span className="font-geist-mono text-4xl font-bold leading-none text-gray-900 dark:text-white">
+        <span className=" text-4xl font-bold leading-none text-gray-900 dark:text-white">
           {value}
         </span>
         <span className="pb-1 text-sm font-semibold text-gray-500 dark:text-gray-400">

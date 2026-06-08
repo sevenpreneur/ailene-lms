@@ -634,7 +634,7 @@ function PreAssessmentCompletedAILN({
                 <span className="text-sm text-gray-500 dark:text-gray-400">
                   Kesiapan rata-rata
                 </span>
-                <span className="font-geist-mono text-2xl font-bold text-gray-900 dark:text-white">
+                <span className=" text-2xl font-bold text-gray-900 dark:text-white">
                   {formatScore(result.average)}
                 </span>
                 <span className="text-gray-400">/ 5</span>
@@ -663,7 +663,7 @@ function PreAssessmentCompletedAILN({
                   Pemahaman dasar AI
                 </div>
                 <div className="mt-5 flex items-end gap-3">
-                  <span className="font-geist-mono text-4xl font-bold text-gray-900 dark:text-white">
+                  <span className=" text-4xl font-bold text-gray-900 dark:text-white">
                     {result.literacyScore}
                   </span>
                   <span className="pb-1 text-lg text-gray-500 dark:text-gray-400">
@@ -854,7 +854,7 @@ function InsightCard({
             {title}
           </span>
           <span
-            className={`font-geist-mono text-2xl font-bold ${
+            className={` text-2xl font-bold ${
               tone === "green"
                 ? "text-emerald-700 dark:text-emerald-300"
                 : "text-amber-700 dark:text-amber-300"
@@ -896,7 +896,7 @@ function RecommendationRow({
   return (
     <div className="grid grid-cols-[3.5rem_minmax(0,1fr)_4rem_6rem] items-center gap-4 rounded-lg border border-dashboard-border bg-white p-4 shadow-sm dark:bg-card-bg">
       <div
-        className={`flex size-11 items-center justify-center rounded-lg border font-geist-mono text-sm font-bold ${
+        className={`flex size-11 items-center justify-center rounded-lg border  text-sm font-bold ${
           primary
             ? "border-black bg-black text-white dark:border-white dark:bg-white dark:text-black"
             : "border-dashboard-border bg-gray-50 text-gray-700 dark:bg-card-inside-bg dark:text-gray-200"

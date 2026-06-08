@@ -2,7 +2,7 @@
 import { useGoogleLogin } from "@react-oauth/google";
 import { useRouter, useSearchParams } from "next/navigation";
 import Image from "next/image";
-import AppButton from "../buttons/AppButton";
+import ButtonAILN from "../buttons/ButtonAILN";
 import Link from "next/link";
 import { useState } from "react";
 import { Loader2 } from "lucide-react";
@@ -78,7 +78,7 @@ export default function AppLoginContainer() {
           width={300}
           height={400}
         />
-        <div className="login-head flex flex-col font-ui gap-2">
+        <div className="login-head flex flex-col gap-2">
           <h1 className="login-title text-xl font-bold lg:text-2xl">
             Welcome Back, Founder!
           </h1>
@@ -86,13 +86,13 @@ export default function AppLoginContainer() {
             Log in. Level up. Scale.
           </p>
         </div>
-        <div className="login-action flex flex-col font-ui gap-2 w-full">
+        <div className="login-action flex flex-col gap-2 w-full">
           <p className="text-[13px] lg:text-base lg:text-emphasis">
             Login faster with
           </p>
 
           {/* Google Login */}
-          <AppButton
+          <ButtonAILN
             variant="light"
             onClick={() => login()}
             disabled={isLoading}
@@ -112,9 +112,9 @@ export default function AppLoginContainer() {
             )}
 
             <p className="font-bold">Login with Google</p>
-          </AppButton>
+          </ButtonAILN>
         </div>
-        <p className="font-ui text-[11px] lg:text-sm">
+        <p className=" text-[11px] lg:text-sm">
           By logging in, you agree to Sevenpreneur’s {""}
           <Link
             href={"/privacy-policy"}

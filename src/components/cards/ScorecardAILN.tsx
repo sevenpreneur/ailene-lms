@@ -22,7 +22,7 @@ export default function ScorecardAILN({
  </div>
 
  <div className="mt-3 flex items-baseline gap-1.5">
- <span className="font-geist-mono text-4xl font-bold leading-none tracking-tight text-foreground">
+ <span className=" text-4xl font-bold leading-none tracking-tight text-foreground">
  {value}
  </span>
  {unit && (

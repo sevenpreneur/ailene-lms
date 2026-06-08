@@ -470,7 +470,7 @@ function ProcessArea({ distribution }: { distribution: LevelDist }) {
                 className="border border-dashboard-border bg-popover text-popover-foreground shadow-md"
                 labelFormatter={(label) => String(label)}
                 formatter={(value) => (
-                  <span className="font-mono font-medium tabular-nums text-foreground">
+                  <span className=" font-medium tabular-nums text-foreground">
                     {Number(value)}% capai ≥ L{TARGET_LEVEL}
                   </span>
                 )}
@@ -528,7 +528,7 @@ function ResultDonut({ distribution }: { distribution: LevelDist }) {
           </PieChart>
         </ChartContainer>
         <div className="pointer-events-none absolute inset-0 flex flex-col items-center justify-center">
-          <span className="font-geist-mono text-2xl font-bold leading-none text-foreground">
+          <span className=" text-2xl font-bold leading-none text-foreground">
             {currentPct}%
           </span>
           <span className="mt-0.5 text-[10px] text-muted-foreground">
@@ -564,7 +564,7 @@ function LegendStat({
         style={{ backgroundColor: color }}
       />
       <span className="text-muted-foreground dark:text-gray-200">{label}</span>
-      <span className="ml-auto font-geist-mono font-bold text-foreground">
+      <span className="ml-auto  font-bold text-foreground">
         {formatInt(value)}
       </span>
     </div>

@@ -35,7 +35,7 @@ export default function ScorecardStripAILN({
                 </p>
                 <div>
                   <p className="flex items-baseline gap-1.5">
-                    <span className="font-geist-mono text-3xl font-bold leading-none tracking-tight text-foreground">
+                    <span className=" text-3xl font-bold leading-none tracking-tight text-foreground">
                       {item.value}
                     </span>
                     {item.unit && (

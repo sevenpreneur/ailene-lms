@@ -191,7 +191,7 @@ function TrendChart({
                         {isPct ? "Adopsi" : "Jam dihemat"}
                       </span>
                     </span>
-                    <span className="font-mono font-medium tabular-nums text-foreground">
+                    <span className=" font-medium tabular-nums text-foreground">
                       {text}
                     </span>
                   </div>

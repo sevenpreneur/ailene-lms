@@ -14,7 +14,6 @@ const variantStyles: Record<
     dropdown: string;
     itemActive: string;
     itemHover: string;
-    font: string;
   }
 > = {
   SVP: {
@@ -27,7 +26,6 @@ const variantStyles: Record<
     itemActive: "bg-[#E1EDFF] text-primary dark:bg-white/5 dark:text-white",
     itemHover:
       "hover:bg-[#E1EDFF] hover:text-primary dark:hover:bg-white/5 dark:hover:text-white",
-    font: "font-bodycopy",
   },
   LMS: {
     focus: "outline-4 outline-tertiary/15 border-tertiary",
@@ -39,7 +37,6 @@ const variantStyles: Record<
       "bg-tertiary/5 text-tertiary dark:text-white dark:bg-card-inside-bg",
     itemHover:
       "hover:bg-tertiary/5 hover:text-tertiary dark:hover:text-white dark:hover:bg-card-inside-bg",
-    font: "font-bodycopy",
   },
   CMS: {
     focus: "outline-4 outline-tertiary/15 border-tertiary",
@@ -51,7 +48,6 @@ const variantStyles: Record<
       "bg-tertiary/5 text-tertiary dark:text-white dark:bg-card-inside-bg",
     itemHover:
       "hover:bg-tertiary/5 hover:text-tertiary dark:hover:text-white dark:hover:bg-card-inside-bg",
-    font: "font-bodycopy",
   },
   AILN: {
     focus: "outline-4 outline-black/10 border-black",
@@ -63,7 +59,6 @@ const variantStyles: Record<
       "bg-black/5 text-foreground dark:text-white dark:bg-card-inside-bg",
     itemHover:
       "hover:bg-black/5 hover:text-foreground dark:hover:text-white dark:hover:bg-card-inside-bg",
-    font: "font-sans",
   },
 };
 
@@ -133,7 +128,7 @@ export default function AppSelect({
       {selectName && (
         <label
           htmlFor={selectId}
-          className={`select-label flex pl-1 gap-0.5 text-sm text-sb-text-strong ${styles.font} font-semibold`}
+          className={`select-label flex pl-1 gap-0.5 text-sm text-sb-text-strong font-semibold`}
         >
           {selectName}
           {required && (
@@ -143,7 +138,7 @@ export default function AppSelect({
       )}
 
       <div
-        className={`select-container relative flex w-full p-2 ${styles.font} font-medium text-sm rounded-md transform transition-all ${styles.border} ${
+        className={`select-container relative flex w-full p-2 font-medium text-sm rounded-md transform transition-all ${styles.border} ${
           isOpen ? styles.focus : ""
         } ${
           disabled
@@ -191,7 +186,7 @@ export default function AppSelect({
             className={`dropdown-container absolute top-full mt-2 left-0 w-full z-30 rounded-md shadow-md overflow-hidden ${styles.dropdown}`}
           >
             <ul
-              className={`dropdown-options flex flex-col text-sm ${styles.font} font-medium max-h-60 overflow-auto`}
+              className={`dropdown-options flex flex-col text-sm font-medium max-h-60 overflow-auto`}
             >
               {options.map((opt, index) => (
                 <div

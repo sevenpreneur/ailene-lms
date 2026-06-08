@@ -87,7 +87,6 @@ const styles = StyleSheet.create({
     paddingBottom: 48,
     paddingHorizontal: 48,
     fontSize: 9.5,
-    fontFamily: "Helvetica",
     color: INK,
     lineHeight: 1.45,
   },
@@ -96,12 +95,10 @@ const styles = StyleSheet.create({
     fontSize: 8,
     letterSpacing: 2,
     color: SUBTLE,
-    fontFamily: "Helvetica-Bold",
     textTransform: "uppercase",
   },
   title: {
     fontSize: 21,
-    fontFamily: "Helvetica-Bold",
     color: INK,
     lineHeight: 1.15,
     marginTop: 8,
@@ -123,7 +120,6 @@ const styles = StyleSheet.create({
   section: { marginBottom: 22 },
   sectionTitle: {
     fontSize: 12,
-    fontFamily: "Helvetica-Bold",
     color: INK,
     marginBottom: 9,
   },
@@ -140,7 +136,6 @@ const styles = StyleSheet.create({
   },
   tHeadCell: {
     fontSize: 8,
-    fontFamily: "Helvetica-Bold",
     color: SUBTLE,
     textTransform: "uppercase",
     letterSpacing: 0.5,
@@ -161,10 +156,9 @@ const styles = StyleSheet.create({
   },
   tCell: { fontSize: 9, paddingHorizontal: 6, color: INK },
   // Metrics table (KPI)
-  mLabel: { fontSize: 9.5, color: INK, fontFamily: "Helvetica-Bold" },
+  mLabel: { fontSize: 9.5, color: INK },
   mValue: {
     fontSize: 11,
-    fontFamily: "Helvetica-Bold",
     color: BRAND_GREEN,
     textAlign: "right",
   },

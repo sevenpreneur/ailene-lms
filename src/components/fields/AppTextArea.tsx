@@ -9,7 +9,6 @@ const variantStyles: Record<
     border: string;
     background: string;
     disabled: string;
-    font: string;
   }
 > = {
   SVP: {
@@ -17,28 +16,24 @@ const variantStyles: Record<
     border: "border",
     background: "bg-transparent",
     disabled: "bg-gray-100 text-gray-500 dark:bg-[#1F1F1F] dark:text-[#555555]",
-    font: "font-bodycopy",
   },
   LMS: {
     focus: "focus:outline-tertiary/15 focus:border-tertiary",
     border: "border border-dashboard-border",
     background: "bg-card-inside-bg",
     disabled: "bg-card-inside-bg text-muted-foreground dark:text-foreground/30",
-    font: "font-bodycopy",
   },
   CMS: {
     focus: "focus:outline-tertiary/15 focus:border-tertiary",
     border: "border border-dashboard-border",
     background: "bg-background",
     disabled: "bg-card-inside-bg text-muted-foreground dark:text-foreground/30",
-    font: "font-bodycopy",
   },
   AILN: {
     focus: "focus:outline-black/10 focus:border-black",
     border: "border border-dashboard-border",
     background: "bg-card-inside-bg",
     disabled: "bg-card-inside-bg text-muted-foreground dark:text-foreground/30",
-    font: "font-sans",
   },
 };
 
@@ -109,7 +104,7 @@ export default function AppTextArea({
       {textAreaName && (
         <label
           htmlFor={textAreaId}
-          className={`label-text-area flex pl-1 gap-0.5 text-sm text-sb-text-strong ${styles.font} font-semibold`}
+          className={`label-text-area flex pl-1 gap-0.5 text-sm text-sb-text-strong font-semibold`}
         >
           {textAreaName}
           {required && (
@@ -123,7 +118,7 @@ export default function AppTextArea({
           id={textAreaId}
           placeholder={textAreaPlaceholder}
           {...rest}
-          className={`text-area-placeholder flex w-full p-2 ${textAreaHeight} font-medium ${styles.font} text-sm rounded-md resize-none transform transition-all placeholder:text-emphasis/60 placeholder:font-medium placeholder:text-sm focus:outline-4 invalid:border-destructive required:border-destructive ${styles.border} ${
+          className={`text-area-placeholder flex w-full p-2 ${textAreaHeight} font-medium text-sm rounded-md resize-none transform transition-all placeholder:text-emphasis/60 placeholder:font-medium placeholder:text-sm focus:outline-4 invalid:border-destructive required:border-destructive ${styles.border} ${
             computedError
               ? "border-destructive focus:outline-semi-destructive"
               : styles.focus

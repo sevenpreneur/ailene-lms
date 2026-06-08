@@ -398,7 +398,7 @@ export default function MaterialDetailsAILN({
                     {otherMaterials.map((m) => {
                       const row = (
                         <>
-                          <span className="w-7 shrink-0 font-geist-mono text-xs text-gray-400 dark:text-gray-500">
+                          <span className="w-7 shrink-0  text-xs text-gray-400 dark:text-gray-500">
                             {levelNumber}.{m.index}
                           </span>
                           <span

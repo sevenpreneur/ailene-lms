@@ -1,5 +1,4 @@
 .report {
-  font-family: "Plus Jakarta Sans", sans-serif;
   line-height: 1.5;
   color: inherit;
   font-size: 15px;
@@ -66,7 +65,6 @@
   color: inherit;
   padding: 0.2rem 0.35rem;
   border-radius: 0.25rem;
-  font-family: "JetBrains Mono", "Fira Code", monospace;
   font-size: 0.9em;
 }
 :global(.dark) .report code {
@@ -80,7 +78,6 @@
   padding: 1rem;
   border-radius: 0.5rem;
   overflow-x: auto;
-  font-family: "JetBrains Mono", "Fira Code", monospace;
   font-size: 0.9rem;
   line-height: 1.6;
   margin: 1em 0;

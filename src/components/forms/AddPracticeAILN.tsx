@@ -107,13 +107,13 @@ function FieldRow({
         </div>
       )}
       <div className="flex-1 flex flex-col gap-1.5 min-w-0">
-        <label className="flex items-center gap-0.5 text-sm font-semibold font-read text-foreground dark:text-white">
+        <label className="flex items-center gap-0.5 text-sm font-semibold  text-foreground dark:text-white">
           {label}
           {required && <span className="text-destructive">*</span>}
         </label>
         {children}
         {helper && (
-          <p className="text-xs font-read text-gray-500 dark:text-gray-400">
+          <p className="text-xs  text-gray-500 dark:text-gray-400">
             {helper}
           </p>
         )}
@@ -356,7 +356,7 @@ export default function AddPracticeAILN({
             <ArrowLeft className="size-4" />
             Kembali ke daftar latihan
           </Link>
-          <h1 className="text-3xl font-bold leading-tight font-read text-sevenpreneur-coal dark:text-white">
+          <h1 className="text-3xl font-bold leading-tight  text-sevenpreneur-coal dark:text-white">
             Tambah Latihan Mandiri
           </h1>
           <p className="text-sm text-gray-500 dark:text-gray-400">
@@ -367,7 +367,7 @@ export default function AddPracticeAILN({
 
         {/* Type toggle */}
         <div className="flex flex-col gap-2">
-          <span className="text-sm font-semibold font-read text-foreground dark:text-white">
+          <span className="text-sm font-semibold  text-foreground dark:text-white">
             Tipe latihan
           </span>
           <div className="grid grid-cols-2 gap-3 sm:max-w-md">
@@ -415,7 +415,7 @@ export default function AddPracticeAILN({
                     <Icon className="size-4" />
                   </div>
                   <div className="flex flex-col">
-                    <span className="text-sm font-bold font-read text-foreground dark:text-white">
+                    <span className="text-sm font-bold  text-foreground dark:text-white">
                       {opt.label}
                     </span>
                     <span className="text-xs text-gray-500 dark:text-gray-400">
@@ -547,7 +547,7 @@ export default function AddPracticeAILN({
                     textAreaHeight="min-h-[150px]"
                     variant="AILN"
                   />
-                  <div className="self-end text-xs font-read text-gray-400">
+                  <div className="self-end text-xs  text-gray-400">
                     {promptInput.length}/5000 karakter
                   </div>
                 </div>
@@ -569,7 +569,7 @@ export default function AddPracticeAILN({
                     textAreaHeight="min-h-[180px]"
                     variant="AILN"
                   />
-                  <div className="self-end text-xs font-read text-gray-400">
+                  <div className="self-end text-xs  text-gray-400">
                     {promptOutput.length}/10000 karakter
                   </div>
                 </div>
@@ -626,7 +626,7 @@ export default function AddPracticeAILN({
                     textAreaHeight="min-h-[150px]"
                     variant="AILN"
                   />
-                  <div className="self-end text-xs font-read text-gray-400">
+                  <div className="self-end text-xs  text-gray-400">
                     {description.length}/5000 karakter
                   </div>
                 </div>
@@ -639,7 +639,7 @@ export default function AddPracticeAILN({
               >
                 <div className="flex flex-wrap items-center gap-3 text-sm">
                   <div className="flex items-center gap-2">
-                    <span className="font-medium font-read text-gray-600 dark:text-gray-300">
+                    <span className="font-medium  text-gray-600 dark:text-gray-300">
                       Tanpa AI
                     </span>
                     <div className="w-24">
@@ -652,11 +652,11 @@ export default function AddPracticeAILN({
                         variant="AILN"
                       />
                     </div>
-                    <span className="text-xs font-read text-gray-500">jam</span>
+                    <span className="text-xs  text-gray-500">jam</span>
                   </div>
                   <span className="text-gray-400">→</span>
                   <div className="flex items-center gap-2">
-                    <span className="font-medium font-read text-gray-600 dark:text-gray-300">
+                    <span className="font-medium  text-gray-600 dark:text-gray-300">
                       Dengan AI
                     </span>
                     <div className="w-24">
@@ -669,7 +669,7 @@ export default function AddPracticeAILN({
                         variant="AILN"
                       />
                     </div>
-                    <span className="text-xs font-read text-gray-500">jam</span>
+                    <span className="text-xs  text-gray-500">jam</span>
                   </div>
                   {(() => {
                     const without = Number(hoursWithoutAi);
@@ -715,7 +715,7 @@ export default function AddPracticeAILN({
                                 : [...prev, tool]
                             )
                           }
-                          className={`rounded-full border px-3 py-1 text-xs font-medium font-read transition ${
+                          className={`rounded-full border px-3 py-1 text-xs font-medium  transition ${
                             selected
                               ? "border-black bg-black text-white dark:border-white dark:bg-white dark:text-black"
                               : "border-dashboard-border bg-white text-foreground hover:border-foreground/40 dark:bg-card-inside-bg dark:text-gray-200"
@@ -734,7 +734,7 @@ export default function AddPracticeAILN({
                           onClick={() =>
                             setAiTools((prev) => prev.filter((t) => t !== tool))
                           }
-                          className="inline-flex items-center gap-1 rounded-full border border-black bg-black px-3 py-1 text-xs font-medium font-read text-white dark:border-white dark:bg-white dark:text-black"
+                          className="inline-flex items-center gap-1 rounded-full border border-black bg-black px-3 py-1 text-xs font-medium  text-white dark:border-white dark:bg-white dark:text-black"
                         >
                           {tool}
                           <X className="size-3" />
@@ -764,7 +764,7 @@ export default function AddPracticeAILN({
                         );
                         setAiToolCustomInput("");
                       }}
-                      className="rounded-md border border-dashboard-border bg-white px-3 py-2 text-xs font-semibold font-read text-foreground hover:border-foreground/40 disabled:cursor-not-allowed disabled:opacity-60 dark:bg-card-inside-bg dark:text-gray-200"
+                      className="rounded-md border border-dashboard-border bg-white px-3 py-2 text-xs font-semibold  text-foreground hover:border-foreground/40 disabled:cursor-not-allowed disabled:opacity-60 dark:bg-card-inside-bg dark:text-gray-200"
                     >
                       Tambah
                     </button>
@@ -802,12 +802,12 @@ export default function AddPracticeAILN({
                     ) : (
                       <FileUp className="size-5 text-gray-500 dark:text-gray-400" />
                     )}
-                    <p className="text-sm font-medium font-read text-foreground dark:text-gray-200">
+                    <p className="text-sm font-medium  text-foreground dark:text-gray-200">
                       {isUploading
                         ? "Mengupload…"
                         : "Upload file atau drag & drop di sini"}
                     </p>
-                    <p className="text-[11px] font-read text-gray-500 dark:text-gray-400">
+                    <p className="text-[11px]  text-gray-500 dark:text-gray-400">
                       PDF, PNG, JPG, MP4 · Maks. 20MB
                     </p>
                     <input
@@ -820,7 +820,7 @@ export default function AddPracticeAILN({
                     />
                   </div>
 
-                  <div className="flex items-center gap-2 text-xs font-medium font-read text-gray-400">
+                  <div className="flex items-center gap-2 text-xs font-medium  text-gray-400">
                     <span className="h-px flex-1 bg-dashboard-border" />
                     <span>atau</span>
                     <span className="h-px flex-1 bg-dashboard-border" />
@@ -843,7 +843,7 @@ export default function AddPracticeAILN({
                   <div className="mt-2 flex items-center justify-between gap-2 rounded-md border border-dashboard-border bg-card-inside-bg px-3 py-2">
                     <div className="flex items-center gap-2 min-w-0">
                       <FileUp className="size-4 shrink-0 text-foreground dark:text-gray-300" />
-                      <span className="truncate text-xs font-medium font-read text-foreground dark:text-gray-200">
+                      <span className="truncate text-xs font-medium  text-foreground dark:text-gray-200">
                         {outcomeFileName}
                       </span>
                     </div>

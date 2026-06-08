@@ -325,7 +325,7 @@ function ScoreTile({
         {label}
       </div>
       <div className="mt-3 flex items-end gap-2">
-        <span className="font-geist-mono text-4xl font-bold leading-none text-gray-900 dark:text-white">
+        <span className=" text-4xl font-bold leading-none text-gray-900 dark:text-white">
           {value}
         </span>
         <span className="pb-1 text-sm font-semibold text-gray-500 dark:text-gray-400">
@@ -488,7 +488,7 @@ function UseCaseRow({
 }) {
   return (
     <div className="grid grid-cols-[2rem_minmax(8rem,12rem)_1fr_3rem] items-center gap-3">
-      <span className="font-geist-mono text-xs text-gray-400">#{rank}</span>
+      <span className=" text-xs text-gray-400">#{rank}</span>
       <div className="min-w-0">
         <div className="truncate text-sm font-semibold text-gray-900 dark:text-white">
           {name}
@@ -543,7 +543,7 @@ function AttentionMemberRow({
           </div>
         </div>
       </div>
-      <span className="text-center font-geist-mono text-sm font-bold text-gray-900 dark:text-white">
+      <span className="text-center  text-sm font-bold text-gray-900 dark:text-white">
         L{member.level_number}
       </span>
       <span className="text-center text-[11px] font-medium text-gray-500 dark:text-gray-400">

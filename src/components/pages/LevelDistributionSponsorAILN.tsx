@@ -313,7 +313,7 @@ export default function LevelDistributionSponsorAILN({
  </PieChart>
  </ChartContainer>
  <div className="pointer-events-none absolute inset-0 flex flex-col items-center justify-center">
- <span className="font-geist-mono text-3xl font-bold leading-none text-foreground">
+ <span className=" text-3xl font-bold leading-none text-foreground">
  {data.participation_percent}%
  </span>
  <span className="mt-1 text-[11px] text-muted-foreground">
@@ -348,7 +348,7 @@ export default function LevelDistributionSponsorAILN({
  Departemen perlu intervensi
  </div>
  <span
- className="font-geist-mono text-xs font-bold"
+ className=" text-xs font-bold"
  style={{ color: SPONSOR_BLUE_DARK }}
  >
  {data.groups_needing_intervention.length} dept
@@ -498,7 +498,7 @@ function DepartmentDistributionRow({
  })}
  </div>
  </TooltipProvider>
- <div className="text-right font-geist-mono text-xs font-semibold text-muted-foreground dark:text-gray-200">
+ <div className="text-right  text-xs font-semibold text-muted-foreground dark:text-gray-200">
  {group.total} org
  </div>
  </Link>
@@ -539,7 +539,7 @@ function LegendStat({
  style={{ backgroundColor: color }}
  />
  <span className="text-sm text-muted-foreground dark:text-gray-200">{label}</span>
- <span className="ml-auto font-geist-mono text-sm font-bold text-foreground">
+ <span className="ml-auto  text-sm font-bold text-foreground">
  {value.toLocaleString("id-ID")}
  </span>
  </div>

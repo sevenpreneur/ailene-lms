@@ -5,107 +5,18 @@ import { TRPCProvider } from "@/trpc/client";
 import { GoogleOAuthProvider } from "@react-oauth/google";
 import { Metadata } from "next";
 import { ThemeProvider } from "next-themes";
-import {
-  Cormorant_Garamond,
-  Fraunces,
-  Geist,
-  Geist_Mono,
-  Inter,
-  JetBrains_Mono,
-  Mona_Sans,
-  Plus_Jakarta_Sans,
-  Manrope,
-} from "next/font/google";
-import localFont from "next/font/local";
+import { JetBrains_Mono, Manrope } from "next/font/google";
 import { Toaster } from "sonner";
-import { cn } from "@/lib/utils";
 
-const manrope = Manrope({ subsets: ["latin"], variable: "--font-sans" });
-
-const plusJakartaSans = Plus_Jakarta_Sans({
-  variable: "--font-plus-jakarta-sans",
+const manrope = Manrope({
+  variable: "--font-manrope",
   subsets: ["latin"],
-});
-
-const monaSans = Mona_Sans({
-  variable: "--font-mona-sans",
-  subsets: ["latin"],
-});
-
-const inter = Inter({
-  variable: "--font-inter",
-  subsets: ["latin"],
-});
-
-const fraunces = Fraunces({
-  variable: "--font-fraunces",
-  subsets: ["latin"],
-  weight: ["100", "200", "300", "400", "500", "600", "700", "800", "900"],
-});
-
-const cormorantGaramond = Cormorant_Garamond({
-  variable: "--font-cormorant-garamond",
-  subsets: ["latin"],
-  weight: ["300", "400", "500", "600", "700"],
-  style: ["normal", "italic"],
 });
 
 const jetbrainsMono = JetBrains_Mono({
   variable: "--font-jetbrains-mono",
   subsets: ["latin"],
   weight: ["400", "500", "600"],
-});
-
-const geistSans = Geist({
-  variable: "--font-geist-sans",
-  subsets: ["latin"],
-});
-
-const geistMono = Geist_Mono({
-  variable: "--font-geist-mono",
-  subsets: ["latin"],
-});
-
-const openSauceOne = localFont({
-  variable: "--font-open-sauce-one",
-  display: "swap",
-  src: [
-    {
-      path: "././fonts/OpenSauceOne-Light.ttf",
-      weight: "300",
-      style: "normal",
-    },
-    {
-      path: "././fonts/OpenSauceOne-Regular.ttf",
-      weight: "400",
-      style: "normal",
-    },
-    {
-      path: "././fonts/OpenSauceOne-Medium.ttf",
-      weight: "500",
-      style: "normal",
-    },
-    {
-      path: "././fonts/OpenSauceOne-SemiBold.ttf",
-      weight: "600",
-      style: "normal",
-    },
-    {
-      path: "././fonts/OpenSauceOne-Bold.ttf",
-      weight: "700",
-      style: "normal",
-    },
-    {
-      path: "././fonts/OpenSauceOne-ExtraBold.ttf",
-      weight: "800",
-      style: "normal",
-    },
-    {
-      path: "././fonts/OpenSauceOne-Black.ttf",
-      weight: "900",
-      style: "normal",
-    },
-  ],
 });
 
 export const metadata: Metadata = {
@@ -147,10 +58,10 @@ export default function RootLayout(
   return (
     <html
       lang="en"
-      className={cn("scroll-smooth", "antialiased", monaSans.variable, plusJakartaSans.variable, openSauceOne.variable, inter.variable, fraunces.variable, cormorantGaramond.variable, jetbrainsMono.variable, geistSans.variable, geistMono.variable, "font-sans", manrope.variable)}
+      className={`scroll-smooth ${manrope.variable} ${jetbrainsMono.variable}`}
       suppressHydrationWarning
     >
-      <body suppressHydrationWarning>
+      <body className="font-manrope" suppressHydrationWarning>
         <GoogleOAuthProvider clientId={googleOauthId!}>
           <TRPCProvider baseURL={baseURL}>
             <ThemeProvider
@@ -160,7 +71,7 @@ export default function RootLayout(
               storageKey="ailene-theme"
             >
               <SidebarProvider>
-                <div className="font-sans min-h-screen bg-dashboard-bg dark:bg-black">
+                <div className="min-h-screen bg-dashboard-bg dark:bg-black">
                   {props.children}
                   <div className="lg:hidden">
                     <AppPageState variant="ONLY_MOBILE" />
