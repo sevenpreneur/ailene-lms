@@ -1,9 +1,9 @@
 "use client";
 import ButtonAILN from "@/components/buttons/ButtonAILN";
-import AppInput from "@/components/fields/AppInput";
-import AppNumberInput from "@/components/fields/AppNumberInput";
-import AppSelect from "@/components/fields/AppSelect";
-import AppTextArea from "@/components/fields/AppTextArea";
+import InputAILN from "@/components/fields/InputAILN";
+import NumberInputAILN from "@/components/fields/NumberInputAILN";
+import SelectAILN from "@/components/fields/SelectAILN";
+import TextAreaAILN from "@/components/fields/TextAreaAILN";
 import PageContainerAILN from "@/components/pages/PageContainerAILN";
 import AppErrorComponents from "@/components/states/AppErrorComponents";
 import AppPageState from "@/components/states/AppPageState";
@@ -538,7 +538,7 @@ export default function SubmitUseCaseAILN({
                 helper="Kategori utama use case ini."
                 required
               >
-                <AppSelect
+                <SelectAILN
                   selectId="uc-type"
                   selectPlaceholder="Pilih tipe…"
                   value={formData.type || null}
@@ -548,7 +548,7 @@ export default function SubmitUseCaseAILN({
                       type: (v as AilUseCaseType | null) ?? "",
                     }))
                   }
-                  variant="AILN"
+                  variant="STUDENT"
                   disabled={isLocked}
                   required
                   options={TYPE_OPTIONS.map((o) => ({
@@ -562,7 +562,7 @@ export default function SubmitUseCaseAILN({
                 helper="Seberapa sering use case ini kamu pakai."
                 required
               >
-                <AppSelect
+                <SelectAILN
                   selectId="uc-frequency"
                   selectPlaceholder="Pilih frekuensi…"
                   value={formData.frequency || null}
@@ -572,7 +572,7 @@ export default function SubmitUseCaseAILN({
                       frequency: (v as AilUseCaseFrequency | null) ?? "",
                     }))
                   }
-                  variant="AILN"
+                  variant="STUDENT"
                   disabled={isLocked}
                   required
                   options={FREQUENCY_OPTIONS.map((o) => ({
@@ -588,7 +588,7 @@ export default function SubmitUseCaseAILN({
               required
             >
               <div className="flex flex-col gap-1">
-                <AppTextArea
+                <TextAreaAILN
                   textAreaId="uc-description"
                   textAreaPlaceholder="3–5 kalimat cukup. Apa problem-nya, AI apa yang kamu pakai, dan apa hasilnya."
                   value={formData.description}
@@ -597,7 +597,7 @@ export default function SubmitUseCaseAILN({
                   }
                   characterLength={5000}
                   textAreaHeight="min-h-[160px]"
-                  variant="AILN"
+                  variant="STUDENT"
                   disabled={isLocked}
                   required
                 />
@@ -618,7 +618,7 @@ export default function SubmitUseCaseAILN({
                     Tanpa AI
                   </span>
                   <div className="w-24">
-                    <AppNumberInput
+                    <NumberInputAILN
                       inputId="uc-hours-without"
                       inputConfig="decimal"
                       inputPlaceholder="18"
@@ -626,7 +626,7 @@ export default function SubmitUseCaseAILN({
                       onInputChange={(v) =>
                         setFormData((prev) => ({ ...prev, hoursWithoutAi: v }))
                       }
-                      variant="AILN"
+                      variant="STUDENT"
                       disabled={isLocked}
                       required
                     />
@@ -639,7 +639,7 @@ export default function SubmitUseCaseAILN({
                     Dengan AI
                   </span>
                   <div className="w-24">
-                    <AppNumberInput
+                    <NumberInputAILN
                       inputId="uc-hours"
                       inputConfig="decimal"
                       inputPlaceholder="5"
@@ -647,7 +647,7 @@ export default function SubmitUseCaseAILN({
                       onInputChange={(v) =>
                         setFormData((prev) => ({ ...prev, hoursSaved: v }))
                       }
-                      variant="AILN"
+                      variant="STUDENT"
                       disabled={isLocked}
                       required
                     />
@@ -733,7 +733,7 @@ export default function SubmitUseCaseAILN({
                 {!isLocked && (
                   <div className="flex items-center gap-2">
                     <div className="flex-1 max-w-[280px]">
-                      <AppInput
+                      <InputAILN
                         inputId="uc-tool-other"
                         inputType="text"
                         inputPlaceholder="Tambah tool lain (e.g. Loveable, Bolt)…"
@@ -745,7 +745,7 @@ export default function SubmitUseCaseAILN({
                           }))
                         }
                         characterLength={64}
-                        variant="AILN"
+                        variant="STUDENT"
                       />
                     </div>
                     <button
@@ -831,7 +831,7 @@ export default function SubmitUseCaseAILN({
                 </div>
 
                 {/* Link input */}
-                <AppInput
+                <InputAILN
                   inputId="uc-outcome-link"
                   inputType="url"
                   inputIcon={<LinkIcon className="size-4" />}
@@ -839,7 +839,7 @@ export default function SubmitUseCaseAILN({
                   value={formData.outcomeLinkInput}
                   onInputChange={handleLinkChange}
                   characterLength={500}
-                  variant="AILN"
+                  variant="STUDENT"
                   disabled={isLocked || isUploading}
                 />
               </div>

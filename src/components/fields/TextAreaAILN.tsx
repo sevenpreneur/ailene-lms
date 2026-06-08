@@ -1,43 +1,36 @@
 "use client";
-import { PlatformType } from "@/lib/app-types";
+import { StakeholderVariant } from "@/lib/app-types";
 import React, { TextareaHTMLAttributes, useState } from "react";
 
 const variantStyles: Record<
-  PlatformType,
-  {
-    focus: string;
-    border: string;
-    background: string;
-    disabled: string;
-  }
+  StakeholderVariant,
+  { focus: string; border: string; background: string; disabled: string }
 > = {
-  SVP: {
-    focus: "focus:outline-primary/15 focus:border-primary",
-    border: "border",
-    background: "bg-transparent",
-    disabled: "bg-gray-100 text-gray-500 dark:bg-[#1F1F1F] dark:text-[#555555]",
-  },
-  LMS: {
-    focus: "focus:outline-tertiary/15 focus:border-tertiary",
+  STUDENT: {
+    focus:
+      "focus:outline-black/10 focus:border-black dark:focus:outline-white/15 dark:focus:border-white",
     border: "border border-dashboard-border",
     background: "bg-card-inside-bg",
     disabled: "bg-card-inside-bg text-muted-foreground dark:text-foreground/30",
   },
-  CMS: {
-    focus: "focus:outline-tertiary/15 focus:border-tertiary",
+  CHAMPION: {
+    focus:
+      "focus:outline-emerald-500/15 focus:border-emerald-600 dark:focus:outline-emerald-400/15 dark:focus:border-emerald-400",
     border: "border border-dashboard-border",
-    background: "bg-background",
+    background: "bg-card-inside-bg",
     disabled: "bg-card-inside-bg text-muted-foreground dark:text-foreground/30",
   },
-  AILN: {
-    focus: "focus:outline-black/10 focus:border-black",
+  SPONSOR: {
+    focus:
+      "focus:outline-blue-500/15 focus:border-blue-600 dark:focus:outline-blue-400/15 dark:focus:border-blue-400",
     border: "border border-dashboard-border",
     background: "bg-card-inside-bg",
     disabled: "bg-card-inside-bg text-muted-foreground dark:text-foreground/30",
   },
 };
 
-interface AppTextAreaProps extends TextareaHTMLAttributes<HTMLTextAreaElement> {
+interface TextAreaAILNProps
+  extends TextareaHTMLAttributes<HTMLTextAreaElement> {
   textAreaId: string;
   textAreaName?: string;
   textAreaHeight?: string;
@@ -45,11 +38,11 @@ interface AppTextAreaProps extends TextareaHTMLAttributes<HTMLTextAreaElement> {
   characterLength?: number;
   errorMessage?: string;
   value: string;
-  variant: PlatformType;
+  variant: StakeholderVariant;
   onTextAreaChange?: (value: string) => void;
 }
 
-export default function AppTextArea({
+export default function TextAreaAILN({
   textAreaId,
   textAreaName,
   textAreaHeight,
@@ -62,7 +55,7 @@ export default function AppTextArea({
   required,
   disabled,
   ...rest
-}: AppTextAreaProps) {
+}: TextAreaAILNProps) {
   const [textValue, setTextValue] = useState(value);
   const [internalError, setInternalError] = useState("");
   const styles = variantStyles[variant];

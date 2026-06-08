@@ -95,9 +95,9 @@ const VARIANT_CONFIG: Record<SidebarAILNVariant, VariantConfig> = {
         "dark:border-red-500/40 dark:bg-black dark:shadow-[0_0_8px_rgba(239,68,68,0.4)]",
       toggleIcon: "dark:text-red-400",
       mode:
-        "dark:border-red-500/30 dark:bg-red-500/5 dark:shadow-[0_0_12px_rgba(239,68,68,0.15)]",
+        "border-red-200 bg-red-50 dark:border-red-500/30 dark:bg-red-500/10 dark:shadow-[0_0_12px_rgba(239,68,68,0.15)]",
       modeDot: "bg-red-500 dark:shadow-[0_0_8px_rgba(239,68,68,0.9)]",
-      modeText: "dark:text-red-100",
+      modeText: "text-red-600 dark:text-red-200",
       active:
         "bg-black text-white dark:bg-red-500/15 dark:text-red-100 dark:shadow-[inset_0_0_0_1px_rgba(239,68,68,0.4),0_0_12px_rgba(239,68,68,0.25)]",
       inactive:
@@ -135,9 +135,9 @@ const VARIANT_CONFIG: Record<SidebarAILNVariant, VariantConfig> = {
         "dark:border-emerald-500/40 dark:bg-black dark:shadow-[0_0_8px_rgba(16,185,129,0.4)]",
       toggleIcon: "dark:text-emerald-400",
       mode:
-        "dark:border-emerald-500/30 dark:bg-emerald-500/5 dark:shadow-[0_0_12px_rgba(16,185,129,0.15)]",
-      modeDot: "dark:shadow-[0_0_8px_rgba(16,185,129,0.9)]",
-      modeText: "dark:text-emerald-100",
+        "border-emerald-200 bg-emerald-50 dark:border-emerald-500/30 dark:bg-emerald-500/10 dark:shadow-[0_0_12px_rgba(16,185,129,0.15)]",
+      modeDot: "bg-emerald-500 dark:shadow-[0_0_8px_rgba(16,185,129,0.9)]",
+      modeText: "text-emerald-700 dark:text-emerald-200",
       active:
         "text-white dark:bg-emerald-500/15 dark:text-emerald-100 dark:shadow-[inset_0_0_0_1px_rgba(16,185,129,0.4),0_0_12px_rgba(16,185,129,0.25)]",
       inactive:
@@ -179,9 +179,10 @@ const VARIANT_CONFIG: Record<SidebarAILNVariant, VariantConfig> = {
       toggle:
         "dark:border-blue-500/40 dark:bg-black dark:shadow-[0_0_8px_rgba(0,53,157,0.4)]",
       toggleIcon: "dark:text-gray-300",
-      mode: "dark:bg-white/5",
-      modeDot: "",
-      modeText: "dark:text-gray-200",
+      mode:
+        "border-blue-200 bg-blue-50 dark:border-blue-500/30 dark:bg-blue-500/10 dark:shadow-[0_0_12px_rgba(0,53,157,0.12)]",
+      modeDot: "bg-blue-600 dark:shadow-[0_0_8px_rgba(59,130,246,0.7)]",
+      modeText: "text-blue-700 dark:text-blue-200",
       active:
         "text-white dark:shadow-[inset_0_0_0_1px_rgba(148,163,184,0.25)]",
       inactive:
@@ -305,17 +306,16 @@ export default function SidebarAILN({
         </div>
 
         <div
-          className={`mb-4 flex items-center rounded-md border border-dashboard-border bg-white ${
+          className={`mb-4 flex items-center rounded-md border ${
             config.classes.mode
           } ${isCollapsed ? "justify-center p-2" : "gap-2 px-3 py-2"}`}
         >
           <span
             className={`size-2 shrink-0 rounded-full ${config.classes.modeDot}`}
-            style={{ backgroundColor: config.accent }}
           />
           {!isCollapsed && (
             <span
-              className={`text-xs font-semibold text-gray-700 ${config.classes.modeText}`}
+              className={`text-xs font-semibold ${config.classes.modeText}`}
             >
               {config.dashboardName}
             </span>

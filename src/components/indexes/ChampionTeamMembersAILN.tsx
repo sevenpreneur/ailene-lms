@@ -1,5 +1,7 @@
 "use client";
 import SectionContainerAILN from "@/components/cards/SectionContainerAILN";
+import InputAILN from "@/components/fields/InputAILN";
+import SelectAILN from "@/components/fields/SelectAILN";
 import type { AppRouter } from "@/trpc/routers/_app";
 import type { inferRouterOutputs } from "@trpc/server";
 import dayjs from "dayjs";
@@ -54,25 +56,33 @@ export default function ChampionTeamMembersAILN(props: { members: Member[] }) {
       title="Team Members"
       headerRight={
         <div className="flex flex-wrap items-center gap-2">
-          <input
-            type="text"
-            placeholder="Search member…"
-            value={search}
-            onChange={(e) => setSearch(e.target.value)}
-            className="w-64 rounded-lg border border-dashboard-border px-3 py-1.5 text-sm transition focus:border-emerald-500 focus:outline-none dark:bg-card-inside-bg dark:text-gray-200 dark:placeholder:text-gray-500 dark:focus:border-emerald-400"
-          />
-          <select
-            value={statusFilter}
-            onChange={(e) =>
-              setStatusFilter(e.target.value as typeof statusFilter)
-            }
-            className="rounded-lg border border-dashboard-border px-3 py-1.5 text-sm text-emerald-700 transition focus:border-emerald-500 focus:outline-none dark:bg-card-inside-bg dark:text-emerald-300 dark:focus:border-emerald-400"
-          >
-            <option value="">Filter Status</option>
-            <option value="on_track">On Track</option>
-            <option value="at_risk">At Risk</option>
-            <option value="behind">Behind</option>
-          </select>
+          <div className="w-56">
+            <InputAILN
+              inputId="team-members-search"
+              inputType="text"
+              variant="CHAMPION"
+              inputPlaceholder="Search member…"
+              value={search}
+              onInputChange={setSearch}
+            />
+          </div>
+          <div className="w-44">
+            <SelectAILN
+              selectId="team-members-status"
+              variant="CHAMPION"
+              selectPlaceholder="Filter Status"
+              value={statusFilter}
+              onChange={(v) =>
+                setStatusFilter((v ?? "") as typeof statusFilter)
+              }
+              options={[
+                { label: "Semua Status", value: "" },
+                { label: "On Track", value: "on_track" },
+                { label: "At Risk", value: "at_risk" },
+                { label: "Behind", value: "behind" },
+              ]}
+            />
+          </div>
         </div>
       }
     >

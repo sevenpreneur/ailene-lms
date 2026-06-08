@@ -1,9 +1,9 @@
 "use client";
 import ButtonAILN from "@/components/buttons/ButtonAILN";
-import AppInput from "@/components/fields/AppInput";
-import AppNumberInput from "@/components/fields/AppNumberInput";
-import AppSelect from "@/components/fields/AppSelect";
-import AppTextArea from "@/components/fields/AppTextArea";
+import InputAILN from "@/components/fields/InputAILN";
+import NumberInputAILN from "@/components/fields/NumberInputAILN";
+import SelectAILN from "@/components/fields/SelectAILN";
+import TextAreaAILN from "@/components/fields/TextAreaAILN";
 import PageContainerAILN from "@/components/pages/PageContainerAILN";
 import { supabase } from "@/lib/supabase";
 import { setSessionToken, trpc } from "@/trpc/client";
@@ -436,7 +436,7 @@ export default function AddPracticeAILN({
             helper="Nama singkat yang menggambarkan latihan ini."
             required
           >
-            <AppInput
+            <InputAILN
               inputId="practice-name"
               inputType="text"
               inputPlaceholder={
@@ -447,7 +447,7 @@ export default function AddPracticeAILN({
               value={name}
               onInputChange={setName}
               characterLength={255}
-              variant="AILN"
+              variant="STUDENT"
             />
           </FieldRow>
 
@@ -520,14 +520,14 @@ export default function AddPracticeAILN({
                 helper="Apa yang ingin kamu capai dengan prompt ini?"
                 required
               >
-                <AppTextArea
+                <TextAreaAILN
                   textAreaId="practice-scenario"
                   textAreaPlaceholder="Ceritakan situasi atau tujuan kamu memakai prompt ini…"
                   value={scenario}
                   onTextAreaChange={setScenario}
                   characterLength={2000}
                   textAreaHeight="min-h-[100px]"
-                  variant="AILN"
+                  variant="STUDENT"
                 />
               </FieldRow>
 
@@ -538,14 +538,14 @@ export default function AddPracticeAILN({
                 required
               >
                 <div className="flex flex-col gap-1">
-                  <AppTextArea
+                  <TextAreaAILN
                     textAreaId="practice-input"
                     textAreaPlaceholder="Tulis prompt yang kamu kirim ke AI…"
                     value={promptInput}
                     onTextAreaChange={setPromptInput}
                     characterLength={5000}
                     textAreaHeight="min-h-[150px]"
-                    variant="AILN"
+                    variant="STUDENT"
                   />
                   <div className="self-end text-xs  text-gray-400">
                     {promptInput.length}/5000 karakter
@@ -560,14 +560,14 @@ export default function AddPracticeAILN({
                 required
               >
                 <div className="flex flex-col gap-1">
-                  <AppTextArea
+                  <TextAreaAILN
                     textAreaId="practice-output"
                     textAreaPlaceholder="Tempel hasil dari AI…"
                     value={promptOutput}
                     onTextAreaChange={setPromptOutput}
                     characterLength={10000}
                     textAreaHeight="min-h-[180px]"
-                    variant="AILN"
+                    variant="STUDENT"
                   />
                   <div className="self-end text-xs  text-gray-400">
                     {promptOutput.length}/10000 karakter
@@ -582,14 +582,14 @@ export default function AddPracticeAILN({
             <>
               <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
                 <FieldRow label="Tipe Use Case" required>
-                  <AppSelect
+                  <SelectAILN
                     selectId="uc-type"
                     selectPlaceholder="Pilih tipe…"
                     value={useCaseType || null}
                     onChange={(v) =>
                       setUseCaseType((v as AilUseCaseType | null) ?? "")
                     }
-                    variant="AILN"
+                    variant="STUDENT"
                     required
                     options={TYPE_OPTIONS.map((o) => ({
                       label: o.label,
@@ -598,14 +598,14 @@ export default function AddPracticeAILN({
                   />
                 </FieldRow>
                 <FieldRow label="Frekuensi Pemakaian" required>
-                  <AppSelect
+                  <SelectAILN
                     selectId="uc-frequency"
                     selectPlaceholder="Pilih frekuensi…"
                     value={frequency || null}
                     onChange={(v) =>
                       setFrequency((v as AilUseCaseFrequency | null) ?? "")
                     }
-                    variant="AILN"
+                    variant="STUDENT"
                     required
                     options={FREQUENCY_OPTIONS.map((o) => ({
                       label: o.label,
@@ -617,14 +617,14 @@ export default function AddPracticeAILN({
 
               <FieldRow label="Ceritakan apa yang kamu kerjakan" required>
                 <div className="flex flex-col gap-1">
-                  <AppTextArea
+                  <TextAreaAILN
                     textAreaId="uc-description"
                     textAreaPlaceholder="3–5 kalimat cukup. Apa problem-nya, AI apa yang kamu pakai, dan apa hasilnya."
                     value={description}
                     onTextAreaChange={setDescription}
                     characterLength={5000}
                     textAreaHeight="min-h-[150px]"
-                    variant="AILN"
+                    variant="STUDENT"
                   />
                   <div className="self-end text-xs  text-gray-400">
                     {description.length}/5000 karakter
@@ -643,13 +643,13 @@ export default function AddPracticeAILN({
                       Tanpa AI
                     </span>
                     <div className="w-24">
-                      <AppNumberInput
+                      <NumberInputAILN
                         inputId="uc-hours-without"
                         inputConfig="decimal"
                         inputPlaceholder="18"
                         value={hoursWithoutAi}
                         onInputChange={setHoursWithoutAi}
-                        variant="AILN"
+                        variant="STUDENT"
                       />
                     </div>
                     <span className="text-xs  text-gray-500">jam</span>
@@ -660,13 +660,13 @@ export default function AddPracticeAILN({
                       Dengan AI
                     </span>
                     <div className="w-24">
-                      <AppNumberInput
+                      <NumberInputAILN
                         inputId="uc-hours"
                         inputConfig="decimal"
                         inputPlaceholder="5"
                         value={hoursSaved}
                         onInputChange={setHoursSaved}
-                        variant="AILN"
+                        variant="STUDENT"
                       />
                     </div>
                     <span className="text-xs  text-gray-500">jam</span>
@@ -743,14 +743,14 @@ export default function AddPracticeAILN({
                   </div>
                   <div className="flex items-center gap-2">
                     <div className="flex-1 max-w-[280px]">
-                      <AppInput
+                      <InputAILN
                         inputId="uc-tool-other"
                         inputType="text"
                         inputPlaceholder="Tambah tool lain (e.g. Loveable, Bolt)…"
                         value={aiToolCustomInput}
                         onInputChange={setAiToolCustomInput}
                         characterLength={64}
-                        variant="AILN"
+                        variant="STUDENT"
                       />
                     </div>
                     <button
@@ -826,7 +826,7 @@ export default function AddPracticeAILN({
                     <span className="h-px flex-1 bg-dashboard-border" />
                   </div>
 
-                  <AppInput
+                  <InputAILN
                     inputId="uc-outcome-link"
                     inputType="url"
                     inputIcon={<LinkIcon className="size-4" />}
@@ -834,7 +834,7 @@ export default function AddPracticeAILN({
                     value={outcomeLinkInput}
                     onInputChange={handleLinkChange}
                     characterLength={500}
-                    variant="AILN"
+                    variant="STUDENT"
                     disabled={isUploading}
                   />
                 </div>

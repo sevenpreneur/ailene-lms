@@ -1,6 +1,6 @@
 "use client";
 import ButtonAILN from "@/components/buttons/ButtonAILN";
-import AppTextArea from "@/components/fields/AppTextArea";
+import TextAreaAILN from "@/components/fields/TextAreaAILN";
 import PageContainerAILN from "@/components/pages/PageContainerAILN";
 import AppErrorComponents from "@/components/states/AppErrorComponents";
 import AppPageState from "@/components/states/AppPageState";
@@ -344,7 +344,7 @@ export default function SubmitPromptAILN({
               required
             >
               <div className="flex flex-col gap-1">
-                <AppTextArea
+                <TextAreaAILN
                   textAreaId="prompt-input"
                   textAreaPlaceholder="Tulis prompt yang kamu kirim ke AI…"
                   value={formData.input}
@@ -353,7 +353,7 @@ export default function SubmitPromptAILN({
                   }
                   characterLength={5000}
                   textAreaHeight="min-h-[160px]"
-                  variant="AILN"
+                  variant="STUDENT"
                   disabled={isLocked}
                   required
                 />
@@ -370,7 +370,7 @@ export default function SubmitPromptAILN({
               required
             >
               <div className="flex flex-col gap-1">
-                <AppTextArea
+                <TextAreaAILN
                   textAreaId="prompt-output"
                   textAreaPlaceholder="Tempel hasil dari AI…"
                   value={formData.output}
@@ -379,7 +379,7 @@ export default function SubmitPromptAILN({
                   }
                   characterLength={10000}
                   textAreaHeight="min-h-[200px]"
-                  variant="AILN"
+                  variant="STUDENT"
                   disabled={isLocked}
                   required
                 />

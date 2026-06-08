@@ -1,5 +1,5 @@
 "use client";
-import { NumberConfig, PlatformType } from "@/lib/app-types";
+import { NumberConfig, StakeholderVariant } from "@/lib/app-types";
 import { ChevronDown } from "lucide-react";
 import Image from "next/image";
 import React, {
@@ -11,7 +11,7 @@ import React, {
 } from "react";
 
 const variantStyles: Record<
-  PlatformType,
+  StakeholderVariant,
   {
     focus: string;
     focusWithin: string;
@@ -20,33 +20,29 @@ const variantStyles: Record<
     disabled: string;
   }
 > = {
-  SVP: {
-    focus: "focus:outline-primary/15 focus:border-primary",
-    focusWithin: "focus-within:outline-primary/15 focus-within:border-primary",
-    border: "border",
-    background: "bg-transparent",
-    disabled:
-      "bg-gray-100 text-gray-500  dark:bg-[#1F1F1F] dark:text-[#555555]",
-  },
-  LMS: {
-    focus: "focus:outline-tertiary/15 focus:border-tertiary",
+  STUDENT: {
+    focus:
+      "focus:outline-black/10 focus:border-black dark:focus:outline-white/15 dark:focus:border-white",
     focusWithin:
-      "focus-within:outline-tertiary/15 focus-within:border-tertiary",
+      "focus-within:outline-black/10 focus-within:border-black dark:focus-within:outline-white/15 dark:focus-within:border-white",
     border: "border border-dashboard-border",
     background: "bg-card-inside-bg",
     disabled: "bg-card-inside-bg text-muted-foreground dark:text-foreground/30",
   },
-  CMS: {
-    focus: "focus:outline-tertiary/15 focus:border-tertiary",
+  CHAMPION: {
+    focus:
+      "focus:outline-emerald-500/15 focus:border-emerald-600 dark:focus:outline-emerald-400/15 dark:focus:border-emerald-400",
     focusWithin:
-      "focus-within:outline-tertiary/15 focus-within:border-tertiary",
+      "focus-within:outline-emerald-500/15 focus-within:border-emerald-600 dark:focus-within:outline-emerald-400/15 dark:focus-within:border-emerald-400",
     border: "border border-dashboard-border",
-    background: "bg-background",
+    background: "bg-card-inside-bg",
     disabled: "bg-card-inside-bg text-muted-foreground dark:text-foreground/30",
   },
-  AILN: {
-    focus: "focus:outline-black/10 focus:border-black",
-    focusWithin: "focus-within:outline-black/10 focus-within:border-black",
+  SPONSOR: {
+    focus:
+      "focus:outline-blue-500/15 focus:border-blue-600 dark:focus:outline-blue-400/15 dark:focus:border-blue-400",
+    focusWithin:
+      "focus-within:outline-blue-500/15 focus-within:border-blue-600 dark:focus-within:outline-blue-400/15 dark:focus-within:border-blue-400",
     border: "border border-dashboard-border",
     background: "bg-card-inside-bg",
     disabled: "bg-card-inside-bg text-muted-foreground dark:text-foreground/30",
@@ -92,7 +88,7 @@ export const NumberVariant: Record<
   },
 };
 
-interface AppNumberInputSVPProps extends InputHTMLAttributes<HTMLInputElement> {
+interface NumberInputAILNProps extends InputHTMLAttributes<HTMLInputElement> {
   inputId: string;
   inputName?: string;
   inputIcon?: string;
@@ -101,13 +97,13 @@ interface AppNumberInputSVPProps extends InputHTMLAttributes<HTMLInputElement> {
   characterLength?: number;
   errorMessage?: string;
   value: string;
-  variant: PlatformType;
+  variant: StakeholderVariant;
   defaultCountryId?: number | null;
   onInputChange?: (value: string) => void;
   onCountryChange?: (id: number, code: string) => void;
 }
 
-export default function AppNumberInputSVP({
+export default function NumberInputAILN({
   inputId,
   inputName,
   inputIcon,
@@ -123,7 +119,7 @@ export default function AppNumberInputSVP({
   disabled,
   required,
   ...rest
-}: AppNumberInputSVPProps) {
+}: NumberInputAILNProps) {
   const [textValue, setTextValue] = useState(value);
   const [internalError, setInternalError] = useState("");
   const [countryOpen, setCountryOpen] = useState(false);
