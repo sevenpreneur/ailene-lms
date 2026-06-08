@@ -1,6 +1,7 @@
 "use client";
 import AssignFormChampionAILN from "@/components/forms/AssignFormChampionAILN";
 import CreateAssignmentFormChampionAILN from "@/components/forms/CreateAssignmentFormChampionAILN";
+import SectionContainerAILN from "@/components/cards/SectionContainerAILN";
 import PageContainerAILN from "@/components/pages/PageContainerAILN";
 import AppErrorComponents from "@/components/states/AppErrorComponents";
 import ButtonAILN from "@/components/buttons/ButtonAILN";
@@ -175,11 +176,10 @@ export default function AssignmentChampionAILN({
             </div>
 
             {/* Preview panel */}
-            <aside className="sticky top-6 self-start rounded-lg border border-dashboard-border bg-white p-4 dark:bg-card-bg">
-              <div className="mb-3 text-[11px] font-semibold uppercase tracking-wide text-gray-500 dark:text-gray-400">
-                Preview {tab === "PROMPT" ? "Prompt" : "Use Case"}
-              </div>
-
+            <SectionContainerAILN
+              title={`Preview ${tab === "PROMPT" ? "Prompt" : "Use Case"}`}
+              className="sticky top-6 self-start"
+            >
               {tab === "PROMPT" ? (
                 selectedPrompt ? (
                   <>
@@ -238,7 +238,7 @@ export default function AssignmentChampionAILN({
               ) : (
                 <PreviewEmpty />
               )}
-            </aside>
+            </SectionContainerAILN>
           </div>
         )}
       </div>

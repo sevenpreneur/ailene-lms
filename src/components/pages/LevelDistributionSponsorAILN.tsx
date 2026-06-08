@@ -1,5 +1,6 @@
 "use client";
 import ButtonAILN from "@/components/buttons/ButtonAILN";
+import SectionContainerAILN from "@/components/cards/SectionContainerAILN";
 import { GROWTH_RAMP } from "@/components/charts/sponsor-palette";
 import PageContainerAILN from "@/components/pages/PageContainerAILN";
 import AppErrorComponents from "@/components/states/AppErrorComponents";
@@ -233,25 +234,20 @@ export default function LevelDistributionSponsorAILN({
  </div>
  </div>
 
- <section className="rounded-lg border border-dashboard-border bg-white p-5 shadow-sm dark:bg-card-bg">
- <div className="flex flex-wrap items-start justify-between gap-3">
- <div>
- <h2 className="text-base font-bold text-foreground">
- Level distribution x departemen
- </h2>
- <p className="mt-0.5 text-xs text-muted-foreground">
- {selectedDept === "all"
+ <SectionContainerAILN
+ title="Level distribution x departemen"
+ desc={`${
+ selectedDept === "all"
  ? `${data.groups.length} departemen · sort by total karyawan`
- : `Difilter · 1 dari ${data.groups.length} departemen`}
- {highlightUnderperform
+ : `Difilter · 1 dari ${data.groups.length} departemen`
+ }${
+ highlightUnderperform
  ? ` · ${underperformIds.size} ditandai underperform`
- : ""}
- </p>
- </div>
- <LevelLegend levels={data.levels} />
- </div>
-
- <div className="mt-5 flex flex-col gap-3">
+ : ""
+ }`}
+ headerRight={<LevelLegend levels={data.levels} />}
+ contentClassName="flex flex-col gap-3"
+ >
  {visibleGroups.length === 0 ? (
  <div className="rounded-md bg-muted px-4 py-5 text-sm text-muted-foreground dark:bg-card-inside-bg dark:text-muted-foreground">
  Tidak ada departemen yang cocok dengan filter.
@@ -270,15 +266,10 @@ export default function LevelDistributionSponsorAILN({
  />
  ))
  )}
- </div>
- </section>
+ </SectionContainerAILN>
 
  <div className="grid grid-cols-1 gap-4 lg:grid-cols-[minmax(0,1fr)_minmax(0,1fr)]">
- <section className="flex flex-col rounded-lg border border-dashboard-border bg-white p-5 shadow-sm dark:bg-card-bg">
- <div className="text-[11px] font-semibold uppercase tracking-widest text-muted-foreground">
- Tingkat Partisipasi
- </div>
-
+ <SectionContainerAILN title="Tingkat Partisipasi">
  <div className="flex flex-1 flex-wrap items-center justify-center gap-x-8 gap-y-4 py-2">
  {/* Donut: aktif vs belum aktif, persen di tengah */}
  <div className="relative">
@@ -340,21 +331,20 @@ export default function LevelDistributionSponsorAILN({
  </p>
  </div>
  </div>
- </section>
+ </SectionContainerAILN>
 
- <section className="rounded-lg border border-dashboard-border bg-white p-5 shadow-sm dark:bg-card-bg">
- <div className="flex items-center justify-between gap-3">
- <div className="text-[11px] font-semibold uppercase tracking-widest text-muted-foreground">
- Departemen perlu intervensi
- </div>
+ <SectionContainerAILN
+ title="Departemen perlu intervensi"
+ headerRight={
  <span
  className=" text-xs font-bold"
  style={{ color: SPONSOR_BLUE_DARK }}
  >
  {data.groups_needing_intervention.length} dept
  </span>
- </div>
- <div className="mt-3 flex flex-col gap-2">
+ }
+ contentClassName="flex flex-col gap-2"
+ >
  {data.groups_needing_intervention.length === 0 ? (
  <div className="rounded-md bg-muted px-4 py-5 text-sm text-muted-foreground dark:bg-card-inside-bg dark:text-muted-foreground">
  Tidak ada departemen dengan komposisi L0-L1 di atas threshold.
@@ -386,8 +376,7 @@ export default function LevelDistributionSponsorAILN({
  </Link>
  ))
  )}
- </div>
- </section>
+ </SectionContainerAILN>
  </div>
  </div>
  </PageContainerAILN>

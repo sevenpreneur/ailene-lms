@@ -1,6 +1,6 @@
 "use client";
-import type React from "react";
 import { trpc } from "@/trpc/client";
+import SectionContainerAILN from "@/components/cards/SectionContainerAILN";
 import {
   ChartContainer,
   ChartTooltip,
@@ -55,71 +55,76 @@ function resolveWeeks(realWeeks: TrendWeek[]): {
 export default function WeeklyTrendsSponsorAILN() {
   const q = trpc.ailene.read.weeklyTrends.useQuery();
 
+  const legend = (
+    <div className="flex items-center gap-3 text-xs text-muted-foreground">
+      <span className="inline-flex items-center gap-1.5">
+        <span
+          className="inline-block size-2 rounded-full"
+          style={{ backgroundColor: BAR_DEEP }}
+        />
+        Jam dihemat
+      </span>
+      <span className="inline-flex items-center gap-1.5">
+        <span
+          className="inline-block h-0.5 w-3 rounded-full"
+          style={{ backgroundColor: LINE_ADOPTION }}
+        />
+        Adopsi %
+      </span>
+    </div>
+  );
+
   if (q.isLoading) {
     return (
-      <Shell>
+      <SectionContainerAILN
+        className="h-full"
+        title="Trend mingguan · Jam dihemat × Adopsi"
+        desc="12 minggu terakhir · sumber log workplace use case"
+        headerRight={legend}
+      >
         <div className="h-72 animate-pulse rounded-md bg-muted" />
-      </Shell>
+      </SectionContainerAILN>
     );
   }
 
   if (q.error || !q.data) {
     return (
-      <Shell>
+      <SectionContainerAILN
+        className="h-full"
+        title="Trend mingguan · Jam dihemat × Adopsi"
+        desc="12 minggu terakhir · sumber log workplace use case"
+        headerRight={legend}
+      >
         <div className="flex h-72 items-center justify-center text-sm text-muted-foreground">
           Gagal memuat trend mingguan.
         </div>
-      </Shell>
+      </SectionContainerAILN>
     );
   }
 
   const { weeks, isSample } = resolveWeeks(q.data.weeks);
 
   return (
-    <Shell>
-      <div className="flex flex-wrap items-start justify-between gap-2">
-        <div>
-          <div className="flex items-center gap-2">
-            <div className="text-base font-bold text-foreground">
-              Trend mingguan · Jam dihemat × Adopsi
-            </div>
-            {isSample && (
-              <span className="rounded-full bg-muted px-2 py-0.5 text-[10px] font-medium text-muted-foreground">
-                data contoh
-              </span>
-            )}
-          </div>
-          <p className="mt-0.5 text-xs text-muted-foreground">
-            12 minggu terakhir · sumber log workplace use case
-          </p>
+    <SectionContainerAILN
+      className="h-full"
+      title="Trend mingguan · Jam dihemat × Adopsi"
+      desc="12 minggu terakhir · sumber log workplace use case"
+      headerRight={
+        <div className="flex items-center gap-3">
+          {isSample && (
+            <span className="rounded-full bg-muted px-2 py-0.5 text-[10px] font-medium text-muted-foreground">
+              data contoh
+            </span>
+          )}
+          {legend}
         </div>
-        <div className="flex items-center gap-3 text-xs text-muted-foreground">
-          <span className="inline-flex items-center gap-1.5">
-            <span
-              className="inline-block size-2 rounded-full"
-              style={{ backgroundColor: BAR_DEEP }}
-            />
-            Jam dihemat
-          </span>
-          <span className="inline-flex items-center gap-1.5">
-            <span
-              className="inline-block h-0.5 w-3 rounded-full"
-              style={{ backgroundColor: LINE_ADOPTION }}
-            />
-            Adopsi %
-          </span>
-        </div>
-      </div>
-
-      <div className="mt-5 min-h-[240px] flex-1">
+      }
+    >
+      <div className="min-h-[240px]">
         <TrendChart data={weeks} />
       </div>
-    </Shell>
+    </SectionContainerAILN>
   );
-}
-
-function Shell({ children }: { children: React.ReactNode }) {
-  return <div className="ailn-card flex h-full flex-col p-5">{children}</div>;
 }
 
 function TrendChart({

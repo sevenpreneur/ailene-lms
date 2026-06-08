@@ -7,6 +7,7 @@ import {
 } from "@/components/reports/AileneReportPDF";
 import dayjs from "dayjs";
 import ButtonAILN from "@/components/buttons/ButtonAILN";
+import SectionContainerAILN from "@/components/cards/SectionContainerAILN";
 import PageContainerAILN from "@/components/pages/PageContainerAILN";
 import AppErrorComponents from "@/components/states/AppErrorComponents";
 import { setSessionToken, trpc } from "@/trpc/client";
@@ -246,19 +247,23 @@ export default function GroupDetailsSponsorAILN({
           />
         </div>
 
-        <Section
+        <SectionContainerAILN
           title={`Distribusi level - ${group.name}`}
-          subtitle={`${distributionQ.data?.total_members ?? metrics.total_members} karyawan`}
+          desc={`${distributionQ.data?.total_members ?? metrics.total_members} karyawan`}
+          className="dark:shadow-[0_0_16px_rgba(0,53,157,0.06)]"
         >
           {distributionQ.isLoading || !distributionQ.data ? (
             <Skeleton className="h-24" />
           ) : (
             <LevelDistribution levels={distributionQ.data.levels} />
           )}
-        </Section>
+        </SectionContainerAILN>
 
         <div className="grid grid-cols-1 gap-4 xl:grid-cols-[minmax(0,1fr)_minmax(360px,0.9fr)]">
-          <Section title={`Top use case - ${group.name}`}>
+          <SectionContainerAILN
+            title={`Top use case - ${group.name}`}
+            className="dark:shadow-[0_0_16px_rgba(0,53,157,0.06)]"
+          >
             {topUseCasesQ.isLoading || !topUseCasesQ.data ? (
               <SkeletonRows />
             ) : topUseCasesQ.data.use_cases.length === 0 ? (
@@ -277,16 +282,18 @@ export default function GroupDetailsSponsorAILN({
                 ))}
               </div>
             )}
-          </Section>
+          </SectionContainerAILN>
 
-          <Section
+          <SectionContainerAILN
             title="Anggota"
-            badge={
-              attentionQ.data
-                ? `${attentionQ.data.lagging_count} ketinggalan`
-                : "..."
+            className="dark:shadow-[0_0_16px_rgba(0,53,157,0.06)]"
+            headerRight={
+              <span className="shrink-0 rounded-full border border-amber-300 bg-amber-50 px-2.5 py-0.5 text-[11px] font-semibold text-amber-700 dark:border-amber-500/40 dark:bg-amber-500/10 dark:text-amber-300">
+                {attentionQ.data
+                  ? `${attentionQ.data.lagging_count} ketinggalan`
+                  : "..."}
+              </span>
             }
-            badgeTone="warn"
           >
             {attentionQ.isLoading || !attentionQ.data ? (
               <SkeletonRows />
@@ -299,7 +306,7 @@ export default function GroupDetailsSponsorAILN({
                 ))}
               </div>
             )}
-          </Section>
+          </SectionContainerAILN>
         </div>
       </div>
     </PageContainerAILN>
@@ -340,49 +347,6 @@ function ScoreTile({
       </div>
       <p className="mt-2 text-xs text-gray-500 dark:text-gray-400">{sub}</p>
     </div>
-  );
-}
-
-function Section({
-  title,
-  subtitle,
-  badge,
-  badgeTone = "neutral",
-  children,
-}: {
-  title: string;
-  subtitle?: string;
-  badge?: string;
-  badgeTone?: "neutral" | "warn";
-  children: React.ReactNode;
-}) {
-  return (
-    <section className="rounded-lg border border-dashboard-border bg-white p-5 shadow-sm dark:bg-card-bg dark:shadow-[0_0_16px_rgba(0,53,157,0.06)]">
-      <div className="mb-4 flex items-start justify-between gap-3">
-        <div>
-          <h2 className="text-base font-bold text-gray-900 dark:text-white">
-            {title}
-          </h2>
-          {subtitle && (
-            <p className="mt-0.5 text-xs text-gray-500 dark:text-gray-400">
-              {subtitle}
-            </p>
-          )}
-        </div>
-        {badge && (
-          <span
-            className={`shrink-0 rounded-full border px-2.5 py-0.5 text-[11px] font-semibold ${
-              badgeTone === "warn"
-                ? "border-amber-300 bg-amber-50 text-amber-700 dark:border-amber-500/40 dark:bg-amber-500/10 dark:text-amber-300"
-                : "border-dashboard-border bg-gray-50 text-gray-500 dark:bg-card-inside-bg dark:text-gray-400"
-            }`}
-          >
-            {badge}
-          </span>
-        )}
-      </div>
-      {children}
-    </section>
   );
 }
 

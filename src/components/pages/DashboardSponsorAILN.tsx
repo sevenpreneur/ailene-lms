@@ -5,7 +5,8 @@ import {
   type ReportProps,
 } from "@/components/reports/AileneReportPDF";
 import ButtonAILN from "@/components/buttons/ButtonAILN";
-import ScorecardStripAILN from "@/components/cards/ScorecardStripAILN";
+import ScorecardAILN from "@/components/cards/ScorecardAILN";
+import SectionContainerAILN from "@/components/cards/SectionContainerAILN";
 import LevelDistributionSponsorAILN from "@/components/charts/LevelDistributionSponsorAILN";
 import ProficiencyTrendsSponsorAILN from "@/components/charts/ProficiencyTrendsSponsorAILN";
 import OrganizationLeaderboardAILN from "@/components/indexes/OrganizationLeaderboardAILN";
@@ -264,8 +265,21 @@ export default function DashboardSponsorAILN({
           </div>
         </div>
 
-        {/* KPI strip — single card, divided columns (statistics-02 style) */}
-        <ScorecardStripAILN items={kpiCards} />
+        {/* KPI strip — standardized ScorecardAILN cards */}
+        <div className="grid grid-cols-1 gap-4 md:grid-cols-2 xl:grid-cols-4">
+          {kpiCards.map((k, i) => (
+            <ScorecardAILN
+              key={i}
+              title={k.title}
+              value={k.value}
+              unit={k.unit}
+              icon={k.icon}
+              accent={k.accent}
+            >
+              <p className="text-xs text-muted-foreground">{k.footer}</p>
+            </ScorecardAILN>
+          ))}
+        </div>
 
         {/* Trend + Distribusi Level (1 row) */}
         <div className="grid grid-cols-1 gap-4 lg:grid-cols-[minmax(0,1.7fr)_minmax(0,1fr)]">
@@ -281,49 +295,39 @@ export default function DashboardSponsorAILN({
           {/* Kanan: Kesehatan Program + Aktivitas terkini */}
           <div className="flex flex-col gap-4">
             {/* Kesehatan Program */}
-            <div className="ailn-card overflow-hidden">
-              <div className="border-b border-border p-5 ">
-                <div className="text-base font-bold text-foreground">
-                  Kesehatan Program
-                </div>
-                <p className="mt-0.5 text-sm text-muted-foreground">
-                  Capaian program vs target · update real-time.
-                </p>
-              </div>
-              <div className="p-5">
-                {healthQ.isLoading ? (
-                  <ul className="grid grid-cols-2 gap-6 lg:grid-cols-4">
-                    {[0, 1, 2, 3].map((i) => (
-                      <li key={i} className="flex flex-col gap-2">
-                        <div className="h-3 w-20 animate-pulse rounded bg-muted" />
-                        <div className="h-3 w-16 animate-pulse rounded bg-muted/60" />
-                        <div className="mt-1 h-7 w-16 animate-pulse rounded bg-muted" />
-                      </li>
-                    ))}
-                  </ul>
-                ) : (
-                  <ul className="grid grid-cols-2 gap-6 lg:grid-cols-4">
-                    {healthMetrics.map((h) => (
-                      <HealthMetric
-                        key={h.key}
-                        label={h.label}
-                        name={h.name}
-                        percent={h.percent}
-                        detail={h.detail}
-                      />
-                    ))}
-                  </ul>
-                )}
-              </div>
-            </div>
+            <SectionContainerAILN
+              title="Kesehatan Program"
+              desc="Capaian program vs target · update real-time."
+            >
+              {healthQ.isLoading ? (
+                <ul className="grid grid-cols-2 gap-6 lg:grid-cols-4">
+                  {[0, 1, 2, 3].map((i) => (
+                    <li key={i} className="flex flex-col gap-2">
+                      <div className="h-3 w-20 animate-pulse rounded bg-muted" />
+                      <div className="h-3 w-16 animate-pulse rounded bg-muted/60" />
+                      <div className="mt-1 h-7 w-16 animate-pulse rounded bg-muted" />
+                    </li>
+                  ))}
+                </ul>
+              ) : (
+                <ul className="grid grid-cols-2 gap-6 lg:grid-cols-4">
+                  {healthMetrics.map((h) => (
+                    <HealthMetric
+                      key={h.key}
+                      label={h.label}
+                      name={h.name}
+                      percent={h.percent}
+                      detail={h.detail}
+                    />
+                  ))}
+                </ul>
+              )}
+            </SectionContainerAILN>
 
             {/* Aktivitas terkini */}
-            <div className="ailn-card p-5">
-              <div className="text-base font-bold text-foreground">
-                Aktivitas terkini
-              </div>
+            <SectionContainerAILN title="Aktivitas terkini">
               {activityQ.isLoading ? (
-                <ul className="mt-3 flex flex-col gap-3">
+                <ul className="flex flex-col gap-3">
                   {[0, 1, 2, 3].map((i) => (
                     <li key={i} className="flex items-start gap-3">
                       <span className="mt-1.5 size-1.5 shrink-0 rounded-full bg-muted" />
@@ -335,11 +339,11 @@ export default function DashboardSponsorAILN({
                   ))}
                 </ul>
               ) : activity.length === 0 ? (
-                <p className="mt-3 text-sm text-muted-foreground">
+                <p className="text-sm text-muted-foreground">
                   Belum ada aktivitas.
                 </p>
               ) : (
-                <ul className="mt-3 flex flex-col gap-3 text-sm">
+                <ul className="flex flex-col gap-3 text-sm">
                   {activity.map((a, i) => (
                     <li key={i} className="flex items-start gap-3">
                       <span
@@ -366,7 +370,7 @@ export default function DashboardSponsorAILN({
                   ))}
                 </ul>
               )}
-            </div>
+            </SectionContainerAILN>
           </div>
         </div>
       </div>

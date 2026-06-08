@@ -6,6 +6,7 @@ import {
 } from "@/components/reports/AileneReportPDF";
 import ButtonAILN from "@/components/buttons/ButtonAILN";
 import ScorecardStripAILN from "@/components/cards/ScorecardStripAILN";
+import SectionContainerAILN from "@/components/cards/SectionContainerAILN";
 import PageContainerAILN from "@/components/pages/PageContainerAILN";
 import {
   ChartContainer,
@@ -296,10 +297,14 @@ export default function DashboardOutcomeAILN({
 
         {/* Progres menuju level target — proses (kiri) + hasil akhir (kanan) */}
         <div className="grid grid-cols-1 gap-4 lg:grid-cols-[1.7fr_1fr]">
-          <Section
+          <SectionContainerAILN
             title={`Proses · % capai ≥ L${TARGET_LEVEL}`}
-            subtitle={`Karyawan yang mencapai ${targetLevelName(levelQ.data)} dari waktu ke waktu`}
-            badge="data contoh"
+            desc={`Karyawan yang mencapai ${targetLevelName(levelQ.data)} dari waktu ke waktu`}
+            headerRight={
+              <span className="shrink-0 rounded-full border border-dashboard-border bg-muted px-2.5 py-0.5 text-[11px] font-semibold text-muted-foreground dark:bg-card-inside-bg dark:text-muted-foreground">
+                data contoh
+              </span>
+            }
           >
             {levelQ.isLoading || !levelQ.data ? (
               <Skeleton className="h-56" />
@@ -308,11 +313,11 @@ export default function DashboardOutcomeAILN({
             ) : (
               <ProcessArea distribution={levelQ.data.distribution} />
             )}
-          </Section>
+          </SectionContainerAILN>
 
-          <Section
+          <SectionContainerAILN
             title={`Hasil akhir · capai ≥ L${TARGET_LEVEL}`}
-            subtitle="Sudah vs belum mencapai level target"
+            desc="Sudah vs belum mencapai level target"
           >
             {levelQ.isLoading || !levelQ.data ? (
               <Skeleton className="h-56" />
@@ -321,17 +326,19 @@ export default function DashboardOutcomeAILN({
             ) : (
               <ResultDonut distribution={levelQ.data.distribution} />
             )}
-          </Section>
+          </SectionContainerAILN>
         </div>
 
         {/* Top performers */}
-        <Section
+        <SectionContainerAILN
           title="Top Performers Org-Wide"
-          subtitle="Bintang individual seluruh organisasi · composite score"
-          badge={
-            performersQ.data
-              ? `${formatInt(performersQ.data.total)} karyawan`
-              : undefined
+          desc="Bintang individual seluruh organisasi · composite score"
+          headerRight={
+            performersQ.data ? (
+              <span className="shrink-0 rounded-full border border-dashboard-border bg-muted px-2.5 py-0.5 text-[11px] font-semibold text-muted-foreground dark:bg-card-inside-bg dark:text-muted-foreground">
+                {`${formatInt(performersQ.data.total)} karyawan`}
+              </span>
+            ) : undefined
           }
         >
           {performersQ.isLoading || !performersQ.data ? (
@@ -341,7 +348,7 @@ export default function DashboardOutcomeAILN({
           ) : (
             <TopPerformersTable list={performersQ.data.list} />
           )}
-        </Section>
+        </SectionContainerAILN>
       </div>
     </PageContainerAILN>
   );
@@ -355,39 +362,6 @@ function KpiCaption({ children }: { children: React.ReactNode }) {
     <span className="text-xs font-medium text-muted-foreground">
       {children}
     </span>
-  );
-}
-
-// ---------- Section card ----------
-
-function Section({
-  title,
-  subtitle,
-  badge,
-  children,
-}: {
-  title: string;
-  subtitle?: string;
-  badge?: string;
-  children: React.ReactNode;
-}) {
-  return (
-    <div className="flex flex-col rounded-lg border border-dashboard-border bg-white p-5 shadow-sm dark:bg-card-bg dark:shadow-[0_0_16px_rgba(0,53,157,0.06)]">
-      <div className="mb-4 flex items-start justify-between gap-3">
-        <div className="flex flex-col gap-0.5">
-          <div className="text-base font-bold text-foreground">{title}</div>
-          {subtitle && (
-            <p className="text-sm text-muted-foreground">{subtitle}</p>
-          )}
-        </div>
-        {badge && (
-          <span className="shrink-0 rounded-full border border-dashboard-border bg-muted px-2.5 py-0.5 text-[11px] font-semibold text-muted-foreground dark:bg-card-inside-bg dark:text-muted-foreground">
-            {badge}
-          </span>
-        )}
-      </div>
-      {children}
-    </div>
   );
 }
 

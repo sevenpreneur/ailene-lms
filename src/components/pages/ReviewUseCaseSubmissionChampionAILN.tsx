@@ -3,6 +3,7 @@ import ButtonAILN from "@/components/buttons/ButtonAILN";
 import PageContainerAILN from "@/components/pages/PageContainerAILN";
 import AppErrorComponents from "@/components/states/AppErrorComponents";
 import AppPageState from "@/components/states/AppPageState";
+import SectionContainerAILN from "@/components/cards/SectionContainerAILN";
 import { setSessionToken, trpc } from "@/trpc/client";
 import dayjs from "dayjs";
 import {
@@ -237,21 +238,18 @@ export default function ReviewUseCaseSubmissionChampionAILN({
           )}
         </div>
 
-        <div className="flex flex-col gap-2 rounded-lg border border-dashboard-border bg-white p-4 dark:bg-card-bg">
-          <div className="text-[11px] font-semibold uppercase tracking-wide text-gray-500 dark:text-gray-400">
-            Deskripsi Use Case
-          </div>
+        <SectionContainerAILN title="Deskripsi Use Case">
           <p className="text-sm whitespace-pre-wrap text-gray-700 dark:text-gray-200">
             {s.use_case.description}
           </p>
-        </div>
+        </SectionContainerAILN>
 
         {/* Student submission */}
         {s.submitted_at ? (
-          <div className="flex flex-col gap-4 rounded-lg border border-dashboard-border bg-white p-4 dark:bg-card-bg">
-            <h2 className="text-base font-bold dark:text-white">
-              Submission dari {s.member.full_name}
-            </h2>
+          <SectionContainerAILN
+            title={`Submission dari ${s.member.full_name}`}
+            contentClassName="flex flex-col gap-4"
+          >
             <div className="grid grid-cols-1 gap-4 md:grid-cols-3">
               <Field
                 label="Hours saved"
@@ -283,7 +281,7 @@ export default function ReviewUseCaseSubmissionChampionAILN({
                 {s.description ?? "—"}
               </p>
             </div>
-          </div>
+          </SectionContainerAILN>
         ) : (
           <div className="rounded-lg border border-dashed border-dashboard-border p-6 text-center text-sm text-gray-500 dark:text-gray-400">
             Student belum submit.

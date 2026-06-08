@@ -1,4 +1,4 @@
-import AuthLoginSVP from "@/components/pages/AuthLoginSVP";
+import AuthLoginAILN from "@/components/pages/AuthLoginAILN";
 import { Metadata } from "next";
 
 export const metadata: Metadata = {
@@ -46,5 +46,5 @@ export const metadata: Metadata = {
 };
 
 export default function AuthPage() {
-  return <AuthLoginSVP />;
+  return <AuthLoginAILN />;
 }

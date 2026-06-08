@@ -8,7 +8,7 @@ import { useState } from "react";
 import { Loader2 } from "lucide-react";
 import { isValidRedirectUrl } from "@/lib/valid-redirect";
 
-export default function AppLoginContainer() {
+export default function LoginContainerAILN() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const redirectTo = searchParams.get("redirectTo");

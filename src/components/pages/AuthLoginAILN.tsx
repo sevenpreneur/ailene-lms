@@ -1,9 +1,9 @@
 "use client";
 import { Suspense } from "react";
-import AppLoginContainer from "../elements/AppLoginContainer";
+import LoginContainerAILN from "../elements/LoginContainerAILN";
 import Image from "next/image";
 
-export default function AuthLoginSVP() {
+export default function AuthLoginAILN() {
   return (
     <div
       className={`root fixed top-0 left-0 w-screen h-screen justify-center z-50 transition-all duration-700 ease-in-out`}
@@ -12,7 +12,7 @@ export default function AuthLoginSVP() {
         {/* Container Login & Right Side Desktop */}
         <div className="flex bg-white pt-24 sm:pt-0 lg:flex-1/2 lg:justify-center">
           <Suspense fallback={null}>
-            <AppLoginContainer />
+            <LoginContainerAILN />
           </Suspense>
         </div>
         {/* Background Mobile & Left Side Desktop */}

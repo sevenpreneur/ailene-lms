@@ -1,6 +1,7 @@
 "use client";
 
 import ButtonAILN from "@/components/buttons/ButtonAILN";
+import SectionContainerAILN from "@/components/cards/SectionContainerAILN";
 import PageContainerAILN from "@/components/pages/PageContainerAILN";
 import AppErrorComponents from "@/components/states/AppErrorComponents";
 import { setSessionToken, trpc } from "@/trpc/client";
@@ -258,24 +259,20 @@ function ReportContent({
           </section>
 
           <aside className="flex flex-col gap-4">
-            <section className="rounded-lg border border-dashboard-border bg-white p-5 shadow-sm dark:bg-card-bg">
-              <h2 className="text-base font-bold text-gray-900 dark:text-white">
-                Unduh laporan
-              </h2>
-              <p className="mt-1 text-sm text-gray-500 dark:text-gray-400">
-                Hasilkan ringkasan periode ini sebagai PDF untuk dibagikan
-                manual ke sponsor / tim.
-              </p>
+            <SectionContainerAILN
+              title="Unduh laporan"
+              desc="Hasilkan ringkasan periode ini sebagai PDF untuk dibagikan manual ke sponsor / tim."
+            >
               <ButtonAILN
                 variant="primary"
                 size="medium"
-                className="mt-4 w-full"
+                className="w-full"
                 onClick={handleDownload}
               >
                 <Download className="size-4" />
                 Unduh PDF
               </ButtonAILN>
-            </section>
+            </SectionContainerAILN>
           </aside>
         </div>
       </div>
