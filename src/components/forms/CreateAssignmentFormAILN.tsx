@@ -1,6 +1,8 @@
 "use client";
 import ButtonAILN from "@/components/buttons/ButtonAILN";
-import AppSheet from "@/components/modals/AppSheet";
+import InputAILN from "@/components/fields/InputAILN";
+import TextAreaAILN from "@/components/fields/TextAreaAILN";
+import SheetAILN from "@/components/modals/SheetAILN";
 import { trpc } from "@/trpc/client";
 import dayjs from "dayjs";
 import { Loader2, Plus } from "lucide-react";
@@ -12,50 +14,68 @@ type AssignmentKind = "PROMPT" | "USE_CASE";
 type TargetMode = "INDIVIDUAL" | "BULK";
 type CategoryOption = { value: number; label: string };
 
-interface CreateAssignmentFormChampionAILNProps {
+interface CreateAssignmentFormAILNProps {
   isOpen: boolean;
   onClose: () => void;
 }
 
-export default function CreateAssignmentFormChampionAILN({
+export default function CreateAssignmentFormAILN({
   isOpen,
   onClose,
-}: CreateAssignmentFormChampionAILNProps) {
+}: CreateAssignmentFormAILNProps) {
   const utils = trpc.useUtils();
 
-  const [kind, setKind] = useState<AssignmentKind>("PROMPT");
-  const [name, setName] = useState("");
-  const [description, setDescription] = useState("");
-  const [expectedOutput, setExpectedOutput] = useState("");
-  const [selectedCategoryIds, setSelectedCategoryIds] = useState<number[]>([]);
+  const [formData, setFormData] = useState<{
+    kind: AssignmentKind;
+    name: string;
+    description: string;
+    expectedOutput: string;
+    selectedCategoryIds: number[];
+    assignEnabled: boolean;
+    mode: TargetMode;
+    selectedMemberIds: number[];
+    selectedGroupIds: number[];
+    deadlineDate: string;
+    deadlineTime: string;
+    message: string;
+  }>({
+    kind: "PROMPT",
+    name: "",
+    description: "",
+    expectedOutput: "",
+    selectedCategoryIds: [],
+    assignEnabled: false,
+    mode: "INDIVIDUAL",
+    selectedMemberIds: [],
+    selectedGroupIds: [],
+    deadlineDate: dayjs().add(7, "day").format("YYYY-MM-DD"),
+    deadlineTime: "23:59",
+    message: "",
+  });
 
-  const [assignEnabled, setAssignEnabled] = useState(false);
-  const [mode, setMode] = useState<TargetMode>("INDIVIDUAL");
-  const [selectedMemberIds, setSelectedMemberIds] = useState<number[]>([]);
-  const [selectedGroupIds, setSelectedGroupIds] = useState<number[]>([]);
-  const [deadlineDate, setDeadlineDate] = useState(
-    dayjs().add(7, "day").format("YYYY-MM-DD")
-  );
-  const [deadlineTime, setDeadlineTime] = useState("23:59");
-  const [message, setMessage] = useState("");
+  // Curried single-field updater: handleInputChange("name")(value)
+  const handleInputChange = (fieldName: string) => (value: unknown) =>
+    setFormData((prev) => ({ ...prev, [fieldName]: value }));
 
   const categoriesQ = trpc.ailene.list.categories.useQuery(undefined, {
     enabled: isOpen,
   });
   const memberQ = trpc.auth.checkAilMember.useQuery(undefined, {
-    enabled: isOpen && assignEnabled,
+    enabled: isOpen && formData.assignEnabled,
   });
   const membersQ = trpc.ailene.list.members.useQuery(
     {},
-    { enabled: isOpen && assignEnabled }
+    { enabled: isOpen && formData.assignEnabled }
   );
 
   const createPromptM = trpc.ailene.create.promptAssignment.useMutation();
   const createUseCaseM = trpc.ailene.create.useCaseAssignment.useMutation();
-  const mutation = kind === "PROMPT" ? createPromptM : createUseCaseM;
   const isSubmitting = createPromptM.isPending || createUseCaseM.isPending;
 
-  const categories = categoriesQ.data?.list ?? [];
+  const categories = useMemo(
+    () => categoriesQ.data?.list ?? [],
+    [categoriesQ.data?.list]
+  );
   const groups = memberQ.data?.ail_member?.championed_groups ?? [];
   const members = membersQ.data?.list ?? [];
 
@@ -64,32 +84,42 @@ export default function CreateAssignmentFormChampionAILN({
     [categories]
   );
   const selectedCategoryOptions = useMemo(
-    () => categoryOptions.filter((o) => selectedCategoryIds.includes(o.value)),
-    [categoryOptions, selectedCategoryIds]
+    () =>
+      categoryOptions.filter((o) =>
+        formData.selectedCategoryIds.includes(o.value)
+      ),
+    [categoryOptions, formData.selectedCategoryIds]
   );
   const toggleMember = (id: number) =>
-    setSelectedMemberIds((prev) =>
-      prev.includes(id) ? prev.filter((x) => x !== id) : [...prev, id]
-    );
+    setFormData((prev) => ({
+      ...prev,
+      selectedMemberIds: prev.selectedMemberIds.includes(id)
+        ? prev.selectedMemberIds.filter((x) => x !== id)
+        : [...prev.selectedMemberIds, id],
+    }));
   const toggleGroup = (id: number) =>
-    setSelectedGroupIds((prev) =>
-      prev.includes(id) ? prev.filter((x) => x !== id) : [...prev, id]
-    );
+    setFormData((prev) => ({
+      ...prev,
+      selectedGroupIds: prev.selectedGroupIds.includes(id)
+        ? prev.selectedGroupIds.filter((x) => x !== id)
+        : [...prev.selectedGroupIds, id],
+    }));
 
-  const resetForm = () => {
-    setKind("PROMPT");
-    setName("");
-    setDescription("");
-    setExpectedOutput("");
-    setSelectedCategoryIds([]);
-    setAssignEnabled(false);
-    setMode("INDIVIDUAL");
-    setSelectedMemberIds([]);
-    setSelectedGroupIds([]);
-    setDeadlineDate(dayjs().add(7, "day").format("YYYY-MM-DD"));
-    setDeadlineTime("23:59");
-    setMessage("");
-  };
+  const resetForm = () =>
+    setFormData({
+      kind: "PROMPT",
+      name: "",
+      description: "",
+      expectedOutput: "",
+      selectedCategoryIds: [],
+      assignEnabled: false,
+      mode: "INDIVIDUAL",
+      selectedMemberIds: [],
+      selectedGroupIds: [],
+      deadlineDate: dayjs().add(7, "day").format("YYYY-MM-DD"),
+      deadlineTime: "23:59",
+      message: "",
+    });
 
   const handleClose = () => {
     if (isSubmitting) return;
@@ -99,6 +129,21 @@ export default function CreateAssignmentFormChampionAILN({
 
   const handleSubmit = (e: FormEvent) => {
     e.preventDefault();
+
+    const {
+      kind,
+      name,
+      description,
+      expectedOutput,
+      selectedCategoryIds,
+      assignEnabled,
+      mode,
+      selectedMemberIds,
+      selectedGroupIds,
+      deadlineDate,
+      deadlineTime,
+      message,
+    } = formData;
 
     if (!name.trim()) {
       toast.error("Nama wajib diisi.");
@@ -214,7 +259,7 @@ export default function CreateAssignmentFormChampionAILN({
   };
 
   return (
-    <AppSheet
+    <SheetAILN
       isOpen={isOpen}
       onClose={handleClose}
       sheetName="Buat Assignment Baru"
@@ -233,9 +278,9 @@ export default function CreateAssignmentFormChampionAILN({
             <div className="grid grid-cols-2 gap-2">
               <button
                 type="button"
-                onClick={() => setKind("PROMPT")}
+                onClick={() => handleInputChange("kind")("PROMPT")}
                 className={`rounded-md border px-3 py-2 text-sm font-medium transition ${
-                  kind === "PROMPT"
+                  formData.kind === "PROMPT"
                     ? "border-emerald-500 bg-emerald-50 text-emerald-700 dark:bg-emerald-500/10 dark:text-emerald-300"
                     : "border-dashboard-border text-gray-600 hover:border-gray-400 dark:text-gray-300"
                 }`}
@@ -244,9 +289,9 @@ export default function CreateAssignmentFormChampionAILN({
               </button>
               <button
                 type="button"
-                onClick={() => setKind("USE_CASE")}
+                onClick={() => handleInputChange("kind")("USE_CASE")}
                 className={`rounded-md border px-3 py-2 text-sm font-medium transition ${
-                  kind === "USE_CASE"
+                  formData.kind === "USE_CASE"
                     ? "border-emerald-500 bg-emerald-50 text-emerald-700 dark:bg-emerald-500/10 dark:text-emerald-300"
                     : "border-dashboard-border text-gray-600 hover:border-gray-400 dark:text-gray-300"
                 }`}
@@ -257,70 +302,60 @@ export default function CreateAssignmentFormChampionAILN({
           </div>
 
           {/* Name */}
-          <div className="flex flex-col gap-2">
-            <label className="text-xs font-semibold uppercase tracking-wide text-gray-500 dark:text-gray-400">
-              Nama <span className="text-red-500">*</span>
-            </label>
-            <input
-              type="text"
-              value={name}
-              onChange={(e) => setName(e.target.value.slice(0, 255))}
-              placeholder={
-                kind === "PROMPT"
-                  ? "Contoh: Brainstorm caption Instagram"
-                  : "Contoh: Otomasi laporan penjualan mingguan"
-              }
-              maxLength={255}
-              required
-              className="rounded-md border border-dashboard-border bg-card-inside-bg px-3 py-2 text-sm focus:border-emerald-500 focus:outline-none dark:text-gray-200 dark:placeholder:text-gray-500"
-            />
-          </div>
+          <InputAILN
+            inputId="assignment-name"
+            inputName="Nama"
+            inputType="text"
+            variant="CHAMPION"
+            value={formData.name}
+            onInputChange={handleInputChange("name")}
+            characterLength={255}
+            inputPlaceholder={
+              formData.kind === "PROMPT"
+                ? "Contoh: Brainstorm caption Instagram"
+                : "Contoh: Otomasi laporan penjualan mingguan"
+            }
+            required
+          />
 
           {/* Description */}
-          <div className="flex flex-col gap-2">
-            <label className="text-xs font-semibold uppercase tracking-wide text-gray-500 dark:text-gray-400">
-              {kind === "PROMPT" ? "Skenario" : "Deskripsi"}{" "}
-              <span className="text-red-500">*</span>
-            </label>
-            <textarea
-              value={description}
-              onChange={(e) => setDescription(e.target.value)}
-              placeholder={
-                kind === "PROMPT"
-                  ? "Jelaskan skenario / konteks prompt-nya…"
-                  : "Jelaskan use case-nya secara singkat…"
-              }
-              rows={4}
-              required
-              className="resize-none rounded-md border border-dashboard-border bg-card-inside-bg px-3 py-2 text-sm focus:border-emerald-500 focus:outline-none dark:text-gray-200 dark:placeholder:text-gray-500"
-            />
-          </div>
+          <TextAreaAILN
+            textAreaId="assignment-description"
+            textAreaName={formData.kind === "PROMPT" ? "Skenario" : "Deskripsi"}
+            variant="CHAMPION"
+            value={formData.description}
+            onTextAreaChange={handleInputChange("description")}
+            textAreaHeight="h-28"
+            textAreaPlaceholder={
+              formData.kind === "PROMPT"
+                ? "Jelaskan skenario / konteks prompt-nya…"
+                : "Jelaskan use case-nya secara singkat…"
+            }
+            required
+          />
 
           {/* Expected Output (prompt only) */}
-          {kind === "PROMPT" && (
-            <div className="flex flex-col gap-2">
-              <label className="text-xs font-semibold uppercase tracking-wide text-gray-500 dark:text-gray-400">
-                Expected Output <span className="text-red-500">*</span>
-              </label>
-              <textarea
-                value={expectedOutput}
-                onChange={(e) => setExpectedOutput(e.target.value)}
-                placeholder="Deskripsikan output yang diharapkan dari prompt ini…"
-                rows={4}
-                required
-                className="resize-none rounded-md border border-dashboard-border bg-card-inside-bg px-3 py-2 text-sm focus:border-emerald-500 focus:outline-none dark:text-gray-200 dark:placeholder:text-gray-500"
-              />
-            </div>
+          {formData.kind === "PROMPT" && (
+            <TextAreaAILN
+              textAreaId="assignment-expected-output"
+              textAreaName="Expected Output"
+              variant="CHAMPION"
+              value={formData.expectedOutput}
+              onTextAreaChange={handleInputChange("expectedOutput")}
+              textAreaHeight="h-28"
+              textAreaPlaceholder="Deskripsikan output yang diharapkan dari prompt ini…"
+              required
+            />
           )}
 
-          {/* Categories */}
+          {/* Categories — searchable multi-select (no AILN equivalent) */}
           <div className="flex flex-col gap-2">
             <div className="flex items-center justify-between">
               <label className="text-xs font-semibold uppercase tracking-wide text-gray-500 dark:text-gray-400">
                 Kategori <span className="text-red-500">*</span>
               </label>
               <span className="text-[11px] text-gray-400">
-                {selectedCategoryIds.length}/2 dipilih
+                {formData.selectedCategoryIds.length}/2 dipilih
               </span>
             </div>
 
@@ -330,9 +365,11 @@ export default function CreateAssignmentFormChampionAILN({
               options={categoryOptions}
               value={selectedCategoryOptions}
               onChange={(vals) =>
-                setSelectedCategoryIds(vals.map((v) => v.value))
+                handleInputChange("selectedCategoryIds")(
+                  vals.map((v) => v.value)
+                )
               }
-              isOptionDisabled={() => selectedCategoryIds.length >= 2}
+              isOptionDisabled={() => formData.selectedCategoryIds.length >= 2}
               isLoading={categoriesQ.isLoading}
               closeMenuOnSelect={false}
               placeholder="Cari & pilih kategori (maks 2)…"
@@ -382,8 +419,10 @@ export default function CreateAssignmentFormChampionAILN({
             <label className="flex cursor-pointer items-start gap-3">
               <input
                 type="checkbox"
-                checked={assignEnabled}
-                onChange={(e) => setAssignEnabled(e.target.checked)}
+                checked={formData.assignEnabled}
+                onChange={(e) =>
+                  handleInputChange("assignEnabled")(e.target.checked)
+                }
                 className="mt-1 size-4"
               />
               <div className="flex flex-col gap-0.5">
@@ -398,7 +437,7 @@ export default function CreateAssignmentFormChampionAILN({
             </label>
           </div>
 
-          {assignEnabled && (
+          {formData.assignEnabled && (
             <>
               {/* Target mode */}
               <div className="flex flex-col gap-2">
@@ -408,9 +447,9 @@ export default function CreateAssignmentFormChampionAILN({
                 <div className="grid grid-cols-2 gap-2">
                   <button
                     type="button"
-                    onClick={() => setMode("INDIVIDUAL")}
+                    onClick={() => handleInputChange("mode")("INDIVIDUAL")}
                     className={`rounded-md border px-3 py-2 text-sm font-medium transition ${
-                      mode === "INDIVIDUAL"
+                      formData.mode === "INDIVIDUAL"
                         ? "border-emerald-500 bg-emerald-50 text-emerald-700 dark:bg-emerald-500/10 dark:text-emerald-300"
                         : "border-dashboard-border text-gray-600 hover:border-gray-400 dark:text-gray-300"
                     }`}
@@ -419,9 +458,9 @@ export default function CreateAssignmentFormChampionAILN({
                   </button>
                   <button
                     type="button"
-                    onClick={() => setMode("BULK")}
+                    onClick={() => handleInputChange("mode")("BULK")}
                     className={`rounded-md border px-3 py-2 text-sm font-medium transition ${
-                      mode === "BULK"
+                      formData.mode === "BULK"
                         ? "border-emerald-500 bg-emerald-50 text-emerald-700 dark:bg-emerald-500/10 dark:text-emerald-300"
                         : "border-dashboard-border text-gray-600 hover:border-gray-400 dark:text-gray-300"
                     }`}
@@ -432,10 +471,10 @@ export default function CreateAssignmentFormChampionAILN({
               </div>
 
               {/* Target picker */}
-              {mode === "INDIVIDUAL" ? (
+              {formData.mode === "INDIVIDUAL" ? (
                 <div className="flex flex-col gap-2">
                   <label className="text-xs font-semibold uppercase tracking-wide text-gray-500 dark:text-gray-400">
-                    Pilih Anggota ({selectedMemberIds.length} dipilih)
+                    Pilih Anggota ({formData.selectedMemberIds.length} dipilih)
                   </label>
                   {membersQ.isLoading ? (
                     <div className="text-sm text-gray-500">Memuat…</div>
@@ -446,7 +485,9 @@ export default function CreateAssignmentFormChampionAILN({
                   ) : (
                     <div className="flex max-h-64 flex-col gap-1 overflow-y-auto rounded-md border border-dashboard-border p-2">
                       {members.map((m) => {
-                        const checked = selectedMemberIds.includes(m.member_id);
+                        const checked = formData.selectedMemberIds.includes(
+                          m.member_id
+                        );
                         return (
                           <label
                             key={m.member_id}
@@ -479,18 +520,18 @@ export default function CreateAssignmentFormChampionAILN({
               ) : (
                 <div className="flex flex-col gap-2">
                   <label className="text-xs font-semibold uppercase tracking-wide text-gray-500 dark:text-gray-400">
-                    Pilih Grup ({selectedGroupIds.length} dipilih)
+                    Pilih Grup ({formData.selectedGroupIds.length} dipilih)
                   </label>
                   {memberQ.isLoading ? (
                     <div className="text-sm text-gray-500">Memuat…</div>
                   ) : groups.length === 0 ? (
-                    <div className="text-sm text-gray-500">
-                      Belum ada grup.
-                    </div>
+                    <div className="text-sm text-gray-500">Belum ada grup.</div>
                   ) : (
                     <div className="flex flex-col gap-1 rounded-md border border-dashboard-border p-2">
                       {groups.map((g) => {
-                        const checked = selectedGroupIds.includes(g.id);
+                        const checked = formData.selectedGroupIds.includes(
+                          g.id
+                        );
                         return (
                           <label
                             key={g.id}
@@ -523,42 +564,41 @@ export default function CreateAssignmentFormChampionAILN({
               )}
 
               {/* Deadline */}
-              <div className="flex flex-col gap-2">
-                <label className="text-xs font-semibold uppercase tracking-wide text-gray-500 dark:text-gray-400">
-                  Deadline <span className="text-red-500">*</span>
-                </label>
-                <div className="grid grid-cols-2 gap-2">
-                  <input
-                    type="date"
-                    value={deadlineDate}
-                    onChange={(e) => setDeadlineDate(e.target.value)}
-                    className="rounded-md border border-dashboard-border bg-card-inside-bg px-3 py-2 text-sm focus:border-emerald-500 focus:outline-none dark:text-gray-200"
-                    required
-                  />
-                  <input
-                    type="time"
-                    value={deadlineTime}
-                    onChange={(e) => setDeadlineTime(e.target.value)}
-                    className="rounded-md border border-dashboard-border bg-card-inside-bg px-3 py-2 text-sm focus:border-emerald-500 focus:outline-none dark:text-gray-200"
-                    required
-                  />
-                </div>
+              <div className="grid grid-cols-2 gap-2">
+                <InputAILN
+                  inputId="assignment-deadline-date"
+                  inputName="Tanggal Deadline"
+                  inputType="date"
+                  variant="CHAMPION"
+                  value={formData.deadlineDate}
+                  onInputChange={handleInputChange("deadlineDate")}
+                  required
+                />
+                <InputAILN
+                  inputId="assignment-deadline-time"
+                  inputName="Jam"
+                  inputType="time"
+                  variant="CHAMPION"
+                  value={formData.deadlineTime}
+                  onInputChange={handleInputChange("deadlineTime")}
+                  required
+                />
               </div>
 
               {/* Message */}
-              <div className="flex flex-col gap-2">
-                <label className="text-xs font-semibold uppercase tracking-wide text-gray-500 dark:text-gray-400">
-                  Catatan untuk anggota (opsional)
-                </label>
-                <textarea
-                  value={message}
-                  onChange={(e) => setMessage(e.target.value.slice(0, 500))}
-                  placeholder="Tambahkan catatan atau instruksi khusus…"
-                  rows={3}
-                  className="resize-none rounded-md border border-dashboard-border bg-card-inside-bg px-3 py-2 text-sm focus:border-emerald-500 focus:outline-none dark:text-gray-200 dark:placeholder:text-gray-500"
+              <div className="flex flex-col gap-1">
+                <TextAreaAILN
+                  textAreaId="assignment-message"
+                  textAreaName="Catatan untuk anggota (opsional)"
+                  variant="CHAMPION"
+                  value={formData.message}
+                  onTextAreaChange={handleInputChange("message")}
+                  textAreaHeight="h-20"
+                  characterLength={500}
+                  textAreaPlaceholder="Tambahkan catatan atau instruksi khusus…"
                 />
                 <div className="self-end text-xs text-gray-400">
-                  {message.length}/500
+                  {formData.message.length}/500
                 </div>
               </div>
             </>
@@ -581,17 +621,17 @@ export default function CreateAssignmentFormChampionAILN({
             ) : (
               <>
                 <Plus className="size-4" />
-                {assignEnabled ? "Buat & Assign" : "Buat"}{" "}
-                {kind === "PROMPT" ? "Prompt" : "Use Case"}
+                {formData.assignEnabled ? "Buat & Assign" : "Buat"}{" "}
+                {formData.kind === "PROMPT" ? "Prompt" : "Use Case"}
               </>
             )}
           </ButtonAILN>
           <p className="text-center text-[11px] text-gray-500 dark:text-gray-400">
             Item akan ditambahkan ke library{" "}
-            {kind === "PROMPT" ? "Prompt (L2)" : "Use Case (L3)"}.
+            {formData.kind === "PROMPT" ? "Prompt (L2)" : "Use Case (L3)"}.
           </p>
         </div>
       </form>
-    </AppSheet>
+    </SheetAILN>
   );
 }

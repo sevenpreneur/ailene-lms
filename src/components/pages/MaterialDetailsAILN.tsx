@@ -23,7 +23,7 @@ import "dayjs/locale/id";
 import { marked } from "marked";
 import Link from "next/link";
 import { useEffect, useMemo, useRef, useState } from "react";
-import styles from "./ailene-prose.module.css";
+import styles from "../css/ailene-prose.module.css";
 
 dayjs.locale("id");
 marked.setOptions({ gfm: true, breaks: false });

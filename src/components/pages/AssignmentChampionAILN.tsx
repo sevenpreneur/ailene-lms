@@ -1,6 +1,6 @@
 "use client";
 import AssignFormChampionAILN from "@/components/forms/AssignFormChampionAILN";
-import CreateAssignmentFormChampionAILN from "@/components/forms/CreateAssignmentFormChampionAILN";
+import CreateAssignmentFormAILN from "@/components/forms/CreateAssignmentFormAILN";
 import SectionContainerAILN from "@/components/cards/SectionContainerAILN";
 import PageContainerAILN from "@/components/pages/PageContainerAILN";
 import AppErrorComponents from "@/components/states/AppErrorComponents";
@@ -258,7 +258,7 @@ export default function AssignmentChampionAILN({
         }
       />
 
-      <CreateAssignmentFormChampionAILN
+      <CreateAssignmentFormAILN
         isOpen={createOpen}
         onClose={() => setCreateOpen(false)}
       />
