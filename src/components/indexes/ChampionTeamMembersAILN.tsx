@@ -1,42 +1,121 @@
 "use client";
 import SectionContainerAILN from "@/components/cards/SectionContainerAILN";
-import InputAILN from "@/components/fields/InputAILN";
-import SelectAILN from "@/components/fields/SelectAILN";
 import type { AppRouter } from "@/trpc/routers/_app";
 import type { inferRouterOutputs } from "@trpc/server";
 import dayjs from "dayjs";
 import relativeTime from "dayjs/plugin/relativeTime";
-import Link from "next/link";
-import { useState } from "react";
+import { ChevronRight, ListFilter, Search } from "lucide-react";
+import Image from "next/image";
+import { useRouter } from "next/navigation";
+import { useEffect, useRef, useState } from "react";
 
 dayjs.extend(relativeTime);
 
 type Member =
   inferRouterOutputs<AppRouter>["ailene"]["list"]["members"]["list"][number];
 
+type StatusKey = "on_track" | "at_risk" | "behind";
+
 export const statusMeta: Record<
-  "on_track" | "at_risk" | "behind",
-  { label: string; cls: string }
+  StatusKey,
+  { label: string; short: string; dot: string; text: string; cls: string }
 > = {
   on_track: {
-    label: "On Track",
+    label: "Sesuai target",
+    short: "On Track",
+    dot: "bg-emerald-500",
+    text: "text-emerald-700 dark:text-emerald-300",
     cls: "bg-green-100 text-green-700 dark:bg-green-500/10 dark:text-green-300 dark:border dark:border-green-500/30",
   },
   at_risk: {
-    label: "At Risk",
+    label: "Perlu perhatian",
+    short: "At Risk",
+    dot: "bg-blue-500",
+    text: "text-blue-700 dark:text-blue-300",
     cls: "bg-yellow-100 text-yellow-700 dark:bg-yellow-500/10 dark:text-yellow-300 dark:border dark:border-yellow-500/30",
   },
   behind: {
-    label: "Behind",
+    label: "Tertinggal · perlu coaching",
+    short: "Behind",
+    dot: "bg-amber-500",
+    text: "text-amber-700 dark:text-amber-300",
     cls: "bg-red-100 text-red-700 dark:bg-red-500/10 dark:text-red-300 dark:border dark:border-red-500/30",
   },
 };
 
+// Level pill accent rotates by level number so each level reads distinctly.
+const LEVEL_STYLES = [
+  "border-amber-300 text-amber-700 bg-amber-50 dark:border-amber-500/40 dark:bg-amber-500/10 dark:text-amber-300",
+  "border-blue-300 text-blue-700 bg-blue-50 dark:border-blue-500/40 dark:bg-blue-500/10 dark:text-blue-300",
+  "border-violet-300 text-violet-700 bg-violet-50 dark:border-violet-500/40 dark:bg-violet-500/10 dark:text-violet-300",
+  "border-emerald-300 text-emerald-700 bg-emerald-50 dark:border-emerald-500/40 dark:bg-emerald-500/10 dark:text-emerald-300",
+];
+
+// Deterministic avatar gradient from the member's name.
+const AVATAR_GRADIENTS = [
+  "from-fuchsia-500 to-pink-500",
+  "from-sky-500 to-blue-500",
+  "from-emerald-500 to-green-500",
+  "from-orange-500 to-red-500",
+  "from-violet-500 to-purple-500",
+  "from-amber-500 to-orange-500",
+  "from-rose-500 to-pink-600",
+  "from-cyan-500 to-teal-500",
+];
+
+function hashString(s: string): number {
+  let h = 0;
+  for (let i = 0; i < s.length; i++) h = (h * 31 + s.charCodeAt(i)) | 0;
+  return Math.abs(h);
+}
+
+function getInitials(name: string): string {
+  const parts = name.trim().split(/\s+/).filter(Boolean);
+  if (parts.length === 0) return "?";
+  if (parts.length === 1) return parts[0].slice(0, 2).toUpperCase();
+  return (parts[0][0] + parts[parts.length - 1][0]).toUpperCase();
+}
+
+function MemberAvatar({ name, src }: { name: string; src: string | null }) {
+  if (src) {
+    return (
+      <Image
+        src={src}
+        alt={name}
+        width={44}
+        height={44}
+        unoptimized
+        className="h-11 w-11 shrink-0 rounded-full object-cover"
+      />
+    );
+  }
+  const gradient = AVATAR_GRADIENTS[hashString(name) % AVATAR_GRADIENTS.length];
+  return (
+    <div
+      className={`flex h-11 w-11 shrink-0 items-center justify-center rounded-full bg-gradient-to-br ${gradient} text-sm font-bold text-white`}
+    >
+      {getInitials(name)}
+    </div>
+  );
+}
+
 export default function ChampionTeamMembersAILN(props: { members: Member[] }) {
-  const [statusFilter, setStatusFilter] = useState<
-    "" | "on_track" | "at_risk" | "behind"
-  >("");
+  const router = useRouter();
+  const [statusFilter, setStatusFilter] = useState<"" | StatusKey>("");
   const [search, setSearch] = useState("");
+  const [filterOpen, setFilterOpen] = useState(false);
+  const filterRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    if (!filterOpen) return;
+    const onClick = (e: MouseEvent) => {
+      if (filterRef.current && !filterRef.current.contains(e.target as Node)) {
+        setFilterOpen(false);
+      }
+    };
+    document.addEventListener("mousedown", onClick);
+    return () => document.removeEventListener("mousedown", onClick);
+  }, [filterOpen]);
 
   const filtered = props.members.filter((m) => {
     if (statusFilter && m.status !== statusFilter) return false;
@@ -51,145 +130,167 @@ export default function ChampionTeamMembersAILN(props: { members: Member[] }) {
     return true;
   });
 
+  const filterOptions: { label: string; value: "" | StatusKey }[] = [
+    { label: "Semua Status", value: "" },
+    { label: "Sesuai target", value: "on_track" },
+    { label: "Perlu perhatian", value: "at_risk" },
+    { label: "Tertinggal", value: "behind" },
+  ];
+
   return (
     <SectionContainerAILN
-      title="Team Members"
+      title="Anggota Tim Langsung"
+      desc="Klik baris untuk melihat detail member · Sortir: Status"
+      contentClassName="overflow-visible"
       headerRight={
         <div className="flex flex-wrap items-center gap-2">
-          <div className="w-56">
-            <InputAILN
-              inputId="team-members-search"
-              inputType="text"
-              variant="CHAMPION"
-              inputPlaceholder="Search member…"
+          <div className="relative w-56">
+            <Search className="pointer-events-none absolute left-3 top-1/2 size-4 -translate-y-1/2 text-gray-400" />
+            <input
+              type="text"
               value={search}
-              onInputChange={setSearch}
+              onChange={(e) => setSearch(e.target.value)}
+              placeholder="Cari anggota…"
+              className="h-10 w-full rounded-lg border border-dashboard-border bg-white pl-9 pr-3 text-sm text-foreground placeholder:text-gray-400 focus:border-emerald-500 focus:outline-none dark:bg-card-bg dark:text-gray-200"
             />
           </div>
-          <div className="w-44">
-            <SelectAILN
-              selectId="team-members-status"
-              variant="CHAMPION"
-              selectPlaceholder="Filter Status"
-              value={statusFilter}
-              onChange={(v) =>
-                setStatusFilter((v ?? "") as typeof statusFilter)
-              }
-              options={[
-                { label: "Semua Status", value: "" },
-                { label: "On Track", value: "on_track" },
-                { label: "At Risk", value: "at_risk" },
-                { label: "Behind", value: "behind" },
-              ]}
-            />
+          <div className="relative" ref={filterRef}>
+            <button
+              type="button"
+              onClick={() => setFilterOpen((v) => !v)}
+              className={`flex h-10 items-center gap-2 rounded-lg border px-3 text-sm font-medium transition ${
+                statusFilter
+                  ? "border-emerald-400 bg-emerald-50 text-emerald-700 dark:border-emerald-500/40 dark:bg-emerald-500/10 dark:text-emerald-300"
+                  : "border-dashboard-border bg-white text-foreground hover:border-foreground/40 dark:bg-card-bg dark:text-gray-200"
+              }`}
+            >
+              <ListFilter className="size-4" />
+              Filter
+            </button>
+            {filterOpen && (
+              <div className="absolute right-0 z-20 mt-1.5 w-48 overflow-hidden rounded-lg border border-dashboard-border bg-white py-1 shadow-lg dark:bg-card-bg">
+                {filterOptions.map((opt) => (
+                  <button
+                    key={opt.value || "all"}
+                    type="button"
+                    onClick={() => {
+                      setStatusFilter(opt.value);
+                      setFilterOpen(false);
+                    }}
+                    className={`flex w-full items-center justify-between px-3 py-2 text-left text-sm transition hover:bg-gray-50 dark:hover:bg-card-inside-bg ${
+                      statusFilter === opt.value
+                        ? "font-semibold text-emerald-700 dark:text-emerald-300"
+                        : "text-foreground dark:text-gray-200"
+                    }`}
+                  >
+                    {opt.label}
+                    {statusFilter === opt.value && (
+                      <span className="size-1.5 rounded-full bg-emerald-500" />
+                    )}
+                  </button>
+                ))}
+              </div>
+            )}
           </div>
         </div>
       }
     >
       <div className="overflow-x-auto">
-        <table className="w-full text-sm">
+        <table className="w-full border-collapse text-sm">
           <thead>
-            <tr className="text-left text-xs text-gray-500 dark:text-gray-400">
-              <th className="px-2 py-2 font-medium">Member</th>
-              <th className="px-2 py-2 font-medium">Status</th>
-              <th className="px-2 py-2 font-medium">Level</th>
-              <th className="px-2 py-2 font-medium">Progress</th>
-              <th className="px-2 py-2 font-medium">Current Chapter</th>
-              <th className="px-2 py-2 font-medium">XP Earned</th>
-              <th className="px-2 py-2 font-medium">Last Active</th>
+            <tr className="border-y border-dashboard-border bg-gray-50/60 text-left text-[11px] font-semibold uppercase tracking-wider text-gray-500 dark:bg-card-inside-bg dark:text-gray-400">
+              <th className="px-4 py-3">Anggota</th>
+              <th className="px-4 py-3">Level</th>
+              <th className="px-4 py-3 text-center">Use Case</th>
+              <th className="px-4 py-3">Status</th>
+              <th className="px-4 py-3 text-right">Aksi</th>
             </tr>
           </thead>
           <tbody>
             {filtered.length === 0 ? (
               <tr>
                 <td
-                  colSpan={7}
-                  className="py-8 text-center text-gray-400 dark:text-gray-500"
+                  colSpan={5}
+                  className="py-10 text-center text-gray-400 dark:text-gray-500"
                 >
-                  No members found.
+                  Tidak ada anggota ditemukan.
                 </td>
               </tr>
             ) : (
-              filtered.map((m) => (
-                <tr
-                  key={m.member_id}
-                  className="border-t border-dashboard-border hover:bg-gray-50 dark:hover:bg-card-inside-bg"
-                >
-                  <td className="px-2 py-3">
-                    <div className="flex items-center gap-2">
-                      {m.user.avatar ? (
-                        // eslint-disable-next-line @next/next/no-img-element
-                        <img
+              filtered.map((m) => {
+                const status = statusMeta[m.status];
+                const levelCls =
+                  LEVEL_STYLES[
+                    (m.current_level.level_number - 1 + LEVEL_STYLES.length) %
+                      LEVEL_STYLES.length
+                  ];
+                const href = `/champion/members/${m.member_id}`;
+                return (
+                  <tr
+                    key={m.member_id}
+                    onClick={() => router.push(href)}
+                    className="group cursor-pointer border-b border-dashboard-border transition hover:bg-gray-50 dark:hover:bg-card-inside-bg"
+                  >
+                    {/* Anggota */}
+                    <td className="px-4 py-4">
+                      <div className="flex items-center gap-3">
+                        <MemberAvatar
+                          name={m.user.full_name}
                           src={m.user.avatar}
-                          alt={m.user.full_name}
-                          className="h-8 w-8 rounded-full object-cover"
                         />
-                      ) : (
-                        <div className="h-8 w-8 rounded-full bg-gray-200 dark:bg-dashboard-border" />
-                      )}
-                      <div>
-                        <Link
-                          href={`/champion/members/${m.member_id}`}
-                          className="font-semibold text-gray-900 hover:text-emerald-700 dark:text-white dark:hover:text-emerald-300"
-                        >
-                          {m.user.full_name}
-                        </Link>
-                        <div className="text-xs text-gray-500 dark:text-gray-400">
-                          {m.user.email}
+                        <div className="min-w-0">
+                          <div className="truncate font-bold text-gray-900 dark:text-white">
+                            {m.user.full_name}
+                          </div>
+                          <div className="truncate text-xs text-gray-500 dark:text-gray-400">
+                            {m.user.email}
+                          </div>
                         </div>
                       </div>
-                    </div>
-                  </td>
-                  <td className="px-2 py-3">
-                    <span
-                      className={`rounded px-2 py-0.5 text-xs font-medium ${statusMeta[m.status].cls}`}
-                    >
-                      {statusMeta[m.status].label}
-                    </span>
-                  </td>
-                  <td className="px-2 py-3">
-                    <div className="flex items-center gap-1.5">
-                      {m.current_level.icon && (
-                        // eslint-disable-next-line @next/next/no-img-element
-                        <img
-                          src={m.current_level.icon}
-                          alt={m.current_level.name}
-                          className="h-5 w-5"
-                        />
-                      )}
-                      <span className="text-xs font-medium dark:text-gray-200">
-                        Level {m.current_level.level_number}
+                    </td>
+
+                    {/* Level */}
+                    <td className="px-4 py-4">
+                      <span
+                        className={`inline-flex items-center rounded-md border px-2.5 py-1 text-xs font-semibold ${levelCls}`}
+                      >
+                        L{m.current_level.level_number}
                       </span>
-                    </div>
-                  </td>
-                  <td className="px-2 py-3">
-                    <div className="flex items-center gap-2">
-                      <span className="w-9 text-xs dark:text-gray-300">
-                        {m.progress_percent}%
-                      </span>
-                      <div className="h-1.5 w-24 overflow-hidden rounded-full bg-gray-200 dark:bg-dashboard-border">
-                        <div
-                          className="h-full bg-[#107158] dark:bg-emerald-500 dark:shadow-[0_0_6px_rgba(16,185,129,0.6)]"
-                          style={{ width: `${m.progress_percent}%` }}
+                    </td>
+
+                    {/* Use Case */}
+                    <td className="px-4 py-4 text-center text-lg font-bold text-gray-900 dark:text-white">
+                      {m.use_case_count}
+                    </td>
+
+                    {/* Status */}
+                    <td className="px-4 py-4">
+                      <div className="flex items-center gap-2">
+                        <span
+                          className={`size-2 shrink-0 rounded-full ${status.dot}`}
                         />
+                        <span className={`font-semibold ${status.text}`}>
+                          {status.label}
+                        </span>
                       </div>
-                    </div>
-                  </td>
-                  <td className="px-2 py-3 text-xs dark:text-gray-300">
-                    {m.current_chapter?.name ?? (
-                      <span className="text-gray-400 dark:text-gray-500">—</span>
-                    )}
-                  </td>
-                  <td className="px-2 py-3 font-semibold dark:text-white">
-                    {m.total_xp.toLocaleString()} XP
-                  </td>
-                  <td className="px-2 py-3 text-xs text-gray-500 dark:text-gray-400">
-                    {m.last_active_at
-                      ? dayjs(m.last_active_at).fromNow()
-                      : "Never"}
-                  </td>
-                </tr>
-              ))
+                    </td>
+
+                    {/* Aksi */}
+                    <td className="px-4 py-4 text-right">
+                      <span
+                        className={`inline-flex items-center gap-0.5 font-semibold ${
+                          m.status === "behind"
+                            ? "text-amber-700 dark:text-amber-300"
+                            : "text-emerald-700 dark:text-emerald-300"
+                        } group-hover:underline`}
+                      >
+                        Lihat detail
+                        <ChevronRight className="size-3.5" />
+                      </span>
+                    </td>
+                  </tr>
+                );
+              })
             )}
           </tbody>
         </table>

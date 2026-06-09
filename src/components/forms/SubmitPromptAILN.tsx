@@ -21,6 +21,7 @@ import {
   Tag,
 } from "lucide-react";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import React, { FormEvent, useEffect, useMemo, useState } from "react";
 import { toast } from "sonner";
 
@@ -101,6 +102,7 @@ export default function SubmitPromptAILN({
     setSessionToken(sessionToken);
   }, [sessionToken]);
 
+  const router = useRouter();
   const utils = trpc.useUtils();
   const assignmentQ = trpc.ailene.read.promptAssignment.useQuery({
     prompt_id: promptId,
@@ -203,6 +205,7 @@ export default function SubmitPromptAILN({
           });
           utils.ailene.read.todayFocus.invalidate();
           utils.ailene.list.assignedPrompts.invalidate();
+          router.push("/student/practice");
         },
         onError: (err) => {
           toast.error("Gagal kirim", { description: err.message });

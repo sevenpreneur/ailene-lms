@@ -8,9 +8,9 @@ hex/warna. Ganti preset di root → seluruh UI ikut berubah otomatis.
 
 ## 1. Font
 
-Body memakai **Manrope** lewat `--font-sans` (di-set di `src/app/layout.tsx`).
+Body memakai **Space Grotesk** lewat `--font-sans` (di-set di `src/app/layout.tsx`).
 
-- Default: semua teks otomatis `font-sans` (Manrope) — cukup pakai utility teks biasa.
+- Default: semua teks otomatis `font-sans` (Space Grotesk) — cukup pakai utility teks biasa.
 - Angka/metrik boleh mono: `font-mono` (atau `font-jetbrains`).
 - **Jangan** pakai `font-geist-*` lagi (sudah di-repoint ke preset; hindari menambah baru).
 
@@ -134,6 +134,6 @@ Konvensi:
 | `var(--chart-1..5)` untuk data viz | hex hijau/biru hardcoded |
 | `text-stakeholder-champion` untuk identitas | `text-emerald-600` |
 | `.ailn-card`, `rounded-lg`, `var(--radius-lg)` | shadow/radius hardcoded |
-| Manrope via `font-sans` | `font-geist-*` baru |
+| Space Grotesk via `font-sans` | `font-geist-*` baru |
 
 Ubah look global cukup dari **`globals.css`** (token) — bukan per-komponen.

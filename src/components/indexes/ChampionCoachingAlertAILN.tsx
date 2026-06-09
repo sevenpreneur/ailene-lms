@@ -59,7 +59,7 @@ export default function ChampionCoachingAlertAILN(props: {
                     <span
                       className={`shrink-0 rounded px-1.5 py-0.5 text-[10px] font-medium ${statusMeta[m.status].cls}`}
                     >
-                      {statusMeta[m.status].label}
+                      {statusMeta[m.status].short}
                     </span>
                   </div>
                   <div className="text-xs text-gray-500 dark:text-gray-400">

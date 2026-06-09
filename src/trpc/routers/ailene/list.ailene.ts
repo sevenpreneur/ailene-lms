@@ -332,6 +332,7 @@ export const listAilene = {
         matDone,
         vidDone,
         quizDoneRows,
+        useCaseDone,
       ] = await Promise.all([
         opts.ctx.prisma.ailXpEarning.groupBy({
           by: ["member_id"],
@@ -357,6 +358,12 @@ export const listAilene = {
           select: { member_id: true, quiz_id: true },
           distinct: ["member_id", "quiz_id"],
         }),
+        // accepted use case submissions per member (validated "wins")
+        opts.ctx.prisma.ailUseCaseSubmission.groupBy({
+          by: ["member_id"],
+          _count: { _all: true },
+          where: { member_id: { in: memberIds }, is_accepted: true },
+        }),
       ]);
 
       const xpByMember = new Map<number, number>(
@@ -375,6 +382,9 @@ export const listAilene = {
       for (const r of quizDoneRows) {
         quizByMember.set(r.member_id, (quizByMember.get(r.member_id) ?? 0) + 1);
       }
+      const useCaseByMember = new Map<number, number>(
+        useCaseDone.map((r) => [r.member_id, r._count._all])
+      );
 
       const now = dayjs();
 
@@ -424,6 +434,7 @@ export const listAilene = {
             },
             total_xp,
             progress_percent,
+            use_case_count: useCaseByMember.get(m.id) ?? 0,
             current_chapter: null as { id: number; name: string } | null,
             last_active_at,
             status,

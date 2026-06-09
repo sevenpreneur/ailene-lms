@@ -5,11 +5,11 @@ import { TRPCProvider } from "@/trpc/client";
 import { GoogleOAuthProvider } from "@react-oauth/google";
 import { Metadata } from "next";
 import { ThemeProvider } from "next-themes";
-import { JetBrains_Mono, Manrope } from "next/font/google";
+import { JetBrains_Mono, Space_Grotesk } from "next/font/google";
 import { Toaster } from "sonner";
 
-const manrope = Manrope({
-  variable: "--font-manrope",
+const spaceGrotesk = Space_Grotesk({
+  variable: "--font-space-grotesk",
   subsets: ["latin"],
 });
 
@@ -58,10 +58,10 @@ export default function RootLayout(
   return (
     <html
       lang="en"
-      className={`scroll-smooth ${manrope.variable} ${jetbrainsMono.variable}`}
+      className={`scroll-smooth ${spaceGrotesk.variable} ${jetbrainsMono.variable}`}
       suppressHydrationWarning
     >
-      <body className="font-manrope" suppressHydrationWarning>
+      <body className="font-space-grotesk" suppressHydrationWarning>
         <GoogleOAuthProvider clientId={googleOauthId!}>
           <TRPCProvider baseURL={baseURL}>
             <ThemeProvider

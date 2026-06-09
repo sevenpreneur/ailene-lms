@@ -18,6 +18,7 @@ import {
   LineChart,
   LogOut,
   Megaphone,
+  NotebookPen,
   Target,
   UserRound,
   UserRoundKey,
@@ -353,6 +354,24 @@ export default function SidebarAILN({
               </Link>
             );
           })}
+
+          {variant === "STUDENT" && (
+            <>
+              <div
+                className={`my-1 border-t border-dashboard-border ${config.classes.divider}`}
+              />
+              <Link
+                href="/student/practice/create"
+                title="Catat Use Case"
+                className={`flex items-center gap-3 rounded-md p-2 text-sm font-medium text-red-600 transition hover:bg-red-50 dark:text-red-300 dark:hover:bg-red-500/10 ${
+                  isCollapsed ? "justify-center" : ""
+                }`}
+              >
+                <NotebookPen className="h-4 w-4 shrink-0" />
+                {!isCollapsed && <span>Catat Use Case</span>}
+              </Link>
+            </>
+          )}
         </nav>
 
         <div className="mt-3 shrink-0">

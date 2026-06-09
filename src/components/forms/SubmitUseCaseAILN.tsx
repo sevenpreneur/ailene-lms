@@ -27,6 +27,7 @@ import {
   X,
 } from "lucide-react";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import {
   ChangeEvent,
   FormEvent,
@@ -164,6 +165,7 @@ export default function SubmitUseCaseAILN({
     setSessionToken(sessionToken);
   }, [sessionToken]);
 
+  const router = useRouter();
   const utils = trpc.useUtils();
   const assignmentQ = trpc.ailene.read.useCaseAssignment.useQuery({
     use_case_id: useCaseId,
@@ -413,6 +415,7 @@ export default function SubmitUseCaseAILN({
           });
           utils.ailene.read.todayFocus.invalidate();
           utils.ailene.list.assignedUseCases.invalidate();
+          router.push("/student/practice");
         },
         onError: (err) => {
           toast.error("Gagal kirim", { description: err.message });
