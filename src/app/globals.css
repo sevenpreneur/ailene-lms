@@ -267,19 +267,14 @@
 
 /* --- Card surface --- */
 @layer base {
-  /* Premium dashboard surface. Light mode floats on a soft layered shadow with
-     no gray border (the flat 1px border is what reads as "generic"); dark mode
-     uses a hairline border since shadows don't show on dark backgrounds. */
+  /* Flat dashboard surface — no shadow in either mode. Dark mode keeps a
+     hairline border to separate the card from the background. */
   .ailn-card {
     border-radius: var(--radius-lg);
     background-color: #ffffff;
-    box-shadow:
-      0 1px 2px rgba(16, 24, 40, 0.04),
-      0 2px 8px rgba(16, 24, 40, 0.05);
   }
   .dark .ailn-card {
     background-color: var(--card-bg);
     border: 1px solid var(--dashboard-border);
-    box-shadow: none;
   }
 }

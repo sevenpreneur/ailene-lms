@@ -13,7 +13,7 @@ interface SectionContainerAILNProps {
 export default function SectionContainerAILN(props: SectionContainerAILNProps) {
   return (
     <section
-      className={`ailn-card flex flex-col p-5 border shadow-none ${props.className ?? ""}`}
+      className={`ailn-card flex flex-col p-5 border ${props.className ?? ""}`}
     >
       <div className="flex flex-wrap items-start justify-between gap-3">
         <div className="flex flex-col gap-0.5">

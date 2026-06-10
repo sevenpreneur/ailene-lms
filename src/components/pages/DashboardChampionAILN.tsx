@@ -1,12 +1,17 @@
 "use client";
 import ScorecardAILN from "@/components/cards/ScorecardAILN";
+import TeamScoreBannerAILN from "@/components/cards/TeamScoreBannerAILN";
 import ChampionCoachingAlertAILN from "@/components/indexes/ChampionCoachingAlertAILN";
 import ChampionTeamMembersAILN from "@/components/indexes/ChampionTeamMembersAILN";
 import PageContainerAILN from "@/components/pages/PageContainerAILN";
 import AppErrorComponents from "@/components/states/AppErrorComponents";
 import { setSessionToken, trpc } from "@/trpc/client";
-import { Clock, LineChart, TriangleAlert, Users } from "lucide-react";
+import { Activity, Clock, Send } from "lucide-react";
 import { useEffect } from "react";
+
+// Platform tops out at L4 (L0 Assessment … L4 Advanced); team score is the
+// group's average current level shown against this ceiling.
+const MAX_LEVEL = 4;
 
 const ACCENT = {
   sky: {
@@ -37,6 +42,7 @@ export default function DashboardChampionAILN({
   }, [sessionToken]);
 
   const membersQ = trpc.ailene.list.members.useQuery({});
+  const memberQ = trpc.auth.checkAilMember.useQuery();
 
   if (membersQ.isLoading) {
     return (
@@ -58,8 +64,24 @@ export default function DashboardChampionAILN({
     on_track: 0,
     at_risk: 0,
     behind: 0,
+    active_this_week: 0,
+    submissions_sent: 0,
+    hours_saved: 0,
   };
   const allMembers = membersQ.data?.list ?? [];
+
+  const groupName =
+    (memberQ.data?.ail_member?.championed_groups ?? [])
+      .map((g) => g.name)
+      .join(", ") || "Tim";
+  const avgLevel =
+    allMembers.length > 0
+      ? allMembers.reduce((sum, m) => sum + m.current_level.level_number, 0) /
+        allMembers.length
+      : 0;
+  const level2Plus = allMembers.filter(
+    (m) => m.current_level.level_number >= 2
+  ).length;
 
   return (
     <PageContainerAILN>
@@ -76,48 +98,48 @@ export default function DashboardChampionAILN({
           </div>
         </div>
 
+        {/* Team score banner */}
+        <TeamScoreBannerAILN
+          groupName={groupName}
+          avgLevel={avgLevel}
+          maxLevel={MAX_LEVEL}
+          level2Plus={level2Plus}
+          totalMembers={stats.total}
+        />
+
         {/* Stat cards */}
-        <div className="grid grid-cols-1 gap-4 md:grid-cols-2 xl:grid-cols-4">
+        <div className="grid grid-cols-1 gap-4 md:grid-cols-3">
           <ScorecardAILN
-            title="Total Members"
-            value={stats.total}
-            unit="persons"
-            icon={Users}
+            title="Aktif Minggu Ini"
+            value={stats.active_this_week}
+            unit={`/ ${stats.total}`}
+            icon={Activity}
             accent={ACCENT.sky}
           >
-            <p className="text-xs text-muted-foreground">Active learners</p>
-          </ScorecardAILN>
-          <ScorecardAILN
-            title="On Track"
-            value={stats.on_track}
-            unit="persons"
-            icon={LineChart}
-            accent={ACCENT.emerald}
-          >
             <p className="text-xs text-muted-foreground">
-              {pct(stats.on_track, stats.total)}% of team
+              {pct(stats.active_this_week, stats.total)}% anggota tim
             </p>
           </ScorecardAILN>
           <ScorecardAILN
-            title="At Risk"
-            value={stats.at_risk}
-            unit="persons"
+            title="Use Case Dikirim"
+            value={stats.submissions_sent}
+            unit="submission"
+            icon={Send}
+            accent={ACCENT.emerald}
+          >
+            <p className="text-xs text-muted-foreground">
+              dari seluruh anggota grup
+            </p>
+          </ScorecardAILN>
+          <ScorecardAILN
+            title="Jam Dihemat"
+            value={stats.hours_saved}
+            unit="jam"
             icon={Clock}
             accent={ACCENT.amber}
           >
             <p className="text-xs text-muted-foreground">
-              {pct(stats.at_risk, stats.total)}% of team
-            </p>
-          </ScorecardAILN>
-          <ScorecardAILN
-            title="Behind"
-            value={stats.behind}
-            unit="persons"
-            icon={TriangleAlert}
-            accent={ACCENT.red}
-          >
-            <p className="text-xs text-muted-foreground">
-              {pct(stats.behind, stats.total)}% of team
+              akumulasi dari use case dikirim
             </p>
           </ScorecardAILN>
         </div>
@@ -142,12 +164,15 @@ function DashboardChampionSkeleton() {
         <div className="h-3.5 w-72 rounded bg-gray-200 dark:bg-dashboard-border" />
       </div>
 
+      {/* Team score banner */}
+      <div className="h-32 rounded-xl border border-dashboard-border bg-gray-100 dark:bg-dashboard-border" />
+
       {/* Stat cards */}
-      <div className="grid grid-cols-1 gap-4 md:grid-cols-2 xl:grid-cols-4">
-        {[0, 1, 2, 3].map((i) => (
+      <div className="grid grid-cols-1 gap-4 md:grid-cols-3">
+        {[0, 1, 2].map((i) => (
           <div
             key={i}
-            className="flex flex-col gap-2 rounded-lg border border-dashboard-border bg-white p-3 shadow-sm dark:bg-card-bg"
+            className="flex flex-col gap-2 rounded-lg border border-dashboard-border bg-white p-3 dark:bg-card-bg"
           >
             <div className="flex items-start gap-3">
               <div className="size-10 rounded-md bg-gray-200 dark:bg-dashboard-border" />

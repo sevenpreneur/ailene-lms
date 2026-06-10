@@ -317,7 +317,15 @@ export const listAilene = {
         return {
           code: STATUS_OK,
           message: "Success",
-          stats: { total: 0, on_track: 0, at_risk: 0, behind: 0 },
+          stats: {
+            total: 0,
+            on_track: 0,
+            at_risk: 0,
+            behind: 0,
+            active_this_week: 0,
+            submissions_sent: 0,
+            hours_saved: 0,
+          },
           list: [],
         };
       }
@@ -333,6 +341,7 @@ export const listAilene = {
         vidDone,
         quizDoneRows,
         useCaseDone,
+        submittedUseCases,
       ] = await Promise.all([
         opts.ctx.prisma.ailXpEarning.groupBy({
           by: ["member_id"],
@@ -364,6 +373,12 @@ export const listAilene = {
           _count: { _all: true },
           where: { member_id: { in: memberIds }, is_accepted: true },
         }),
+        // all submitted use cases across the group (for team-level scorecards:
+        // submissions sent + hours saved)
+        opts.ctx.prisma.ailUseCaseSubmission.findMany({
+          where: { member_id: { in: memberIds }, submitted_at: { not: null } },
+          select: { hours_saved: true, hours_without_ai: true },
+        }),
       ]);
 
       const xpByMember = new Map<number, number>(
@@ -386,7 +401,21 @@ export const listAilene = {
         useCaseDone.map((r) => [r.member_id, r._count._all])
       );
 
+      // Team-level use case metrics. Hours saved = tanpa-AI minus dengan-AI per
+      // submission (only counted when both hours are present and positive).
+      const submissions_sent = submittedUseCases.length;
+      let hours_saved_total = 0;
+      for (const s of submittedUseCases) {
+        const withAi = s.hours_saved == null ? null : Number(s.hours_saved);
+        const without =
+          s.hours_without_ai == null ? null : Number(s.hours_without_ai);
+        if (withAi != null && without != null && without > withAi) {
+          hours_saved_total += without - withAi;
+        }
+      }
+
       const now = dayjs();
+      const weekStart = now.startOf("week");
 
       const list = members
         .map((m) => {
@@ -455,6 +484,13 @@ export const listAilene = {
         on_track: list.filter((l) => l.status === "on_track").length,
         at_risk: list.filter((l) => l.status === "at_risk").length,
         behind: list.filter((l) => l.status === "behind").length,
+        active_this_week: list.filter(
+          (l) =>
+            l.last_active_at &&
+            dayjs(l.last_active_at).valueOf() >= weekStart.valueOf()
+        ).length,
+        submissions_sent,
+        hours_saved: Math.round(hours_saved_total),
       };
 
       return { code: STATUS_OK, message: "Success", stats, list };
