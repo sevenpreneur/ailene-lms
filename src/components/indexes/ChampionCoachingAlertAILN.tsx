@@ -68,17 +68,17 @@ function CoachAvatar({ name, src }: { name: string; src: string | null }) {
       <Image
         src={src}
         alt={name}
-        width={40}
-        height={40}
+        width={28}
+        height={28}
         unoptimized
-        className="h-10 w-10 shrink-0 rounded-full object-cover"
+        className="size-7 shrink-0 rounded-full object-cover"
       />
     );
   }
   const gradient = AVATAR_GRADIENTS[hashString(name) % AVATAR_GRADIENTS.length];
   return (
     <div
-      className={`flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-gradient-to-br ${gradient} text-xs font-bold text-white`}
+      className={`flex size-7 shrink-0 items-center justify-center rounded-full bg-gradient-to-br ${gradient} text-[10px] font-bold text-white`}
     >
       {getInitials(name)}
     </div>
@@ -105,19 +105,19 @@ export default function ChampionCoachingAlertAILN(props: {
   const hasAlerts = alerts.length > 0;
 
   return (
-    <section className="flex flex-col gap-4 rounded-xl border border-amber-200 bg-amber-50/70 p-4 dark:border-amber-500/25 dark:bg-amber-500/5 xl:sticky xl:top-6">
+    <section className="flex flex-col gap-4 rounded-xl border border-amber-200 bg-amber-50/70 p-4 dark:border-amber-500/25 dark:bg-amber-500/5">
       {/* Header */}
-      <div className="flex items-start gap-3">
-        <div className="flex size-10 shrink-0 items-center justify-center rounded-full bg-amber-100 text-amber-600 dark:bg-amber-500/15 dark:text-amber-300">
-          <Eye className="size-5" />
+      <div className="flex items-start gap-2.5">
+        <div className="flex size-8 shrink-0 items-center justify-center rounded-full bg-amber-100 text-amber-600 dark:bg-amber-500/15 dark:text-amber-300">
+          <Eye className="size-4" />
         </div>
         <div className="min-w-0">
-          <h2 className="text-base font-bold leading-snug text-amber-900 dark:text-amber-200">
+          <h2 className="text-sm font-bold leading-snug text-amber-900 dark:text-amber-200">
             {hasAlerts
               ? `${alerts.length} anggota perlu coaching minggu ini`
               : "Semua anggota on track minggu ini"}
           </h2>
-          <p className="text-sm text-amber-700/80 dark:text-amber-300/70">
+          <p className="text-xs text-amber-700/80 dark:text-amber-300/70">
             {hasAlerts
               ? "Talking points sudah otomatis disiapkan"
               : "Tidak ada yang perlu intervensi 🎉"}
@@ -131,23 +131,23 @@ export default function ChampionCoachingAlertAILN(props: {
           {alerts.map((m) => (
             <div
               key={m.member_id}
-              className="flex flex-col gap-3 rounded-lg border border-amber-100 bg-white p-3.5 dark:border-amber-500/15 dark:bg-card-bg"
+              className="flex flex-col gap-2.5 rounded-lg border border-amber-100 bg-white p-3 dark:border-amber-500/15 dark:bg-card-bg"
             >
-              <div className="flex items-center gap-2.5">
+              <div className="flex items-center gap-2">
                 <CoachAvatar name={m.user.full_name} src={m.user.avatar} />
-                <span className="truncate text-sm font-bold text-gray-900 dark:text-white">
+                <span className="truncate text-xs font-bold text-gray-900 dark:text-white">
                   {m.user.full_name}
                 </span>
               </div>
-              <p className="text-sm leading-relaxed text-gray-600 dark:text-gray-300">
+              <p className="text-[11px] leading-relaxed text-gray-600 dark:text-gray-300">
                 {buildTalkingPoint(m, mentor)}
               </p>
               <Link
                 href={`/champion/members/${m.member_id}`}
-                className="flex items-center justify-center gap-1.5 rounded-lg border border-violet-200 px-3 py-2 text-sm font-semibold text-violet-700 transition hover:bg-violet-50 dark:border-violet-500/30 dark:text-violet-300 dark:hover:bg-violet-500/10"
+                className="flex items-center justify-center gap-1.5 rounded-lg border border-violet-200 px-3 py-1.5 text-xs font-semibold text-violet-700 transition hover:bg-violet-50 dark:border-violet-500/30 dark:text-violet-300 dark:hover:bg-violet-500/10"
               >
                 Buka 1:1 prep brief
-                <ArrowRight className="size-4" />
+                <ArrowRight className="size-3.5" />
               </Link>
             </div>
           ))}

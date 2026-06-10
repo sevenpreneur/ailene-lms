@@ -3,6 +3,7 @@ import ScorecardAILN from "@/components/cards/ScorecardAILN";
 import TeamScoreBannerAILN from "@/components/cards/TeamScoreBannerAILN";
 import ChampionCoachingAlertAILN from "@/components/indexes/ChampionCoachingAlertAILN";
 import ChampionTeamMembersAILN from "@/components/indexes/ChampionTeamMembersAILN";
+import RecentUseCasesAILN from "@/components/indexes/RecentUseCasesAILN";
 import PageContainerAILN from "@/components/pages/PageContainerAILN";
 import AppErrorComponents from "@/components/states/AppErrorComponents";
 import { setSessionToken, trpc } from "@/trpc/client";
@@ -163,11 +164,18 @@ export default function DashboardChampionAILN({
           </ScorecardAILN>
         </div>
 
-        {/* Team members (left) + coaching alerts (right rail) */}
-        <div className="grid grid-cols-1 gap-4 xl:grid-cols-[minmax(0,1.9fr)_minmax(0,1fr)] xl:items-start">
-          <ChampionTeamMembersAILN members={allMembers} />
+        {/* Team members (kiri, 2 kolom) + coaching alerts (kanan, 1 kolom).
+            Pakai grid 3 kolom yang sama dengan stat cards di atas supaya lebar
+            tabel = 2 kartu dan kartu coaching = 1 kartu (batas kolom sejajar). */}
+        <div className="grid grid-cols-1 gap-4 md:grid-cols-3 md:items-start">
+          <div className="md:col-span-2">
+            <ChampionTeamMembersAILN members={allMembers} />
+          </div>
 
-          <ChampionCoachingAlertAILN members={allMembers} />
+          <div className="flex flex-col gap-4">
+            <ChampionCoachingAlertAILN members={allMembers} />
+            <RecentUseCasesAILN />
+          </div>
         </div>
       </div>
     </PageContainerAILN>

@@ -34,7 +34,7 @@ export default function ScorecardAILN({
                 {prefix}
               </span>
             )}
-            <span className=" text-4xl font-bold leading-none tracking-tight text-foreground">
+            <span className="text-3xl font-bold leading-none tracking-tight text-foreground">
               {value}
             </span>
             {unit && (

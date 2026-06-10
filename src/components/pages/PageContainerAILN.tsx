@@ -14,7 +14,7 @@ export default function PageContainerAILN(props: PageContainerAILNProps) {
     <div
       className={`page-root  hidden lg:flex w-full items-center justify-center ${props.className} ${isCollapsed ? "pl-16" : "pl-64"}`}
     >
-      <div className="page-container mx-auto flex h-full w-full max-w-[1400px] gap-5 px-4 py-6 md:px-6 xl:px-8">
+      <div className="page-container flex h-full w-full gap-5 px-4 py-6 md:px-6 xl:px-8">
         {props.children}
       </div>
     </div>

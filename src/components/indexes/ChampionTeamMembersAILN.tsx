@@ -82,17 +82,17 @@ function MemberAvatar({ name, src }: { name: string; src: string | null }) {
       <Image
         src={src}
         alt={name}
-        width={44}
-        height={44}
+        width={36}
+        height={36}
         unoptimized
-        className="h-11 w-11 shrink-0 rounded-full object-cover"
+        className="size-9 shrink-0 rounded-full object-cover"
       />
     );
   }
   const gradient = AVATAR_GRADIENTS[hashString(name) % AVATAR_GRADIENTS.length];
   return (
     <div
-      className={`flex h-11 w-11 shrink-0 items-center justify-center rounded-full bg-gradient-to-br ${gradient} text-sm font-bold text-white`}
+      className={`flex size-9 shrink-0 items-center justify-center rounded-full bg-gradient-to-br ${gradient} text-xs font-bold text-white`}
     >
       {getInitials(name)}
     </div>
@@ -195,15 +195,17 @@ export default function ChampionTeamMembersAILN(props: { members: Member[] }) {
         </div>
       }
     >
-      <div className="overflow-x-auto">
+      {/* max-height + scroll: kalau anggota banyak, tabel scroll (tidak melebihi
+          kolom kanan). Header sticky biar tetap terlihat saat scroll. */}
+      <div className="max-h-[460px] overflow-auto">
         <table className="w-full border-collapse text-sm">
           <thead>
-            <tr className="border-y border-dashboard-border bg-gray-50/60 text-left text-[11px] font-semibold uppercase tracking-wider text-gray-500 dark:bg-card-inside-bg dark:text-gray-400">
-              <th className="px-4 py-3">Anggota</th>
-              <th className="px-4 py-3">Level</th>
-              <th className="px-4 py-3 text-center">Use Case</th>
-              <th className="px-4 py-3">Status</th>
-              <th className="px-4 py-3 text-right">Aksi</th>
+            <tr className="text-left text-[10px] font-semibold uppercase tracking-wider text-gray-500 dark:text-gray-400">
+              <th className="sticky top-0 z-10 border-y border-dashboard-border bg-gray-50 px-4 py-2.5 dark:bg-card-inside-bg">Anggota</th>
+              <th className="sticky top-0 z-10 border-y border-dashboard-border bg-gray-50 px-4 py-2.5 dark:bg-card-inside-bg">Level</th>
+              <th className="sticky top-0 z-10 border-y border-dashboard-border bg-gray-50 px-4 py-2.5 text-center dark:bg-card-inside-bg">Use Case</th>
+              <th className="sticky top-0 z-10 border-y border-dashboard-border bg-gray-50 px-4 py-2.5 dark:bg-card-inside-bg">Status</th>
+              <th className="sticky top-0 z-10 border-y border-dashboard-border bg-gray-50 px-4 py-2.5 text-right dark:bg-card-inside-bg">Aksi</th>
             </tr>
           </thead>
           <tbody>
@@ -232,17 +234,17 @@ export default function ChampionTeamMembersAILN(props: { members: Member[] }) {
                     className="group cursor-pointer border-b border-dashboard-border transition hover:bg-gray-50 dark:hover:bg-card-inside-bg"
                   >
                     {/* Anggota */}
-                    <td className="px-4 py-4">
+                    <td className="px-4 py-3">
                       <div className="flex items-center gap-3">
                         <MemberAvatar
                           name={m.user.full_name}
                           src={m.user.avatar}
                         />
                         <div className="min-w-0">
-                          <div className="truncate font-bold text-gray-900 dark:text-white">
+                          <div className="truncate text-sm font-semibold text-gray-900 dark:text-white">
                             {m.user.full_name}
                           </div>
-                          <div className="truncate text-xs text-gray-500 dark:text-gray-400">
+                          <div className="truncate text-[10px] text-gray-500 dark:text-gray-400">
                             {m.user.email}
                           </div>
                         </div>
@@ -250,35 +252,35 @@ export default function ChampionTeamMembersAILN(props: { members: Member[] }) {
                     </td>
 
                     {/* Level */}
-                    <td className="px-4 py-4">
+                    <td className="px-4 py-3">
                       <span
-                        className={`inline-flex items-center rounded-md border px-2.5 py-1 text-xs font-semibold ${levelCls}`}
+                        className={`inline-flex items-center rounded-md border px-2 py-0.5 text-xs font-semibold ${levelCls}`}
                       >
                         L{m.current_level.level_number}
                       </span>
                     </td>
 
                     {/* Use Case */}
-                    <td className="px-4 py-4 text-center text-lg font-bold text-gray-900 dark:text-white">
+                    <td className="px-4 py-3 text-center text-sm font-semibold text-gray-900 dark:text-white">
                       {m.use_case_count}
                     </td>
 
                     {/* Status */}
-                    <td className="px-4 py-4">
+                    <td className="px-4 py-3">
                       <div className="flex items-center gap-2">
                         <span
-                          className={`size-2 shrink-0 rounded-full ${status.dot}`}
+                          className={`size-1.5 shrink-0 rounded-full ${status.dot}`}
                         />
-                        <span className={`font-semibold ${status.text}`}>
+                        <span className={`text-xs font-semibold ${status.text}`}>
                           {status.label}
                         </span>
                       </div>
                     </td>
 
                     {/* Aksi */}
-                    <td className="px-4 py-4 text-right">
+                    <td className="px-4 py-3 text-right">
                       <span
-                        className={`inline-flex items-center gap-0.5 font-semibold ${
+                        className={`inline-flex items-center gap-0.5 text-xs font-semibold ${
                           m.status === "behind"
                             ? "text-amber-700 dark:text-amber-300"
                             : "text-emerald-700 dark:text-emerald-300"
