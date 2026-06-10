@@ -122,8 +122,8 @@ export default function DashboardChampionAILN({
           </ScorecardAILN>
         </div>
 
-        {/* Team members + coaching alerts (stacked, full width) */}
-        <div className="flex flex-col gap-4">
+        {/* Team members (left) + coaching alerts (right rail) */}
+        <div className="grid grid-cols-1 gap-4 xl:grid-cols-[minmax(0,1.9fr)_minmax(0,1fr)] xl:items-start">
           <ChampionTeamMembersAILN members={allMembers} />
 
           <ChampionCoachingAlertAILN members={allMembers} />

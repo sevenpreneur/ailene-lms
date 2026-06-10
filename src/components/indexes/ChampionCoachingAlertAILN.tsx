@@ -1,15 +1,89 @@
 "use client";
-import SectionContainerAILN from "@/components/cards/SectionContainerAILN";
-import { statusMeta } from "@/components/indexes/ChampionTeamMembersAILN";
 import type { AppRouter } from "@/trpc/routers/_app";
 import type { inferRouterOutputs } from "@trpc/server";
 import dayjs from "dayjs";
 import relativeTime from "dayjs/plugin/relativeTime";
+import { ArrowRight, Eye } from "lucide-react";
+import Image from "next/image";
+import Link from "next/link";
 
 dayjs.extend(relativeTime);
 
 type Member =
   inferRouterOutputs<AppRouter>["ailene"]["list"]["members"]["list"][number];
+
+const AVATAR_GRADIENTS = [
+  "from-fuchsia-500 to-pink-500",
+  "from-sky-500 to-blue-500",
+  "from-emerald-500 to-green-500",
+  "from-orange-500 to-red-500",
+  "from-violet-500 to-purple-500",
+  "from-amber-500 to-orange-500",
+  "from-rose-500 to-pink-600",
+  "from-cyan-500 to-teal-500",
+];
+
+function hashString(s: string): number {
+  let h = 0;
+  for (let i = 0; i < s.length; i++) h = (h * 31 + s.charCodeAt(i)) | 0;
+  return Math.abs(h);
+}
+
+function getInitials(name: string): string {
+  const parts = name.trim().split(/\s+/).filter(Boolean);
+  if (parts.length === 0) return "?";
+  if (parts.length === 1) return parts[0].slice(0, 2).toUpperCase();
+  return (parts[0][0] + parts[parts.length - 1][0]).toUpperCase();
+}
+
+function firstName(name: string): string {
+  return name.trim().split(/\s+/)[0] || name;
+}
+
+// Auto-generated talking point from the data we have on the member, plus an
+// optional pairing suggestion with the strongest on-track peer (a "mentor").
+function buildTalkingPoint(m: Member, mentor: Member | null): string {
+  const lvl = m.current_level.level_number;
+  const uc = m.use_case_count;
+  const lastActive = m.last_active_at
+    ? dayjs(m.last_active_at).fromNow()
+    : "belum pernah aktif";
+
+  const head =
+    m.status === "behind"
+      ? `Tertahan di L${lvl}, baru ${uc} use case · terakhir aktif ${lastActive}.`
+      : `Mulai melambat di L${lvl}, ${uc} use case · terakhir aktif ${lastActive}.`;
+
+  if (mentor && mentor.member_id !== m.member_id) {
+    return `${head} Talking point: pasangkan dengan ${firstName(
+      mentor.user.full_name
+    )} (L${mentor.current_level.level_number}).`;
+  }
+  return head;
+}
+
+function CoachAvatar({ name, src }: { name: string; src: string | null }) {
+  if (src) {
+    return (
+      <Image
+        src={src}
+        alt={name}
+        width={40}
+        height={40}
+        unoptimized
+        className="h-10 w-10 shrink-0 rounded-full object-cover"
+      />
+    );
+  }
+  const gradient = AVATAR_GRADIENTS[hashString(name) % AVATAR_GRADIENTS.length];
+  return (
+    <div
+      className={`flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-gradient-to-br ${gradient} text-xs font-bold text-white`}
+    >
+      {getInitials(name)}
+    </div>
+  );
+}
 
 export default function ChampionCoachingAlertAILN(props: {
   members: Member[];
@@ -18,61 +92,67 @@ export default function ChampionCoachingAlertAILN(props: {
     (m) => m.status === "at_risk" || m.status === "behind"
   );
 
+  // Strongest on-track member → suggested mentor to pair struggling members with.
+  const mentor =
+    [...props.members]
+      .filter((m) => m.status === "on_track")
+      .sort(
+        (a, b) =>
+          b.current_level.level_number - a.current_level.level_number ||
+          b.use_case_count - a.use_case_count
+      )[0] ?? null;
+
+  const hasAlerts = alerts.length > 0;
+
   return (
-    <SectionContainerAILN
-      title="Coaching Alerts"
-      headerRight={
-        alerts.length > 0 ? (
-          <span className="rounded-full bg-red-50 px-2 py-0.5 text-xs font-semibold text-red-600 dark:bg-red-500/15 dark:text-red-300 dark:border dark:border-red-500/30">
-            {alerts.length} perlu perhatian
-          </span>
-        ) : undefined
-      }
-    >
-      {alerts.length === 0 ? (
-        <div className="text-sm text-gray-400 dark:text-gray-500">
-          No alerts. Everyone&apos;s on track 🎉
+    <section className="flex flex-col gap-4 rounded-xl border border-amber-200 bg-amber-50/70 p-4 dark:border-amber-500/25 dark:bg-amber-500/5 xl:sticky xl:top-6">
+      {/* Header */}
+      <div className="flex items-start gap-3">
+        <div className="flex size-10 shrink-0 items-center justify-center rounded-full bg-amber-100 text-amber-600 dark:bg-amber-500/15 dark:text-amber-300">
+          <Eye className="size-5" />
         </div>
-      ) : (
-        <div className="grid grid-cols-1 gap-3 md:grid-cols-2 xl:grid-cols-3">
+        <div className="min-w-0">
+          <h2 className="text-base font-bold leading-snug text-amber-900 dark:text-amber-200">
+            {hasAlerts
+              ? `${alerts.length} anggota perlu coaching minggu ini`
+              : "Semua anggota on track minggu ini"}
+          </h2>
+          <p className="text-sm text-amber-700/80 dark:text-amber-300/70">
+            {hasAlerts
+              ? "Talking points sudah otomatis disiapkan"
+              : "Tidak ada yang perlu intervensi 🎉"}
+          </p>
+        </div>
+      </div>
+
+      {/* Alert cards */}
+      {hasAlerts && (
+        <div className="flex max-h-[560px] flex-col gap-3 overflow-y-auto">
           {alerts.map((m) => (
             <div
               key={m.member_id}
-              className="rounded-lg border border-dashboard-border bg-gray-50 p-3 dark:bg-card-inside-bg"
+              className="flex flex-col gap-3 rounded-lg border border-amber-100 bg-white p-3.5 dark:border-amber-500/15 dark:bg-card-bg"
             >
-              <div className="flex items-center gap-2">
-                {m.user.avatar ? (
-                  // eslint-disable-next-line @next/next/no-img-element
-                  <img
-                    src={m.user.avatar}
-                    alt={m.user.full_name}
-                    className="h-8 w-8 rounded-full object-cover"
-                  />
-                ) : (
-                  <div className="h-8 w-8 rounded-full bg-gray-200 dark:bg-dashboard-border" />
-                )}
-                <div className="min-w-0 flex-1">
-                  <div className="flex items-center gap-2">
-                    <span className="truncate text-sm font-semibold dark:text-white">
-                      {m.user.full_name}
-                    </span>
-                    <span
-                      className={`shrink-0 rounded px-1.5 py-0.5 text-[10px] font-medium ${statusMeta[m.status].cls}`}
-                    >
-                      {statusMeta[m.status].short}
-                    </span>
-                  </div>
-                  <div className="text-xs text-gray-500 dark:text-gray-400">
-                    {m.last_active_at
-                      ? `Last active ${dayjs(m.last_active_at).fromNow()}`
-                      : "Never active"}
-                  </div>
-                </div>
+              <div className="flex items-center gap-2.5">
+                <CoachAvatar name={m.user.full_name} src={m.user.avatar} />
+                <span className="truncate text-sm font-bold text-gray-900 dark:text-white">
+                  {m.user.full_name}
+                </span>
               </div>
+              <p className="text-sm leading-relaxed text-gray-600 dark:text-gray-300">
+                {buildTalkingPoint(m, mentor)}
+              </p>
+              <Link
+                href={`/champion/members/${m.member_id}`}
+                className="flex items-center justify-center gap-1.5 rounded-lg border border-violet-200 px-3 py-2 text-sm font-semibold text-violet-700 transition hover:bg-violet-50 dark:border-violet-500/30 dark:text-violet-300 dark:hover:bg-violet-500/10"
+              >
+                Buka 1:1 prep brief
+                <ArrowRight className="size-4" />
+              </Link>
             </div>
           ))}
         </div>
       )}
-    </SectionContainerAILN>
+    </section>
   );
 }

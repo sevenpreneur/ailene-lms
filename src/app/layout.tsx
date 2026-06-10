@@ -71,7 +71,7 @@ export default function RootLayout(
               storageKey="ailene-theme"
             >
               <SidebarProvider>
-                <div className="min-h-screen bg-dashboard-bg dark:bg-black">
+                <div className="min-h-screen bg-background">
                   {props.children}
                   <div className="lg:hidden">
                     <AppPageState variant="ONLY_MOBILE" />

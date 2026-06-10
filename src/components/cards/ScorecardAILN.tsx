@@ -21,7 +21,7 @@ export default function ScorecardAILN({
   children,
 }: ScorecardAILNProps) {
   return (
-    <div className="ailn-card flex flex-col overflow-hidden">
+    <div className="ailn-card flex flex-col border shadow-none overflow-hidden">
       <div className="flex flex-1 items-start justify-between gap-3 p-5">
         <div className="min-w-0">
           <div className="text-xs font-bold text-muted-foreground tracking-widest">
