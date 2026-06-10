@@ -1,6 +1,7 @@
 "use client";
 import ButtonAILN from "@/components/buttons/ButtonAILN";
-import AppSheet from "@/components/modals/AppSheet";
+import TextAreaAILN from "@/components/fields/TextAreaAILN";
+import SheetAILN from "@/components/modals/SheetAILN";
 import { trpc } from "@/trpc/client";
 import dayjs from "dayjs";
 import { Loader2, Send } from "lucide-react";
@@ -119,7 +120,7 @@ export default function AssignFormChampionAILN({
   const isSubmitting = assignMutation.isPending;
 
   return (
-    <AppSheet
+    <SheetAILN
       isOpen={isOpen}
       onClose={onClose}
       sheetName={`Assign ${kind === "PROMPT" ? "Prompt" : "Use Case"}`}
@@ -315,6 +316,6 @@ export default function AssignFormChampionAILN({
           </p>
         </div>
       </form>
-    </AppSheet>
+    </SheetAILN>
   );
 }

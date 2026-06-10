@@ -23,7 +23,7 @@ import "dayjs/locale/id";
 import { marked } from "marked";
 import Link from "next/link";
 import { useEffect, useMemo, useRef, useState } from "react";
-import styles from "./ailene-prose.module.css";
+import styles from "../css/ailene-prose.module.css";
 
 dayjs.locale("id");
 marked.setOptions({ gfm: true, breaks: false });
@@ -398,7 +398,7 @@ export default function MaterialDetailsAILN({
                     {otherMaterials.map((m) => {
                       const row = (
                         <>
-                          <span className="w-7 shrink-0 font-geist-mono text-xs text-gray-400 dark:text-gray-500">
+                          <span className="w-7 shrink-0  text-xs text-gray-400 dark:text-gray-500">
                             {levelNumber}.{m.index}
                           </span>
                           <span

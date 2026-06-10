@@ -79,7 +79,6 @@ function SvgValue({ text }: { text: string }) {
     <Text
       style={{
         fontSize: 8.5,
-        fontFamily: "Helvetica-Bold",
         color: "#111827",
         textAlign: "right",
       }}
@@ -235,7 +234,7 @@ export function DonutChartPDF({
           <Text
             x={cx}
             y={cy + 1}
-            style={{ fontSize: 18, fontFamily: "Helvetica-Bold" }}
+            style={{ fontSize: 18 }}
             fill="#111827"
             textAnchor="middle"
           >
@@ -274,7 +273,6 @@ export function DonutChartPDF({
             <Text
               style={{
                 fontSize: 9,
-                fontFamily: "Helvetica-Bold",
                 color: "#111827",
               }}
             >

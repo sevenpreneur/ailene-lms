@@ -5,7 +5,8 @@ import {
   type ReportProps,
 } from "@/components/reports/AileneReportPDF";
 import ButtonAILN from "@/components/buttons/ButtonAILN";
-import ScorecardAILN from "@/components/cards/ScorecardAILN";
+import ScorecardStripAILN from "@/components/cards/ScorecardStripAILN";
+import SectionContainerAILN from "@/components/cards/SectionContainerAILN";
 import PageContainerAILN from "@/components/pages/PageContainerAILN";
 import {
   ShareBarList,
@@ -27,7 +28,15 @@ import {
 } from "chart.js";
 import dayjs from "dayjs";
 import "dayjs/locale/id";
-import { Building2, ChevronDown, Download } from "lucide-react";
+import {
+  BookOpen,
+  Building2,
+  ChevronDown,
+  ClipboardCheck,
+  Download,
+  Gauge,
+  Zap,
+} from "lucide-react";
 import { useTheme } from "next-themes";
 import { useEffect, useMemo, useState } from "react";
 import { Radar } from "react-chartjs-2";
@@ -71,8 +80,7 @@ export default function DashboardPreAssesmentAILN({
   const maturityQ =
     trpc.ailene.read.preAssessment.teamMaturity.useQuery(filter);
   const safetyQ = trpc.ailene.read.preAssessment.safetyGaps.useQuery(filter);
-  const useCasesQ =
-    trpc.ailene.read.preAssessment.topUseCases.useQuery(filter);
+  const useCasesQ = trpc.ailene.read.preAssessment.topUseCases.useQuery(filter);
   const voiceQ = trpc.ailene.read.preAssessment.voice.useQuery(filter);
 
   const overview = overviewQ.data;
@@ -227,48 +235,53 @@ export default function DashboardPreAssesmentAILN({
           </div>
         </div>
 
-        {/* 4 KPI tiles — same ScorecardAILN cards as the executive summary */}
-        <div className="grid grid-cols-2 gap-4 xl:grid-cols-4">
-          <ScorecardAILN
-            title="Partisipasi Pre-assessment"
-            value={overview ? `${overview.participation_percent}` : "—"}
-            unit="%"
-          >
-            <KpiCaption>
-              {overview
-                ? `${overview.completed_count} dari ${overview.total_members} karyawan`
-                : "—"}
-            </KpiCaption>
-          </ScorecardAILN>
-          <ScorecardAILN
-            title="Pemakai AI Rutin"
-            value={overview ? `${overview.routine_users_percent}` : "—"}
-            unit="%"
-          >
-            <KpiCaption>harian atau lebih sering (q1)</KpiCaption>
-          </ScorecardAILN>
-          <ScorecardAILN
-            title="Literasi Dasar Memadai"
-            value={overview ? `${overview.basic_literacy_percent}` : "—"}
-            unit="%"
-          >
-            <KpiCaption>paham konsep dasar ke atas (q4)</KpiCaption>
-          </ScorecardAILN>
-          <ScorecardAILN
-            title="Kesiapan Rata-rata Pillar"
-            value={pillarsQ.data ? formatScore(pillarsQ.data.org_avg) : "—"}
-            unit="/ 5"
-          >
-            <KpiCaption>self-rating 6 pillar</KpiCaption>
-          </ScorecardAILN>
-        </div>
+        {/* KPI tiles — statistics-02 style with icons (same as executive view) */}
+        <ScorecardStripAILN
+          items={[
+            {
+              title: "Partisipasi Pre-assessment",
+              icon: ClipboardCheck,
+              value: overview ? `${overview.participation_percent}` : "—",
+              unit: "%",
+              footer: (
+                <KpiCaption>
+                  {overview
+                    ? `${overview.completed_count} dari ${overview.total_members} karyawan`
+                    : "—"}
+                </KpiCaption>
+              ),
+            },
+            {
+              title: "Pemakai AI Rutin",
+              icon: Zap,
+              value: overview ? `${overview.routine_users_percent}` : "—",
+              unit: "%",
+              footer: <KpiCaption>harian atau lebih sering (q1)</KpiCaption>,
+            },
+            {
+              title: "Literasi Dasar Memadai",
+              icon: BookOpen,
+              value: overview ? `${overview.basic_literacy_percent}` : "—",
+              unit: "%",
+              footer: <KpiCaption>paham konsep dasar ke atas (q4)</KpiCaption>,
+            },
+            {
+              title: "Kesiapan Rata-rata Pillar",
+              icon: Gauge,
+              value: pillarsQ.data ? formatScore(pillarsQ.data.org_avg) : "—",
+              unit: "/ 5",
+              footer: <KpiCaption>self-rating 6 pillar</KpiCaption>,
+            },
+          ]}
+        />
 
         {/* Pillars radar + usage frequency */}
         <div className="grid grid-cols-1 gap-4 lg:grid-cols-2">
-          <Section
+          <SectionContainerAILN
             title="Kesiapan 6 pillar — rata-rata organisasi"
-            subtitle="Titik nol yang akan diukur lagi di akhir program"
-            badge="T0"
+            desc="Titik nol yang akan diukur lagi di akhir program"
+            className="dark:shadow-[0_0_16px_rgba(0,53,157,0.06)]"
+            headerRight={<SectionBadge>T0</SectionBadge>}
           >
             {pillarsQ.isLoading || !pillarsQ.data ? (
               <Skeleton className="h-[300px]" />
@@ -289,12 +302,12 @@ export default function DashboardPreAssesmentAILN({
                 </div>
               </div>
             )}
-          </Section>
+          </SectionContainerAILN>
 
-          <Section
+          <SectionContainerAILN
             title="Frekuensi pemakaian AI"
-            subtitle={`Sebelum program · % dari ${frequencyQ.data?.respondents ?? "—"} responden (q1)`}
-            note="Tersorot = pemakai rutin (harian+). Mayoritas masih sporadis — ruang besar untuk peningkatan adopsi."
+            desc={`Sebelum program · % dari ${frequencyQ.data?.respondents ?? "—"} responden (q1)`}
+            className="dark:shadow-[0_0_16px_rgba(0,53,157,0.06)]"
           >
             {frequencyQ.isLoading || !frequencyQ.data ? (
               <SkeletonRows />
@@ -310,15 +323,20 @@ export default function DashboardPreAssesmentAILN({
                 ))}
               </ShareBarList>
             )}
-          </Section>
+            <SectionNote>
+              Tersorot = pemakai rutin (harian+). Mayoritas masih sporadis — ruang
+              besar untuk peningkatan adopsi.
+            </SectionNote>
+          </SectionContainerAILN>
         </div>
 
         {/* Penetrasi tools · Kematangan adopsi · Kesadaran keamanan · Use case
             — 1 kolom (HP) → 2+2 (tablet) → 4 sejajar (desktop) */}
         <div className="grid grid-cols-1 gap-4 md:grid-cols-2 xl:grid-cols-4">
-          <Section
+          <SectionContainerAILN
             title="Penetrasi tools AI"
-            subtitle={`Pernah dipakai · multi-pilih · % responden (q2)`}
+            desc={`Pernah dipakai · multi-pilih · % responden (q2)`}
+            className="dark:shadow-[0_0_16px_rgba(0,53,157,0.06)]"
           >
             {toolsQ.isLoading || !toolsQ.data ? (
               <SkeletonRows />
@@ -336,16 +354,12 @@ export default function DashboardPreAssesmentAILN({
                 ))}
               </ShareBarList>
             )}
-          </Section>
+          </SectionContainerAILN>
 
-          <Section
+          <SectionContainerAILN
             title="Kematangan adopsi tim"
-            subtitle="Kondisi adopsi di departemen masing-masing (q8)"
-            note={
-              maturityQ.data
-                ? `Hanya ${maturityQ.data.formal_percent}% tim punya kebijakan/integrasi resmi — sisanya belum terstruktur.`
-                : undefined
-            }
+            desc="Kondisi adopsi di departemen masing-masing (q8)"
+            className="dark:shadow-[0_0_16px_rgba(0,53,157,0.06)]"
           >
             {maturityQ.isLoading || !maturityQ.data ? (
               <SkeletonRows />
@@ -361,14 +375,19 @@ export default function DashboardPreAssesmentAILN({
                 ))}
               </ShareBarList>
             )}
-          </Section>
+            {maturityQ.data && (
+              <SectionNote>
+                Hanya {maturityQ.data.formal_percent}% tim punya
+                kebijakan/integrasi resmi — sisanya belum terstruktur.
+              </SectionNote>
+            )}
+          </SectionContainerAILN>
 
-          <Section
+          <SectionContainerAILN
             title="Kesadaran keamanan — gap"
-            subtitle="% karyawan yang BELUM menyadari praktik aman (q11)"
-            badge="Lensa risiko"
-            badgeTone="warn"
-            note="Prioritas compliance: hak cipta & transparansi adalah celah terbesar. Modul Ethics & Safety perlu diutamakan."
+            desc="% karyawan yang BELUM menyadari praktik aman (q11)"
+            className="dark:shadow-[0_0_16px_rgba(0,53,157,0.06)]"
+            headerRight={<SectionBadge tone="warn">Lensa risiko</SectionBadge>}
           >
             {safetyQ.isLoading || !safetyQ.data ? (
               <SkeletonRows />
@@ -384,12 +403,16 @@ export default function DashboardPreAssesmentAILN({
                 ))}
               </ShareBarList>
             )}
-          </Section>
+            <SectionNote>
+              Prioritas compliance: hak cipta & transparansi adalah celah
+              terbesar. Modul Ethics & Safety perlu diutamakan.
+            </SectionNote>
+          </SectionContainerAILN>
 
-          <Section
+          <SectionContainerAILN
             title="Use case paling diincar"
-            subtitle="Untuk apa AI ingin dipakai · % responden (q7)"
-            note="Sinyal untuk Champion: prioritaskan konten menulis & meringkas — kebutuhan terbesar lintas departemen."
+            desc="Untuk apa AI ingin dipakai · % responden (q7)"
+            className="dark:shadow-[0_0_16px_rgba(0,53,157,0.06)]"
           >
             {useCasesQ.isLoading || !useCasesQ.data ? (
               <SkeletonRows />
@@ -412,13 +435,18 @@ export default function DashboardPreAssesmentAILN({
                 ))}
               </ShareBarList>
             )}
-          </Section>
+            <SectionNote>
+              Sinyal untuk Champion: prioritaskan konten menulis & meringkas —
+              kebutuhan terbesar lintas departemen.
+            </SectionNote>
+          </SectionContainerAILN>
         </div>
 
         {/* Voice of employees */}
-        <Section
+        <SectionContainerAILN
           title="Suara karyawan"
-          subtitle="Klaster tema dari jawaban terbuka · angka = jumlah penyebutan"
+          desc="Klaster tema dari jawaban terbuka · angka = jumlah penyebutan"
+          className="dark:shadow-[0_0_16px_rgba(0,53,157,0.06)]"
         >
           {voiceQ.isLoading || !voiceQ.data ? (
             <Skeleton className="h-32" />
@@ -431,7 +459,11 @@ export default function DashboardPreAssesmentAILN({
                   </div>
                   <div className="flex flex-wrap gap-2">
                     {voiceQ.data.challenges.map((c) => (
-                      <VoiceChip key={c.label} label={c.label} count={c.count} />
+                      <VoiceChip
+                        key={c.label}
+                        label={c.label}
+                        count={c.count}
+                      />
                     ))}
                   </div>
                 </div>
@@ -468,7 +500,7 @@ export default function DashboardPreAssesmentAILN({
               </div>
             </div>
           )}
-        </Section>
+        </SectionContainerAILN>
       </div>
     </PageContainerAILN>
   );
@@ -488,12 +520,8 @@ function DepartmentFilter({
   onChange: (id: number | undefined) => void;
 }) {
   const [open, setOpen] = useState(false);
-  const selected = groupId
-    ? departments.find((d) => d.id === groupId)
-    : null;
-  const label = selected
-    ? selected.name
-    : `Semua (${departments.length})`;
+  const selected = groupId ? departments.find((d) => d.id === groupId) : null;
+  const label = selected ? selected.name : `Semua (${departments.length})`;
 
   return (
     <div className="relative">
@@ -574,61 +602,41 @@ function DeptItem({
 // Footer caption inside ScorecardAILN's divided zone (matches executive view).
 function KpiCaption({ children }: { children: React.ReactNode }) {
   return (
-    <span className="text-xs font-medium text-gray-500 dark:text-gray-400">
+    <span className="text-xs font-medium text-muted-foreground">
       {children}
     </span>
   );
 }
 
-// ---------- Section card ----------
+// ---------- Section header badge ----------
 
-function Section({
-  title,
-  subtitle,
-  badge,
-  badgeTone = "neutral",
-  note,
+function SectionBadge({
+  tone = "neutral",
   children,
 }: {
-  title: string;
-  subtitle?: string;
-  badge?: string;
-  badgeTone?: "neutral" | "warn";
-  note?: string;
+  tone?: "neutral" | "warn";
   children: React.ReactNode;
 }) {
   return (
-    <div className="flex flex-col rounded-lg border border-dashboard-border bg-white p-5 shadow-sm dark:bg-card-bg dark:shadow-[0_0_16px_rgba(0,53,157,0.06)]">
-      <div className="mb-4 flex items-start justify-between gap-3">
-        <div className="flex flex-col gap-0.5">
-          <div className="text-base font-bold text-gray-900 dark:text-white">
-            {title}
-          </div>
-          {subtitle && (
-            <p className="text-sm text-gray-500 dark:text-gray-400">
-              {subtitle}
-            </p>
-          )}
-        </div>
-        {badge && (
-          <span
-            className={`shrink-0 rounded-full border px-2.5 py-0.5 text-[11px] font-semibold ${
-              badgeTone === "warn"
-                ? "border-amber-300 bg-amber-50 text-amber-700 dark:border-amber-500/40 dark:bg-amber-500/10 dark:text-amber-300"
-                : "border-dashboard-border bg-gray-50 text-gray-500 dark:bg-card-inside-bg dark:text-gray-400"
-            }`}
-          >
-            {badge}
-          </span>
-        )}
-      </div>
-      <div className="flex-1">{children}</div>
-      {note && (
-        <p className="mt-4 border-t border-dashboard-border pt-3 text-xs text-gray-500 dark:text-gray-400">
-          {note}
-        </p>
-      )}
-    </div>
+    <span
+      className={`shrink-0 rounded-full border px-2.5 py-0.5 text-[11px] font-semibold ${
+        tone === "warn"
+          ? "border-amber-300 bg-amber-50 text-amber-700 dark:border-amber-500/40 dark:bg-amber-500/10 dark:text-amber-300"
+          : "border-dashboard-border bg-gray-50 text-gray-500 dark:bg-card-inside-bg dark:text-gray-400"
+      }`}
+    >
+      {children}
+    </span>
+  );
+}
+
+// ---------- Section footer note ----------
+
+function SectionNote({ children }: { children: React.ReactNode }) {
+  return (
+    <p className="mt-4 border-t border-dashboard-border pt-3 text-xs text-gray-500 dark:text-gray-400">
+      {children}
+    </p>
   );
 }
 

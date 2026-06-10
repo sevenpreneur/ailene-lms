@@ -317,7 +317,16 @@ export const listAilene = {
         return {
           code: STATUS_OK,
           message: "Success",
-          stats: { total: 0, on_track: 0, at_risk: 0, behind: 0 },
+          stats: {
+            total: 0,
+            on_track: 0,
+            at_risk: 0,
+            behind: 0,
+            active_this_week: 0,
+            submissions_sent: 0,
+            members_submitted: 0,
+            hours_saved: 0,
+          },
           list: [],
         };
       }
@@ -332,6 +341,8 @@ export const listAilene = {
         matDone,
         vidDone,
         quizDoneRows,
+        useCaseDone,
+        submittedUseCases,
       ] = await Promise.all([
         opts.ctx.prisma.ailXpEarning.groupBy({
           by: ["member_id"],
@@ -357,6 +368,22 @@ export const listAilene = {
           select: { member_id: true, quiz_id: true },
           distinct: ["member_id", "quiz_id"],
         }),
+        // accepted use case submissions per member (validated "wins")
+        opts.ctx.prisma.ailUseCaseSubmission.groupBy({
+          by: ["member_id"],
+          _count: { _all: true },
+          where: { member_id: { in: memberIds }, is_accepted: true },
+        }),
+        // all submitted use cases across the group (for team-level scorecards:
+        // submissions sent + hours saved + distinct adopters)
+        opts.ctx.prisma.ailUseCaseSubmission.findMany({
+          where: { member_id: { in: memberIds }, submitted_at: { not: null } },
+          select: {
+            member_id: true,
+            hours_saved: true,
+            hours_without_ai: true,
+          },
+        }),
       ]);
 
       const xpByMember = new Map<number, number>(
@@ -375,8 +402,28 @@ export const listAilene = {
       for (const r of quizDoneRows) {
         quizByMember.set(r.member_id, (quizByMember.get(r.member_id) ?? 0) + 1);
       }
+      const useCaseByMember = new Map<number, number>(
+        useCaseDone.map((r) => [r.member_id, r._count._all])
+      );
+
+      // Team-level use case metrics. Hours saved = tanpa-AI minus dengan-AI per
+      // submission (only counted when both hours are present and positive).
+      const submissions_sent = submittedUseCases.length;
+      let hours_saved_total = 0;
+      const submitterIds = new Set<number>();
+      for (const s of submittedUseCases) {
+        submitterIds.add(s.member_id);
+        const withAi = s.hours_saved == null ? null : Number(s.hours_saved);
+        const without =
+          s.hours_without_ai == null ? null : Number(s.hours_without_ai);
+        if (withAi != null && without != null && without > withAi) {
+          hours_saved_total += without - withAi;
+        }
+      }
+      const members_submitted = submitterIds.size;
 
       const now = dayjs();
+      const weekStart = now.startOf("week");
 
       const list = members
         .map((m) => {
@@ -424,6 +471,7 @@ export const listAilene = {
             },
             total_xp,
             progress_percent,
+            use_case_count: useCaseByMember.get(m.id) ?? 0,
             current_chapter: null as { id: number; name: string } | null,
             last_active_at,
             status,
@@ -444,6 +492,14 @@ export const listAilene = {
         on_track: list.filter((l) => l.status === "on_track").length,
         at_risk: list.filter((l) => l.status === "at_risk").length,
         behind: list.filter((l) => l.status === "behind").length,
+        active_this_week: list.filter(
+          (l) =>
+            l.last_active_at &&
+            dayjs(l.last_active_at).valueOf() >= weekStart.valueOf()
+        ).length,
+        submissions_sent,
+        members_submitted,
+        hours_saved: Math.round(hours_saved_total),
       };
 
       return { code: STATUS_OK, message: "Success", stats, list };
@@ -479,6 +535,16 @@ export const listAilene = {
   }),
 
   categories: championProcedure.query(async (opts) => {
+    const list = await opts.ctx.prisma.ailCategory.findMany({
+      orderBy: { name: "asc" },
+      select: { id: true, name: true },
+    });
+    return { code: STATUS_OK, message: "Success", list };
+  }),
+
+  // Member-accessible category list — used by students when adding their own
+  // self-initiated practice (prompt / use case) from /student/practice/create.
+  memberCategories: ailMemberProcedure.query(async (opts) => {
     const list = await opts.ctx.prisma.ailCategory.findMany({
       orderBy: { name: "asc" },
       select: { id: true, name: true },

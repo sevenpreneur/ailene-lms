@@ -1,5 +1,5 @@
 "use client";
-import { NumberConfig, PlatformType } from "@/lib/app-types";
+import { NumberConfig, StakeholderVariant } from "@/lib/app-types";
 import { ChevronDown } from "lucide-react";
 import Image from "next/image";
 import React, {
@@ -11,50 +11,41 @@ import React, {
 } from "react";
 
 const variantStyles: Record<
-  PlatformType,
+  StakeholderVariant,
   {
     focus: string;
     focusWithin: string;
     border: string;
     background: string;
     disabled: string;
-    font: string;
   }
 > = {
-  SVP: {
-    focus: "focus:outline-primary/15 focus:border-primary",
-    focusWithin: "focus-within:outline-primary/15 focus-within:border-primary",
-    border: "border",
-    background: "bg-transparent",
-    disabled:
-      "bg-gray-100 text-gray-500  dark:bg-[#1F1F1F] dark:text-[#555555]",
-    font: "font-bodycopy",
-  },
-  LMS: {
-    focus: "focus:outline-tertiary/15 focus:border-tertiary",
+  STUDENT: {
+    focus:
+      "focus:outline-black/10 focus:border-black dark:focus:outline-white/15 dark:focus:border-white",
     focusWithin:
-      "focus-within:outline-tertiary/15 focus-within:border-tertiary",
+      "focus-within:outline-black/10 focus-within:border-black dark:focus-within:outline-white/15 dark:focus-within:border-white",
     border: "border border-dashboard-border",
     background: "bg-card-inside-bg",
     disabled: "bg-card-inside-bg text-muted-foreground dark:text-foreground/30",
-    font: "font-bodycopy",
   },
-  CMS: {
-    focus: "focus:outline-tertiary/15 focus:border-tertiary",
+  CHAMPION: {
+    focus:
+      "focus:outline-emerald-500/15 focus:border-emerald-600 dark:focus:outline-emerald-400/15 dark:focus:border-emerald-400",
     focusWithin:
-      "focus-within:outline-tertiary/15 focus-within:border-tertiary",
-    border: "border border-dashboard-border",
-    background: "bg-background",
-    disabled: "bg-card-inside-bg text-muted-foreground dark:text-foreground/30",
-    font: "font-bodycopy",
-  },
-  AILN: {
-    focus: "focus:outline-black/10 focus:border-black",
-    focusWithin: "focus-within:outline-black/10 focus-within:border-black",
+      "focus-within:outline-emerald-500/15 focus-within:border-emerald-600 dark:focus-within:outline-emerald-400/15 dark:focus-within:border-emerald-400",
     border: "border border-dashboard-border",
     background: "bg-card-inside-bg",
     disabled: "bg-card-inside-bg text-muted-foreground dark:text-foreground/30",
-    font: "font-geist-sans",
+  },
+  SPONSOR: {
+    focus:
+      "focus:outline-blue-500/15 focus:border-blue-600 dark:focus:outline-blue-400/15 dark:focus:border-blue-400",
+    focusWithin:
+      "focus-within:outline-blue-500/15 focus-within:border-blue-600 dark:focus-within:outline-blue-400/15 dark:focus-within:border-blue-400",
+    border: "border border-dashboard-border",
+    background: "bg-card-inside-bg",
+    disabled: "bg-card-inside-bg text-muted-foreground dark:text-foreground/30",
   },
 };
 
@@ -97,7 +88,7 @@ export const NumberVariant: Record<
   },
 };
 
-interface AppNumberInputSVPProps extends InputHTMLAttributes<HTMLInputElement> {
+interface NumberInputAILNProps extends InputHTMLAttributes<HTMLInputElement> {
   inputId: string;
   inputName?: string;
   inputIcon?: string;
@@ -106,13 +97,13 @@ interface AppNumberInputSVPProps extends InputHTMLAttributes<HTMLInputElement> {
   characterLength?: number;
   errorMessage?: string;
   value: string;
-  variant: PlatformType;
+  variant: StakeholderVariant;
   defaultCountryId?: number | null;
   onInputChange?: (value: string) => void;
   onCountryChange?: (id: number, code: string) => void;
 }
 
-export default function AppNumberInputSVP({
+export default function NumberInputAILN({
   inputId,
   inputName,
   inputIcon,
@@ -128,7 +119,7 @@ export default function AppNumberInputSVP({
   disabled,
   required,
   ...rest
-}: AppNumberInputSVPProps) {
+}: NumberInputAILNProps) {
   const [textValue, setTextValue] = useState(value);
   const [internalError, setInternalError] = useState("");
   const [countryOpen, setCountryOpen] = useState(false);
@@ -195,7 +186,7 @@ export default function AppNumberInputSVP({
       {inputName && (
         <label
           htmlFor={inputId}
-          className={`label-input flex pl-1 gap-0.5 text-sm text-sb-text-strong ${styles.font} font-semibold`}
+          className={`label-input flex pl-1 gap-0.5 text-sm text-sb-text-strong font-semibold`}
         >
           {inputName}
           {required && (
@@ -222,7 +213,7 @@ export default function AppNumberInputSVP({
               type="button"
               disabled={disabled as boolean}
               onClick={() => setCountryOpen((p) => !p)}
-              className={`flex items-center gap-1.5 h-full px-3 border-r border-dashboard-border text-sm font-medium ${styles.font} rounded-l-md transition hover:bg-card-inside-bg hover:cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed`}
+              className={`flex items-center gap-1.5 h-full px-3 border-r border-dashboard-border text-sm font-medium rounded-l-md transition hover:bg-card-inside-bg hover:cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed`}
             >
               {selectedCountry?.icon ? (
                 <Image
@@ -254,7 +245,7 @@ export default function AppNumberInputSVP({
                       onCountryChange?.(c.id, c.phone_code);
                       setCountryOpen(false);
                     }}
-                    className={`flex items-center gap-2 w-full px-3 py-2 text-sm text-left ${styles.font} transition hover:bg-card-inside-bg ${
+                    className={`flex items-center gap-2 w-full px-3 py-2 text-sm text-left transition hover:bg-card-inside-bg ${
                       selectedCountry?.id === c.id
                         ? "bg-primary/5 text-primary"
                         : ""
@@ -297,7 +288,7 @@ export default function AppNumberInputSVP({
           inputMode={mode}
           pattern={pattern}
           placeholder={inputPlaceholder}
-          className={`input-placeholder flex w-full p-2 font-medium ${styles.font} text-sm transform transition-all placeholder:text-emphasis/60 placeholder:font-medium placeholder:text-sm ${
+          className={`input-placeholder flex w-full p-2 font-medium text-sm transform transition-all placeholder:text-emphasis/60 placeholder:font-medium placeholder:text-sm ${
             isPhone
               ? "flex-1 rounded-r-md border-0 focus:outline-none bg-transparent"
               : `rounded-md focus:outline-4 invalid:border-destructive required:border-destructive ${styles.border} ${
@@ -318,7 +309,7 @@ export default function AppNumberInputSVP({
 
         {computedError && (
           <p
-            className={`input-error-message absolute -bottom-5 left-0 inline-flex text-red-600 text-xs ${styles.font}`}
+            className={`input-error-message absolute -bottom-5 left-0 inline-flex text-red-600 text-xs `}
           >
             {computedError}
           </p>

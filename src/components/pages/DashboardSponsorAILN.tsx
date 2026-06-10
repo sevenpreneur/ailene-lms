@@ -6,19 +6,21 @@ import {
 } from "@/components/reports/AileneReportPDF";
 import ButtonAILN from "@/components/buttons/ButtonAILN";
 import ScorecardAILN from "@/components/cards/ScorecardAILN";
+import SectionContainerAILN from "@/components/cards/SectionContainerAILN";
 import LevelDistributionSponsorAILN from "@/components/charts/LevelDistributionSponsorAILN";
-import WeeklyTrendsSponsorAILN from "@/components/charts/WeeklyTrendsSponsorAILN";
+import ProficiencyTrendsSponsorAILN from "@/components/charts/ProficiencyTrendsSponsorAILN";
 import OrganizationLeaderboardAILN from "@/components/indexes/OrganizationLeaderboardAILN";
 import PageContainerAILN from "@/components/pages/PageContainerAILN";
 import AppErrorComponents from "@/components/states/AppErrorComponents";
 import { setSessionToken, trpc } from "@/trpc/client";
 import dayjs from "dayjs";
-import { Download } from "lucide-react";
+import { Clock, Coins, Download, Gauge, Users } from "lucide-react";
+import type { LucideIcon } from "lucide-react";
 import { useEffect } from "react";
 
 // Ailene brand accent — used for the activity timeline so the dashboard carries
 // brand identity, not just gray.
-const AILN_ACCENT = "#ee2333";
+const AILN_ACCENT = "var(--destructive)";
 
 // Floor an avg level (0..4) to its tier name for the card caption.
 function tierLabel(level: number): string {
@@ -51,7 +53,7 @@ export default function DashboardSponsorAILN({
   const activityQ = trpc.ailene.read.recentActivity.useQuery();
   // For the PDF report: data the on-page charts render via child components.
   const levelDistQ = trpc.ailene.read.levelDistribution.useQuery();
-  const trendsQ = trpc.ailene.read.weeklyTrends.useQuery();
+  const proficiencyQ = trpc.ailene.read.proficiencyTrends.useQuery();
   const leaderboardQ = trpc.ailene.read.organizationLeaderboard.useQuery();
 
   if (executiveQ.isLoading) {
@@ -91,9 +93,16 @@ export default function DashboardSponsorAILN({
     value: string;
     unit: string;
     footer: string;
+    icon: LucideIcon;
+    accent: { tile: string; icon: string };
   }[] = [
     {
       title: "Avg Level Organisasi",
+      icon: Gauge,
+      accent: {
+        tile: "bg-violet-50 dark:bg-violet-500/15",
+        icon: "text-violet-600 dark:text-violet-300",
+      },
       value: metrics.avg_level.toLocaleString("id-ID", {
         minimumFractionDigits: 1,
         maximumFractionDigits: 1,
@@ -103,6 +112,11 @@ export default function DashboardSponsorAILN({
     },
     {
       title: "Jam Dihemat (Kumulatif)",
+      icon: Clock,
+      accent: {
+        tile: "bg-sky-50 dark:bg-sky-500/15",
+        icon: "text-sky-600 dark:text-sky-300",
+      },
       value: metrics.hours_saved_total.toLocaleString("id-ID", {
         maximumFractionDigits: 1,
       }),
@@ -111,12 +125,22 @@ export default function DashboardSponsorAILN({
     },
     {
       title: "ROI (Cohort-to-date)",
+      icon: Coins,
+      accent: {
+        tile: "bg-emerald-50 dark:bg-emerald-500/15",
+        icon: "text-emerald-600 dark:text-emerald-300",
+      },
       value: roi.value,
       unit: roi.unit,
       footer: `dari ${metrics.hours_saved_total.toLocaleString("id-ID")} jam dihemat`,
     },
     {
       title: "Staff Aktif Mingguan",
+      icon: Users,
+      accent: {
+        tile: "bg-amber-50 dark:bg-amber-500/15",
+        icon: "text-amber-600 dark:text-amber-300",
+      },
       value: staffActiveWeeklyValue,
       unit: "%",
       footer: `${metrics.staff_active_weekly_count.toLocaleString("id-ID")} dari ${metrics.member_count.toLocaleString("id-ID")} staff aktif`,
@@ -164,17 +188,17 @@ export default function DashboardSponsorAILN({
             },
           ]
         : []),
-      ...(trendsQ.data && trendsQ.data.weeks.length > 0
+      ...(proficiencyQ.data && proficiencyQ.data.weeks.length > 0
         ? [
             {
               type: "trend" as const,
-              title: "Tren Mingguan (12 minggu)",
-              barName: "Jam dihemat",
-              lineName: "Adopsi %",
-              points: trendsQ.data.weeks.map((w) => ({
+              title: "Tren Penguasaan AI (12 minggu)",
+              barName: "% Level 1+",
+              lineName: "Rata-rata Level",
+              points: proficiencyQ.data.weeks.map((w) => ({
                 label: w.label,
-                bar: w.hours_saved,
-                line: w.adoption_percent,
+                bar: w.level1_plus_percent,
+                line: w.avg_level,
               })),
             },
           ]
@@ -219,15 +243,13 @@ export default function DashboardSponsorAILN({
         {/* Header */}
         <div className="flex flex-wrap items-start justify-between gap-4">
           <div className="min-w-0">
-            <div className="text-[11px] font-semibold tracking-widest text-gray-500 dark:text-gray-400">
+            <div className="text-[11px] font-semibold tracking-widest text-muted-foreground">
               SPONSOR · EXECUTIVE VIEW
             </div>
-            <h1 className="mt-1 text-3xl font-bold leading-tight text-gray-900 dark:text-white">
+            <h1 className="mt-1 text-3xl font-bold leading-tight text-foreground">
               {orgName}
             </h1>
-            <p className="mt-1 text-sm text-gray-500 dark:text-gray-400">
-              {orgSubline}
-            </p>
+            <p className="mt-1 text-sm text-muted-foreground">{orgSubline}</p>
           </div>
 
           <div className="flex flex-wrap items-center gap-2">
@@ -243,52 +265,47 @@ export default function DashboardSponsorAILN({
           </div>
         </div>
 
-        {/* 4 KPI cards */}
+        {/* KPI strip — standardized ScorecardAILN cards */}
         <div className="grid grid-cols-1 gap-4 md:grid-cols-2 xl:grid-cols-4">
-          {kpiCards.map((k) => (
+          {kpiCards.map((k, i) => (
             <ScorecardAILN
-              key={k.title}
+              key={i}
               title={k.title}
               value={k.value}
               unit={k.unit}
+              icon={k.icon}
+              accent={k.accent}
             >
-              <span className="text-xs font-medium text-gray-500 dark:text-gray-400">
-                {k.footer}
-              </span>
+              <p className="text-xs text-muted-foreground">{k.footer}</p>
             </ScorecardAILN>
           ))}
         </div>
 
-        {/* Trend + Distribusi Level + Top Departemen */}
+        {/* Trend + Distribusi Level (1 row) */}
         <div className="grid grid-cols-1 gap-4 lg:grid-cols-[minmax(0,1.7fr)_minmax(0,1fr)]">
-          <WeeklyTrendsSponsorAILN />
-
-          <div className="flex flex-col gap-4">
-            <LevelDistributionSponsorAILN />
-            <OrganizationLeaderboardAILN />
-          </div>
+          <ProficiencyTrendsSponsorAILN />
+          <LevelDistributionSponsorAILN />
         </div>
 
-        {/* Kesehatan Program + Aktivitas terkini */}
-        <div className="grid grid-cols-1 gap-4 lg:grid-cols-[minmax(0,1.4fr)_minmax(0,1fr)]">
-          {/* Kesehatan Program */}
-          <div className="ailn-card overflow-hidden">
-            <div className="border-b border-gray-100 p-5 dark:border-dashboard-border">
-              <div className="text-base font-bold text-gray-900 dark:text-white">
-                Kesehatan Program
-              </div>
-              <p className="mt-0.5 text-sm text-gray-500 dark:text-gray-400">
-                Capaian program vs target · update real-time.
-              </p>
-            </div>
-            <div className="p-5">
+        {/* Top Departemen (kiri) + Kesehatan Program & Aktivitas (kanan) */}
+        <div className="grid grid-cols-1 gap-4 lg:grid-cols-[minmax(0,1fr)_minmax(0,1.5fr)]">
+          {/* Top Departemen */}
+          <OrganizationLeaderboardAILN />
+
+          {/* Kanan: Kesehatan Program + Aktivitas terkini */}
+          <div className="flex flex-col gap-4">
+            {/* Kesehatan Program */}
+            <SectionContainerAILN
+              title="Kesehatan Program"
+              desc="Capaian program vs target · update real-time."
+            >
               {healthQ.isLoading ? (
                 <ul className="grid grid-cols-2 gap-6 lg:grid-cols-4">
                   {[0, 1, 2, 3].map((i) => (
                     <li key={i} className="flex flex-col gap-2">
-                      <div className="h-3 w-20 animate-pulse rounded bg-gray-200 dark:bg-dashboard-border" />
-                      <div className="h-3 w-16 animate-pulse rounded bg-gray-100 dark:bg-dashboard-border/60" />
-                      <div className="mt-1 h-7 w-16 animate-pulse rounded bg-gray-200 dark:bg-dashboard-border" />
+                      <div className="h-3 w-20 animate-pulse rounded bg-muted" />
+                      <div className="h-3 w-16 animate-pulse rounded bg-muted/60" />
+                      <div className="mt-1 h-7 w-16 animate-pulse rounded bg-muted" />
                     </li>
                   ))}
                 </ul>
@@ -305,58 +322,55 @@ export default function DashboardSponsorAILN({
                   ))}
                 </ul>
               )}
-            </div>
-          </div>
+            </SectionContainerAILN>
 
-          {/* Aktivitas terkini */}
-          <div className="ailn-card p-5">
-            <div className="text-base font-bold text-gray-900 dark:text-white">
-              Aktivitas terkini
-            </div>
-            {activityQ.isLoading ? (
-              <ul className="mt-3 flex flex-col gap-3">
-                {[0, 1, 2, 3].map((i) => (
-                  <li key={i} className="flex items-start gap-3">
-                    <span className="mt-1.5 size-1.5 shrink-0 rounded-full bg-gray-200 dark:bg-dashboard-border" />
-                    <div className="flex-1 space-y-1.5">
-                      <div className="h-3 w-3/4 animate-pulse rounded bg-gray-200 dark:bg-dashboard-border" />
-                      <div className="h-2.5 w-1/2 animate-pulse rounded bg-gray-100 dark:bg-dashboard-border/60" />
-                    </div>
-                  </li>
-                ))}
-              </ul>
-            ) : activity.length === 0 ? (
-              <p className="mt-3 text-sm text-gray-500 dark:text-gray-400">
-                Belum ada aktivitas.
-              </p>
-            ) : (
-              <ul className="mt-3 flex flex-col gap-3 text-sm">
-                {activity.map((a, i) => (
-                  <li key={i} className="flex items-start gap-3">
-                    <span
-                      className="mt-1.5 inline-block size-1.5 shrink-0 rounded-full"
-                      style={{ backgroundColor: AILN_ACCENT }}
-                    />
-                    <div className="min-w-0 flex-1">
-                      <div className="text-sm text-gray-900 dark:text-white">
-                        <span className="font-semibold">{a.actor}</span>{" "}
-                        <span className="text-gray-700 dark:text-gray-300">
-                          {a.action}
-                        </span>
+            {/* Aktivitas terkini */}
+            <SectionContainerAILN title="Aktivitas terkini">
+              {activityQ.isLoading ? (
+                <ul className="flex flex-col gap-3">
+                  {[0, 1, 2, 3].map((i) => (
+                    <li key={i} className="flex items-start gap-3">
+                      <span className="mt-1.5 size-1.5 shrink-0 rounded-full bg-muted" />
+                      <div className="flex-1 space-y-1.5">
+                        <div className="h-3 w-3/4 animate-pulse rounded bg-muted" />
+                        <div className="h-2.5 w-1/2 animate-pulse rounded bg-muted/60" />
                       </div>
-                      {a.meta && (
-                        <div className="text-xs text-gray-500 dark:text-gray-400">
-                          {a.meta}
+                    </li>
+                  ))}
+                </ul>
+              ) : activity.length === 0 ? (
+                <p className="text-sm text-muted-foreground">
+                  Belum ada aktivitas.
+                </p>
+              ) : (
+                <ul className="flex flex-col gap-3 text-sm">
+                  {activity.map((a, i) => (
+                    <li key={i} className="flex items-start gap-3">
+                      <span
+                        className="mt-1.5 inline-block size-1.5 shrink-0 rounded-full"
+                        style={{ backgroundColor: AILN_ACCENT }}
+                      />
+                      <div className="min-w-0 flex-1">
+                        <div className="text-sm text-foreground">
+                          <span className="font-semibold">{a.actor}</span>{" "}
+                          <span className="text-muted-foreground">
+                            {a.action}
+                          </span>
                         </div>
-                      )}
-                    </div>
-                    <span className="shrink-0 text-xs text-gray-400 dark:text-gray-500">
-                      {a.time}
-                    </span>
-                  </li>
-                ))}
-              </ul>
-            )}
+                        {a.meta && (
+                          <div className="text-xs text-muted-foreground">
+                            {a.meta}
+                          </div>
+                        )}
+                      </div>
+                      <span className="shrink-0 text-xs text-muted-foreground">
+                        {a.time}
+                      </span>
+                    </li>
+                  ))}
+                </ul>
+              )}
+            </SectionContainerAILN>
           </div>
         </div>
       </div>
@@ -391,22 +405,19 @@ function DashboardSponsorSkeleton() {
     <div className="flex w-full flex-col gap-6 animate-pulse">
       <div className="flex flex-wrap items-start justify-between gap-4">
         <div className="space-y-2">
-          <div className="h-3 w-48 rounded bg-gray-200 dark:bg-dashboard-border" />
-          <div className="h-8 w-56 rounded bg-gray-200 dark:bg-dashboard-border" />
-          <div className="h-4 w-96 rounded bg-gray-200 dark:bg-dashboard-border" />
+          <div className="h-3 w-48 rounded bg-muted" />
+          <div className="h-8 w-56 rounded bg-muted" />
+          <div className="h-4 w-96 rounded bg-muted" />
         </div>
-        <div className="h-9 w-72 rounded-md bg-gray-200 dark:bg-dashboard-border" />
+        <div className="h-9 w-72 rounded-md bg-muted" />
       </div>
 
       <div className="grid grid-cols-1 gap-4 md:grid-cols-2 xl:grid-cols-4">
         {[0, 1, 2, 3].map((i) => (
-          <div
-            key={i}
-            className="ailn-card min-h-40 p-4"
-          >
-            <div className="h-3 w-36 rounded bg-gray-200 dark:bg-dashboard-border" />
-            <div className="mt-4 h-10 w-24 rounded bg-gray-200 dark:bg-dashboard-border" />
-            <div className="mt-8 h-11 w-full rounded bg-gray-100 dark:bg-dashboard-border/60" />
+          <div key={i} className="ailn-card min-h-40 p-4">
+            <div className="h-3 w-36 rounded bg-muted" />
+            <div className="mt-4 h-10 w-24 rounded bg-muted" />
+            <div className="mt-8 h-11 w-full rounded bg-muted/60" />
           </div>
         ))}
       </div>
@@ -422,8 +433,36 @@ function DashboardSponsorSkeleton() {
   );
 }
 
-// One metric, Core-Web-Vitals layout: label, sub-label, big percent value, and
-// a real "X dari Y" detail (no fabricated target/delta — no baseline yet).
+// Semantic color by attainment so the program-health row reads at a glance:
+// green = healthy, amber = forming, rose = needs attention.
+function healthTone(percent: number): {
+  text: string;
+  bar: string;
+  track: string;
+} {
+  if (percent >= 70) {
+    return {
+      text: "text-emerald-600 dark:text-emerald-300",
+      bar: "bg-emerald-500",
+      track: "bg-emerald-100 dark:bg-emerald-500/15",
+    };
+  }
+  if (percent >= 25) {
+    return {
+      text: "text-amber-600 dark:text-amber-300",
+      bar: "bg-amber-500",
+      track: "bg-amber-100 dark:bg-amber-500/15",
+    };
+  }
+  return {
+    text: "text-rose-600 dark:text-rose-300",
+    bar: "bg-rose-500",
+    track: "bg-rose-100 dark:bg-rose-500/15",
+  };
+}
+
+// One metric, Core-Web-Vitals layout: label, sub-label, big percent value, a
+// semantic-colored progress bar, and a real "X dari Y" detail.
 function HealthMetric({
   label,
   name,
@@ -435,16 +474,23 @@ function HealthMetric({
   percent: number;
   detail: string;
 }) {
+  const tone = healthTone(percent);
   return (
     <li className="flex flex-col gap-1">
-      <p className="text-sm font-medium text-gray-900 dark:text-white">
-        {label}
-      </p>
-      <p className="text-xs text-gray-500 dark:text-gray-400">{name}</p>
-      <p className="font-geist-mono text-2xl font-bold tabular-nums text-gray-900 dark:text-white">
+      <p className="text-sm font-medium text-foreground">{label}</p>
+      <p className="text-xs text-muted-foreground">{name}</p>
+      <p
+        className={` text-2xl font-bold tabular-nums ${tone.text}`}
+      >
         {percent.toLocaleString("id-ID")}%
       </p>
-      <p className="text-xs text-gray-500 dark:text-gray-400">{detail}</p>
+      <div className={`mt-1 h-1.5 w-full overflow-hidden rounded-full ${tone.track}`}>
+        <div
+          className={`h-full rounded-full ${tone.bar}`}
+          style={{ width: `${Math.min(Math.max(percent, 0), 100)}%` }}
+        />
+      </div>
+      <p className="mt-0.5 text-xs text-muted-foreground">{detail}</p>
     </li>
   );
 }

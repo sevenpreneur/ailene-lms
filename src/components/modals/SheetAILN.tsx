@@ -2,7 +2,7 @@
 import { X } from "lucide-react";
 import { ReactNode, useEffect } from "react";
 
-interface AppSheetProps {
+interface SheetAILNProps {
   sheetName: string;
   sheetDescription?: string;
   isOpen: boolean;
@@ -10,13 +10,13 @@ interface AppSheetProps {
   children: ReactNode;
 }
 
-export default function AppSheet({
+export default function SheetAILN({
   sheetName,
   sheetDescription,
   isOpen,
   onClose,
   children,
-}: AppSheetProps) {
+}: SheetAILNProps) {
   // Blocked scroll behind
   useEffect(() => {
     if (isOpen) {
@@ -35,14 +35,14 @@ export default function AppSheet({
       onClick={onClose}
     >
       <div
-        className={`sheet-container fixed flex flex-col w-3/4 h-full inset-y-0 right-0 bg-sb-bg border-l border-dashboard-border transition transform ease-in-out sm:max-w-md`}
+        className={`sheet-container fixed flex flex-col w-3/4 h-full inset-y-0 bg-background right-0 border-l border-dashboard-border transition transform ease-in-out sm:max-w-md`}
         onClick={(e) => e.stopPropagation()}
       >
         <div className="sheet-header relative flex flex-col p-4 px-6">
-          <h2 className="text-foreground text-lg font-bodycopy font-bold dark:text-sevenpreneur-white">
+          <h2 className="text-foreground text-lg  font-bold dark:text-sevenpreneur-white">
             {sheetName}
           </h2>
-          <p className="sheet-description text-emphasis text-sm font-bodycopy font-medium">
+          <p className="sheet-description text-emphasis text-sm  font-medium">
             {sheetDescription}
           </p>
           <X

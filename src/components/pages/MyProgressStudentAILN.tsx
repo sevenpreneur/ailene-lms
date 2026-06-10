@@ -245,7 +245,7 @@ function StatCard({
       </div>
       <div className="flex items-baseline gap-1.5">
         <span
-          className={`font-geist-mono text-3xl font-bold leading-none ${
+          className={` text-3xl font-bold leading-none ${
             accent
               ? "text-emerald-600 dark:text-emerald-400"
               : "text-foreground dark:text-white"
@@ -293,7 +293,7 @@ function LeaderboardPanel() {
         </div>
         {tab === "DEPT" && q.data?.group && (
           <div className="flex items-baseline gap-1.5">
-            <span className="font-geist-mono text-2xl font-bold leading-none text-gray-900 dark:text-white">
+            <span className=" text-2xl font-bold leading-none text-gray-900 dark:text-white">
               #{q.data.my_rank}
             </span>
             <span className="text-xs text-gray-500 dark:text-gray-400">
@@ -375,7 +375,7 @@ function LeaderboardPanel() {
                     </span>
                   )}
                 </span>
-                <span className="shrink-0 font-geist-mono text-xs text-gray-500 dark:text-gray-400">
+                <span className="shrink-0  text-xs text-gray-500 dark:text-gray-400">
                   {entry.total_xp.toLocaleString("id-ID")} XP
                 </span>
               </div>
@@ -641,7 +641,7 @@ function StreakStat({
     <div className="flex flex-col gap-0.5">
       <div className="flex items-baseline gap-1">
         <span
-          className={`font-geist-mono text-2xl font-bold leading-none ${
+          className={` text-2xl font-bold leading-none ${
             accent
               ? "text-red-600 dark:text-red-400"
               : "text-foreground dark:text-white"
@@ -747,7 +747,7 @@ function OutcomeView({
           <p className="mt-1 text-sm text-gray-500 dark:text-gray-400">
             {[fullName, jobTitle, groupName].filter(Boolean).join(" · ")}.
             Mulai dari{" "}
-            <span className="font-geist-mono text-gray-700 dark:text-gray-300">
+            <span className=" text-gray-700 dark:text-gray-300">
               L0 Searcher
             </span>
             , sekarang{" "}
@@ -874,7 +874,7 @@ function OutcomeCertificateCard({
         </div>
         <p className="text-xs text-gray-500 dark:text-gray-400">
           Diverifikasi oleh Champion{groupName ? ` ${groupName}` : ""} ·{" "}
-          <span className="font-geist-mono">ID {certificateId}</span>
+          <span className="">ID {certificateId}</span>
         </p>
       </div>
       <div className="flex shrink-0 flex-wrap items-center gap-2">

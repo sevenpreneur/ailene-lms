@@ -17,59 +17,71 @@ import {
   YAxis,
 } from "recharts";
 import { BAR_DEEP, BAR_SOFT, LINE_ADOPTION } from "./sponsor-palette";
-import { SAMPLE_TREND } from "./sample-trend-data";
+import { SAMPLE_PROFICIENCY } from "./sample-proficiency-data";
+
+// Avg level is the hero series (emerald line); % Level 1+ is the supporting
+// bar series. Two y-axes so the 0..4 level scale and 0..100 % scale coexist.
+const LEVEL_LINE = LINE_ADOPTION;
+
+// Preview toggle: when true the chart always shows the rising dummy curve
+// (with a "data contoh" badge). Set to false to use real reconstructed data.
+const FORCE_SAMPLE_DATA = true;
 
 const chartConfig = {
-  hours_saved: { label: "Jam dihemat", color: BAR_DEEP },
-  adoption_percent: { label: "Adopsi %", color: LINE_ADOPTION },
+  avg_level: { label: "Rata-rata Level", color: LEVEL_LINE },
+  level1_plus_percent: { label: "% Level 1+", color: BAR_DEEP },
 } satisfies ChartConfig;
 
-type TrendWeek = {
+type ProficiencyWeek = {
   label: string;
-  hours_saved: number;
-  adoption_percent: number;
+  avg_level: number;
+  level1_plus_percent: number;
   highlight?: boolean;
 };
 
-// Use real data when there's any activity; otherwise fall back to local sample
-// data (keeping the real week labels) so the chart isn't barren in empty envs.
-function resolveWeeks(realWeeks: TrendWeek[]): {
-  weeks: TrendWeek[];
+// Use real data when there's any proficiency signal; otherwise fall back to
+// local sample data (keeping the real week labels) so the chart isn't barren
+// in empty/seed-less environments.
+function resolveWeeks(realWeeks: ProficiencyWeek[]): {
+  weeks: ProficiencyWeek[];
   isSample: boolean;
 } {
-  // Need a few weeks of activity before the real data forms a meaningful trend;
-  // a lone spike still reads as "broken/empty", so fall back to sample below.
-  const nonZeroWeeks = realWeeks.filter((w) => w.hours_saved > 0).length;
-  if (nonZeroWeeks >= 4) return { weeks: realWeeks, isSample: false };
+  const hasSignal =
+    !FORCE_SAMPLE_DATA &&
+    realWeeks.some((w) => w.avg_level > 0 || w.level1_plus_percent > 0);
+  if (hasSignal) return { weeks: realWeeks, isSample: false };
 
-  const base = realWeeks.length === SAMPLE_TREND.length ? realWeeks : SAMPLE_TREND;
+  const base =
+    realWeeks.length === SAMPLE_PROFICIENCY.length
+      ? realWeeks
+      : SAMPLE_PROFICIENCY;
   const weeks = base.map((w, i) => ({
     label: w.label,
-    hours_saved: SAMPLE_TREND[i].hours_saved,
-    adoption_percent: SAMPLE_TREND[i].adoption_percent,
+    avg_level: SAMPLE_PROFICIENCY[i].avg_level,
+    level1_plus_percent: SAMPLE_PROFICIENCY[i].level1_plus_percent,
     highlight: i === base.length - 1,
   }));
   return { weeks, isSample: true };
 }
 
-export default function WeeklyTrendsSponsorAILN() {
-  const q = trpc.ailene.read.weeklyTrends.useQuery();
+export default function ProficiencyTrendsSponsorAILN() {
+  const q = trpc.ailene.read.proficiencyTrends.useQuery();
 
   const legend = (
     <div className="flex items-center gap-3 text-xs text-muted-foreground">
       <span className="inline-flex items-center gap-1.5">
         <span
-          className="inline-block size-2 rounded-full"
-          style={{ backgroundColor: BAR_DEEP }}
+          className="inline-block h-0.5 w-3 rounded-full"
+          style={{ backgroundColor: LEVEL_LINE }}
         />
-        Jam dihemat
+        Rata-rata Level
       </span>
       <span className="inline-flex items-center gap-1.5">
         <span
-          className="inline-block h-0.5 w-3 rounded-full"
-          style={{ backgroundColor: LINE_ADOPTION }}
+          className="inline-block size-2 rounded-full"
+          style={{ backgroundColor: BAR_DEEP }}
         />
-        Adopsi %
+        % Level 1+
       </span>
     </div>
   );
@@ -78,8 +90,8 @@ export default function WeeklyTrendsSponsorAILN() {
     return (
       <SectionContainerAILN
         className="h-full"
-        title="Trend mingguan · Jam dihemat × Adopsi"
-        desc="12 minggu terakhir · sumber log workplace use case"
+        title="Perkembangan Kemampuan Tim"
+        desc="Rata-rata level tim & porsi yang sudah Level 1+ · 12 minggu terakhir"
         headerRight={legend}
       >
         <div className="h-72 animate-pulse rounded-md bg-muted" />
@@ -91,12 +103,12 @@ export default function WeeklyTrendsSponsorAILN() {
     return (
       <SectionContainerAILN
         className="h-full"
-        title="Trend mingguan · Jam dihemat × Adopsi"
-        desc="12 minggu terakhir · sumber log workplace use case"
+        title="Perkembangan Kemampuan Tim"
+        desc="Rata-rata level tim & porsi yang sudah Level 1+ · 12 minggu terakhir"
         headerRight={legend}
       >
         <div className="flex h-72 items-center justify-center text-sm text-muted-foreground">
-          Gagal memuat trend mingguan.
+          Gagal memuat tren penguasaan.
         </div>
       </SectionContainerAILN>
     );
@@ -107,8 +119,8 @@ export default function WeeklyTrendsSponsorAILN() {
   return (
     <SectionContainerAILN
       className="h-full"
-      title="Trend mingguan · Jam dihemat × Adopsi"
-      desc="12 minggu terakhir · sumber log workplace use case"
+      title="Perkembangan Kemampuan Tim"
+      desc="Rata-rata level tim & porsi yang sudah Level 1+ · 12 minggu terakhir"
       headerRight={
         <div className="flex items-center gap-3">
           {isSample && (
@@ -127,20 +139,11 @@ export default function WeeklyTrendsSponsorAILN() {
   );
 }
 
-function TrendChart({
-  data,
-}: {
-  data: {
-    label: string;
-    hours_saved: number;
-    adoption_percent: number;
-    highlight?: boolean;
-  }[];
-}) {
+function TrendChart({ data }: { data: ProficiencyWeek[] }) {
   if (data.length === 0) {
     return (
       <div className="flex h-64 items-center justify-center rounded-md bg-muted text-sm text-muted-foreground">
-        Belum ada data trend.
+        Belum ada data penguasaan.
       </div>
     );
   }
@@ -161,39 +164,40 @@ function TrendChart({
           minTickGap={16}
           fontSize={11}
         />
-        <YAxis yAxisId="hours" hide />
-        <YAxis yAxisId="adoption" domain={[0, 100]} hide />
+        {/* Bars: % Level 1+ (0..100) */}
+        <YAxis yAxisId="pct" domain={[0, 100]} hide />
+        {/* Line: avg level (0..4) */}
+        <YAxis yAxisId="level" domain={[0, 4]} hide />
         <ChartTooltip
           cursor={{ fill: "var(--muted)", opacity: 0.6 }}
           content={
             <ChartTooltipContent
               labelKey="label"
               formatter={(value, name) => {
-                const isPct = name === "adoption_percent";
-                const color = isPct ? LINE_ADOPTION : BAR_DEEP;
-                const text = isPct
-                  ? `${Number(value).toLocaleString("id-ID")}%`
-                  : `${Number(value).toLocaleString("id-ID", {
+                const isLevel = name === "avg_level";
+                const color = isLevel ? LEVEL_LINE : BAR_DEEP;
+                const text = isLevel
+                  ? `${Number(value).toLocaleString("id-ID", {
+                      minimumFractionDigits: 1,
                       maximumFractionDigits: 1,
-                    })} jam`;
+                    })} / 4`
+                  : `${Number(value).toLocaleString("id-ID")}%`;
                 return (
                   <div className="flex w-full items-center justify-between gap-4">
                     <span className="flex items-center gap-1.5">
-                      {isPct ? (
-                        // Line metric → line-shaped indicator (matches legend)
+                      {isLevel ? (
                         <span
                           className="inline-block h-[3px] w-3 shrink-0 rounded-full"
                           style={{ backgroundColor: color }}
                         />
                       ) : (
-                        // Bar metric → square indicator
                         <span
                           className="size-2 shrink-0 rounded-[2px]"
                           style={{ backgroundColor: color }}
                         />
                       )}
                       <span className="text-muted-foreground">
-                        {isPct ? "Adopsi" : "Jam dihemat"}
+                        {isLevel ? "Rata-rata Level" : "% Level 1+"}
                       </span>
                     </span>
                     <span className=" font-medium tabular-nums text-foreground">
@@ -206,8 +210,8 @@ function TrendChart({
           }
         />
         <Bar
-          yAxisId="hours"
-          dataKey="hours_saved"
+          yAxisId="pct"
+          dataKey="level1_plus_percent"
           radius={[5, 5, 0, 0]}
           minPointSize={(value) => ((value ?? 0) > 0 ? 3 : 0)}
         >
@@ -219,10 +223,10 @@ function TrendChart({
           ))}
         </Bar>
         <Line
-          yAxisId="adoption"
-          dataKey="adoption_percent"
+          yAxisId="level"
+          dataKey="avg_level"
           type="monotone"
-          stroke={LINE_ADOPTION}
+          stroke={LEVEL_LINE}
           strokeWidth={2.5}
           dot={false}
           activeDot={{ r: 4 }}

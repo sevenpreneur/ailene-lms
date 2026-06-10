@@ -1,6 +1,6 @@
 "use client";
 import ButtonAILN from "@/components/buttons/ButtonAILN";
-import AppTextArea from "@/components/fields/AppTextArea";
+import TextAreaAILN from "@/components/fields/TextAreaAILN";
 import PageContainerAILN from "@/components/pages/PageContainerAILN";
 import AppErrorComponents from "@/components/states/AppErrorComponents";
 import AppPageState from "@/components/states/AppPageState";
@@ -21,6 +21,7 @@ import {
   Tag,
 } from "lucide-react";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import React, { FormEvent, useEffect, useMemo, useState } from "react";
 import { toast } from "sonner";
 
@@ -75,13 +76,13 @@ function FieldRow({
         {icon}
       </div>
       <div className="flex-1 flex flex-col gap-1.5 min-w-0">
-        <label className="flex items-center gap-0.5 text-sm font-semibold font-read text-foreground dark:text-white">
+        <label className="flex items-center gap-0.5 text-sm font-semibold  text-foreground dark:text-white">
           {label}
           {required && <span className="text-destructive">*</span>}
         </label>
         {children}
         {helper && (
-          <p className="text-xs font-read text-gray-500 dark:text-gray-400">
+          <p className="text-xs  text-gray-500 dark:text-gray-400">
             {helper}
           </p>
         )}
@@ -101,6 +102,7 @@ export default function SubmitPromptAILN({
     setSessionToken(sessionToken);
   }, [sessionToken]);
 
+  const router = useRouter();
   const utils = trpc.useUtils();
   const assignmentQ = trpc.ailene.read.promptAssignment.useQuery({
     prompt_id: promptId,
@@ -203,6 +205,7 @@ export default function SubmitPromptAILN({
           });
           utils.ailene.read.todayFocus.invalidate();
           utils.ailene.list.assignedPrompts.invalidate();
+          router.push("/student/practice");
         },
         onError: (err) => {
           toast.error("Gagal kirim", { description: err.message });
@@ -216,7 +219,7 @@ export default function SubmitPromptAILN({
       <div className="flex w-full flex-col gap-6 py-4">
         {/* Header — MaterialDetailsAILN-style: big title + badge row */}
         <div className="flex flex-col gap-3">
-          <h1 className="text-3xl font-bold leading-tight font-read text-sevenpreneur-coal dark:text-white">
+          <h1 className="text-3xl font-bold leading-tight  text-sevenpreneur-coal dark:text-white">
             {a.prompt.name}
           </h1>
 
@@ -261,29 +264,29 @@ export default function SubmitPromptAILN({
               <div className="size-10 rounded-full bg-black flex items-center justify-center text-white dark:bg-white dark:text-black">
                 <FileText className="size-5" />
               </div>
-              <h2 className="text-lg font-bold font-read text-foreground dark:text-white">
+              <h2 className="text-lg font-bold  text-foreground dark:text-white">
                 Detail Prompt
               </h2>
 
               <div className="flex flex-col gap-1">
-                <div className="text-[11px] font-semibold uppercase tracking-wide font-read text-gray-500 dark:text-gray-400">
+                <div className="text-[11px] font-semibold uppercase tracking-wide  text-gray-500 dark:text-gray-400">
                   Skenario
                 </div>
-                <p className="text-sm whitespace-pre-wrap font-read text-gray-700 dark:text-gray-200">
+                <p className="text-sm whitespace-pre-wrap  text-gray-700 dark:text-gray-200">
                   {a.prompt.scenario}
                 </p>
               </div>
 
               <div className="flex flex-col gap-1 border-t border-dashboard-border pt-4">
-                <div className="text-[11px] font-semibold uppercase tracking-wide font-read text-gray-500 dark:text-gray-400">
+                <div className="text-[11px] font-semibold uppercase tracking-wide  text-gray-500 dark:text-gray-400">
                   Expected Output
                 </div>
-                <p className="text-sm whitespace-pre-wrap font-read text-gray-700 dark:text-gray-200">
+                <p className="text-sm whitespace-pre-wrap  text-gray-700 dark:text-gray-200">
                   {a.prompt.expected_output}
                 </p>
               </div>
 
-              <div className="flex items-center gap-2 border-t border-dashboard-border pt-3 text-xs font-read">
+              <div className="flex items-center gap-2 border-t border-dashboard-border pt-3 text-xs ">
                 <CalendarClock
                   className={`size-3.5 shrink-0 ${
                     deadlineOverdue
@@ -333,7 +336,7 @@ export default function SubmitPromptAILN({
             onSubmit={handleSubmit}
             className="flex flex-col gap-4 rounded-lg border border-dashboard-border bg-white p-4 dark:bg-card-bg"
           >
-            <h2 className="text-base font-bold font-read text-foreground dark:text-white">
+            <h2 className="text-base font-bold  text-foreground dark:text-white">
               {isLocked ? "Submission kamu" : "Kirim tugasmu"}
             </h2>
 
@@ -344,7 +347,7 @@ export default function SubmitPromptAILN({
               required
             >
               <div className="flex flex-col gap-1">
-                <AppTextArea
+                <TextAreaAILN
                   textAreaId="prompt-input"
                   textAreaPlaceholder="Tulis prompt yang kamu kirim ke AI…"
                   value={formData.input}
@@ -353,11 +356,11 @@ export default function SubmitPromptAILN({
                   }
                   characterLength={5000}
                   textAreaHeight="min-h-[160px]"
-                  variant="AILN"
+                  variant="STUDENT"
                   disabled={isLocked}
                   required
                 />
-                <div className="self-end text-xs font-read text-gray-400">
+                <div className="self-end text-xs  text-gray-400">
                   {formData.input.length}/5000 karakter
                 </div>
               </div>
@@ -370,7 +373,7 @@ export default function SubmitPromptAILN({
               required
             >
               <div className="flex flex-col gap-1">
-                <AppTextArea
+                <TextAreaAILN
                   textAreaId="prompt-output"
                   textAreaPlaceholder="Tempel hasil dari AI…"
                   value={formData.output}
@@ -379,11 +382,11 @@ export default function SubmitPromptAILN({
                   }
                   characterLength={10000}
                   textAreaHeight="min-h-[200px]"
-                  variant="AILN"
+                  variant="STUDENT"
                   disabled={isLocked}
                   required
                 />
-                <div className="self-end text-xs font-read text-gray-400">
+                <div className="self-end text-xs  text-gray-400">
                   {formData.output.length}/10000 karakter
                 </div>
               </div>

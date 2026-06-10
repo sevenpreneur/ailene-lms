@@ -1,9 +1,9 @@
 "use client";
 import ButtonAILN from "@/components/buttons/ButtonAILN";
-import AppInput from "@/components/fields/AppInput";
-import AppNumberInput from "@/components/fields/AppNumberInput";
-import AppSelect from "@/components/fields/AppSelect";
-import AppTextArea from "@/components/fields/AppTextArea";
+import InputAILN from "@/components/fields/InputAILN";
+import NumberInputAILN from "@/components/fields/NumberInputAILN";
+import SelectAILN from "@/components/fields/SelectAILN";
+import TextAreaAILN from "@/components/fields/TextAreaAILN";
 import PageContainerAILN from "@/components/pages/PageContainerAILN";
 import AppErrorComponents from "@/components/states/AppErrorComponents";
 import AppPageState from "@/components/states/AppPageState";
@@ -27,6 +27,7 @@ import {
   X,
 } from "lucide-react";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import {
   ChangeEvent,
   FormEvent,
@@ -59,13 +60,13 @@ function FieldRow({
 }) {
   return (
     <div className="flex flex-col gap-1.5 min-w-0">
-      <label className="flex items-center gap-0.5 text-sm font-semibold font-read text-foreground dark:text-white">
+      <label className="flex items-center gap-0.5 text-sm font-semibold  text-foreground dark:text-white">
         {label}
         {required && <span className="text-destructive">*</span>}
       </label>
       {children}
       {helper && (
-        <p className="text-xs font-read text-gray-500 dark:text-gray-400">
+        <p className="text-xs  text-gray-500 dark:text-gray-400">
           {helper}
         </p>
       )}
@@ -164,6 +165,7 @@ export default function SubmitUseCaseAILN({
     setSessionToken(sessionToken);
   }, [sessionToken]);
 
+  const router = useRouter();
   const utils = trpc.useUtils();
   const assignmentQ = trpc.ailene.read.useCaseAssignment.useQuery({
     use_case_id: useCaseId,
@@ -413,6 +415,7 @@ export default function SubmitUseCaseAILN({
           });
           utils.ailene.read.todayFocus.invalidate();
           utils.ailene.list.assignedUseCases.invalidate();
+          router.push("/student/practice");
         },
         onError: (err) => {
           toast.error("Gagal kirim", { description: err.message });
@@ -426,7 +429,7 @@ export default function SubmitUseCaseAILN({
       <div className="flex w-full flex-col gap-6 py-4">
         {/* Header — MaterialDetailsAILN-style: big title + badge row */}
         <div className="flex flex-col gap-3">
-          <h1 className="text-3xl font-bold leading-tight font-read text-sevenpreneur-coal dark:text-white">
+          <h1 className="text-3xl font-bold leading-tight  text-sevenpreneur-coal dark:text-white">
             {a.use_case.name}
           </h1>
 
@@ -471,14 +474,14 @@ export default function SubmitUseCaseAILN({
               <div className="size-10 rounded-full bg-black flex items-center justify-center text-white dark:bg-white dark:text-black">
                 <FileText className="size-5" />
               </div>
-              <h2 className="text-lg font-bold font-read text-foreground dark:text-white">
+              <h2 className="text-lg font-bold  text-foreground dark:text-white">
                 Deskripsi Use Case
               </h2>
-              <p className="text-sm whitespace-pre-wrap font-read text-gray-700 dark:text-gray-200">
+              <p className="text-sm whitespace-pre-wrap  text-gray-700 dark:text-gray-200">
                 {a.use_case.description}
               </p>
 
-              <div className="flex items-center gap-2 border-t border-dashboard-border pt-3 text-xs font-read">
+              <div className="flex items-center gap-2 border-t border-dashboard-border pt-3 text-xs ">
                 <CalendarClock
                   className={`size-3.5 shrink-0 ${
                     deadlineOverdue
@@ -528,7 +531,7 @@ export default function SubmitUseCaseAILN({
             onSubmit={handleSubmit}
             className="flex flex-col gap-4 rounded-lg border border-dashboard-border bg-white p-4 dark:bg-card-bg"
           >
-            <h2 className="text-base font-bold font-read text-foreground dark:text-white">
+            <h2 className="text-base font-bold  text-foreground dark:text-white">
               {isLocked ? "Submission kamu" : "Laporkan use case-mu"}
             </h2>
 
@@ -538,7 +541,7 @@ export default function SubmitUseCaseAILN({
                 helper="Kategori utama use case ini."
                 required
               >
-                <AppSelect
+                <SelectAILN
                   selectId="uc-type"
                   selectPlaceholder="Pilih tipe…"
                   value={formData.type || null}
@@ -548,7 +551,7 @@ export default function SubmitUseCaseAILN({
                       type: (v as AilUseCaseType | null) ?? "",
                     }))
                   }
-                  variant="AILN"
+                  variant="STUDENT"
                   disabled={isLocked}
                   required
                   options={TYPE_OPTIONS.map((o) => ({
@@ -562,7 +565,7 @@ export default function SubmitUseCaseAILN({
                 helper="Seberapa sering use case ini kamu pakai."
                 required
               >
-                <AppSelect
+                <SelectAILN
                   selectId="uc-frequency"
                   selectPlaceholder="Pilih frekuensi…"
                   value={formData.frequency || null}
@@ -572,7 +575,7 @@ export default function SubmitUseCaseAILN({
                       frequency: (v as AilUseCaseFrequency | null) ?? "",
                     }))
                   }
-                  variant="AILN"
+                  variant="STUDENT"
                   disabled={isLocked}
                   required
                   options={FREQUENCY_OPTIONS.map((o) => ({
@@ -588,7 +591,7 @@ export default function SubmitUseCaseAILN({
               required
             >
               <div className="flex flex-col gap-1">
-                <AppTextArea
+                <TextAreaAILN
                   textAreaId="uc-description"
                   textAreaPlaceholder="3–5 kalimat cukup. Apa problem-nya, AI apa yang kamu pakai, dan apa hasilnya."
                   value={formData.description}
@@ -597,11 +600,11 @@ export default function SubmitUseCaseAILN({
                   }
                   characterLength={5000}
                   textAreaHeight="min-h-[160px]"
-                  variant="AILN"
+                  variant="STUDENT"
                   disabled={isLocked}
                   required
                 />
-                <div className="self-end text-xs font-read text-gray-400">
+                <div className="self-end text-xs  text-gray-400">
                   {formData.description.length}/5000 karakter
                 </div>
               </div>
@@ -614,11 +617,11 @@ export default function SubmitUseCaseAILN({
             >
               <div className="flex flex-wrap items-center gap-3 text-sm">
                 <div className="flex items-center gap-2">
-                  <span className="font-medium font-read text-gray-600 dark:text-gray-300">
+                  <span className="font-medium  text-gray-600 dark:text-gray-300">
                     Tanpa AI
                   </span>
                   <div className="w-24">
-                    <AppNumberInput
+                    <NumberInputAILN
                       inputId="uc-hours-without"
                       inputConfig="decimal"
                       inputPlaceholder="18"
@@ -626,20 +629,20 @@ export default function SubmitUseCaseAILN({
                       onInputChange={(v) =>
                         setFormData((prev) => ({ ...prev, hoursWithoutAi: v }))
                       }
-                      variant="AILN"
+                      variant="STUDENT"
                       disabled={isLocked}
                       required
                     />
                   </div>
-                  <span className="text-xs font-read text-gray-500">jam</span>
+                  <span className="text-xs  text-gray-500">jam</span>
                 </div>
                 <span className="text-gray-400">→</span>
                 <div className="flex items-center gap-2">
-                  <span className="font-medium font-read text-gray-600 dark:text-gray-300">
+                  <span className="font-medium  text-gray-600 dark:text-gray-300">
                     Dengan AI
                   </span>
                   <div className="w-24">
-                    <AppNumberInput
+                    <NumberInputAILN
                       inputId="uc-hours"
                       inputConfig="decimal"
                       inputPlaceholder="5"
@@ -647,12 +650,12 @@ export default function SubmitUseCaseAILN({
                       onInputChange={(v) =>
                         setFormData((prev) => ({ ...prev, hoursSaved: v }))
                       }
-                      variant="AILN"
+                      variant="STUDENT"
                       disabled={isLocked}
                       required
                     />
                   </div>
-                  <span className="text-xs font-read text-gray-500">jam</span>
+                  <span className="text-xs  text-gray-500">jam</span>
                 </div>
                 {(() => {
                   const without = Number(formData.hoursWithoutAi);
@@ -700,7 +703,7 @@ export default function SubmitUseCaseAILN({
                               : [...prev.aiTools, tool],
                           }))
                         }
-                        className={`rounded-full border px-3 py-1 text-xs font-medium font-read transition disabled:cursor-not-allowed disabled:opacity-60 ${
+                        className={`rounded-full border px-3 py-1 text-xs font-medium  transition disabled:cursor-not-allowed disabled:opacity-60 ${
                           selected
                             ? "border-black bg-black text-white dark:border-white dark:bg-white dark:text-black"
                             : "border-dashboard-border bg-white text-foreground hover:border-foreground/40 dark:bg-card-inside-bg dark:text-gray-200"
@@ -723,7 +726,7 @@ export default function SubmitUseCaseAILN({
                             aiTools: prev.aiTools.filter((t) => t !== tool),
                           }))
                         }
-                        className="inline-flex items-center gap-1 rounded-full border border-black bg-black px-3 py-1 text-xs font-medium font-read text-white disabled:cursor-not-allowed disabled:opacity-60 dark:border-white dark:bg-white dark:text-black"
+                        className="inline-flex items-center gap-1 rounded-full border border-black bg-black px-3 py-1 text-xs font-medium  text-white disabled:cursor-not-allowed disabled:opacity-60 dark:border-white dark:bg-white dark:text-black"
                       >
                         {tool}
                         <X className="size-3" />
@@ -733,7 +736,7 @@ export default function SubmitUseCaseAILN({
                 {!isLocked && (
                   <div className="flex items-center gap-2">
                     <div className="flex-1 max-w-[280px]">
-                      <AppInput
+                      <InputAILN
                         inputId="uc-tool-other"
                         inputType="text"
                         inputPlaceholder="Tambah tool lain (e.g. Loveable, Bolt)…"
@@ -745,7 +748,7 @@ export default function SubmitUseCaseAILN({
                           }))
                         }
                         characterLength={64}
-                        variant="AILN"
+                        variant="STUDENT"
                       />
                     </div>
                     <button
@@ -764,7 +767,7 @@ export default function SubmitUseCaseAILN({
                               }
                         );
                       }}
-                      className="rounded-md border border-dashboard-border bg-white px-3 py-2 text-xs font-semibold font-read text-foreground hover:border-foreground/40 disabled:cursor-not-allowed disabled:opacity-60 dark:bg-card-inside-bg dark:text-gray-200"
+                      className="rounded-md border border-dashboard-border bg-white px-3 py-2 text-xs font-semibold  text-foreground hover:border-foreground/40 disabled:cursor-not-allowed disabled:opacity-60 dark:bg-card-inside-bg dark:text-gray-200"
                     >
                       Tambah
                     </button>
@@ -805,12 +808,12 @@ export default function SubmitUseCaseAILN({
                   ) : (
                     <FileUp className="size-5 text-gray-500 dark:text-gray-400" />
                   )}
-                  <p className="text-sm font-medium font-read text-foreground dark:text-gray-200">
+                  <p className="text-sm font-medium  text-foreground dark:text-gray-200">
                     {isUploading
                       ? "Mengupload…"
                       : "Upload file atau drag & drop di sini"}
                   </p>
-                  <p className="text-[11px] font-read text-gray-500 dark:text-gray-400">
+                  <p className="text-[11px]  text-gray-500 dark:text-gray-400">
                     PDF, PNG, JPG, MP4 · Maks. 20MB
                   </p>
                   <input
@@ -824,14 +827,14 @@ export default function SubmitUseCaseAILN({
                 </div>
 
                 {/* "atau" separator */}
-                <div className="flex items-center gap-2 text-xs font-medium font-read text-gray-400">
+                <div className="flex items-center gap-2 text-xs font-medium  text-gray-400">
                   <span className="h-px flex-1 bg-dashboard-border" />
                   <span>atau</span>
                   <span className="h-px flex-1 bg-dashboard-border" />
                 </div>
 
                 {/* Link input */}
-                <AppInput
+                <InputAILN
                   inputId="uc-outcome-link"
                   inputType="url"
                   inputIcon={<LinkIcon className="size-4" />}
@@ -839,7 +842,7 @@ export default function SubmitUseCaseAILN({
                   value={formData.outcomeLinkInput}
                   onInputChange={handleLinkChange}
                   characterLength={500}
-                  variant="AILN"
+                  variant="STUDENT"
                   disabled={isLocked || isUploading}
                 />
               </div>
@@ -849,7 +852,7 @@ export default function SubmitUseCaseAILN({
                 <div className="flex items-center justify-between gap-2 rounded-md border border-dashboard-border bg-card-inside-bg px-3 py-2">
                   <div className="flex items-center gap-2 min-w-0">
                     <FileUp className="size-4 shrink-0 text-foreground dark:text-gray-300" />
-                    <span className="truncate text-xs font-medium font-read text-foreground dark:text-gray-200">
+                    <span className="truncate text-xs font-medium  text-foreground dark:text-gray-200">
                       {formData.outcomeFileName}
                     </span>
                   </div>

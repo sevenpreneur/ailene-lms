@@ -1,5 +1,4 @@
 .prose {
-  font-family: var(--font-fraunces);
   font-size: 16px;
   font-weight: 400;
   line-height: 1.82;
@@ -14,7 +13,6 @@
 .prose h2,
 .prose h3,
 .prose h4 {
-  font-family: var(--font-fraunces);
   font-weight: 500;
   color: var(--color-sevenpreneur-coal);
   line-height: 1.25;
@@ -48,7 +46,6 @@
 }
 
 .prose p {
-  font-family: var(--font-inter);
   color: #333333;
   margin-top: 0;
   margin-bottom: 1em;
@@ -60,7 +57,6 @@
 
 .prose ul,
 .prose ol {
-  font-family: var(--font-inter);
   font-size: 15px;
   padding-left: 1.5rem;
   margin-bottom: 1em;
@@ -125,7 +121,6 @@
 
 /* Inline code chip */
 .prose :not(pre) > code {
-  font-family: ui-monospace, "SF Mono", Menlo, Consolas, monospace;
   font-size: 0.8em;
   background: var(--card-bg);
   color: var(--color-primary);
@@ -168,7 +163,6 @@
 .prose table {
   width: 100%;
   border-collapse: collapse;
-  font-family: var(--font-inter);
   font-size: 0.875em;
   margin: 1.75em 0;
   border: 1px solid var(--dashboard-border);
@@ -178,7 +172,6 @@
 
 .prose th {
   background: var(--card-bg);
-  font-family: var(--font-inter);
   font-weight: 600;
   text-align: left;
   padding: 0.6rem 1rem;

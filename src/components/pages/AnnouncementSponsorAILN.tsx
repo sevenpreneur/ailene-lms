@@ -1,6 +1,7 @@
 "use client";
 
 import ButtonAILN from "@/components/buttons/ButtonAILN";
+import SectionContainerAILN from "@/components/cards/SectionContainerAILN";
 import PageContainerAILN from "@/components/pages/PageContainerAILN";
 import AppErrorComponents from "@/components/states/AppErrorComponents";
 import { setSessionToken, trpc } from "@/trpc/client";
@@ -208,12 +209,11 @@ function AnnouncementForm({
           </form>
 
           <aside className="flex flex-col gap-4">
-            <div className="rounded-lg border border-dashboard-border bg-white p-5 shadow-sm dark:bg-card-bg dark:shadow-[0_0_16px_rgba(0,53,157,0.06)]">
-              <div className="text-[11px] font-semibold uppercase tracking-widest text-gray-500 dark:text-gray-400">
-                Pratinjau di halaman Hari Ini
-              </div>
-
-              <div className="mt-4 overflow-hidden rounded-md border border-dashboard-border bg-gray-50 dark:bg-dashboard-bg">
+            <SectionContainerAILN
+              title="Pratinjau di halaman Hari Ini"
+              className="dark:shadow-[0_0_16px_rgba(0,53,157,0.06)]"
+            >
+              <div className="overflow-hidden rounded-md border border-dashboard-border bg-gray-50 dark:bg-dashboard-bg">
                 <div className="flex w-full items-stretch overflow-hidden bg-black">
                   <div className="flex shrink-0 items-center gap-2 bg-black px-4 py-3">
                     <Megaphone className="h-4 w-4 text-white" />
@@ -246,17 +246,17 @@ function AnnouncementForm({
                 </span>
                 <span>{dateRangeLabel}</span>
               </div>
-            </div>
+            </SectionContainerAILN>
 
-            <div className="rounded-lg border border-dashboard-border bg-white p-5 text-sm text-gray-600 shadow-sm dark:bg-card-bg dark:text-gray-300 dark:shadow-[0_0_16px_rgba(0,53,157,0.06)]">
-              <div className="font-bold text-gray-900 dark:text-white">
-                Catatan
-              </div>
-              <p className="mt-2 leading-6">
+            <SectionContainerAILN
+              title="Catatan"
+              className="dark:shadow-[0_0_16px_rgba(0,53,157,0.06)]"
+            >
+              <p className="text-sm leading-6 text-gray-600 dark:text-gray-300">
                 Form ini hanya mengubah isi pesan, start date, dan end date.
                 Status dan label pengumuman tetap mengikuti data yang sudah ada.
               </p>
-            </div>
+            </SectionContainerAILN>
           </aside>
         </div>
       </div>

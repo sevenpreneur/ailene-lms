@@ -1,4 +1,4 @@
-import SidebarStudentAILN from "@/components/navigations/SidebarStudentAILN";
+import SidebarAILN from "@/components/navigations/SidebarAILN";
 import { setSessionToken, trpc } from "@/trpc/server";
 import { cookies } from "next/headers";
 import { redirect } from "next/navigation";
@@ -22,7 +22,7 @@ export default async function GatedStudentLayout({
 
   return (
     <>
-      <SidebarStudentAILN sessionToken={sessionToken} />
+      <SidebarAILN sessionToken={sessionToken} variant="STUDENT" />
       {children}
     </>
   );

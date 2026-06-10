@@ -1,4 +1,5 @@
 "use client";
+import ButtonAILN from "@/components/buttons/ButtonAILN";
 import PageContainerAILN from "@/components/pages/PageContainerAILN";
 import AppErrorComponents from "@/components/states/AppErrorComponents";
 import { setSessionToken, trpc } from "@/trpc/client";
@@ -11,8 +12,10 @@ import {
   CircleAlert,
   Clock,
   MessageSquare,
+  Plus,
 } from "lucide-react";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 
 dayjs.extend(relativeTime);
@@ -80,6 +83,8 @@ export default function PracticeStudentAILN({
 }: {
   sessionToken: string;
 }) {
+  const router = useRouter();
+
   useEffect(() => {
     setSessionToken(sessionToken);
   }, [sessionToken]);
@@ -137,13 +142,24 @@ export default function PracticeStudentAILN({
     <PageContainerAILN>
       <div className="flex w-full flex-col gap-6">
         {/* Header */}
-        <div className="flex items-start gap-3">
+        <div className="flex items-start justify-between gap-3">
           <div>
-            <h1 className="text-2xl font-bold dark:text-white">Tugas Saya</h1>
+            <h1 className="text-2xl font-bold dark:text-white">
+              Latihan Skill
+            </h1>
             <p className="text-sm text-gray-500 dark:text-gray-400">
               Prompt &amp; use case yang di-assign dari champion-mu.
             </p>
           </div>
+          <ButtonAILN
+            type="button"
+            variant="primary"
+            className="shrink-0"
+            onClick={() => router.push("/student/practice/create")}
+          >
+            <Plus className="size-4" />
+            <span className="hidden sm:inline">Tambah Latihan</span>
+          </ButtonAILN>
         </div>
 
         {/* Tabs */}

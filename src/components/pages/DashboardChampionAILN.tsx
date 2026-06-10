@@ -1,37 +1,37 @@
 "use client";
-import ScorecardDashboardAILN from "@/components/cards/ScorecardDashboardAILN";
+import ScorecardAILN from "@/components/cards/ScorecardAILN";
+import TeamScoreBannerAILN from "@/components/cards/TeamScoreBannerAILN";
+import ChampionCoachingAlertAILN from "@/components/indexes/ChampionCoachingAlertAILN";
+import ChampionTeamMembersAILN from "@/components/indexes/ChampionTeamMembersAILN";
 import PageContainerAILN from "@/components/pages/PageContainerAILN";
 import AppErrorComponents from "@/components/states/AppErrorComponents";
 import { setSessionToken, trpc } from "@/trpc/client";
-import {
-  faChartLine,
-  faClock,
-  faTriangleExclamation,
-  faUsers,
-} from "@fortawesome/free-solid-svg-icons";
-import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import dayjs from "dayjs";
-import relativeTime from "dayjs/plugin/relativeTime";
-import Link from "next/link";
-import { useEffect, useState } from "react";
+import { Activity, Clock, Send } from "lucide-react";
+import { useEffect } from "react";
 
-dayjs.extend(relativeTime);
+// Platform tops out at L4 (L0 Assessment … L4 Advanced) — used to normalize
+// the level component of the team score.
+const MAX_LEVEL = 4;
+// Team score is reported on a 0–5 scale, built from per-capita ratios so groups
+// of any size compare fairly.
+const MAX_SCORE = 5;
 
-const statusMeta: Record<
-  "on_track" | "at_risk" | "behind",
-  { label: string; cls: string }
-> = {
-  on_track: {
-    label: "On Track",
-    cls: "bg-green-100 text-green-700 dark:bg-green-500/10 dark:text-green-300 dark:border dark:border-green-500/30",
+const ACCENT = {
+  sky: {
+    tile: "bg-sky-50 dark:bg-sky-500/15",
+    icon: "text-sky-600 dark:text-sky-300",
   },
-  at_risk: {
-    label: "At Risk",
-    cls: "bg-yellow-100 text-yellow-700 dark:bg-yellow-500/10 dark:text-yellow-300 dark:border dark:border-yellow-500/30",
+  emerald: {
+    tile: "bg-emerald-50 dark:bg-emerald-500/15",
+    icon: "text-emerald-600 dark:text-emerald-300",
   },
-  behind: {
-    label: "Behind",
-    cls: "bg-red-100 text-red-700 dark:bg-red-500/10 dark:text-red-300 dark:border dark:border-red-500/30",
+  amber: {
+    tile: "bg-amber-50 dark:bg-amber-500/15",
+    icon: "text-amber-600 dark:text-amber-300",
+  },
+  red: {
+    tile: "bg-red-50 dark:bg-red-500/15",
+    icon: "text-red-600 dark:text-red-300",
   },
 };
 
@@ -44,12 +44,8 @@ export default function DashboardChampionAILN({
     setSessionToken(sessionToken);
   }, [sessionToken]);
 
-  const [statusFilter, setStatusFilter] = useState<
-    "" | "on_track" | "at_risk" | "behind"
-  >("");
-  const [search, setSearch] = useState("");
-
   const membersQ = trpc.ailene.list.members.useQuery({});
+  const memberQ = trpc.auth.checkAilMember.useQuery();
 
   if (membersQ.isLoading) {
     return (
@@ -71,25 +67,40 @@ export default function DashboardChampionAILN({
     on_track: 0,
     at_risk: 0,
     behind: 0,
+    active_this_week: 0,
+    submissions_sent: 0,
+    members_submitted: 0,
+    hours_saved: 0,
   };
   const allMembers = membersQ.data?.list ?? [];
 
-  const filtered = allMembers.filter((m) => {
-    if (statusFilter && m.status !== statusFilter) return false;
-    if (search) {
-      const q = search.toLowerCase();
-      if (
-        !m.user.full_name.toLowerCase().includes(q) &&
-        !m.user.email.toLowerCase().includes(q)
-      )
-        return false;
-    }
-    return true;
-  });
+  const groupName =
+    (memberQ.data?.ail_member?.championed_groups ?? [])
+      .map((g) => g.name)
+      .join(", ") || "Tim";
+  const avgLevel =
+    allMembers.length > 0
+      ? allMembers.reduce((sum, m) => sum + m.current_level.level_number, 0) /
+        allMembers.length
+      : 0;
+  const level2Plus = allMembers.filter(
+    (m) => m.current_level.level_number >= 2
+  ).length;
 
-  const alerts = allMembers.filter(
-    (m) => m.status === "at_risk" || m.status === "behind"
-  );
+  // Composite team score (0–5), mean of three size-independent ratios so it is
+  // comparable across groups regardless of headcount:
+  //   1. level mastery   = avg level / max level
+  //   2. weekly activity = active this week / total members
+  //   3. use case adoption = distinct members who submitted / total members
+  const ratio = (n: number, d: number) => (d > 0 ? n / d : 0);
+  const teamScore =
+    stats.total > 0
+      ? ((ratio(avgLevel, MAX_LEVEL) +
+          ratio(stats.active_this_week, stats.total) +
+          ratio(stats.members_submitted, stats.total)) /
+          3) *
+        MAX_SCORE
+      : 0;
 
   return (
     <PageContainerAILN>
@@ -106,272 +117,57 @@ export default function DashboardChampionAILN({
           </div>
         </div>
 
+        {/* Team score banner */}
+        <TeamScoreBannerAILN
+          groupName={groupName}
+          score={teamScore}
+          maxScore={MAX_SCORE}
+          level2Plus={level2Plus}
+          totalMembers={stats.total}
+        />
+
         {/* Stat cards */}
-        <div className="grid grid-cols-1 gap-4 md:grid-cols-2 xl:grid-cols-4">
-          <ScorecardDashboardAILN
-            title="Total Members"
-            value={stats.total}
-            icon={
-              <FontAwesomeIcon
-                icon={faUsers}
-                className="size-5 text-emerald-700 dark:text-emerald-300"
-              />
-            }
-            iconClassName="bg-emerald-50 dark:bg-emerald-500/15"
+        <div className="grid grid-cols-1 gap-4 md:grid-cols-3">
+          <ScorecardAILN
+            title="Aktif Minggu Ini"
+            value={stats.active_this_week}
+            unit={`/ ${stats.total}`}
+            icon={Activity}
+            accent={ACCENT.sky}
           >
-            <p className="text-xs text-gray-500 dark:text-gray-400">
-              Active learners
+            <p className="text-xs text-muted-foreground">
+              {pct(stats.active_this_week, stats.total)}% anggota tim
             </p>
-          </ScorecardDashboardAILN>
-          <ScorecardDashboardAILN
-            title="On Track"
-            value={stats.on_track}
-            icon={
-              <FontAwesomeIcon
-                icon={faChartLine}
-                className="size-5 text-emerald-700 dark:text-emerald-300"
-              />
-            }
-            iconClassName="bg-emerald-50 dark:bg-emerald-500/15"
+          </ScorecardAILN>
+          <ScorecardAILN
+            title="Use Case Dikirim"
+            value={stats.submissions_sent}
+            unit="submission"
+            icon={Send}
+            accent={ACCENT.emerald}
           >
-            <p className="text-xs text-gray-500 dark:text-gray-400">
-              {pct(stats.on_track, stats.total)}% of team
+            <p className="text-xs text-muted-foreground">
+              dari seluruh anggota grup
             </p>
-          </ScorecardDashboardAILN>
-          <ScorecardDashboardAILN
-            title="At Risk"
-            value={stats.at_risk}
-            icon={
-              <FontAwesomeIcon
-                icon={faClock}
-                className="size-5 text-emerald-700 dark:text-emerald-300"
-              />
-            }
-            iconClassName="bg-emerald-50 dark:bg-emerald-500/15"
+          </ScorecardAILN>
+          <ScorecardAILN
+            title="Jam Dihemat"
+            value={stats.hours_saved}
+            unit="jam"
+            icon={Clock}
+            accent={ACCENT.amber}
           >
-            <p className="text-xs text-gray-500 dark:text-gray-400">
-              {pct(stats.at_risk, stats.total)}% of team
+            <p className="text-xs text-muted-foreground">
+              akumulasi dari use case dikirim
             </p>
-          </ScorecardDashboardAILN>
-          <ScorecardDashboardAILN
-            title="Behind"
-            value={stats.behind}
-            icon={
-              <FontAwesomeIcon
-                icon={faTriangleExclamation}
-                className="size-5 text-emerald-700 dark:text-emerald-300"
-              />
-            }
-            iconClassName="bg-emerald-50 dark:bg-emerald-500/15"
-          >
-            <p className="text-xs text-gray-500 dark:text-gray-400">
-              {pct(stats.behind, stats.total)}% of team
-            </p>
-          </ScorecardDashboardAILN>
+          </ScorecardAILN>
         </div>
 
-        {/* Team members + coaching alerts (stacked, full width) */}
-        <div className="flex flex-col gap-4">
-          {/* Table */}
-          <div className="rounded-lg border border-dashboard-border bg-white p-4 shadow-sm dark:bg-card-bg dark:shadow-[0_0_18px_rgba(239,68,68,0.08)]">
-            <div className="mb-4 flex flex-wrap items-center justify-between gap-3">
-              <div>
-                <div className="text-base font-bold dark:text-white">
-                  Team Members
-                </div>
-                <input
-                  type="text"
-                  placeholder="Search member…"
-                  value={search}
-                  onChange={(e) => setSearch(e.target.value)}
-                  className="mt-2 w-64 rounded-lg border border-dashboard-border px-3 py-1.5 text-sm transition focus:border-emerald-500 focus:outline-none dark:bg-card-inside-bg dark:text-gray-200 dark:placeholder:text-gray-500 dark:focus:border-emerald-400"
-                />
-              </div>
-              <div className="flex items-center gap-2">
-                <select
-                  value={statusFilter}
-                  onChange={(e) =>
-                    setStatusFilter(e.target.value as typeof statusFilter)
-                  }
-                  className="rounded-lg border border-dashboard-border px-3 py-1.5 text-sm text-emerald-700 transition focus:border-emerald-500 focus:outline-none dark:bg-card-inside-bg dark:text-emerald-300 dark:focus:border-emerald-400"
-                >
-                  <option value="">Filter Status</option>
-                  <option value="on_track">On Track</option>
-                  <option value="at_risk">At Risk</option>
-                  <option value="behind">Behind</option>
-                </select>
-              </div>
-            </div>
+        {/* Team members (left) + coaching alerts (right rail) */}
+        <div className="grid grid-cols-1 gap-4 xl:grid-cols-[minmax(0,1.9fr)_minmax(0,1fr)] xl:items-start">
+          <ChampionTeamMembersAILN members={allMembers} />
 
-            <div className="overflow-x-auto">
-              <table className="w-full text-sm">
-                <thead>
-                  <tr className="text-left text-xs text-gray-500 dark:text-gray-400">
-                    <th className="px-2 py-2 font-medium">Member</th>
-                    <th className="px-2 py-2 font-medium">Status</th>
-                    <th className="px-2 py-2 font-medium">Level</th>
-                    <th className="px-2 py-2 font-medium">Progress</th>
-                    <th className="px-2 py-2 font-medium">Current Chapter</th>
-                    <th className="px-2 py-2 font-medium">XP Earned</th>
-                    <th className="px-2 py-2 font-medium">Last Active</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {filtered.length === 0 ? (
-                    <tr>
-                      <td
-                        colSpan={7}
-                        className="py-8 text-center text-gray-400 dark:text-gray-500"
-                      >
-                        No members found.
-                      </td>
-                    </tr>
-                  ) : (
-                    filtered.map((m) => (
-                      <tr
-                        key={m.member_id}
-                        className="border-t border-dashboard-border hover:bg-gray-50 dark:hover:bg-card-inside-bg"
-                      >
-                        <td className="px-2 py-3">
-                          <div className="flex items-center gap-2">
-                            {m.user.avatar ? (
-                              // eslint-disable-next-line @next/next/no-img-element
-                              <img
-                                src={m.user.avatar}
-                                alt={m.user.full_name}
-                                className="h-8 w-8 rounded-full object-cover"
-                              />
-                            ) : (
-                              <div className="h-8 w-8 rounded-full bg-gray-200 dark:bg-dashboard-border" />
-                            )}
-                            <div>
-                              <Link
-                                href={`/champion/members/${m.member_id}`}
-                                className="font-semibold text-gray-900 hover:text-emerald-700 dark:text-white dark:hover:text-emerald-300"
-                              >
-                                {m.user.full_name}
-                              </Link>
-                              <div className="text-xs text-gray-500 dark:text-gray-400">
-                                {m.user.email}
-                              </div>
-                            </div>
-                          </div>
-                        </td>
-                        <td className="px-2 py-3">
-                          <span
-                            className={`rounded px-2 py-0.5 text-xs font-medium ${statusMeta[m.status].cls}`}
-                          >
-                            {statusMeta[m.status].label}
-                          </span>
-                        </td>
-                        <td className="px-2 py-3">
-                          <div className="flex items-center gap-1.5">
-                            {m.current_level.icon && (
-                              // eslint-disable-next-line @next/next/no-img-element
-                              <img
-                                src={m.current_level.icon}
-                                alt={m.current_level.name}
-                                className="h-5 w-5"
-                              />
-                            )}
-                            <span className="text-xs font-medium dark:text-gray-200">
-                              Level {m.current_level.level_number}
-                            </span>
-                          </div>
-                        </td>
-                        <td className="px-2 py-3">
-                          <div className="flex items-center gap-2">
-                            <span className="w-9 text-xs dark:text-gray-300">
-                              {m.progress_percent}%
-                            </span>
-                            <div className="h-1.5 w-24 overflow-hidden rounded-full bg-gray-200 dark:bg-dashboard-border">
-                              <div
-                                className="h-full bg-[#107158] dark:bg-emerald-500 dark:shadow-[0_0_6px_rgba(16,185,129,0.6)]"
-                                style={{ width: `${m.progress_percent}%` }}
-                              />
-                            </div>
-                          </div>
-                        </td>
-                        <td className="px-2 py-3 text-xs dark:text-gray-300">
-                          {m.current_chapter?.name ?? (
-                            <span className="text-gray-400 dark:text-gray-500">
-                              —
-                            </span>
-                          )}
-                        </td>
-                        <td className="px-2 py-3 font-semibold dark:text-white">
-                          {m.total_xp.toLocaleString()} XP
-                        </td>
-                        <td className="px-2 py-3 text-xs text-gray-500 dark:text-gray-400">
-                          {m.last_active_at
-                            ? dayjs(m.last_active_at).fromNow()
-                            : "Never"}
-                        </td>
-                      </tr>
-                    ))
-                  )}
-                </tbody>
-              </table>
-            </div>
-          </div>
-
-          {/* Coaching Alerts */}
-          <div className="rounded-lg border border-dashboard-border bg-white p-4 shadow-sm dark:bg-card-bg dark:shadow-[0_0_18px_rgba(239,68,68,0.08)]">
-            <div className="mb-3 flex items-center justify-between gap-3">
-              <div className="text-base font-bold dark:text-white">
-                Coaching Alerts
-              </div>
-              {alerts.length > 0 && (
-                <span className="rounded-full bg-red-50 px-2 py-0.5 text-xs font-semibold text-red-600 dark:bg-red-500/15 dark:text-red-300 dark:border dark:border-red-500/30">
-                  {alerts.length} perlu perhatian
-                </span>
-              )}
-            </div>
-            {alerts.length === 0 ? (
-              <div className="text-sm text-gray-400 dark:text-gray-500">
-                No alerts. Everyone&apos;s on track 🎉
-              </div>
-            ) : (
-              <div className="grid grid-cols-1 gap-3 md:grid-cols-2 xl:grid-cols-3">
-                {alerts.map((m) => (
-                  <div
-                    key={m.member_id}
-                    className="rounded-lg border border-dashboard-border bg-gray-50 p-3 dark:bg-card-inside-bg"
-                  >
-                    <div className="flex items-center gap-2">
-                      {m.user.avatar ? (
-                        // eslint-disable-next-line @next/next/no-img-element
-                        <img
-                          src={m.user.avatar}
-                          alt={m.user.full_name}
-                          className="h-8 w-8 rounded-full object-cover"
-                        />
-                      ) : (
-                        <div className="h-8 w-8 rounded-full bg-gray-200 dark:bg-dashboard-border" />
-                      )}
-                      <div className="min-w-0 flex-1">
-                        <div className="flex items-center gap-2">
-                          <span className="truncate text-sm font-semibold dark:text-white">
-                            {m.user.full_name}
-                          </span>
-                          <span
-                            className={`shrink-0 rounded px-1.5 py-0.5 text-[10px] font-medium ${statusMeta[m.status].cls}`}
-                          >
-                            {statusMeta[m.status].label}
-                          </span>
-                        </div>
-                        <div className="text-xs text-gray-500 dark:text-gray-400">
-                          {m.last_active_at
-                            ? `Last active ${dayjs(m.last_active_at).fromNow()}`
-                            : "Never active"}
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-                ))}
-              </div>
-            )}
-          </div>
+          <ChampionCoachingAlertAILN members={allMembers} />
         </div>
       </div>
     </PageContainerAILN>
@@ -387,12 +183,15 @@ function DashboardChampionSkeleton() {
         <div className="h-3.5 w-72 rounded bg-gray-200 dark:bg-dashboard-border" />
       </div>
 
+      {/* Team score banner */}
+      <div className="h-32 rounded-xl border border-dashboard-border bg-gray-100 dark:bg-dashboard-border" />
+
       {/* Stat cards */}
-      <div className="grid grid-cols-1 gap-4 md:grid-cols-2 xl:grid-cols-4">
-        {[0, 1, 2, 3].map((i) => (
+      <div className="grid grid-cols-1 gap-4 md:grid-cols-3">
+        {[0, 1, 2].map((i) => (
           <div
             key={i}
-            className="flex flex-col gap-2 rounded-lg border border-dashboard-border bg-white p-3 shadow-sm dark:bg-card-bg"
+            className="flex flex-col gap-2 rounded-lg border border-dashboard-border bg-white p-3 dark:bg-card-bg"
           >
             <div className="flex items-start gap-3">
               <div className="size-10 rounded-md bg-gray-200 dark:bg-dashboard-border" />

@@ -1,6 +1,7 @@
 "use client";
 
 import ButtonAILN from "@/components/buttons/ButtonAILN";
+import SectionContainerAILN from "@/components/cards/SectionContainerAILN";
 import PageContainerAILN from "@/components/pages/PageContainerAILN";
 import AppErrorComponents from "@/components/states/AppErrorComponents";
 import { setSessionToken, trpc } from "@/trpc/client";
@@ -228,7 +229,7 @@ function ReportContent({
                         }}
                       />
                     </div>
-                    <span className="text-right font-geist-mono font-bold text-gray-900 dark:text-white">
+                    <span className="text-right  font-bold text-gray-900 dark:text-white">
                       {movement.count}
                     </span>
                     <span className="truncate text-xs text-gray-500 dark:text-gray-400">
@@ -258,24 +259,20 @@ function ReportContent({
           </section>
 
           <aside className="flex flex-col gap-4">
-            <section className="rounded-lg border border-dashboard-border bg-white p-5 shadow-sm dark:bg-card-bg">
-              <h2 className="text-base font-bold text-gray-900 dark:text-white">
-                Unduh laporan
-              </h2>
-              <p className="mt-1 text-sm text-gray-500 dark:text-gray-400">
-                Hasilkan ringkasan periode ini sebagai PDF untuk dibagikan
-                manual ke sponsor / tim.
-              </p>
+            <SectionContainerAILN
+              title="Unduh laporan"
+              desc="Hasilkan ringkasan periode ini sebagai PDF untuk dibagikan manual ke sponsor / tim."
+            >
               <ButtonAILN
                 variant="primary"
                 size="medium"
-                className="mt-4 w-full"
+                className="w-full"
                 onClick={handleDownload}
               >
                 <Download className="size-4" />
                 Unduh PDF
               </ButtonAILN>
-            </section>
+            </SectionContainerAILN>
           </aside>
         </div>
       </div>
@@ -300,7 +297,7 @@ function KpiTile({
         {label}
       </div>
       <div className="mt-3 flex items-end gap-1.5">
-        <span className="font-geist-mono text-4xl font-bold leading-none text-gray-900 dark:text-white">
+        <span className=" text-4xl font-bold leading-none text-gray-900 dark:text-white">
           {value}
         </span>
         <span className="pb-1 text-sm font-semibold text-gray-500 dark:text-gray-400">

@@ -1,11 +1,11 @@
 "use client";
-import { PlatformType } from "@/lib/app-types";
+import { StakeholderVariant } from "@/lib/app-types";
 import { ChevronDown } from "lucide-react";
 import Image from "next/image";
 import React, { useState, useRef, useEffect } from "react";
 
 const variantStyles: Record<
-  PlatformType,
+  StakeholderVariant,
   {
     focus: string;
     border: string;
@@ -14,47 +14,10 @@ const variantStyles: Record<
     dropdown: string;
     itemActive: string;
     itemHover: string;
-    font: string;
   }
 > = {
-  SVP: {
-    focus:
-      "outline-4 outline-primary/15 border-primary dark:border-surface-black dark:outline-outline-dark",
-    border: "border",
-    background: "bg-white dark:bg-[#2C2C2C]",
-    disabled: "bg-gray-100 text-gray-500 dark:bg-[#1F1F1F] dark:text-[#555555]",
-    dropdown: "bg-white border dark:bg-[#2C2C2C]",
-    itemActive: "bg-[#E1EDFF] text-primary dark:bg-white/5 dark:text-white",
-    itemHover:
-      "hover:bg-[#E1EDFF] hover:text-primary dark:hover:bg-white/5 dark:hover:text-white",
-    font: "font-bodycopy",
-  },
-  LMS: {
-    focus: "outline-4 outline-tertiary/15 border-tertiary",
-    border: "border border-dashboard-border",
-    background: "bg-card-inside-bg",
-    disabled: "bg-card-inside-bg text-muted-foreground dark:text-foreground/30",
-    dropdown: "bg-card-bg border border-dashboard-border",
-    itemActive:
-      "bg-tertiary/5 text-tertiary dark:text-white dark:bg-card-inside-bg",
-    itemHover:
-      "hover:bg-tertiary/5 hover:text-tertiary dark:hover:text-white dark:hover:bg-card-inside-bg",
-    font: "font-bodycopy",
-  },
-  CMS: {
-    focus: "outline-4 outline-tertiary/15 border-tertiary",
-    border: "border border-dashboard-border",
-    background: "bg-background",
-    disabled: "bg-card-inside-bg text-muted-foreground dark:text-foreground/30",
-    dropdown: "bg-card-bg border border-dashboard-border",
-    itemActive:
-      "bg-tertiary/5 text-tertiary dark:text-white dark:bg-card-inside-bg",
-    itemHover:
-      "hover:bg-tertiary/5 hover:text-tertiary dark:hover:text-white dark:hover:bg-card-inside-bg",
-    font: "font-bodycopy",
-  },
-  AILN: {
-    focus: "outline-4 outline-black/10 border-black",
+  STUDENT: {
+    focus: "outline-4 outline-black/10 border-black dark:border-white",
     border: "border border-dashboard-border",
     background: "bg-card-inside-bg",
     disabled: "bg-card-inside-bg text-muted-foreground dark:text-foreground/30",
@@ -63,7 +26,30 @@ const variantStyles: Record<
       "bg-black/5 text-foreground dark:text-white dark:bg-card-inside-bg",
     itemHover:
       "hover:bg-black/5 hover:text-foreground dark:hover:text-white dark:hover:bg-card-inside-bg",
-    font: "font-geist-sans",
+  },
+  CHAMPION: {
+    focus:
+      "outline-4 outline-emerald-500/15 border-emerald-600 dark:border-emerald-400",
+    border: "border border-dashboard-border",
+    background: "bg-card-inside-bg",
+    disabled: "bg-card-inside-bg text-muted-foreground dark:text-foreground/30",
+    dropdown: "bg-card-bg border border-dashboard-border",
+    itemActive:
+      "bg-emerald-500/10 text-emerald-700 dark:text-emerald-200 dark:bg-emerald-500/15",
+    itemHover:
+      "hover:bg-emerald-500/10 hover:text-emerald-700 dark:hover:text-emerald-200 dark:hover:bg-emerald-500/15",
+  },
+  SPONSOR: {
+    focus:
+      "outline-4 outline-blue-500/15 border-blue-600 dark:border-blue-400",
+    border: "border border-dashboard-border",
+    background: "bg-card-inside-bg",
+    disabled: "bg-card-inside-bg text-muted-foreground dark:text-foreground/30",
+    dropdown: "bg-card-bg border border-dashboard-border",
+    itemActive:
+      "bg-blue-500/10 text-blue-700 dark:text-blue-200 dark:bg-blue-500/15",
+    itemHover:
+      "hover:bg-blue-500/10 hover:text-blue-700 dark:hover:text-blue-200 dark:hover:bg-blue-500/15",
   },
 };
 
@@ -73,13 +59,13 @@ export interface OptionType {
   image?: string;
 }
 
-interface AppSelectProps {
+interface SelectAILNProps {
   selectId: string;
   selectName?: string;
   selectIcon?: React.ReactNode;
   selectPlaceholder: string;
   value: string | number | null;
-  variant: PlatformType;
+  variant: StakeholderVariant;
   onChange?: (value: string | number | null) => void;
   disabled?: boolean;
   required?: boolean;
@@ -87,7 +73,7 @@ interface AppSelectProps {
   onOpenChange?: (open: boolean) => void;
 }
 
-export default function AppSelect({
+export default function SelectAILN({
   selectId,
   selectName,
   selectIcon,
@@ -99,7 +85,7 @@ export default function AppSelect({
   required,
   options = [],
   onOpenChange,
-}: AppSelectProps) {
+}: SelectAILNProps) {
   const [isOpen, setIsOpen] = useState(false);
   const containerRef = useRef<HTMLDivElement>(null);
   const styles = variantStyles[variant];
@@ -133,7 +119,7 @@ export default function AppSelect({
       {selectName && (
         <label
           htmlFor={selectId}
-          className={`select-label flex pl-1 gap-0.5 text-sm text-sb-text-strong ${styles.font} font-semibold`}
+          className={`select-label flex pl-1 gap-0.5 text-sm text-sb-text-strong font-semibold`}
         >
           {selectName}
           {required && (
@@ -143,7 +129,7 @@ export default function AppSelect({
       )}
 
       <div
-        className={`select-container relative flex w-full p-2 ${styles.font} font-medium text-sm rounded-md transform transition-all ${styles.border} ${
+        className={`select-container relative flex w-full p-2 font-medium text-sm rounded-md transform transition-all ${styles.border} ${
           isOpen ? styles.focus : ""
         } ${
           disabled
@@ -191,7 +177,7 @@ export default function AppSelect({
             className={`dropdown-container absolute top-full mt-2 left-0 w-full z-30 rounded-md shadow-md overflow-hidden ${styles.dropdown}`}
           >
             <ul
-              className={`dropdown-options flex flex-col text-sm ${styles.font} font-medium max-h-60 overflow-auto`}
+              className={`dropdown-options flex flex-col text-sm font-medium max-h-60 overflow-auto`}
             >
               {options.map((opt, index) => (
                 <div

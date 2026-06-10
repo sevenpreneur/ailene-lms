@@ -169,13 +169,12 @@ model AileneAnnouncement {
   id         Int      @id @default(1) @db.SmallInt
   title      String   @db.VarChar()
   callout    String   @db.VarChar()
-  body       String   @db.Text
   status     StatusEnum @default(ACTIVE)
   start_date DateTime? @db.Timestamptz()
   end_date   DateTime? @db.Timestamptz()
   updated_at DateTime @default(now()) @updatedAt @db.Timestamptz()
 
-  @@map("ailene_announcements")
+  @@map("ail_announcement")
 }
 
 model AilCategory {

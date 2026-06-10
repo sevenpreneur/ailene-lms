@@ -1,6 +1,7 @@
 "use client";
 
 import ButtonAILN from "@/components/buttons/ButtonAILN";
+import SectionContainerAILN from "@/components/cards/SectionContainerAILN";
 import PageContainerAILN from "@/components/pages/PageContainerAILN";
 import AppErrorComponents from "@/components/states/AppErrorComponents";
 import AppPageState from "@/components/states/AppPageState";
@@ -153,9 +154,9 @@ export default function MemberDetailsChampionAILN({
         </div>
 
         <div className="grid grid-cols-1 gap-4 xl:grid-cols-[minmax(0,0.85fr)_minmax(0,1.15fr)]">
-          <Section
+          <SectionContainerAILN
             title="Pillar radar"
-            subtitle={`Berdasarkan ${radar.total_submissions} submission - skala 0-5`}
+            desc={`Berdasarkan ${radar.total_submissions} submission - skala 0-5`}
           >
             <div className="flex flex-col gap-5">
               <RadarChart dimensions={radar.dimensions} />
@@ -168,16 +169,16 @@ export default function MemberDetailsChampionAILN({
                     <span className="text-gray-500 dark:text-gray-400">
                       {dimension.label}
                     </span>
-                    <span className="font-geist-mono font-bold text-gray-900 dark:text-white">
+                    <span className=" font-bold text-gray-900 dark:text-white">
                       {formatDecimal(dimension.score)}
                     </span>
                   </div>
                 ))}
               </div>
             </div>
-          </Section>
+          </SectionContainerAILN>
 
-          <Section title="Riwayat submission & review">
+          <SectionContainerAILN title="Riwayat submission & review">
             <div className="-mx-5 -mb-5 flex flex-col">
               {activities.length === 0 ? (
                 <div className="px-5 py-10 text-center text-sm text-gray-500 dark:text-gray-400">
@@ -232,10 +233,10 @@ export default function MemberDetailsChampionAILN({
                 </ButtonAILN>
               </div>
             </div>
-          </Section>
+          </SectionContainerAILN>
         </div>
 
-        <Section title={`Gate L${gate.from_level} -> L${gate.to_level}`}>
+        <SectionContainerAILN title={`Gate L${gate.from_level} -> L${gate.to_level}`}>
           <div className="flex flex-col gap-3">
             <div className="flex items-center justify-between gap-3">
               <div className="h-2.5 flex-1 overflow-hidden rounded-full bg-gray-100 dark:bg-dashboard-border">
@@ -269,7 +270,7 @@ export default function MemberDetailsChampionAILN({
               ))}
             </div>
           </div>
-        </Section>
+        </SectionContainerAILN>
       </div>
     </PageContainerAILN>
   );
@@ -292,7 +293,7 @@ function MetricCard({
         {label}
       </div>
       <div className="mt-3 flex items-end gap-1.5">
-        <span className="font-geist-mono text-4xl font-bold leading-none text-gray-900 dark:text-white">
+        <span className=" text-4xl font-bold leading-none text-gray-900 dark:text-white">
           {value}
         </span>
         <span className="pb-1 text-sm font-semibold text-gray-500 dark:text-gray-400">
@@ -301,41 +302,6 @@ function MetricCard({
       </div>
       <p className="mt-2 text-xs text-gray-500 dark:text-gray-400">{sub}</p>
     </div>
-  );
-}
-
-function Section({
-  title,
-  subtitle,
-  action,
-  children,
-}: {
-  title: string;
-  subtitle?: string;
-  action?: string;
-  children: React.ReactNode;
-}) {
-  return (
-    <section className="rounded-lg border border-dashboard-border bg-white p-5 shadow-sm dark:bg-card-bg dark:shadow-[0_0_16px_rgba(16,113,88,0.08)]">
-      <div className="mb-4 flex items-start justify-between gap-3">
-        <div>
-          <h2 className="text-base font-bold text-gray-900 dark:text-white">
-            {title}
-          </h2>
-          {subtitle && (
-            <p className="mt-1 text-xs text-gray-500 dark:text-gray-400">
-              {subtitle}
-            </p>
-          )}
-        </div>
-        {action && (
-          <span className="text-xs font-semibold text-emerald-700 dark:text-emerald-300">
-            {action}
-          </span>
-        )}
-      </div>
-      {children}
-    </section>
   );
 }
 

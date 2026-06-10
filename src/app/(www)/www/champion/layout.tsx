@@ -1,4 +1,4 @@
-import SidebarChampionAILN from "@/components/navigations/SidebarChampionAILN";
+import SidebarAILN from "@/components/navigations/SidebarAILN";
 import AppPageState from "@/components/states/AppPageState";
 import { setSessionToken, trpc } from "@/trpc/server";
 import { cookies } from "next/headers";
@@ -23,7 +23,7 @@ export default async function ChampionLayout({
 
   return (
     <>
-      <SidebarChampionAILN sessionToken={sessionToken} />
+      <SidebarAILN sessionToken={sessionToken} variant="CHAMPION" />
       {children}
     </>
   );

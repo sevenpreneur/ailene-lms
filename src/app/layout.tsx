@@ -1,47 +1,16 @@
 import "@/app/globals.css";
-import { GoogleAnalytics, GoogleTagManager } from "@next/third-parties/google";
+import AppPageState from "@/components/states/AppPageState";
+import { SidebarProvider } from "@/contexts/SidebarContext";
+import { TRPCProvider } from "@/trpc/client";
 import { GoogleOAuthProvider } from "@react-oauth/google";
 import { Metadata } from "next";
-import {
-  Cormorant_Garamond,
-  Fraunces,
-  Geist,
-  Geist_Mono,
-  Inter,
-  JetBrains_Mono,
-  Mona_Sans,
-  Plus_Jakarta_Sans,
-} from "next/font/google";
-import localFont from "next/font/local";
-import Script from "next/script";
-import { ReactNode } from "react";
+import { ThemeProvider } from "next-themes";
+import { JetBrains_Mono, Space_Grotesk } from "next/font/google";
+import { Toaster } from "sonner";
 
-const plusJakartaSans = Plus_Jakarta_Sans({
-  variable: "--font-plus-jakarta-sans",
+const spaceGrotesk = Space_Grotesk({
+  variable: "--font-space-grotesk",
   subsets: ["latin"],
-});
-
-const monaSans = Mona_Sans({
-  variable: "--font-mona-sans",
-  subsets: ["latin"],
-});
-
-const inter = Inter({
-  variable: "--font-inter",
-  subsets: ["latin"],
-});
-
-const fraunces = Fraunces({
-  variable: "--font-fraunces",
-  subsets: ["latin"],
-  weight: ["100", "200", "300", "400", "500", "600", "700", "800", "900"],
-});
-
-const cormorantGaramond = Cormorant_Garamond({
-  variable: "--font-cormorant-garamond",
-  subsets: ["latin"],
-  weight: ["300", "400", "500", "600", "700"],
-  style: ["normal", "italic"],
 });
 
 const jetbrainsMono = JetBrains_Mono({
@@ -50,59 +19,23 @@ const jetbrainsMono = JetBrains_Mono({
   weight: ["400", "500", "600"],
 });
 
-const geistSans = Geist({
-  variable: "--font-geist-sans",
-  subsets: ["latin"],
-});
-
-const geistMono = Geist_Mono({
-  variable: "--font-geist-mono",
-  subsets: ["latin"],
-});
-
-const openSauceOne = localFont({
-  variable: "--font-open-sauce-one",
-  display: "swap",
-  src: [
-    {
-      path: "././fonts/OpenSauceOne-Light.ttf",
-      weight: "300",
-      style: "normal",
-    },
-    {
-      path: "././fonts/OpenSauceOne-Regular.ttf",
-      weight: "400",
-      style: "normal",
-    },
-    {
-      path: "././fonts/OpenSauceOne-Medium.ttf",
-      weight: "500",
-      style: "normal",
-    },
-    {
-      path: "././fonts/OpenSauceOne-SemiBold.ttf",
-      weight: "600",
-      style: "normal",
-    },
-    {
-      path: "././fonts/OpenSauceOne-Bold.ttf",
-      weight: "700",
-      style: "normal",
-    },
-    {
-      path: "././fonts/OpenSauceOne-ExtraBold.ttf",
-      weight: "800",
-      style: "normal",
-    },
-    {
-      path: "././fonts/OpenSauceOne-Black.ttf",
-      weight: "900",
-      style: "normal",
-    },
-  ],
-});
-
 export const metadata: Metadata = {
+  title: {
+    template: "%s | AI LMS Sevenpreneur",
+    default: "AI LMS Sevenpreneur",
+  },
+  description: "Platform pelatihan AI Sevenpreneur",
+  metadataBase: "https://sevenpreneur.net",
+  alternates: { canonical: "/" },
+  openGraph: {
+    images: [
+      {
+        url: "https://tskubmriuclmbcfmaiur.supabase.co/storage/v1/object/public/sevenpreneur/meta-og-image-sevenpreneur-2.webp",
+        width: 800,
+        height: 600,
+      },
+    ],
+  },
   icons: {
     icon: [
       { url: "/favicon.ico" },
@@ -113,90 +46,42 @@ export const metadata: Metadata = {
   },
 };
 
-interface RootLayoutProps {
-  children: ReactNode;
-}
+let baseURL = "https://api.sevenpreneur.net/trpc";
+if (process.env.DOMAIN_MODE === "local")
+  baseURL = "https://api.example.com:3000/trpc";
 
-export default function RootLayout({ children }: RootLayoutProps) {
-  const googleAnalyticsId = process.env.GOOGLE_ANALYTICS_ID;
-  const googleTagManagerId = process.env.GOOGLE_TAG_MANAGER_ID;
+export default function RootLayout(
+  props: Readonly<{ children: React.ReactNode }>
+) {
   const googleOauthId = process.env.NEXT_PUBLIC_GOOGLE_OAUTH_ID;
-  const metaPixelId = process.env.META_PIXEL_ID;
 
   return (
     <html
       lang="en"
-      className={`scroll-smooth ${monaSans.variable} ${plusJakartaSans.variable} ${openSauceOne.variable} ${inter.variable} ${fraunces.variable} ${cormorantGaramond.variable} ${jetbrainsMono.variable} ${geistSans.variable} ${geistMono.variable} antialiased`}
+      className={`scroll-smooth ${spaceGrotesk.variable} ${jetbrainsMono.variable}`}
       suppressHydrationWarning
     >
-      <GoogleTagManager gtmId={googleTagManagerId!} />
-      <body suppressHydrationWarning>
+      <body className="font-space-grotesk" suppressHydrationWarning>
         <GoogleOAuthProvider clientId={googleOauthId!}>
-          {children}
+          <TRPCProvider baseURL={baseURL}>
+            <ThemeProvider
+              attribute="class"
+              defaultTheme="light"
+              enableSystem={false}
+              storageKey="ailene-theme"
+            >
+              <SidebarProvider>
+                <div className="min-h-screen bg-background">
+                  {props.children}
+                  <div className="lg:hidden">
+                    <AppPageState variant="ONLY_MOBILE" />
+                  </div>
+                  <Toaster richColors position="top-center" />
+                </div>
+              </SidebarProvider>
+            </ThemeProvider>
+          </TRPCProvider>
         </GoogleOAuthProvider>
-        <GoogleAnalytics gaId={googleAnalyticsId!} />
-        <Script id="tiktok-pixel" strategy="afterInteractive">
-          {`
-            !function (w, d, t) {
-              w.TiktokAnalyticsObject=t;
-              var ttq=w[t]=w[t]||[];
-              ttq.methods=["page","track","identify","instances","debug","on","off","once","ready","alias","group","enableCookie","disableCookie","holdConsent","revokeConsent","grantConsent"];
-              ttq.setAndDefer=function(t,e){
-                t[e]=function(){
-                  t.push([e].concat(Array.prototype.slice.call(arguments,0)))
-                }
-              };
-              for(var i=0;i<ttq.methods.length;i++)ttq.setAndDefer(ttq,ttq.methods[i]);
-              ttq.instance=function(t){
-                for(var e=ttq._i[t]||[],n=0;n<ttq.methods.length;n++)ttq.setAndDefer(e,ttq.methods[n]);
-                return e
-              },
-              ttq.load=function(e,n){
-                var r="https://analytics.tiktok.com/i18n/pixel/events.js",
-                o=n&&n.partner;
-                ttq._i=ttq._i||{},
-                ttq._i[e]=[],
-                ttq._i[e]._u=r,
-                ttq._t=ttq._t||{},
-                ttq._t[e]=+new Date,
-                ttq._o=ttq._o||{},
-                ttq._o[e]=n||{};
-                n=document.createElement("script");
-                n.type="text/javascript",
-                n.async=!0,
-                n.src=r+"?sdkid="+e+"&lib="+t;
-                e=document.getElementsByTagName("script")[0]
-                e.parentNode.insertBefore(n,e)
-              };
-
-              ttq.load('D0UN4FBC77U2P4BEBL0G');
-              ttq.page();
-            }(window, document, 'ttq');
-          `}
-        </Script>
-        <Script id="facebook-pixel" strategy="afterInteractive">
-          {`
-            !function(f,b,e,v,n,t,s)
-            {if(f.fbq)return;n=f.fbq=function(){n.callMethod?
-            n.callMethod.apply(n,arguments):n.queue.push(arguments)};
-            if(!f._fbq)f._fbq=n;n.push=n;n.loaded=!0;n.version='2.0';
-            n.queue=[];t=b.createElement(e);t.async=!0;
-            t.src=v;s=b.getElementsByTagName(e)[0];
-            s.parentNode.insertBefore(t,s)}(window, document,'script',
-            'https://connect.facebook.net/en_US/fbevents.js');
-            fbq('init', ${metaPixelId});
-            fbq('track', 'PageView');
-          `}
-        </Script>
-        <noscript>
-          <img
-            height="1"
-            width="1"
-            style={{ display: "none" }}
-            src={`https://www.facebook.com/tr?id=${metaPixelId}&ev=PageView&noscript=1`}
-            alt=""
-          />
-        </noscript>
       </body>
     </html>
   );

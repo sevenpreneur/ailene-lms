@@ -1,4 +1,4 @@
-import SidebarSponsorAILN from "@/components/navigations/SidebarSponsorAILN";
+import SidebarAILN from "@/components/navigations/SidebarAILN";
 import AppPageState from "@/components/states/AppPageState";
 import { setSessionToken, trpc } from "@/trpc/server";
 import { cookies } from "next/headers";
@@ -23,7 +23,7 @@ export default async function SponsorLayout({
 
   return (
     <>
-      <SidebarSponsorAILN sessionToken={sessionToken} />
+      <SidebarAILN sessionToken={sessionToken} variant="SPONSOR" />
       {children}
     </>
   );

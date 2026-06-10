@@ -1,49 +1,35 @@
 "use client";
-import { PlatformType } from "@/lib/app-types";
+import { StakeholderVariant } from "@/lib/app-types";
 import React, { InputHTMLAttributes, useState } from "react";
 
 const variantStyles: Record<
-  PlatformType,
-  {
-    focus: string;
-    border: string;
-    background: string;
-    disabled: string;
-    font: string;
-  }
+  StakeholderVariant,
+  { focus: string; border: string; background: string; disabled: string }
 > = {
-  SVP: {
-    focus: "focus:outline-primary/15 focus:border-primary",
-    border: "border",
-    background: "bg-transparent",
-    disabled:
-      "bg-gray-100 text-gray-500  dark:bg-[#1F1F1F] dark:text-[#555555]",
-    font: "font-bodycopy",
-  },
-  LMS: {
-    focus: "focus:outline-tertiary/15 focus:border-tertiary",
+  STUDENT: {
+    focus:
+      "focus:outline-black/10 focus:border-black dark:focus:outline-white/15 dark:focus:border-white",
     border: "border border-dashboard-border",
     background: "bg-card-inside-bg",
     disabled: "bg-card-inside-bg text-muted-foreground dark:text-foreground/30",
-    font: "font-bodycopy",
   },
-  CMS: {
-    focus: "focus:outline-tertiary/15 focus:border-tertiary",
-    border: "border border-dashboard-border",
-    background: "bg-background",
-    disabled: "bg-card-inside-bg text-muted-foreground dark:text-foreground/30",
-    font: "font-bodycopy",
-  },
-  AILN: {
-    focus: "focus:outline-black/10 focus:border-black",
+  CHAMPION: {
+    focus:
+      "focus:outline-emerald-500/15 focus:border-emerald-600 dark:focus:outline-emerald-400/15 dark:focus:border-emerald-400",
     border: "border border-dashboard-border",
     background: "bg-card-inside-bg",
     disabled: "bg-card-inside-bg text-muted-foreground dark:text-foreground/30",
-    font: "font-geist-sans",
+  },
+  SPONSOR: {
+    focus:
+      "focus:outline-blue-500/15 focus:border-blue-600 dark:focus:outline-blue-400/15 dark:focus:border-blue-400",
+    border: "border border-dashboard-border",
+    background: "bg-card-inside-bg",
+    disabled: "bg-card-inside-bg text-muted-foreground dark:text-foreground/30",
   },
 };
 
-interface AppInputProps extends InputHTMLAttributes<HTMLInputElement> {
+interface InputAILNProps extends InputHTMLAttributes<HTMLInputElement> {
   inputId: string;
   inputName?: string;
   inputType: string;
@@ -52,11 +38,11 @@ interface AppInputProps extends InputHTMLAttributes<HTMLInputElement> {
   characterLength?: number;
   errorMessage?: string;
   value: string;
-  variant: PlatformType;
+  variant: StakeholderVariant;
   onInputChange?: (value: string) => void;
 }
 
-export default function AppInput({
+export default function InputAILN({
   inputId,
   inputName,
   inputType,
@@ -69,7 +55,7 @@ export default function AppInput({
   onInputChange,
   required,
   ...rest
-}: AppInputProps) {
+}: InputAILNProps) {
   const [textValue, setTextValue] = useState(value);
   const [internalError, setInternalError] = useState("");
   const styles = variantStyles[variant];
@@ -108,7 +94,7 @@ export default function AppInput({
       {inputName && (
         <label
           htmlFor={inputId}
-          className={`label-input flex pl-1 gap-0.5 text-sm text-sb-text-strong ${styles.font} font-semibold`}
+          className={`label-input flex pl-1 gap-0.5 text-sm text-sb-text-strong font-semibold`}
         >
           {inputName}
           {required && (
@@ -128,7 +114,7 @@ export default function AppInput({
           type={inputType}
           placeholder={inputPlaceholder}
           {...rest}
-          className={`input-placeholder flex w-full p-2 font-medium ${styles.font} text-sm rounded-md transform transition-all placeholder:text-emphasis/60 placeholder:font-medium placeholder:text-sm focus:outline-4 invalid:border-destructive required:border-destructive ${styles.border} ${
+          className={`input-placeholder flex w-full p-2 font-medium text-sm rounded-md transform transition-all placeholder:text-emphasis/60 placeholder:font-medium placeholder:text-sm focus:outline-4 invalid:border-destructive required:border-destructive ${styles.border} ${
             computedError
               ? "border-destructive focus:outline-semi-destructive"
               : styles.focus

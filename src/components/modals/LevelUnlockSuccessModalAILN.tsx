@@ -190,7 +190,7 @@ function ScoreCard({
         {label}
       </div>
       <div className="mt-4 flex items-end gap-2">
-        <span className="font-geist-mono text-4xl font-bold leading-none text-gray-900 dark:text-white">
+        <span className=" text-4xl font-bold leading-none text-gray-900 dark:text-white">
           {value}
         </span>
         <span className="pb-1 text-sm font-semibold text-gray-500">{unit}</span>
