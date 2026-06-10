@@ -1,17 +1,17 @@
 import { Star } from "lucide-react";
 
-// Minimal team-score banner for the champion dashboard. Headline is the team's
-// average current level (0–4), shown against the max level. One subtitle line.
+// Minimal team-score banner for the champion dashboard. Headline is a 0–5
+// composite score (size-independent, comparable across groups). One subtitle.
 export default function TeamScoreBannerAILN({
   groupName,
-  avgLevel,
-  maxLevel,
+  score,
+  maxScore,
   level2Plus,
   totalMembers,
 }: {
   groupName: string;
-  avgLevel: number;
-  maxLevel: number;
+  score: number;
+  maxScore: number;
   level2Plus: number;
   totalMembers: number;
 }) {
@@ -29,10 +29,10 @@ export default function TeamScoreBannerAILN({
           Skor Tim:
         </span>
         <span className="text-4xl font-bold leading-none tracking-tight text-emerald-600 dark:text-emerald-400 sm:text-5xl">
-          {fmt(avgLevel)}
+          {fmt(score)}
         </span>
         <span className="text-2xl font-semibold text-gray-400 dark:text-gray-500">
-          /{fmt(maxLevel)}
+          /{fmt(maxScore)}
         </span>
       </div>
 

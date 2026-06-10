@@ -9,9 +9,12 @@ import { setSessionToken, trpc } from "@/trpc/client";
 import { Activity, Clock, Send } from "lucide-react";
 import { useEffect } from "react";
 
-// Platform tops out at L4 (L0 Assessment … L4 Advanced); team score is the
-// group's average current level shown against this ceiling.
+// Platform tops out at L4 (L0 Assessment … L4 Advanced) — used to normalize
+// the level component of the team score.
 const MAX_LEVEL = 4;
+// Team score is reported on a 0–5 scale, built from per-capita ratios so groups
+// of any size compare fairly.
+const MAX_SCORE = 5;
 
 const ACCENT = {
   sky: {
@@ -66,6 +69,7 @@ export default function DashboardChampionAILN({
     behind: 0,
     active_this_week: 0,
     submissions_sent: 0,
+    members_submitted: 0,
     hours_saved: 0,
   };
   const allMembers = membersQ.data?.list ?? [];
@@ -82,6 +86,21 @@ export default function DashboardChampionAILN({
   const level2Plus = allMembers.filter(
     (m) => m.current_level.level_number >= 2
   ).length;
+
+  // Composite team score (0–5), mean of three size-independent ratios so it is
+  // comparable across groups regardless of headcount:
+  //   1. level mastery   = avg level / max level
+  //   2. weekly activity = active this week / total members
+  //   3. use case adoption = distinct members who submitted / total members
+  const ratio = (n: number, d: number) => (d > 0 ? n / d : 0);
+  const teamScore =
+    stats.total > 0
+      ? ((ratio(avgLevel, MAX_LEVEL) +
+          ratio(stats.active_this_week, stats.total) +
+          ratio(stats.members_submitted, stats.total)) /
+          3) *
+        MAX_SCORE
+      : 0;
 
   return (
     <PageContainerAILN>
@@ -101,8 +120,8 @@ export default function DashboardChampionAILN({
         {/* Team score banner */}
         <TeamScoreBannerAILN
           groupName={groupName}
-          avgLevel={avgLevel}
-          maxLevel={MAX_LEVEL}
+          score={teamScore}
+          maxScore={MAX_SCORE}
           level2Plus={level2Plus}
           totalMembers={stats.total}
         />

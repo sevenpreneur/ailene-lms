@@ -324,6 +324,7 @@ export const listAilene = {
             behind: 0,
             active_this_week: 0,
             submissions_sent: 0,
+            members_submitted: 0,
             hours_saved: 0,
           },
           list: [],
@@ -374,10 +375,14 @@ export const listAilene = {
           where: { member_id: { in: memberIds }, is_accepted: true },
         }),
         // all submitted use cases across the group (for team-level scorecards:
-        // submissions sent + hours saved)
+        // submissions sent + hours saved + distinct adopters)
         opts.ctx.prisma.ailUseCaseSubmission.findMany({
           where: { member_id: { in: memberIds }, submitted_at: { not: null } },
-          select: { hours_saved: true, hours_without_ai: true },
+          select: {
+            member_id: true,
+            hours_saved: true,
+            hours_without_ai: true,
+          },
         }),
       ]);
 
@@ -405,7 +410,9 @@ export const listAilene = {
       // submission (only counted when both hours are present and positive).
       const submissions_sent = submittedUseCases.length;
       let hours_saved_total = 0;
+      const submitterIds = new Set<number>();
       for (const s of submittedUseCases) {
+        submitterIds.add(s.member_id);
         const withAi = s.hours_saved == null ? null : Number(s.hours_saved);
         const without =
           s.hours_without_ai == null ? null : Number(s.hours_without_ai);
@@ -413,6 +420,7 @@ export const listAilene = {
           hours_saved_total += without - withAi;
         }
       }
+      const members_submitted = submitterIds.size;
 
       const now = dayjs();
       const weekStart = now.startOf("week");
@@ -490,6 +498,7 @@ export const listAilene = {
             dayjs(l.last_active_at).valueOf() >= weekStart.valueOf()
         ).length,
         submissions_sent,
+        members_submitted,
         hours_saved: Math.round(hours_saved_total),
       };
 
