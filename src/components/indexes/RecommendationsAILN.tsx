@@ -1,11 +1,16 @@
 "use client";
+import GeneralLabelAILN, {
+  type GeneralLabelVariantAILN,
+} from "@/components/labels/GeneralLabelAILN";
 import { trpc } from "@/trpc/client";
 import {
   ArrowRight,
   BarChart3,
   FilePenLine,
   Loader2,
-  Target,
+  Megaphone,
+  Search,
+  UsersRound,
 } from "lucide-react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
@@ -20,13 +25,45 @@ type RecItem = {
   level_number: number;
 };
 
-const cardIcons = [FilePenLine, Target, BarChart3] as const;
-
-function categoryLabelClass(category: string) {
+function categoryLabelVariant(category: string): GeneralLabelVariantAILN {
   if (category.trim().toLowerCase() === "human capital") {
-    return "border-emerald-200 bg-emerald-50 text-emerald-700 dark:border-emerald-500/30 dark:bg-emerald-500/10 dark:text-emerald-300";
+    return "green";
   }
-  return "border-red-200 bg-red-50 text-red-700 dark:border-red-500/30 dark:bg-red-500/10 dark:text-red-300";
+  return "red";
+}
+
+function RecommendationIcon({ item }: { item: RecItem }) {
+  const text =
+    `${item.category ?? ""} ${item.title} ${item.description}`.toLowerCase();
+
+  if (text.includes("human capital") || text.includes("hr")) {
+    return <UsersRound className="size-5" />;
+  }
+  if (
+    text.includes("analytics") ||
+    text.includes("analysis") ||
+    text.includes("analisis") ||
+    text.includes("data") ||
+    text.includes("performa")
+  ) {
+    return <BarChart3 className="size-5" />;
+  }
+  if (
+    text.includes("research") ||
+    text.includes("riset") ||
+    text.includes("kompetitor")
+  ) {
+    return <Search className="size-5" />;
+  }
+  if (
+    text.includes("content") ||
+    text.includes("marketing") ||
+    text.includes("campaign") ||
+    text.includes("caption")
+  ) {
+    return <Megaphone className="size-5" />;
+  }
+  return <FilePenLine className="size-5" />;
 }
 
 export default function RecommendationsAILN() {
@@ -38,7 +75,6 @@ export default function RecommendationsAILN() {
 
   const items = q.data?.items ?? [];
   const levelNumber = q.data?.level_number ?? 0;
-  const roleLabel = q.data?.role ?? q.data?.department ?? "role Anda";
 
   const handleStart = (item: RecItem) => {
     setStartingId(item.id);
@@ -62,11 +98,8 @@ export default function RecommendationsAILN() {
 
   if (q.isLoading) {
     return (
-      <section className="flex flex-col gap-4">
-        <RecommendationHeader
-          levelNumber={levelNumber}
-          roleLabel={roleLabel}
-        />
+      <section className="mt-6 flex flex-col gap-4">
+        <RecommendationHeader levelNumber={levelNumber} />
         <div className="grid grid-cols-1 gap-4 md:grid-cols-3">
           {[0, 1, 2].map((i) => (
             <div
@@ -81,11 +114,8 @@ export default function RecommendationsAILN() {
 
   if (items.length === 0) {
     return (
-      <section className="flex flex-col gap-4">
-        <RecommendationHeader
-          levelNumber={levelNumber}
-          roleLabel={roleLabel}
-        />
+      <section className="mt-6 flex flex-col gap-4">
+        <RecommendationHeader levelNumber={levelNumber} />
         <div className="rounded-lg border border-dashed border-dashboard-border bg-card-1 px-4 py-10 text-center text-sm text-muted-foreground">
           Semua rekomendasi use case yang tersedia sudah pernah kamu kerjakan.
         </div>
@@ -94,14 +124,13 @@ export default function RecommendationsAILN() {
   }
 
   return (
-    <section className="flex flex-col gap-4">
-      <RecommendationHeader levelNumber={levelNumber} roleLabel={roleLabel} />
+    <section className="mt-6 flex flex-col gap-4">
+      <RecommendationHeader levelNumber={levelNumber} />
       <div className="grid grid-cols-1 gap-4 md:grid-cols-3">
-        {items.map((item, index) => (
+        {items.map((item) => (
           <RecommendationCard
             key={item.id}
             item={item}
-            iconIndex={index}
             isStarting={startingId === item.id}
             onStart={() => handleStart(item)}
           />
@@ -113,20 +142,17 @@ export default function RecommendationsAILN() {
 
 function RecommendationHeader({
   levelNumber,
-  roleLabel,
 }: {
   levelNumber: number;
-  roleLabel: string;
 }) {
   return (
-    <div className="flex flex-wrap items-start justify-between gap-3">
-      <div>
-        <h2 className="text-xl font-bold leading-tight text-foreground dark:text-white">
+    <div className="flex flex-wrap items-center justify-between gap-3">
+      <div className="flex flex-col gap-0.5">
+        <h2 className="text-base font-bold text-foreground">
           Rekomendasi Use Case untuk Anda
         </h2>
-        <p className="mt-1 text-sm text-muted-foreground">
-          Ide use case dari role ({roleLabel}) + level (L{levelNumber}) - klik
-          untuk mencatatnya
+        <p className="text-sm text-muted-foreground">
+          Ide use case dari role kamu di level {levelNumber}
         </p>
       </div>
       <Link
@@ -142,59 +168,57 @@ function RecommendationHeader({
 
 function RecommendationCard({
   item,
-  iconIndex,
   isStarting,
   onStart,
 }: {
   item: RecItem;
-  iconIndex: number;
   isStarting: boolean;
   onStart: () => void;
 }) {
-  const Icon = cardIcons[iconIndex % cardIcons.length];
   const category = item.category ?? "Use Case";
 
   return (
-    <article className="flex min-h-72 flex-col rounded-lg border border-dashboard-border bg-card-1 p-5 transition hover:border-red-300 hover:shadow-sm dark:hover:border-red-500/50">
-      <div className="flex items-start justify-between gap-3">
-        <span className="flex size-12 shrink-0 items-center justify-center rounded-lg bg-gray-100 text-black dark:bg-white dark:text-black">
-          <Icon className="size-5" />
-        </span>
-        <span
-          className={`inline-flex items-center rounded-full border px-3 py-1 text-xs font-semibold ${categoryLabelClass(category)}`}
-        >
-          {category}
-        </span>
-      </div>
+    <Link
+      href={`/student/practice/use-cases/${item.id}`}
+      onClick={(event) => {
+        event.preventDefault();
+        if (!isStarting) onStart();
+      }}
+      aria-disabled={isStarting}
+      className="group block h-full rounded-lg focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring"
+    >
+      <article className="flex h-full min-h-72 flex-col rounded-lg border border-dashboard-border bg-card-1 p-5 transition group-hover:border-red-200 group-hover:bg-red-50/40 dark:group-hover:border-red-500/50 dark:group-hover:bg-red-500/5">
+        <div className="flex items-start justify-between gap-3">
+          <span className="flex size-12 shrink-0 items-center justify-center rounded-lg border border-dashboard-border bg-gray-100 text-black dark:bg-white dark:text-black">
+            <RecommendationIcon item={item} />
+          </span>
+          <GeneralLabelAILN variant={categoryLabelVariant(category)}>
+            {category}
+          </GeneralLabelAILN>
+        </div>
 
-      <div className="mt-5 flex flex-1 flex-col gap-3">
-        <h3 className="text-lg font-bold leading-snug text-foreground dark:text-white">
-          {item.title}
-        </h3>
-        <p className="text-sm leading-6 text-muted-foreground line-clamp-3">
-          {item.description}
-        </p>
-      </div>
+        <div className="mt-5 flex flex-1 flex-col gap-3">
+          <h3 className="text-lg font-bold leading-snug text-foreground dark:text-white">
+            {item.title}
+          </h3>
+          <p className="text-sm leading-6 text-muted-foreground line-clamp-3">
+            {item.description}
+          </p>
+        </div>
 
-      <div className="mt-5 flex flex-wrap items-center gap-2">
-        <span className="inline-flex items-center rounded-full border border-dashboard-border bg-white px-3 py-1 text-xs font-semibold text-gray-700 dark:bg-card-1 dark:text-gray-300">
-          L{item.level_number}
-        </span>
-        <span className="inline-flex items-center rounded-full border border-amber-200 bg-amber-50 px-3 py-1 text-xs font-semibold text-amber-700 dark:border-amber-500/30 dark:bg-amber-500/10 dark:text-amber-300">
-          Belum dicatat
-        </span>
-      </div>
+        <div className="mt-5 flex flex-wrap items-center gap-2">
+          <GeneralLabelAILN variant="white">
+            L{item.level_number}
+          </GeneralLabelAILN>
+          <GeneralLabelAILN variant="yellow">Belum dicatat</GeneralLabelAILN>
+        </div>
 
-      <button
-        type="button"
-        className="mt-4 inline-flex w-fit items-center gap-2 text-sm font-bold text-red-600 transition hover:text-red-700 hover:underline disabled:cursor-not-allowed disabled:opacity-60 dark:text-red-400 dark:hover:text-red-300"
-        onClick={onStart}
-        disabled={isStarting}
-      >
-        {isStarting ? <Loader2 className="size-4 animate-spin" /> : null}
-        Catat use case ini
-        {!isStarting ? <ArrowRight className="size-4" /> : null}
-      </button>
-    </article>
+        <span className="mt-4 inline-flex w-fit items-center gap-2 text-sm font-bold text-red-600 transition group-hover:text-red-700 group-hover:underline dark:text-red-400 dark:group-hover:text-red-300">
+          {isStarting ? <Loader2 className="size-4 animate-spin" /> : null}
+          Catat use case ini
+          {!isStarting ? <ArrowRight className="size-4" /> : null}
+        </span>
+      </article>
+    </Link>
   );
 }

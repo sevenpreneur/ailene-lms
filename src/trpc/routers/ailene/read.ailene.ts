@@ -11,6 +11,9 @@ import { z } from "zod";
 export const readAilene = {
   competencyProfile: ailMemberProcedure.query(async (opts) => {
     const memberId = opts.ctx.ail_member.id;
+    const currentLevelNumber =
+      opts.ctx.ail_member.current_level?.level_number ?? 0;
+    const targetLevelNumber = Math.min(currentLevelNumber + 1, 4);
 
     const [quizSubs, prSubs, ucSubs] = await Promise.all([
       opts.ctx.prisma.ailQuizSubmission.findMany({
@@ -68,8 +71,8 @@ export const readAilene = {
     }
     const toolFluency = Math.min(tools.size, 5);
 
-    // 4. Workplace Application — total submitted use cases, capped at 5
-    const workplaceApplication = Math.min(ucSubs.length, 5);
+    // 4. Use Case Diversity — total submitted use cases, capped at 5
+    const useCaseDiversity = Math.min(ucSubs.length, 5);
 
     // 5. AI Habit — frequency weighted average across use case submissions
     const freqScore: Record<string, number> = {
@@ -105,9 +108,9 @@ export const readAilene = {
       },
       { key: "tool_fluency", name: "Tool Fluency", score: round1(toolFluency) },
       {
-        key: "workplace_application",
-        name: "Workplace Application",
-        score: round1(workplaceApplication),
+        key: "use_case_diversity",
+        name: "Use Case Diversity",
+        score: round1(useCaseDiversity),
       },
       { key: "ai_habit", name: "AI Habit", score: round1(aiHabit) },
       {
@@ -157,6 +160,8 @@ export const readAilene = {
       profile: {
         dimensions,
         avg,
+        current_level_number: currentLevelNumber,
+        target_level_number: targetLevelNumber,
         tier_number,
         tier_name,
         next_tier,

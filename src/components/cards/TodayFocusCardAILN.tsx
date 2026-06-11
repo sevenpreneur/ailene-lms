@@ -1,5 +1,6 @@
 "use client";
 import ButtonAILN from "@/components/buttons/ButtonAILN";
+import GeneralLabelAILN from "@/components/labels/GeneralLabelAILN";
 import AlertConfirmDialogAILN from "@/components/modals/AlertConfirmDialogAILN";
 import { trpc } from "@/trpc/client";
 import dayjs from "dayjs";
@@ -132,24 +133,28 @@ export default function TodayFocusCardAILN() {
           {/* Label-label */}
           <div className="mt-1 flex flex-wrap items-center gap-2">
             {focus.deadline && (
-              <span className="inline-flex items-center gap-1.5 rounded-full border border-blue-200 bg-blue-50 px-3 py-1 text-xs font-semibold text-blue-700 dark:border-blue-500/30 dark:bg-blue-500/10 dark:text-blue-300">
-                <Clock className="size-3.5" />
+              <GeneralLabelAILN
+                variant="blue"
+                icon={<Clock className="size-3.5" />}
+              >
                 Deadline {formatDeadline(focus.deadline)}
-              </span>
+              </GeneralLabelAILN>
             )}
-            <span className="inline-flex items-center rounded-full border border-violet-200 bg-violet-50 px-3 py-1 text-xs font-semibold text-violet-700 dark:border-violet-500/30 dark:bg-violet-500/10 dark:text-violet-300">
+            <GeneralLabelAILN variant="red">
               {labelForKind(focus.kind)}
-            </span>
+            </GeneralLabelAILN>
             {focus.level_number != null && (
-              <span className="inline-flex items-center rounded-full border border-dashboard-border bg-white px-3 py-1 text-xs font-semibold text-gray-700 dark:bg-card-1 dark:text-gray-300">
+              <GeneralLabelAILN variant="white">
                 L{focus.level_number}
-              </span>
+              </GeneralLabelAILN>
             )}
             {focus.assigned_by_name && (
-              <span className="inline-flex items-center gap-1.5 rounded-full border border-emerald-200 bg-emerald-50 px-3 py-1 text-xs font-semibold text-emerald-700 dark:border-emerald-500/30 dark:bg-emerald-500/10 dark:text-emerald-300">
-                <Lightbulb className="size-3.5" />
+              <GeneralLabelAILN
+                variant="green"
+                icon={<Lightbulb className="size-3.5" />}
+              >
                 Dari {focus.assigned_by_name} (Champion)
-              </span>
+              </GeneralLabelAILN>
             )}
           </div>
 
