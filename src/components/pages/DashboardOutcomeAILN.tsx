@@ -89,9 +89,9 @@ export default function DashboardOutcomeAILN({
   }, [sessionToken]);
 
   const pdf = usePdfReport();
-  const overviewQ = trpc.ailene.read.outcome.overview.useQuery();
-  const levelQ = trpc.ailene.read.outcome.levelDistribution.useQuery();
-  const performersQ = trpc.ailene.read.outcome.topPerformers.useQuery();
+  const overviewQ = trpc.read.outcome.overview.useQuery();
+  const levelQ = trpc.read.outcome.levelDistribution.useQuery();
+  const performersQ = trpc.read.outcome.topPerformers.useQuery();
 
   const overview = overviewQ.data;
   const roi = formatCompactIdr(overview?.roi_total ?? 0);

@@ -31,7 +31,7 @@ function rankStyle(rank: number): { chip: string; bar: string } {
 }
 
 export default function OrganizationLeaderboardAILN() {
- const q = trpc.ailene.read.organizationLeaderboard.useQuery();
+ const q = trpc.read.organizationLeaderboard.useQuery();
 
  if (q.isLoading) {
  return (

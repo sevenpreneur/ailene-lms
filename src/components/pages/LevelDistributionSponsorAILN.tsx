@@ -54,7 +54,7 @@ export default function LevelDistributionSponsorAILN({
  const [selectedDept, setSelectedDept] = useState<string>("all");
  const [highlightUnderperform, setHighlightUnderperform] = useState(false);
 
- const q = trpc.ailene.read.levelDistribution.useQuery();
+ const q = trpc.read.levelDistribution.useQuery();
 
  if (q.isLoading) {
  return (

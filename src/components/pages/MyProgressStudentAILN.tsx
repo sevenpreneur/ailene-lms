@@ -154,7 +154,7 @@ function StatsPanel({
   totalXp: number;
   levelNumber: number;
 }) {
-  const q = trpc.ailene.read.achievements.useQuery();
+  const q = trpc.read.achievements.useQuery();
 
   if (q.isLoading) {
     return (
@@ -272,7 +272,7 @@ type LeaderboardTab = "DEPT" | "ANGKATAN" | "TIM";
 
 function LeaderboardPanel() {
   const [tab, setTab] = useState<LeaderboardTab>("DEPT");
-  const q = trpc.ailene.read.groupLeaderboard.useQuery();
+  const q = trpc.read.groupLeaderboard.useQuery();
 
   const tabs: { key: LeaderboardTab; label: string; enabled: boolean }[] = [
     { key: "DEPT", label: "Departemen", enabled: true },
@@ -479,7 +479,7 @@ function buildMonthCalendars(days: DayCell[]): MonthCal[] {
 
 function StreakPanel() {
   const [windowDays, setWindowDays] = useState(90);
-  const q = trpc.ailene.read.streak.useQuery();
+  const q = trpc.read.streak.useQuery();
 
   const visibleDays = useMemo(() => {
     const all = (q.data?.days ?? []) as DayCell[];
@@ -787,7 +787,7 @@ function OutcomeStatsGrid({
   totalXp: number;
   levelNumber: number;
 }) {
-  const q = trpc.ailene.read.achievements.useQuery();
+  const q = trpc.read.achievements.useQuery();
 
   if (q.isLoading) {
     return (

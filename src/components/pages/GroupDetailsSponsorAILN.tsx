@@ -35,11 +35,11 @@ export default function GroupDetailsSponsorAILN({
   const router = useRouter();
   const pdf = usePdfReport();
   const input = { group_id: groupId };
-  const departmentsQ = trpc.ailene.read.group.departments.useQuery();
-  const overviewQ = trpc.ailene.read.group.overview.useQuery(input);
-  const distributionQ = trpc.ailene.read.group.levelDistribution.useQuery(input);
-  const topUseCasesQ = trpc.ailene.read.group.topUseCases.useQuery(input);
-  const attentionQ = trpc.ailene.read.group.attentionMembers.useQuery(input);
+  const departmentsQ = trpc.read.group.departments.useQuery();
+  const overviewQ = trpc.read.group.overview.useQuery(input);
+  const distributionQ = trpc.read.group.levelDistribution.useQuery(input);
+  const topUseCasesQ = trpc.read.group.topUseCases.useQuery(input);
+  const attentionQ = trpc.read.group.attentionMembers.useQuery(input);
 
   if (overviewQ.isLoading) {
     return (

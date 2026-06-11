@@ -22,7 +22,7 @@ export default function QuizDetailsAILN({
     if (sessionToken) setSessionToken(sessionToken);
   }, [sessionToken]);
 
-  const { data, isLoading, isError } = trpc.ailene.list.quizQuestions.useQuery({
+  const { data, isLoading, isError } = trpc.list.quizQuestions.useQuery({
     quiz_id: quizId,
   });
 

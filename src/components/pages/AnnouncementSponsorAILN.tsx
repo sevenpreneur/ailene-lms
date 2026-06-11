@@ -31,7 +31,7 @@ export default function AnnouncementSponsorAILN({
   }, [sessionToken]);
 
   const utils = trpc.useUtils();
-  const announcementQ = trpc.ailene.read.announcement.useQuery();
+  const announcementQ = trpc.read.announcement.useQuery();
 
   if (announcementQ.isLoading) {
     return (
@@ -59,7 +59,7 @@ export default function AnnouncementSponsorAILN({
           : "empty"
       }
       announcement={announcement}
-      invalidateAnnouncement={() => utils.ailene.read.announcement.invalidate()}
+      invalidateAnnouncement={() => utils.read.announcement.invalidate()}
     />
   );
 }
@@ -71,7 +71,7 @@ function AnnouncementForm({
   announcement: Announcement | null;
   invalidateAnnouncement: () => Promise<unknown>;
 }) {
-  const updateAnnouncement = trpc.ailene.update.announcement.useMutation({
+  const updateAnnouncement = trpc.update.announcement.useMutation({
     onSuccess: async () => {
       await invalidateAnnouncement();
       toast.success("Pengumuman berhasil diperbarui.");

@@ -57,19 +57,19 @@ export default function CreateAssignmentFormAILN({
   const handleInputChange = (fieldName: string) => (value: unknown) =>
     setFormData((prev) => ({ ...prev, [fieldName]: value }));
 
-  const categoriesQ = trpc.ailene.list.categories.useQuery(undefined, {
+  const categoriesQ = trpc.list.categories.useQuery(undefined, {
     enabled: isOpen,
   });
   const memberQ = trpc.auth.checkAilMember.useQuery(undefined, {
     enabled: isOpen && formData.assignEnabled,
   });
-  const membersQ = trpc.ailene.list.members.useQuery(
+  const membersQ = trpc.list.members.useQuery(
     {},
     { enabled: isOpen && formData.assignEnabled }
   );
 
-  const createPromptM = trpc.ailene.create.promptAssignment.useMutation();
-  const createUseCaseM = trpc.ailene.create.useCaseAssignment.useMutation();
+  const createPromptM = trpc.create.promptAssignment.useMutation();
+  const createUseCaseM = trpc.create.useCaseAssignment.useMutation();
   const isSubmitting = createPromptM.isPending || createUseCaseM.isPending;
 
   const categories = useMemo(
@@ -216,8 +216,8 @@ export default function CreateAssignmentFormAILN({
             } else {
               toast.success(`${label} berhasil dibuat.`);
             }
-            utils.ailene.list.promptLibrary.invalidate();
-            utils.ailene.list.promptSubmissions.invalidate();
+            utils.list.promptLibrary.invalidate();
+            utils.list.promptSubmissions.invalidate();
             resetForm();
             onClose();
           },
@@ -243,8 +243,8 @@ export default function CreateAssignmentFormAILN({
             } else {
               toast.success(`${label} berhasil dibuat.`);
             }
-            utils.ailene.list.useCaseLibrary.invalidate();
-            utils.ailene.list.useCaseSubmissions.invalidate();
+            utils.list.useCaseLibrary.invalidate();
+            utils.list.useCaseSubmissions.invalidate();
             resetForm();
             onClose();
           },

@@ -71,17 +71,17 @@ export default function DashboardPreAssesmentAILN({
   const [groupId, setGroupId] = useState<number | undefined>(undefined);
   const filter = { group_id: groupId };
 
-  const departmentsQ = trpc.ailene.read.preAssessment.departments.useQuery();
-  const overviewQ = trpc.ailene.read.preAssessment.overview.useQuery(filter);
-  const pillarsQ = trpc.ailene.read.preAssessment.pillars.useQuery(filter);
+  const departmentsQ = trpc.read.preAssessment.departments.useQuery();
+  const overviewQ = trpc.read.preAssessment.overview.useQuery(filter);
+  const pillarsQ = trpc.read.preAssessment.pillars.useQuery(filter);
   const frequencyQ =
-    trpc.ailene.read.preAssessment.usageFrequency.useQuery(filter);
-  const toolsQ = trpc.ailene.read.preAssessment.tools.useQuery(filter);
+    trpc.read.preAssessment.usageFrequency.useQuery(filter);
+  const toolsQ = trpc.read.preAssessment.tools.useQuery(filter);
   const maturityQ =
-    trpc.ailene.read.preAssessment.teamMaturity.useQuery(filter);
-  const safetyQ = trpc.ailene.read.preAssessment.safetyGaps.useQuery(filter);
-  const useCasesQ = trpc.ailene.read.preAssessment.topUseCases.useQuery(filter);
-  const voiceQ = trpc.ailene.read.preAssessment.voice.useQuery(filter);
+    trpc.read.preAssessment.teamMaturity.useQuery(filter);
+  const safetyQ = trpc.read.preAssessment.safetyGaps.useQuery(filter);
+  const useCasesQ = trpc.read.preAssessment.topUseCases.useQuery(filter);
+  const voiceQ = trpc.read.preAssessment.voice.useQuery(filter);
 
   const overview = overviewQ.data;
   const measuredLabel = overview?.measured_at

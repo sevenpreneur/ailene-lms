@@ -33,16 +33,16 @@ export default function MemberDetailsChampionAILN({
     setSessionToken(sessionToken);
   }, [sessionToken]);
 
-  const detailQ = trpc.ailene.read.memberDetail.useQuery({
+  const detailQ = trpc.read.memberDetail.useQuery({
     member_id: memberId,
   });
 
   const utils = trpc.useUtils();
   const [noteText, setNoteText] = useState("");
-  const noteMutation = trpc.ailene.create.coachingNote.useMutation({
+  const noteMutation = trpc.create.coachingNote.useMutation({
     onSuccess: () => {
       setNoteText("");
-      utils.ailene.read.memberDetail.invalidate({ member_id: memberId });
+      utils.read.memberDetail.invalidate({ member_id: memberId });
     },
   });
 

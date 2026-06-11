@@ -69,10 +69,10 @@ export default function ReviewPromptSubmissionChampionAILN({
 
   const router = useRouter();
   const utils = trpc.useUtils();
-  const detailQ = trpc.ailene.read.promptSubmissionDetail.useQuery({
+  const detailQ = trpc.read.promptSubmissionDetail.useQuery({
     submission_id: submissionId,
   });
-  const reviewM = trpc.ailene.update.reviewPromptSubmission.useMutation();
+  const reviewM = trpc.update.reviewPromptSubmission.useMutation();
 
   const s = detailQ.data?.submission;
 
@@ -151,10 +151,10 @@ export default function ReviewPromptSubmissionChampionAILN({
           toast.success(
             isAccepted ? "Submisi diterima." : "Revisi diminta ke student."
           );
-          utils.ailene.read.promptSubmissionDetail.invalidate({
+          utils.read.promptSubmissionDetail.invalidate({
             submission_id: submissionId,
           });
-          utils.ailene.list.promptSubmissions.invalidate();
+          utils.list.promptSubmissions.invalidate();
         },
         onError: (err) => {
           toast.error("Gagal menyimpan review", { description: err.message });

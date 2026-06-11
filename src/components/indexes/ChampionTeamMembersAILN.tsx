@@ -12,7 +12,7 @@ import { useEffect, useRef, useState } from "react";
 dayjs.extend(relativeTime);
 
 type Member =
-  inferRouterOutputs<AppRouter>["ailene"]["list"]["members"]["list"][number];
+  inferRouterOutputs<AppRouter>["list"]["members"]["list"][number];
 
 type StatusKey = "on_track" | "at_risk" | "behind";
 

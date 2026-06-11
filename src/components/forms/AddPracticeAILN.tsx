@@ -133,7 +133,7 @@ export default function AddPracticeAILN({
 
   const router = useRouter();
   const utils = trpc.useUtils();
-  const categoriesQ = trpc.ailene.list.memberCategories.useQuery();
+  const categoriesQ = trpc.list.memberCategories.useQuery();
   const categories = useMemo(
     () => categoriesQ.data?.list ?? [],
     [categoriesQ.data]
@@ -173,8 +173,8 @@ export default function AddPracticeAILN({
   const [isDragOver, setIsDragOver] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
-  const promptM = trpc.ailene.create.selfPrompt.useMutation();
-  const useCaseM = trpc.ailene.create.selfUseCase.useMutation();
+  const promptM = trpc.create.selfPrompt.useMutation();
+  const useCaseM = trpc.create.selfUseCase.useMutation();
   const isPending = promptM.isPending || useCaseM.isPending;
 
   const handleUploadFile = async (file: File) => {
@@ -239,12 +239,12 @@ export default function AddPracticeAILN({
 
   const goToList = () => {
     toast.success("Latihan berhasil dikirim ke champion untuk direview.");
-    utils.ailene.list.assignedPrompts.invalidate();
-    utils.ailene.list.assignedUseCases.invalidate();
-    utils.ailene.list.memberPromptLibrary.invalidate();
-    utils.ailene.list.memberUseCaseLibrary.invalidate();
-    utils.ailene.list.practiceSubmissions.invalidate();
-    utils.ailene.read.todayFocus.invalidate();
+    utils.list.assignedPrompts.invalidate();
+    utils.list.assignedUseCases.invalidate();
+    utils.list.memberPromptLibrary.invalidate();
+    utils.list.memberUseCaseLibrary.invalidate();
+    utils.list.practiceSubmissions.invalidate();
+    utils.read.todayFocus.invalidate();
     router.push("/student/practice");
   };
 

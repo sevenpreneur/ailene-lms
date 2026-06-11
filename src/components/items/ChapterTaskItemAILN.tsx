@@ -92,13 +92,13 @@ export default function ChapterTaskItemAILN(props: ChapterTaskItemAILNProps) {
   const utils = trpc.useUtils();
   const [isStartQuizDialogOpen, setIsStartQuizDialogOpen] = useState(false);
   const invalidateProgress = () => {
-    utils.ailene.list.tasks.invalidate();
-    utils.ailene.list.chapters.invalidate();
-    utils.ailene.list.levels.invalidate();
+    utils.list.tasks.invalidate();
+    utils.list.chapters.invalidate();
+    utils.list.levels.invalidate();
     utils.auth.checkAilMember.invalidate();
-    utils.ailene.read.todayFocus.invalidate();
+    utils.read.todayFocus.invalidate();
   };
-  const completeVideo = trpc.ailene.create.completeVideo.useMutation({
+  const completeVideo = trpc.create.completeVideo.useMutation({
     onSuccess: invalidateProgress,
   });
 

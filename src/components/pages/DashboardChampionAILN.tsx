@@ -45,7 +45,7 @@ export default function DashboardChampionAILN({
     setSessionToken(sessionToken);
   }, [sessionToken]);
 
-  const membersQ = trpc.ailene.list.members.useQuery({});
+  const membersQ = trpc.list.members.useQuery({});
   const memberQ = trpc.auth.checkAilMember.useQuery();
 
   if (membersQ.isLoading) {

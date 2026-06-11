@@ -69,7 +69,7 @@ export default function StreakCardAILN({
   endDate,
   className,
 }: StreakCardAILNProps) {
-  const achievementsQ = trpc.ailene.read.achievements.useQuery();
+  const achievementsQ = trpc.read.achievements.useQuery();
   // Standar tampil 3 bulan: kalau cohort lebih pendek, mundur ke awal 3 bulan
   // terakhir; kalau lebih panjang, tetap pakai rentang cohort penuh.
   const threeMonthFloor = dayjs(endDate)
@@ -78,7 +78,7 @@ export default function StreakCardAILN({
   const fetchFrom = (
     dayjs(startDate).isBefore(threeMonthFloor) ? dayjs(startDate) : threeMonthFloor
   ).format("YYYY-MM-DD");
-  const streakQ = trpc.ailene.read.streak.useQuery({
+  const streakQ = trpc.read.streak.useQuery({
     from: fetchFrom,
     to: endDate,
   });

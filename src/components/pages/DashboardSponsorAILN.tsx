@@ -47,14 +47,14 @@ export default function DashboardSponsorAILN({
   }, [sessionToken]);
 
   const pdf = usePdfReport();
-  const executiveQ = trpc.ailene.read.executiveView.useQuery();
-  const orgStatsQ = trpc.ailene.read.organizationStats.useQuery();
-  const healthQ = trpc.ailene.read.programHealth.useQuery();
-  const activityQ = trpc.ailene.read.recentActivity.useQuery();
+  const executiveQ = trpc.read.executiveView.useQuery();
+  const orgStatsQ = trpc.read.organizationStats.useQuery();
+  const healthQ = trpc.read.programHealth.useQuery();
+  const activityQ = trpc.read.recentActivity.useQuery();
   // For the PDF report: data the on-page charts render via child components.
-  const levelDistQ = trpc.ailene.read.levelDistribution.useQuery();
-  const proficiencyQ = trpc.ailene.read.proficiencyTrends.useQuery();
-  const leaderboardQ = trpc.ailene.read.organizationLeaderboard.useQuery();
+  const levelDistQ = trpc.read.levelDistribution.useQuery();
+  const proficiencyQ = trpc.read.proficiencyTrends.useQuery();
+  const leaderboardQ = trpc.read.organizationLeaderboard.useQuery();
 
   if (executiveQ.isLoading) {
     return (

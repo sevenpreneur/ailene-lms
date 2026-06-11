@@ -5,7 +5,7 @@ import dayjs from "dayjs";
 import { Megaphone } from "lucide-react";
 
 export default function AnnouncementTickerAILN() {
-  const announcementQ = trpc.ailene.read.announcement.useQuery();
+  const announcementQ = trpc.read.announcement.useQuery();
 
   if (announcementQ.isLoading || !announcementQ.data?.announcement) return null;
 

@@ -56,7 +56,7 @@ interface CompetencyProfileAILNProps {
 export default function CompetencyProfileAILN({
   className,
 }: CompetencyProfileAILNProps) {
-  const q = trpc.ailene.read.competencyProfile.useQuery();
+  const q = trpc.read.competencyProfile.useQuery();
 
   if (q.isLoading) {
     return (

@@ -187,6 +187,39 @@ export const authRouter = createTRPCRouter({
     };
   }),
 
+  // Lightweight gating check for server-side route guards (layouts/pages).
+  // Returns only what guards need — role + pre-assessment completion — in a
+  // single DB round trip. Avoids the heavy payload of checkAilMember
+  // (championed_groups + _count, xp aggregate, level/group includes) which is
+  // only needed by client dashboards. See getAilGate() in src/lib/ail-gate.ts
+  // which caches this per-request so nested layouts share one query.
+  checkAilGate: loggedInProcedure.query(async (opts) => {
+    const ailMember = await opts.ctx.prisma.ailMember.findUnique({
+      where: { user_id: opts.ctx.user.id },
+      select: {
+        id: true,
+        role: true,
+        pre_assessment: { select: { id: true } },
+      },
+    });
+    if (!ailMember) {
+      return {
+        code: STATUS_OK,
+        message: "Success",
+        ail_member: null,
+      };
+    }
+    return {
+      code: STATUS_OK,
+      message: "Success",
+      ail_member: {
+        id: ailMember.id,
+        role: ailMember.role,
+        has_pre_assessment: !!ailMember.pre_assessment,
+      },
+    };
+  }),
+
   createJWT: loggedInProcedure.query((opts) => {
     const secretKey = process.env.SECRET_KEY_JWT;
     if (!secretKey || secretKey == "") {

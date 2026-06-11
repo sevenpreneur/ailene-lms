@@ -111,13 +111,13 @@ export default function MaterialDetailsAILN({
   }, [sessionToken]);
 
   const utils = trpc.useUtils();
-  const { data, isLoading, isError } = trpc.ailene.read.materialDetail.useQuery(
+  const { data, isLoading, isError } = trpc.read.materialDetail.useQuery(
     {
       material_id: materialId,
     }
   );
 
-  const levelMaterialsQ = trpc.ailene.read.levelMaterials.useQuery({
+  const levelMaterialsQ = trpc.read.levelMaterials.useQuery({
     material_id: materialId,
   });
   const levelNumber = levelMaterialsQ.data?.level_number ?? 0;
@@ -125,14 +125,14 @@ export default function MaterialDetailsAILN({
     (m) => !m.is_current
   );
 
-  const markMutation = trpc.ailene.create.completeMaterial.useMutation({
+  const markMutation = trpc.create.completeMaterial.useMutation({
     onSuccess: () => {
       utils.auth.checkAilMember.invalidate();
-      utils.ailene.read.materialDetail.invalidate({ material_id: materialId });
-      utils.ailene.list.tasks.invalidate();
-      utils.ailene.list.chapters.invalidate();
-      utils.ailene.list.levels.invalidate();
-      utils.ailene.read.todayFocus.invalidate();
+      utils.read.materialDetail.invalidate({ material_id: materialId });
+      utils.list.tasks.invalidate();
+      utils.list.chapters.invalidate();
+      utils.list.levels.invalidate();
+      utils.read.todayFocus.invalidate();
     },
   });
 

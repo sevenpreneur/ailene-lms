@@ -9,7 +9,7 @@ dayjs.extend(relativeTime);
 // Use Case Terbaru — 3 submission use case terakhir dari tim champion (data nyata
 // via list.useCaseSubmissions). Selaras dengan kartu "Use Case Terbaru" di lms-fe.
 export default function RecentUseCasesAILN() {
-  const q = trpc.ailene.list.useCaseSubmissions.useQuery();
+  const q = trpc.list.useCaseSubmissions.useQuery();
 
   const items = (q.data?.list ?? [])
     .filter((r) => r.submitted_at)

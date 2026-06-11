@@ -53,12 +53,12 @@ export default function TodayFocusCardAILN() {
   const router = useRouter();
   const utils = trpc.useUtils();
   const [isQuizDialogOpen, setIsQuizDialogOpen] = useState(false);
-  const q = trpc.ailene.read.todayFocus.useQuery();
+  const q = trpc.read.todayFocus.useQuery();
 
-  const completeVideo = trpc.ailene.create.completeVideo.useMutation({
+  const completeVideo = trpc.create.completeVideo.useMutation({
     onSuccess: () => {
-      utils.ailene.read.todayFocus.invalidate();
-      utils.ailene.list.tasks.invalidate();
+      utils.read.todayFocus.invalidate();
+      utils.list.tasks.invalidate();
       utils.auth.checkAilMember.invalidate();
     },
   });

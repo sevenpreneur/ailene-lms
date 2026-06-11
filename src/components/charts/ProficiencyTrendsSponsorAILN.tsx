@@ -65,7 +65,7 @@ function resolveWeeks(realWeeks: ProficiencyWeek[]): {
 }
 
 export default function ProficiencyTrendsSponsorAILN() {
-  const q = trpc.ailene.read.proficiencyTrends.useQuery();
+  const q = trpc.read.proficiencyTrends.useQuery();
 
   const legend = (
     <div className="flex items-center gap-3 text-xs text-muted-foreground">

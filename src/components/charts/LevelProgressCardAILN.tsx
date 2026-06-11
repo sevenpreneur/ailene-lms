@@ -9,7 +9,7 @@ interface LevelProgressCardAILNProps {
 export default function LevelProgressCardAILN(
   props: LevelProgressCardAILNProps
 ) {
-  const q = trpc.ailene.read.levelProgress.useQuery();
+  const q = trpc.read.levelProgress.useQuery();
 
   if (q.isLoading) {
     return (

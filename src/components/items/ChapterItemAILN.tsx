@@ -38,7 +38,7 @@ interface ChapterItemAILNProps {
 }
 
 export default function ChapterItemAILN(props: ChapterItemAILNProps) {
-  const tasksQ = trpc.ailene.list.tasks.useQuery(
+  const tasksQ = trpc.list.tasks.useQuery(
     { chapter_id: props.chapter.id },
     { enabled: props.expanded }
   );

@@ -70,7 +70,7 @@ export default function QuizResultAILN({ quizId }: QuizResultAILNProps) {
   }, []);
   const isDark = mounted && resolvedTheme === "dark";
 
-  const { data, isLoading, isError } = trpc.ailene.read.quizResult.useQuery({
+  const { data, isLoading, isError } = trpc.read.quizResult.useQuery({
     quiz_id: quizId,
   });
 

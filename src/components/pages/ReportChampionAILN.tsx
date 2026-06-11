@@ -14,7 +14,7 @@ import { useEffect, useMemo, useState } from "react";
 
 const ACCENT = "#107158";
 type ChampionReportData =
-  inferRouterOutputs<AppRouter>["ailene"]["read"]["report"]["champion"];
+  inferRouterOutputs<AppRouter>["read"]["report"]["champion"];
 
 export default function ReportChampionAILN({
   sessionToken,
@@ -26,7 +26,7 @@ export default function ReportChampionAILN({
   }, [sessionToken]);
 
   const [period, setPeriod] = useState<"weekly" | "monthly">("weekly");
-  const reportQ = trpc.ailene.read.report.champion.useQuery({ period });
+  const reportQ = trpc.read.report.champion.useQuery({ period });
 
   if (reportQ.isLoading) {
     return (

@@ -10,7 +10,7 @@ import Link from "next/link";
 dayjs.extend(relativeTime);
 
 type Member =
-  inferRouterOutputs<AppRouter>["ailene"]["list"]["members"]["list"][number];
+  inferRouterOutputs<AppRouter>["list"]["members"]["list"][number];
 
 const AVATAR_GRADIENTS = [
   "from-fuchsia-500 to-pink-500",

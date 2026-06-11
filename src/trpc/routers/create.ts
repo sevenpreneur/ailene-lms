@@ -4,7 +4,11 @@ import {
   STATUS_NOT_FOUND,
   STATUS_OK,
 } from "@/lib/status_code";
-import { ailMemberProcedure, championProcedure } from "@/trpc/init";
+import {
+  ailMemberProcedure,
+  championProcedure,
+  createTRPCRouter,
+} from "@/trpc/init";
 import { PrismaClient } from "@prisma/client";
 import { TRPCError } from "@trpc/server";
 import { z } from "zod";
@@ -177,7 +181,7 @@ const preAssessmentInputSchema = z.object({
   q15_motivation: motivationEnum,
 });
 
-export const createAilene = {
+export const createRouter = createTRPCRouter({
   preAssessment: ailMemberProcedure
     .input(preAssessmentInputSchema)
     .mutation(async (opts) => {
@@ -1017,4 +1021,4 @@ export const createAilene = {
         submission_id: result.submissionId,
       };
     }),
-};
+});

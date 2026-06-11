@@ -69,8 +69,8 @@ function RecommendationIcon({ item }: { item: RecItem }) {
 export default function RecommendationsAILN() {
   const router = useRouter();
   const utils = trpc.useUtils();
-  const q = trpc.ailene.read.recommendations.useQuery();
-  const selfAssignM = trpc.ailene.create.selfAssignUseCase.useMutation();
+  const q = trpc.read.recommendations.useQuery();
+  const selfAssignM = trpc.create.selfAssignUseCase.useMutation();
   const [startingId, setStartingId] = useState<number | null>(null);
 
   const items = q.data?.items ?? [];
@@ -82,8 +82,8 @@ export default function RecommendationsAILN() {
       { use_case_id: item.id },
       {
         onSuccess: () => {
-          utils.ailene.list.memberUseCaseLibrary.invalidate();
-          utils.ailene.list.practiceSubmissions.invalidate();
+          utils.list.memberUseCaseLibrary.invalidate();
+          utils.list.practiceSubmissions.invalidate();
           router.push(`/student/practice/use-cases/${item.id}`);
         },
         onError: (err) => {

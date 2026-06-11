@@ -1,11 +1,15 @@
 import { STATUS_NOT_FOUND, STATUS_OK } from "@/lib/status_code";
-import { ailMemberProcedure, championProcedure } from "@/trpc/init";
+import {
+  ailMemberProcedure,
+  championProcedure,
+  createTRPCRouter,
+} from "@/trpc/init";
 import { TRPCError } from "@trpc/server";
 import dayjs from "dayjs";
 import { z } from "zod";
-import { type ChapterProgress } from "./utils.ailene";
+import { type ChapterProgress } from "./ailene/utils.ailene";
 
-export const listAilene = {
+export const listRouter = createTRPCRouter({
   levels: ailMemberProcedure.query(async (opts) => {
     const list = await opts.ctx.prisma.ailLevel.findMany({
       where: { status: "ACTIVE" },
@@ -286,7 +290,7 @@ export const listAilene = {
       };
     }),
 
-  championMembers: championProcedure
+  members: championProcedure
     .input(
       z.object({
         group_id: z.number().int().optional(),
@@ -669,7 +673,7 @@ export const listAilene = {
     return { code: STATUS_OK, message: "Success", list };
   }),
 
-  myPracticeSubmissions: ailMemberProcedure.query(async (opts) => {
+  practiceSubmissions: ailMemberProcedure.query(async (opts) => {
     const memberId = opts.ctx.ail_member.id;
     const [promptRows, useCaseRows] = await Promise.all([
       opts.ctx.prisma.ailPromptSubmission.findMany({
@@ -796,7 +800,7 @@ export const listAilene = {
     return { code: STATUS_OK, message: "Success", list };
   }),
 
-  myAssignedPrompts: ailMemberProcedure.query(async (opts) => {
+  assignedPrompts: ailMemberProcedure.query(async (opts) => {
     const memberId = opts.ctx.ail_member.id;
     const rows = await opts.ctx.prisma.ailPromptSubmission.findMany({
       where: {
@@ -855,7 +859,7 @@ export const listAilene = {
     return { code: STATUS_OK, message: "Success", list };
   }),
 
-  championPromptSubmissions: championProcedure.query(async (opts) => {
+  promptSubmissions: championProcedure.query(async (opts) => {
     const championId = opts.ctx.ail_member.id;
     const rows = await opts.ctx.prisma.ailPromptSubmission.findMany({
       where: { assigned_by_id: championId },
@@ -894,7 +898,7 @@ export const listAilene = {
     return { code: STATUS_OK, message: "Success", list };
   }),
 
-  championUseCaseSubmissions: championProcedure.query(async (opts) => {
+  useCaseSubmissions: championProcedure.query(async (opts) => {
     const championId = opts.ctx.ail_member.id;
     const rows = await opts.ctx.prisma.ailUseCaseSubmission.findMany({
       where: { assigned_by_id: championId },
@@ -933,7 +937,7 @@ export const listAilene = {
     return { code: STATUS_OK, message: "Success", list };
   }),
 
-  myAssignedUseCases: ailMemberProcedure.query(async (opts) => {
+  assignedUseCases: ailMemberProcedure.query(async (opts) => {
     const memberId = opts.ctx.ail_member.id;
     const rows = await opts.ctx.prisma.ailUseCaseSubmission.findMany({
       where: {
@@ -989,4 +993,4 @@ export const listAilene = {
 
     return { code: STATUS_OK, message: "Success", list };
   }),
-};
+});

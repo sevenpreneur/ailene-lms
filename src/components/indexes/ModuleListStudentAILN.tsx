@@ -52,11 +52,11 @@ export default function ModuleListStudentAILN({
   }, [sessionToken]);
 
   const memberQ = trpc.auth.checkAilMember.useQuery();
-  const levelsQ = trpc.ailene.list.levels.useQuery();
-  const chaptersQ = trpc.ailene.list.chapters.useQuery();
-  const levelProgressQ = trpc.ailene.read.levelProgress.useQuery();
-  const promptsQ = trpc.ailene.list.assignedPrompts.useQuery();
-  const useCasesQ = trpc.ailene.list.assignedUseCases.useQuery();
+  const levelsQ = trpc.list.levels.useQuery();
+  const chaptersQ = trpc.list.chapters.useQuery();
+  const levelProgressQ = trpc.read.levelProgress.useQuery();
+  const promptsQ = trpc.list.assignedPrompts.useQuery();
+  const useCasesQ = trpc.list.assignedUseCases.useQuery();
 
   // Auto-expand: URL param wins (?chapter=<id> from "Lihat detail" deep links),
   // else earliest in-progress chapter, else earliest accessible not-started

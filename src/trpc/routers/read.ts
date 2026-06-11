@@ -2,13 +2,20 @@ import { STATUS_NOT_FOUND, STATUS_OK } from "@/lib/status_code";
 import {
   ailMemberProcedure,
   championProcedure,
+  createTRPCRouter,
   sponsorProcedure,
 } from "@/trpc/init";
+import {
+  aileneGroupRouter,
+  aileneOutcomeRouter,
+  ailenePreAssessmentOrg,
+  aileneReportRouter,
+} from "./ailene/_router.ailene";
 import { TRPCError } from "@trpc/server";
 import dayjs from "dayjs";
 import { z } from "zod";
 
-export const readAilene = {
+export const readRouter = createTRPCRouter({
   competencyProfile: ailMemberProcedure.query(async (opts) => {
     const memberId = opts.ctx.ail_member.id;
     const currentLevelNumber =
@@ -327,17 +334,25 @@ export const readAilene = {
     };
   }),
 
-  preAssessment: ailMemberProcedure.query(async (opts) => {
-    const memberId = opts.ctx.ail_member.id;
-    const pa = await opts.ctx.prisma.ailPreAssessment.findUnique({
-      where: { member_id: memberId },
-    });
-    return {
-      code: STATUS_OK,
-      message: "Success",
-      pre_assessment: pa,
-    };
+  preAssessment: createTRPCRouter({
+    // member-scoped: the logged-in member's own pre-assessment
+    mine: ailMemberProcedure.query(async (opts) => {
+      const memberId = opts.ctx.ail_member.id;
+      const pa = await opts.ctx.prisma.ailPreAssessment.findUnique({
+        where: { member_id: memberId },
+      });
+      return {
+        code: STATUS_OK,
+        message: "Success",
+        pre_assessment: pa,
+      };
+    }),
+    // sponsor-scoped org aggregations (live in ailene/_router.ailene)
+    ...ailenePreAssessmentOrg,
   }),
+  group: aileneGroupRouter,
+  outcome: aileneOutcomeRouter,
+  report: aileneReportRouter,
 
   materialDetail: ailMemberProcedure
     .input(z.object({ material_id: z.string().min(1) }))
@@ -1473,7 +1488,7 @@ export const readAilene = {
     return { code: STATUS_OK, message: "Success", list };
   }),
 
-  championMemberDetail: championProcedure
+  memberDetail: championProcedure
     .input(z.object({ member_id: z.number().int().positive() }))
     .query(async (opts) => {
       const championId = opts.ctx.ail_member.id;
@@ -2183,7 +2198,7 @@ export const readAilene = {
       };
     }),
 
-  championPromptSubmissionDetail: championProcedure
+  promptSubmissionDetail: championProcedure
     .input(z.object({ submission_id: z.number().int().positive() }))
     .query(async (opts) => {
       const championId = opts.ctx.ail_member.id;
@@ -2262,7 +2277,7 @@ export const readAilene = {
       };
     }),
 
-  championUseCaseSubmissionDetail: championProcedure
+  useCaseSubmissionDetail: championProcedure
     .input(z.object({ submission_id: z.number().int().positive() }))
     .query(async (opts) => {
       const championId = opts.ctx.ail_member.id;
@@ -2344,4 +2359,4 @@ export const readAilene = {
         },
       };
     }),
-};
+});

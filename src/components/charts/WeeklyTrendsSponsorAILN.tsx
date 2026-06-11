@@ -53,7 +53,7 @@ function resolveWeeks(realWeeks: TrendWeek[]): {
 }
 
 export default function WeeklyTrendsSponsorAILN() {
-  const q = trpc.ailene.read.weeklyTrends.useQuery();
+  const q = trpc.read.weeklyTrends.useQuery();
 
   const legend = (
     <div className="flex items-center gap-3 text-xs text-muted-foreground">

@@ -33,7 +33,7 @@ export default function LevelDividerAILN(props: LevelDividerAILNProps) {
   const [unlockSummary, setUnlockSummary] =
     useState<LevelUnlockSuccessData | null>(null);
   const [isUnlockModalOpen, setIsUnlockModalOpen] = useState(false);
-  const unlockMutation = trpc.ailene.update.unlockLevel.useMutation({
+  const unlockMutation = trpc.update.unlockLevel.useMutation({
     onSuccess: (data) => {
       toast.success(`Level ${props.level.level_number} unlocked!`);
       utils.auth.checkAilMember.invalidate();

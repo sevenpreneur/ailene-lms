@@ -153,24 +153,24 @@ export default function PracticeStudentAILN({
     setTab(tabFromParam(searchParams.get("tab")));
   }, [searchParams]);
 
-  const assignedPromptsQ = trpc.ailene.list.assignedPrompts.useQuery();
-  const assignedUseCasesQ = trpc.ailene.list.assignedUseCases.useQuery();
-  const libraryPromptsQ = trpc.ailene.list.memberPromptLibrary.useQuery(
+  const assignedPromptsQ = trpc.list.assignedPrompts.useQuery();
+  const assignedUseCasesQ = trpc.list.assignedUseCases.useQuery();
+  const libraryPromptsQ = trpc.list.memberPromptLibrary.useQuery(
     undefined,
     { enabled: tab === "LIBRARY" }
   );
-  const libraryUseCasesQ = trpc.ailene.list.memberUseCaseLibrary.useQuery(
+  const libraryUseCasesQ = trpc.list.memberUseCaseLibrary.useQuery(
     undefined,
     { enabled: tab === "LIBRARY" }
   );
-  const submissionsQ = trpc.ailene.list.practiceSubmissions.useQuery(
+  const submissionsQ = trpc.list.practiceSubmissions.useQuery(
     undefined,
     { enabled: tab === "HISTORY" }
   );
 
-  const selfAssignPromptM = trpc.ailene.create.selfAssignPrompt.useMutation();
+  const selfAssignPromptM = trpc.create.selfAssignPrompt.useMutation();
   const selfAssignUseCaseM =
-    trpc.ailene.create.selfAssignUseCase.useMutation();
+    trpc.create.selfAssignUseCase.useMutation();
 
   const assignedItems = useMemo<PracticeItem[]>(() => {
     const prompts =
@@ -319,8 +319,8 @@ export default function PracticeStudentAILN({
     const key = `${item.kind}:${item.ref_id}`;
     setStartingKey(key);
     const onSuccess = () => {
-      utils.ailene.list.memberPromptLibrary.invalidate();
-      utils.ailene.list.memberUseCaseLibrary.invalidate();
+      utils.list.memberPromptLibrary.invalidate();
+      utils.list.memberUseCaseLibrary.invalidate();
       router.push(item.href);
     };
     const onError = (err: { message: string }) => {

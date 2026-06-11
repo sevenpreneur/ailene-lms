@@ -57,7 +57,7 @@ export default function PreAssessmentAILN({
   }, [sessionToken]);
 
   const { data, isLoading, isError } =
-    trpc.ailene.read.preAssessment.mine.useQuery();
+    trpc.read.preAssessment.mine.useQuery();
 
   const submittedRef = useRef(false);
 
@@ -89,9 +89,9 @@ export default function PreAssessmentAILN({
     [answers]
   );
 
-  const submitMutation = trpc.ailene.create.preAssessment.useMutation({
+  const submitMutation = trpc.create.preAssessment.useMutation({
     onSuccess: () => {
-      utils.ailene.read.preAssessment.mine.invalidate();
+      utils.read.preAssessment.mine.invalidate();
       toast.success("Pre-assessment berhasil dikirim.");
     },
     onError: (err) => {

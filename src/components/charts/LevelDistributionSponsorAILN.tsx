@@ -24,7 +24,7 @@ const chartConfig = {
 } satisfies ChartConfig;
 
 export default function LevelDistributionSponsorAILN() {
-  const q = trpc.ailene.read.levelDistribution.useQuery();
+  const q = trpc.read.levelDistribution.useQuery();
 
   if (q.isLoading) {
     return (

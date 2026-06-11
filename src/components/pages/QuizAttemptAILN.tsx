@@ -99,14 +99,14 @@ export default function QuizAttemptAILN({
   const userInteractedRef = useRef(false);
 
   // Dipanggil pas component mount. Server-lah yang nentuin sisa waktu
-  const startAttempt = trpc.ailene.update.startQuizAttempt.useMutation({
+  const startAttempt = trpc.update.startQuizAttempt.useMutation({
     onSuccess: (res) => {
       if (res.status === "finalized") {
         submittedRef.current = true;
-        utils.ailene.list.quizQuestions.invalidate({ quiz_id: quizId });
-        utils.ailene.read.quizResult.invalidate({ quiz_id: quizId });
-        utils.ailene.list.chapters.invalidate();
-        utils.ailene.list.tasks.invalidate();
+        utils.list.quizQuestions.invalidate({ quiz_id: quizId });
+        utils.read.quizResult.invalidate({ quiz_id: quizId });
+        utils.list.chapters.invalidate();
+        utils.list.tasks.invalidate();
         utils.auth.checkAilMember.invalidate();
         return;
       }
@@ -136,27 +136,27 @@ export default function QuizAttemptAILN({
   }, [secondsLeft]);
 
   // Simpan jawaban ke DB (is_completed=false). Server juga nge-check kalo draft
-  const saveDraft = trpc.ailene.update.saveQuizDraft.useMutation({
+  const saveDraft = trpc.update.saveQuizDraft.useMutation({
     onSuccess: (res) => {
       if (res.status === "finalized") {
         submittedRef.current = true;
-        utils.ailene.list.quizQuestions.invalidate({ quiz_id: quizId });
-        utils.ailene.read.quizResult.invalidate({ quiz_id: quizId });
-        utils.ailene.list.chapters.invalidate();
-        utils.ailene.list.tasks.invalidate();
+        utils.list.quizQuestions.invalidate({ quiz_id: quizId });
+        utils.read.quizResult.invalidate({ quiz_id: quizId });
+        utils.list.chapters.invalidate();
+        utils.list.tasks.invalidate();
         utils.auth.checkAilMember.invalidate();
       }
     },
   });
 
   // Finalize quiz: hitung score, set is_completed=true, award XP.
-  const submitMutation = trpc.ailene.update.submitQuiz.useMutation({
+  const submitMutation = trpc.update.submitQuiz.useMutation({
     onError: () => toast.error("Gagal menyimpan jawaban quiz."),
     onSuccess: () => {
-      utils.ailene.list.quizQuestions.invalidate({ quiz_id: quizId });
-      utils.ailene.read.quizResult.invalidate({ quiz_id: quizId });
-      utils.ailene.list.chapters.invalidate();
-      utils.ailene.list.tasks.invalidate();
+      utils.list.quizQuestions.invalidate({ quiz_id: quizId });
+      utils.read.quizResult.invalidate({ quiz_id: quizId });
+      utils.list.chapters.invalidate();
+      utils.list.tasks.invalidate();
       utils.auth.checkAilMember.invalidate();
     },
   });

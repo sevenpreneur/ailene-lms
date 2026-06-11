@@ -85,10 +85,10 @@ export default function SubmissionsChampionAILN({
 
   const [tab, setTab] = useState<Tab>("PROMPT");
 
-  const promptsQ = trpc.ailene.list.promptSubmissions.useQuery(undefined, {
+  const promptsQ = trpc.list.promptSubmissions.useQuery(undefined, {
     enabled: tab === "PROMPT",
   });
-  const useCasesQ = trpc.ailene.list.useCaseSubmissions.useQuery(
+  const useCasesQ = trpc.list.useCaseSubmissions.useQuery(
     undefined,
     { enabled: tab === "USE_CASE" }
   );

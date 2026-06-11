@@ -6,6 +6,7 @@ import {
 import {
   ailMemberProcedure,
   championProcedure,
+  createTRPCRouter,
   sponsorProcedure,
 } from "@/trpc/init";
 import { TRPCError } from "@trpc/server";
@@ -16,9 +17,9 @@ import {
   getQuizSecondsLeft,
   QUIZ_DURATION_SECONDS,
   scheduleQuizAutoSubmit,
-} from "./utils.ailene";
+} from "./ailene/utils.ailene";
 
-export const updateAilene = {
+export const updateRouter = createTRPCRouter({
   announcement: sponsorProcedure
     .input(
       z
@@ -668,4 +669,4 @@ export const updateAilene = {
 
       return { code: STATUS_OK, message: "Submitted" };
     }),
-};
+});

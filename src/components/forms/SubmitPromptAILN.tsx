@@ -104,10 +104,10 @@ export default function SubmitPromptAILN({
 
   const router = useRouter();
   const utils = trpc.useUtils();
-  const assignmentQ = trpc.ailene.read.promptAssignment.useQuery({
+  const assignmentQ = trpc.read.promptAssignment.useQuery({
     prompt_id: promptId,
   });
-  const submitM = trpc.ailene.update.submitPromptAssignment.useMutation();
+  const submitM = trpc.update.submitPromptAssignment.useMutation();
 
   const a = assignmentQ.data?.assignment;
 
@@ -200,13 +200,13 @@ export default function SubmitPromptAILN({
       {
         onSuccess: () => {
           toast.success("Tugas berhasil dikirim.");
-          utils.ailene.read.promptAssignment.invalidate({
+          utils.read.promptAssignment.invalidate({
             prompt_id: promptId,
           });
-          utils.ailene.read.todayFocus.invalidate();
-          utils.ailene.list.assignedPrompts.invalidate();
-          utils.ailene.list.memberPromptLibrary.invalidate();
-          utils.ailene.list.practiceSubmissions.invalidate();
+          utils.read.todayFocus.invalidate();
+          utils.list.assignedPrompts.invalidate();
+          utils.list.memberPromptLibrary.invalidate();
+          utils.list.practiceSubmissions.invalidate();
           router.push("/student/practice");
         },
         onError: (err) => {

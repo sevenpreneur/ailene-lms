@@ -5,8 +5,8 @@ import { Flame, Target } from "lucide-react";
 import Link from "next/link";
 
 export default function MomentumStripAILN() {
-  const streakQ = trpc.ailene.read.streak.useQuery();
-  const compQ = trpc.ailene.read.competencyProfile.useQuery();
+  const streakQ = trpc.read.streak.useQuery();
+  const compQ = trpc.read.competencyProfile.useQuery();
 
   const streak = streakQ.data?.current_streak ?? 0;
   const dims = compQ.data?.profile?.dimensions ?? [];

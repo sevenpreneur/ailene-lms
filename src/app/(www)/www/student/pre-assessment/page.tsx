@@ -1,20 +1,16 @@
 import PreAssessmentAILN from "@/components/pages/PreAssessmentAILN";
 import AppPageState from "@/components/states/AppPageState";
-import { setSessionToken, trpc } from "@/trpc/server";
+import { getAilGate } from "@/lib/ail-gate";
 import { Metadata } from "next";
-import { cookies } from "next/headers";
 
 export const metadata: Metadata = {
   title: "Pre-Assessment",
 };
 
 export default async function PreAssessmentPage() {
-  const cookieStore = await cookies();
-  const sessionToken = cookieStore.get("session_token")?.value;
+  const { sessionToken, ailMember } = await getAilGate();
   if (!sessionToken) return null;
-  setSessionToken(sessionToken);
 
-  const ailMember = (await trpc.auth.checkAilMember()).ail_member;
   if (
     !ailMember ||
     (ailMember.role !== "STUDENT" && ailMember.role !== "CHAMPION")

@@ -18,7 +18,7 @@ function formatTimeSaved(
 }
 
 export default function FirstWinCardAILN() {
-  const q = trpc.ailene.read.firstWin.useQuery();
+  const q = trpc.read.firstWin.useQuery();
 
   if (q.isLoading || !q.data?.first_win) return null;
   const fw = q.data.first_win;
