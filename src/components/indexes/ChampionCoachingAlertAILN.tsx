@@ -131,7 +131,7 @@ export default function ChampionCoachingAlertAILN(props: {
           {alerts.map((m) => (
             <div
               key={m.member_id}
-              className="flex flex-col gap-2.5 rounded-lg border border-amber-100 bg-white p-3 dark:border-amber-500/15 dark:bg-card-bg"
+              className="flex flex-col gap-2.5 rounded-lg border border-amber-100 bg-white p-3 dark:border-amber-500/15 dark:bg-card-1"
             >
               <div className="flex items-center gap-2">
                 <CoachAvatar name={m.user.full_name} src={m.user.avatar} />

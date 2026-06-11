@@ -1,4 +1,5 @@
 "use client";
+import SectionContainerAILN from "@/components/cards/SectionContainerAILN";
 import { trpc } from "@/trpc/client";
 import { Tooltip as MuiTooltip } from "@mui/material";
 import dayjs from "dayjs";
@@ -84,9 +85,9 @@ export default function StreakCardAILN({
 
   if (achievementsQ.isLoading || streakQ.isLoading) {
     return (
-      <Shell className={className}>
+      <SectionContainerAILN title="Capaian Kamu" className={className}>
         <div className="h-full min-h-[420px] animate-pulse rounded-md bg-gray-100 dark:bg-dashboard-border" />
-      </Shell>
+      </SectionContainerAILN>
     );
   }
   if (
@@ -96,11 +97,11 @@ export default function StreakCardAILN({
     !streakQ.data
   ) {
     return (
-      <Shell className={className}>
+      <SectionContainerAILN title="Capaian Kamu" className={className}>
         <div className="flex h-full min-h-[420px] items-center justify-center text-sm text-red-500">
           Gagal memuat data.
         </div>
-      </Shell>
+      </SectionContainerAILN>
     );
   }
 
@@ -110,18 +111,13 @@ export default function StreakCardAILN({
   const monthCals = buildMonthCalendars(days);
 
   return (
-    <Shell className={className}>
+    <SectionContainerAILN
+      title="Capaian Kamu"
+      desc="Ringkasan aktivitas dan streak selama cohort."
+      className={className}
+    >
       {/* Top: lifetime achievements */}
-      <div className="flex flex-col gap-1">
-        <h2 className="text-base font-bold text-foreground dark:text-white">
-          Capaian Kamu
-        </h2>
-        <p className="text-xs text-gray-500 dark:text-gray-400">
-          Ringkasan aktivitas dan streak selama cohort.
-        </p>
-      </div>
-
-      <div className="mt-5 flex flex-col gap-3">
+      <div className="flex flex-col gap-3">
         <StatLine
           value={fmtCount(a.use_case_count + a.prompt_count)}
           label="use case + prompt dicatat"
@@ -142,7 +138,7 @@ export default function StreakCardAILN({
             {a.tools_mastered.map((t) => (
               <span
                 key={t}
-                className="rounded-full border border-dashboard-border bg-white px-2.5 py-1 text-xs text-foreground dark:bg-card-inside-bg dark:text-gray-200"
+                className="rounded-full border border-dashboard-border bg-white px-2.5 py-1 text-xs text-foreground dark:bg-card-2 dark:text-gray-200"
               >
                 {t}
               </span>
@@ -220,7 +216,7 @@ export default function StreakCardAILN({
           </>
         )}
       </div>
-    </Shell>
+    </SectionContainerAILN>
   );
 }
 
@@ -243,22 +239,6 @@ function StatLine({
         {value}
       </span>
       <span className="text-xs text-gray-500 dark:text-gray-400">{label}</span>
-    </div>
-  );
-}
-
-function Shell({
-  className,
-  children,
-}: {
-  className?: string;
-  children: React.ReactNode;
-}) {
-  return (
-    <div
-      className={`flex flex-col rounded-lg border border-dashboard-border bg-white p-5 dark:bg-card-bg ${className ?? ""}`}
-    >
-      {children}
     </div>
   );
 }

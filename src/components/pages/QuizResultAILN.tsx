@@ -133,7 +133,7 @@ export default function QuizResultAILN({ quizId }: QuizResultAILNProps) {
         </div>
 
         {/* Top stats card */}
-        <div className="flex flex-wrap items-stretch gap-6 rounded-xl border bg-white p-6 dark:border-dashboard-border dark:bg-card-bg dark:shadow-[0_0_18px_rgba(239,68,68,0.08)]">
+        <div className="flex flex-wrap items-stretch gap-6 rounded-xl border bg-white p-6 dark:border-dashboard-border dark:bg-card-1 dark:shadow-[0_0_18px_rgba(239,68,68,0.08)]">
           {/* Skor */}
           <div className="flex flex-1 flex-col justify-between gap-3 min-w-[200px]">
             <div className="flex flex-col gap-1">
@@ -246,7 +246,7 @@ export default function QuizResultAILN({ quizId }: QuizResultAILNProps) {
             return (
               <div
                 key={q.id}
-                className="flex items-start gap-4 rounded-xl border bg-white p-5 dark:border-dashboard-border dark:bg-card-bg dark:shadow-[0_0_18px_rgba(239,68,68,0.08)]"
+                className="flex items-start gap-4 rounded-xl border bg-white p-5 dark:border-dashboard-border dark:bg-card-1 dark:shadow-[0_0_18px_rgba(239,68,68,0.08)]"
               >
                 <div className="flex size-7 shrink-0 items-center justify-center rounded-full bg-black text-xs font-bold text-white dark:bg-red-500/20 dark:text-red-100 dark:border dark:border-red-500/40">
                   {idx + 1}
@@ -299,7 +299,7 @@ export default function QuizResultAILN({ quizId }: QuizResultAILNProps) {
                   </div>
 
                   {q.explanation && (
-                    <p className="rounded-lg border bg-gray-50 px-3 py-2 text-xs text-gray-700 dark:border-dashboard-border dark:bg-card-inside-bg dark:text-gray-300">
+                    <p className="rounded-lg border bg-gray-50 px-3 py-2 text-xs text-gray-700 dark:border-dashboard-border dark:bg-card-2 dark:text-gray-300">
                       <strong className="font-semibold">Penjelasan: </strong>
                       {q.explanation}
                     </p>

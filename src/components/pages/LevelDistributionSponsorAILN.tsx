@@ -191,9 +191,9 @@ export default function LevelDistributionSponsorAILN({
  </div>
  </div>
 
- <div className="flex flex-wrap items-center justify-between gap-3 rounded-lg border border-dashboard-border bg-white px-4 py-3 shadow-sm dark:bg-card-bg">
+ <div className="flex flex-wrap items-center justify-between gap-3 rounded-lg border border-dashboard-border bg-white px-4 py-3 shadow-sm dark:bg-card-1">
  <div className="flex flex-wrap items-center gap-2">
- <label className="flex items-center gap-1.5 rounded-md border border-dashboard-border bg-white px-3 py-2 text-xs font-semibold text-muted-foreground dark:bg-card-inside-bg dark:text-gray-200">
+ <label className="flex items-center gap-1.5 rounded-md border border-dashboard-border bg-white px-3 py-2 text-xs font-semibold text-muted-foreground dark:bg-card-2 dark:text-gray-200">
  Departemen:
  <select
  value={selectedDept}
@@ -208,7 +208,7 @@ export default function LevelDistributionSponsorAILN({
  ))}
  </select>
  </label>
- <label className="flex cursor-pointer items-center gap-2 rounded-md border border-dashboard-border bg-white px-3 py-2 text-xs font-medium text-muted-foreground dark:bg-card-inside-bg ">
+ <label className="flex cursor-pointer items-center gap-2 rounded-md border border-dashboard-border bg-white px-3 py-2 text-xs font-medium text-muted-foreground dark:bg-card-2 ">
  <input
  type="checkbox"
  checked={highlightUnderperform}
@@ -249,7 +249,7 @@ export default function LevelDistributionSponsorAILN({
  contentClassName="flex flex-col gap-3"
  >
  {visibleGroups.length === 0 ? (
- <div className="rounded-md bg-muted px-4 py-5 text-sm text-muted-foreground dark:bg-card-inside-bg dark:text-muted-foreground">
+ <div className="rounded-md bg-muted px-4 py-5 text-sm text-muted-foreground dark:bg-card-2 dark:text-muted-foreground">
  Tidak ada departemen yang cocok dengan filter.
  </div>
  ) : (
@@ -346,7 +346,7 @@ export default function LevelDistributionSponsorAILN({
  contentClassName="flex flex-col gap-2"
  >
  {data.groups_needing_intervention.length === 0 ? (
- <div className="rounded-md bg-muted px-4 py-5 text-sm text-muted-foreground dark:bg-card-inside-bg dark:text-muted-foreground">
+ <div className="rounded-md bg-muted px-4 py-5 text-sm text-muted-foreground dark:bg-card-2 dark:text-muted-foreground">
  Tidak ada departemen dengan komposisi L0-L1 di atas threshold.
  </div>
  ) : (
@@ -429,7 +429,7 @@ function DepartmentDistributionRow({
  return (
  <Link
  href={`/sponsor/groups/${group.id}`}
- className={`grid grid-cols-[minmax(7rem,10rem)_minmax(0,1fr)_3.5rem] items-center gap-3 rounded-md px-2 py-1 text-sm transition hover:bg-muted dark:hover:bg-card-inside-bg ${
+ className={`grid grid-cols-[minmax(7rem,10rem)_minmax(0,1fr)_3.5rem] items-center gap-3 rounded-md px-2 py-1 text-sm transition hover:bg-muted dark:hover:bg-card-2 ${
  dimmed ? "opacity-40" : ""
  } ${
  showFlag && isUnderperform

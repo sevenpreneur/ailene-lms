@@ -162,7 +162,7 @@ function StatsPanel({
         {Array.from({ length: 4 }).map((_, i) => (
           <div
             key={i}
-            className="h-28 animate-pulse rounded-lg border border-dashboard-border bg-gray-100 dark:bg-card-bg"
+            className="h-28 animate-pulse rounded-lg border border-dashboard-border bg-gray-100 dark:bg-card-1"
           />
         ))}
       </div>
@@ -170,7 +170,7 @@ function StatsPanel({
   }
   if (q.error || !q.data) {
     return (
-      <div className="rounded-lg border border-dashboard-border bg-white p-5 text-sm text-red-500 dark:bg-card-bg dark:text-red-400">
+      <div className="rounded-lg border border-dashboard-border bg-white p-5 text-sm text-red-500 dark:bg-card-1 dark:text-red-400">
         Gagal memuat capaian.
       </div>
     );
@@ -230,7 +230,7 @@ function StatCard({
   accent?: boolean;
 }) {
   return (
-    <div className="flex flex-col gap-2 rounded-lg border border-dashboard-border bg-white p-4 dark:bg-card-bg dark:shadow-[0_0_16px_rgba(239,68,68,0.06)]">
+    <div className="flex flex-col gap-2 rounded-lg border border-dashboard-border bg-white p-4 dark:bg-card-1 dark:shadow-[0_0_16px_rgba(239,68,68,0.06)]">
       <div className="flex items-center justify-between">
         <span className="text-xs font-semibold uppercase tracking-wide text-gray-500 dark:text-gray-400">
           {label}
@@ -281,7 +281,7 @@ function LeaderboardPanel() {
   ];
 
   return (
-    <div className="flex flex-col rounded-lg border border-dashboard-border bg-white p-5 dark:bg-card-bg">
+    <div className="flex flex-col rounded-lg border border-dashboard-border bg-white p-5 dark:bg-card-1">
       <div className="flex flex-wrap items-end justify-between gap-2">
         <div>
           <h2 className="text-base font-bold text-foreground dark:text-white">
@@ -490,7 +490,7 @@ function StreakPanel() {
   const todayKey = dayjs().format("YYYY-MM-DD");
 
   return (
-    <div className="flex flex-col rounded-lg border border-dashboard-border bg-white p-5 dark:bg-card-bg">
+    <div className="flex flex-col rounded-lg border border-dashboard-border bg-white p-5 dark:bg-card-1">
       <div className="flex flex-wrap items-end justify-between gap-2">
         <div>
           <h2 className="text-base font-bold text-foreground dark:text-white">
@@ -673,16 +673,16 @@ function ProgressSkeleton() {
         </div>
         <div className="h-16 w-40 rounded-md bg-gray-200 dark:bg-dashboard-border" />
       </div>
-      <div className="h-48 rounded-lg border border-dashboard-border bg-gray-100 dark:bg-card-bg" />
+      <div className="h-48 rounded-lg border border-dashboard-border bg-gray-100 dark:bg-card-1" />
       <div className="grid grid-cols-2 gap-4">
         {Array.from({ length: 4 }).map((_, i) => (
           <div
             key={i}
-            className="h-28 rounded-lg border border-dashboard-border bg-gray-100 dark:bg-card-bg"
+            className="h-28 rounded-lg border border-dashboard-border bg-gray-100 dark:bg-card-1"
           />
         ))}
       </div>
-      <div className="h-72 rounded-lg border border-dashboard-border bg-gray-100 dark:bg-card-bg" />
+      <div className="h-72 rounded-lg border border-dashboard-border bg-gray-100 dark:bg-card-1" />
     </div>
   );
 }
@@ -795,7 +795,7 @@ function OutcomeStatsGrid({
         {Array.from({ length: 4 }).map((_, i) => (
           <div
             key={i}
-            className="h-28 animate-pulse rounded-lg border border-dashboard-border bg-gray-100 dark:bg-card-bg"
+            className="h-28 animate-pulse rounded-lg border border-dashboard-border bg-gray-100 dark:bg-card-1"
           />
         ))}
       </div>
@@ -803,7 +803,7 @@ function OutcomeStatsGrid({
   }
   if (q.error || !q.data) {
     return (
-      <div className="rounded-lg border border-dashboard-border bg-white p-5 text-sm text-red-500 dark:bg-card-bg dark:text-red-400">
+      <div className="rounded-lg border border-dashboard-border bg-white p-5 text-sm text-red-500 dark:bg-card-1 dark:text-red-400">
         Gagal memuat capaian.
       </div>
     );
@@ -859,7 +859,7 @@ function OutcomeCertificateCard({
   groupName: string | null;
 }) {
   return (
-    <div className="flex flex-wrap items-center gap-4 rounded-lg border border-dashboard-border bg-white p-4 dark:bg-card-bg dark:shadow-[0_0_16px_rgba(239,68,68,0.08)]">
+    <div className="flex flex-wrap items-center gap-4 rounded-lg border border-dashboard-border bg-white p-4 dark:bg-card-1 dark:shadow-[0_0_16px_rgba(239,68,68,0.08)]">
       <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-md bg-red-50 text-red-600 dark:bg-red-500/15 dark:text-red-400 dark:shadow-[0_0_12px_rgba(239,68,68,0.4)]">
         <Star className="size-6" fill="currentColor" />
       </div>

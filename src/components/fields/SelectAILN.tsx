@@ -19,21 +19,21 @@ const variantStyles: Record<
   STUDENT: {
     focus: "outline-4 outline-black/10 border-black dark:border-white",
     border: "border border-dashboard-border",
-    background: "bg-card-inside-bg",
-    disabled: "bg-card-inside-bg text-muted-foreground dark:text-foreground/30",
-    dropdown: "bg-card-bg border border-dashboard-border",
+    background: "bg-card-2",
+    disabled: "bg-card-2 text-muted-foreground dark:text-foreground/30",
+    dropdown: "bg-card-1 border border-dashboard-border",
     itemActive:
-      "bg-black/5 text-foreground dark:text-white dark:bg-card-inside-bg",
+      "bg-black/5 text-foreground dark:text-white dark:bg-card-2",
     itemHover:
-      "hover:bg-black/5 hover:text-foreground dark:hover:text-white dark:hover:bg-card-inside-bg",
+      "hover:bg-black/5 hover:text-foreground dark:hover:text-white dark:hover:bg-card-2",
   },
   CHAMPION: {
     focus:
       "outline-4 outline-emerald-500/15 border-emerald-600 dark:border-emerald-400",
     border: "border border-dashboard-border",
-    background: "bg-card-inside-bg",
-    disabled: "bg-card-inside-bg text-muted-foreground dark:text-foreground/30",
-    dropdown: "bg-card-bg border border-dashboard-border",
+    background: "bg-card-2",
+    disabled: "bg-card-2 text-muted-foreground dark:text-foreground/30",
+    dropdown: "bg-card-1 border border-dashboard-border",
     itemActive:
       "bg-emerald-500/10 text-emerald-700 dark:text-emerald-200 dark:bg-emerald-500/15",
     itemHover:
@@ -43,9 +43,9 @@ const variantStyles: Record<
     focus:
       "outline-4 outline-blue-500/15 border-blue-600 dark:border-blue-400",
     border: "border border-dashboard-border",
-    background: "bg-card-inside-bg",
-    disabled: "bg-card-inside-bg text-muted-foreground dark:text-foreground/30",
-    dropdown: "bg-card-bg border border-dashboard-border",
+    background: "bg-card-2",
+    disabled: "bg-card-2 text-muted-foreground dark:text-foreground/30",
+    dropdown: "bg-card-1 border border-dashboard-border",
     itemActive:
       "bg-blue-500/10 text-blue-700 dark:text-blue-200 dark:bg-blue-500/15",
     itemHover:

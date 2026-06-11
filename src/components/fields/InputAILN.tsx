@@ -10,22 +10,22 @@ const variantStyles: Record<
     focus:
       "focus:outline-black/10 focus:border-black dark:focus:outline-white/15 dark:focus:border-white",
     border: "border border-dashboard-border",
-    background: "bg-card-inside-bg",
-    disabled: "bg-card-inside-bg text-muted-foreground dark:text-foreground/30",
+    background: "bg-card-2",
+    disabled: "bg-card-2 text-muted-foreground dark:text-foreground/30",
   },
   CHAMPION: {
     focus:
       "focus:outline-emerald-500/15 focus:border-emerald-600 dark:focus:outline-emerald-400/15 dark:focus:border-emerald-400",
     border: "border border-dashboard-border",
-    background: "bg-card-inside-bg",
-    disabled: "bg-card-inside-bg text-muted-foreground dark:text-foreground/30",
+    background: "bg-card-2",
+    disabled: "bg-card-2 text-muted-foreground dark:text-foreground/30",
   },
   SPONSOR: {
     focus:
       "focus:outline-blue-500/15 focus:border-blue-600 dark:focus:outline-blue-400/15 dark:focus:border-blue-400",
     border: "border border-dashboard-border",
-    background: "bg-card-inside-bg",
-    disabled: "bg-card-inside-bg text-muted-foreground dark:text-foreground/30",
+    background: "bg-card-2",
+    disabled: "bg-card-2 text-muted-foreground dark:text-foreground/30",
   },
 };
 

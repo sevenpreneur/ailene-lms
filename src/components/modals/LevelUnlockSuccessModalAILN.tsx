@@ -61,13 +61,13 @@ export default function LevelUnlockSuccessModalAILN({
       onClick={onClose}
     >
       <div
-        className="relative flex w-full max-w-4xl flex-col gap-5 rounded-2xl bg-white p-6 shadow-2xl ring-1 ring-black/5 dark:bg-card-bg dark:ring-dashboard-border md:p-8"
+        className="relative flex w-full max-w-4xl flex-col gap-5 rounded-2xl bg-white p-6 shadow-2xl ring-1 ring-black/5 dark:bg-card-1 dark:ring-dashboard-border md:p-8"
         onClick={(event) => event.stopPropagation()}
       >
         <button
           type="button"
           onClick={onClose}
-          className="absolute right-4 top-4 rounded-full px-3 py-1 text-sm font-semibold text-gray-400 transition hover:bg-gray-100 hover:text-gray-700 dark:hover:bg-card-inside-bg dark:hover:text-white"
+          className="absolute right-4 top-4 rounded-full px-3 py-1 text-sm font-semibold text-gray-400 transition hover:bg-gray-100 hover:text-gray-700 dark:hover:bg-card-2 dark:hover:text-white"
         >
           Tutup
         </button>
@@ -113,7 +113,7 @@ export default function LevelUnlockSuccessModalAILN({
           />
         </div>
 
-        <section className="overflow-hidden rounded-lg border border-dashboard-border bg-white dark:bg-card-bg">
+        <section className="overflow-hidden rounded-lg border border-dashboard-border bg-white dark:bg-card-1">
           <div className="border-b border-dashboard-border px-5 py-4 text-base font-bold text-gray-900 dark:text-white">
             Yang baru Anda buka
           </div>
@@ -134,9 +134,9 @@ export default function LevelUnlockSuccessModalAILN({
           />
         </section>
         {/* 
-        <section className="grid grid-cols-1 overflow-hidden rounded-lg border border-dashboard-border bg-white dark:bg-card-bg md:grid-cols-[12rem_1fr]">
-          <div className="flex items-center justify-center border-b border-dashboard-border bg-gray-50 p-5 dark:bg-card-inside-bg md:border-b-0 md:border-r">
-            <div className="flex h-28 w-36 flex-col items-center justify-center rounded-sm border border-dashboard-border bg-white text-center shadow-sm dark:bg-card-bg">
+        <section className="grid grid-cols-1 overflow-hidden rounded-lg border border-dashboard-border bg-white dark:bg-card-1 md:grid-cols-[12rem_1fr]">
+          <div className="flex items-center justify-center border-b border-dashboard-border bg-gray-50 p-5 dark:bg-card-2 md:border-b-0 md:border-r">
+            <div className="flex h-28 w-36 flex-col items-center justify-center rounded-sm border border-dashboard-border bg-white text-center shadow-sm dark:bg-card-1">
               <div className="text-[10px] font-bold uppercase tracking-widest text-gray-400">
                 Sertifikat
               </div>
@@ -185,7 +185,7 @@ function ScoreCard({
   sub: string;
 }) {
   return (
-    <div className="rounded-lg border border-dashboard-border bg-white p-5 shadow-sm dark:bg-card-bg">
+    <div className="rounded-lg border border-dashboard-border bg-white p-5 shadow-sm dark:bg-card-1">
       <div className="text-[11px] font-bold uppercase tracking-widest text-gray-400">
         {label}
       </div>

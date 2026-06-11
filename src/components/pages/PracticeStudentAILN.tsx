@@ -228,7 +228,7 @@ function PracticeCard({ practice }: { practice: PracticeItem }) {
   return (
     <Link
       href={practice.href}
-      className="flex flex-col gap-3 rounded-lg border border-dashboard-border bg-white p-4 transition hover:border-red-400 hover:shadow-sm active:scale-[0.99] dark:bg-card-bg"
+      className="flex flex-col gap-3 rounded-lg border border-dashboard-border bg-white p-4 transition hover:border-red-400 hover:shadow-sm active:scale-[0.99] dark:bg-card-1"
     >
       <div className="flex items-start justify-between gap-2">
         <div className="flex items-center gap-2 text-xs">
@@ -311,7 +311,7 @@ function PracticeSkeleton() {
       {Array.from({ length: 4 }).map((_, i) => (
         <div
           key={i}
-          className="h-44 animate-pulse rounded-lg border border-dashboard-border bg-gray-100 dark:bg-card-bg"
+          className="h-44 animate-pulse rounded-lg border border-dashboard-border bg-gray-100 dark:bg-card-1"
         />
       ))}
     </div>

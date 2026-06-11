@@ -198,7 +198,7 @@ export default function MemberDetailsChampionAILN({
                   {notes.map((note) => (
                     <div
                       key={note.id}
-                      className="rounded-md bg-gray-50 px-3 py-2 text-sm dark:bg-card-inside-bg"
+                      className="rounded-md bg-gray-50 px-3 py-2 text-sm dark:bg-card-2"
                     >
                       <p className="text-gray-800 dark:text-gray-200">
                         {note.text}
@@ -212,7 +212,7 @@ export default function MemberDetailsChampionAILN({
                 </div>
               )}
 
-              <div className="flex gap-2 border-t border-dashboard-border bg-gray-50 px-5 py-3 dark:bg-card-inside-bg">
+              <div className="flex gap-2 border-t border-dashboard-border bg-gray-50 px-5 py-3 dark:bg-card-2">
                 <input
                   value={noteText}
                   onChange={(e) => setNoteText(e.target.value)}
@@ -220,7 +220,7 @@ export default function MemberDetailsChampionAILN({
                     if (e.key === "Enter") submitNote();
                   }}
                   placeholder={`Tulis catatan coaching untuk ${member.full_name.split(" ")[0]}...`}
-                  className="h-9 min-w-0 flex-1 rounded-md border border-dashboard-border bg-white px-3 text-sm outline-none focus:border-emerald-500 dark:bg-card-bg dark:text-white"
+                  className="h-9 min-w-0 flex-1 rounded-md border border-dashboard-border bg-white px-3 text-sm outline-none focus:border-emerald-500 dark:bg-card-1 dark:text-white"
                 />
                 <ButtonAILN
                   variant="primary"
@@ -260,7 +260,7 @@ export default function MemberDetailsChampionAILN({
                     className={`flex size-5 shrink-0 items-center justify-center rounded-full border ${
                       requirement.completed
                         ? "border-emerald-500 bg-emerald-600 text-white"
-                        : "border-gray-300 bg-white text-gray-300 dark:bg-card-bg"
+                        : "border-gray-300 bg-white text-gray-300 dark:bg-card-1"
                     }`}
                   >
                     {requirement.completed && <Check className="size-3" />}
@@ -288,7 +288,7 @@ function MetricCard({
   sub: string;
 }) {
   return (
-    <div className="rounded-lg border border-dashboard-border bg-white p-5 shadow-sm dark:bg-card-bg dark:shadow-[0_0_16px_rgba(16,113,88,0.08)]">
+    <div className="rounded-lg border border-dashboard-border bg-white p-5 shadow-sm dark:bg-card-1 dark:shadow-[0_0_16px_rgba(16,113,88,0.08)]">
       <div className="text-[11px] font-semibold uppercase tracking-widest text-gray-500 dark:text-gray-400">
         {label}
       </div>
@@ -391,7 +391,7 @@ function ActivityRow({
             ? "border-emerald-200 bg-emerald-50 text-emerald-700 dark:border-emerald-500/30 dark:bg-emerald-500/10 dark:text-emerald-300"
             : submitted
               ? "border-amber-200 bg-amber-50 text-amber-700 dark:border-amber-500/30 dark:bg-amber-500/10 dark:text-amber-300"
-              : "border-gray-200 bg-gray-50 text-gray-500 dark:border-gray-700 dark:bg-card-inside-bg dark:text-gray-300"
+              : "border-gray-200 bg-gray-50 text-gray-500 dark:border-gray-700 dark:bg-card-2 dark:text-gray-300"
         }`}
       >
         {submitted && !accepted ? <Upload className="size-4" /> : <Icon className="size-4" />}

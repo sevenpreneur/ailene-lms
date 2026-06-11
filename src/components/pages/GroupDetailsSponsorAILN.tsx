@@ -175,7 +175,7 @@ export default function GroupDetailsSponsorAILN({
                   onChange={(event) =>
                     router.push(`/sponsor/groups/${event.target.value}`)
                   }
-                  className="h-9 appearance-none rounded-md border border-dashboard-border bg-white pl-3 pr-8 text-xs font-medium text-gray-700 outline-none transition hover:bg-gray-50 dark:bg-card-bg dark:text-gray-200 dark:hover:bg-card-inside-bg"
+                  className="h-9 appearance-none rounded-md border border-dashboard-border bg-white pl-3 pr-8 text-xs font-medium text-gray-700 outline-none transition hover:bg-gray-50 dark:bg-card-1 dark:text-gray-200 dark:hover:bg-card-2"
                 >
                   {(departmentsQ.data?.departments ?? [
                     {
@@ -327,7 +327,7 @@ function ScoreTile({
   percent: number;
 }) {
   return (
-    <div className="rounded-lg border border-dashboard-border bg-white p-5 shadow-sm dark:bg-card-bg dark:shadow-[0_0_16px_rgba(0,53,157,0.06)]">
+    <div className="rounded-lg border border-dashboard-border bg-white p-5 shadow-sm dark:bg-card-1 dark:shadow-[0_0_16px_rgba(0,53,157,0.06)]">
       <div className="text-[11px] font-semibold uppercase tracking-widest text-gray-500 dark:text-gray-400">
         {label}
       </div>
@@ -493,7 +493,7 @@ function AttentionMemberRow({
       className={`grid grid-cols-[minmax(0,1fr)_3rem_4rem_5rem] items-center gap-3 border-t border-dashboard-border px-5 py-3 ${
         lagging
           ? "border-l-4 border-l-amber-400 bg-amber-50/70 dark:bg-amber-500/10"
-          : "bg-white dark:bg-card-bg"
+          : "bg-white dark:bg-card-1"
       }`}
     >
       <div className="flex min-w-0 items-center gap-3">
@@ -555,7 +555,7 @@ function Avatar({ name, src }: { name: string; src: string | null }) {
 
 function EmptyState({ text }: { text: string }) {
   return (
-    <div className="rounded-md bg-gray-50 px-4 py-8 text-center text-sm text-gray-500 dark:bg-card-inside-bg dark:text-gray-400">
+    <div className="rounded-md bg-gray-50 px-4 py-8 text-center text-sm text-gray-500 dark:bg-card-2 dark:text-gray-400">
       {text}
     </div>
   );

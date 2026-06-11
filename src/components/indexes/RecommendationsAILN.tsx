@@ -72,7 +72,7 @@ export default function RecommendationsAILN() {
     return (
       <SectionContainerAILN
         title="Rekomendasi untuk Kamu"
-        className="bg-[#FCFCFD] dark:bg-card-bg"
+        className="bg-[#FCFCFD] dark:bg-card-1"
       >
         <div className="grid grid-cols-1 gap-3 md:grid-cols-3">
           {[0, 1, 2].map((i) => (
@@ -105,7 +105,7 @@ export default function RecommendationsAILN() {
           </span>
         ) : undefined
       }
-      className="bg-[#FCFCFD] dark:bg-card-bg"
+      className="bg-[#FCFCFD] dark:bg-card-1"
     >
       <div className="grid grid-cols-1 gap-3 md:grid-cols-3">
         {items.map((it) => (
@@ -137,10 +137,10 @@ function RecCard({
   return (
     <Link
       href={href}
-      className="group flex flex-col rounded-lg border border-dashboard-border bg-gray-50/50 p-4 transition hover:border-red-300 hover:bg-white dark:bg-card-inside-bg dark:hover:border-red-500/40"
+      className="group flex flex-col rounded-lg border border-dashboard-border bg-gray-50/50 p-4 transition hover:border-red-300 hover:bg-white dark:bg-card-2 dark:hover:border-red-500/40"
     >
       <div className="flex items-center justify-between gap-2">
-        <span className="flex size-8 shrink-0 items-center justify-center rounded-md bg-white text-red-500 shadow-sm dark:bg-card-bg dark:text-red-400">
+        <span className="flex size-8 shrink-0 items-center justify-center rounded-md bg-white text-red-500 shadow-sm dark:bg-card-1 dark:text-red-400">
           <Icon className="size-4" />
         </span>
         {item.category && (

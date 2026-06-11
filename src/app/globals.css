@@ -38,8 +38,8 @@
 :root {
   --border: oklch(0.922 0 0);
   --dashboard-bg: var(--muted);
-  --card-bg: var(--card);
-  --card-inside-bg: var(--secondary);
+  --card-1: #fcfcfd;
+  --card-2: #f4f5f7;
   --dashboard-border: var(--border);
   --sb-bg: #f7f5fc;
   --sb-text: #595b68;
@@ -100,20 +100,16 @@
 }
 
 .dark {
-  /* --- UI Design System --- */
-
   --background: oklch(0.145 0 0);
   --foreground: oklch(0.985 0 0);
   --border: oklch(1 0 0 / 10%);
-  /* dashboard */
   --dashboard-bg: var(--background);
-  --card-bg: var(--card);
-  --card-inside-bg: var(--muted);
+  --card-1: #171717;
+  --card-2: #1e1e1e;
   --dashboard-border: var(--border);
   --sb-bg: #0b0e15;
   --sb-text: #abb1bf;
   --sb-text-strong: rgba(255, 255, 255, 0.95);
-  /* ButtonAILN destructive disabled (dark) */
   --color-destructive-muted: var(--color-sevenpreneur-red-midnight);
 
   /* --- Default Shadcn ---*/
@@ -171,8 +167,6 @@
 }
 
 @theme inline {
-  /* --- UI Design System --- */
-
   /* --- Default Shadcn --- */
 
   --color-background: var(--background);
@@ -196,8 +190,8 @@
 
   /* --- dashboard --- */
   --color-dashboard-bg: var(--dashboard-bg);
-  --color-card-bg: var(--card-bg);
-  --color-card-inside-bg: var(--card-inside-bg);
+  --color-card-1: var(--card-1);
+  --color-card-2: var(--card-2);
   --color-dashboard-border: var(--dashboard-border);
 
   /* --- sidebar --- */
@@ -272,21 +266,20 @@
      hairline border to separate the card from the background. */
   .ailn-card {
     border-radius: var(--radius-xl);
-    background-color: #ffffff;
+    background-color: var(--card-1);
   }
   .dark .ailn-card {
-    background-color: var(--card-bg);
+    background-color: var(--card-1);
     border: 1px solid var(--dashboard-border);
   }
 }
 
-/* Font utama tetap Space Grotesk (di body). Helper di bawah dipakai di level
-   komponen untuk meng-overwrite: Inter via `font-inter`, JetBrains Mono via
-   `.mono` (labels/eyebrows/numerics), Space Grotesk display via `.display-font`. */
 .display-font {
-  font-family: var(--font-space-grotesk), "Space Grotesk", ui-sans-serif, sans-serif;
+  font-family:
+    var(--font-space-grotesk), "Space Grotesk", ui-sans-serif, sans-serif;
   letter-spacing: -0.02em;
 }
 .mono {
-  font-family: var(--font-jetbrains-mono), "JetBrains Mono", ui-monospace, monospace;
+  font-family:
+    var(--font-jetbrains-mono), "JetBrains Mono", ui-monospace, monospace;
 }

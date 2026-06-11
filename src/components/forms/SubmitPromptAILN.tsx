@@ -72,7 +72,7 @@ function FieldRow({
 }) {
   return (
     <div className="flex gap-3">
-      <div className="size-9 shrink-0 rounded-md border border-dashboard-border bg-card-inside-bg flex items-center justify-center text-foreground dark:text-gray-300">
+      <div className="size-9 shrink-0 rounded-md border border-dashboard-border bg-card-2 flex items-center justify-center text-foreground dark:text-gray-300">
         {icon}
       </div>
       <div className="flex-1 flex flex-col gap-1.5 min-w-0">
@@ -224,7 +224,7 @@ export default function SubmitPromptAILN({
           </h1>
 
           <div className="mt-1 flex flex-wrap items-center gap-2 text-sm">
-            <span className="inline-flex items-center gap-1.5 rounded-md border border-dashboard-border bg-white px-2 py-1 dark:bg-card-bg dark:text-gray-300">
+            <span className="inline-flex items-center gap-1.5 rounded-md border border-dashboard-border bg-white px-2 py-1 dark:bg-card-1 dark:text-gray-300">
               <Layers className="h-3 w-3 text-red-500" />
               <span className="font-medium">
                 Level {a.prompt.level.level_number}
@@ -234,7 +234,7 @@ export default function SubmitPromptAILN({
             {a.prompt.categories.map((c) => (
               <span
                 key={c.id}
-                className="inline-flex items-center gap-1.5 rounded-md border border-dashboard-border bg-white px-2 py-1 dark:bg-card-bg dark:text-gray-300"
+                className="inline-flex items-center gap-1.5 rounded-md border border-dashboard-border bg-white px-2 py-1 dark:bg-card-1 dark:text-gray-300"
               >
                 <Tag className="h-3 w-3 text-gray-500 dark:text-gray-400" />
                 <span className="font-medium">{c.name}</span>
@@ -260,7 +260,7 @@ export default function SubmitPromptAILN({
         <div className="grid grid-cols-1 gap-4 lg:grid-cols-[1fr_1.8fr] lg:items-start">
           {/* LEFT: Detail prompt + champion review notes */}
           <div className="flex flex-col gap-4">
-            <div className="flex flex-col gap-4 rounded-lg border border-dashboard-border bg-white p-5 dark:bg-card-bg">
+            <div className="flex flex-col gap-4 rounded-lg border border-dashboard-border bg-white p-5 dark:bg-card-1">
               <div className="size-10 rounded-full bg-black flex items-center justify-center text-white dark:bg-white dark:text-black">
                 <FileText className="size-5" />
               </div>
@@ -334,7 +334,7 @@ export default function SubmitPromptAILN({
           {/* RIGHT: Form */}
           <form
             onSubmit={handleSubmit}
-            className="flex flex-col gap-4 rounded-lg border border-dashboard-border bg-white p-4 dark:bg-card-bg"
+            className="flex flex-col gap-4 rounded-lg border border-dashboard-border bg-white p-4 dark:bg-card-1"
           >
             <h2 className="text-base font-bold  text-foreground dark:text-white">
               {isLocked ? "Submission kamu" : "Kirim tugasmu"}

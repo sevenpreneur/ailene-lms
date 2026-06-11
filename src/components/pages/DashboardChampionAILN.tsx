@@ -209,7 +209,7 @@ function DashboardChampionSkeleton() {
         {[0, 1, 2].map((i) => (
           <div
             key={i}
-            className="flex flex-col gap-2 rounded-lg border border-dashboard-border bg-white p-3 dark:bg-card-bg"
+            className="flex flex-col gap-2 rounded-lg border border-dashboard-border bg-white p-3 dark:bg-card-1"
           >
             <div className="flex items-start gap-3">
               <div className="size-10 rounded-md bg-gray-200 dark:bg-dashboard-border" />
@@ -224,7 +224,7 @@ function DashboardChampionSkeleton() {
       </div>
 
       {/* Table card */}
-      <div className="rounded-lg border border-dashboard-border bg-white p-4 shadow-sm dark:bg-card-bg">
+      <div className="rounded-lg border border-dashboard-border bg-white p-4 shadow-sm dark:bg-card-1">
         <div className="mb-4 flex flex-wrap items-center justify-between gap-3">
           <div className="space-y-2">
             <div className="h-4 w-32 rounded bg-gray-200 dark:bg-dashboard-border" />
@@ -252,13 +252,13 @@ function DashboardChampionSkeleton() {
       </div>
 
       {/* Coaching alerts card */}
-      <div className="rounded-lg border border-dashboard-border bg-white p-4 shadow-sm dark:bg-card-bg">
+      <div className="rounded-lg border border-dashboard-border bg-white p-4 shadow-sm dark:bg-card-1">
         <div className="mb-3 h-4 w-36 rounded bg-gray-200 dark:bg-dashboard-border" />
         <div className="grid grid-cols-1 gap-3 md:grid-cols-2 xl:grid-cols-3">
           {[0, 1, 2].map((i) => (
             <div
               key={i}
-              className="flex items-center gap-2 rounded-lg border border-dashboard-border bg-gray-50 p-3 dark:bg-card-inside-bg"
+              className="flex items-center gap-2 rounded-lg border border-dashboard-border bg-gray-50 p-3 dark:bg-card-2"
             >
               <div className="h-8 w-8 rounded-full bg-gray-200 dark:bg-dashboard-border" />
               <div className="flex-1 space-y-1.5">

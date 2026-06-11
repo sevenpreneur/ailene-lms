@@ -232,7 +232,7 @@ export default function QuizAttemptAILN({
     <PageContainerAILN>
       <div className="flex w-full flex-col gap-4">
         {/* Header */}
-        <div className="flex flex-col gap-3 rounded-xl border bg-white p-4 dark:border-dashboard-border dark:bg-card-bg dark:shadow-[0_0_18px_rgba(239,68,68,0.08)]">
+        <div className="flex flex-col gap-3 rounded-xl border bg-white p-4 dark:border-dashboard-border dark:bg-card-1 dark:shadow-[0_0_18px_rgba(239,68,68,0.08)]">
           <div className="flex flex-wrap items-center gap-3">
             <h1 className="flex-1 text-base font-semibold dark:text-white">
               {quiz.name}
@@ -259,7 +259,7 @@ export default function QuizAttemptAILN({
             <button
               type="button"
               onClick={handleExit}
-              className="flex items-center gap-1.5 rounded-md border border-gray-200 px-3 py-1.5 text-xs font-medium text-gray-700 transition hover:bg-gray-50 dark:border-dashboard-border dark:text-gray-300 dark:hover:bg-card-inside-bg"
+              className="flex items-center gap-1.5 rounded-md border border-gray-200 px-3 py-1.5 text-xs font-medium text-gray-700 transition hover:bg-gray-50 dark:border-dashboard-border dark:text-gray-300 dark:hover:bg-card-2"
             >
               <FontAwesomeIcon
                 icon={faRightFromBracket}
@@ -289,7 +289,7 @@ export default function QuizAttemptAILN({
         {/* Main body */}
         <div className="flex flex-1 gap-4">
           {/* Left panel: question */}
-          <div className="flex flex-1 flex-col gap-4 rounded-xl border bg-white p-6 dark:border-dashboard-border dark:bg-card-bg dark:shadow-[0_0_18px_rgba(239,68,68,0.08)]">
+          <div className="flex flex-1 flex-col gap-4 rounded-xl border bg-white p-6 dark:border-dashboard-border dark:bg-card-1 dark:shadow-[0_0_18px_rgba(239,68,68,0.08)]">
             <div className="flex items-center gap-2">
               <span className="text-[11px] font-semibold uppercase tracking-widest text-gray-500 dark:text-gray-400">
                 SOAL {currentIdx + 1}
@@ -316,7 +316,7 @@ export default function QuizAttemptAILN({
                         className={`flex items-center gap-3 rounded-lg border-[1.5px] px-4 py-3 text-left text-sm transition ${
                           isSelected
                             ? "border-emerald-500 bg-emerald-50 dark:border-emerald-500/60 dark:bg-emerald-500/10 dark:text-white dark:shadow-[0_0_10px_rgba(16,185,129,0.25)]"
-                            : "border-gray-200 bg-white hover:border-black/30 hover:bg-gray-50 dark:border-dashboard-border dark:bg-card-bg dark:text-gray-200 dark:hover:border-red-500/30 dark:hover:bg-card-inside-bg"
+                            : "border-gray-200 bg-white hover:border-black/30 hover:bg-gray-50 dark:border-dashboard-border dark:bg-card-1 dark:text-gray-200 dark:hover:border-red-500/30 dark:hover:bg-card-2"
                         }`}
                       >
                         <div
@@ -362,7 +362,7 @@ export default function QuizAttemptAILN({
 
           {/* Right panel: navigation */}
           <div className="flex w-72 shrink-0 flex-col gap-4">
-            <div className="flex flex-col gap-3 rounded-xl border bg-white p-4 dark:border-dashboard-border dark:bg-card-bg dark:shadow-[0_0_18px_rgba(239,68,68,0.08)]">
+            <div className="flex flex-col gap-3 rounded-xl border bg-white p-4 dark:border-dashboard-border dark:bg-card-1 dark:shadow-[0_0_18px_rgba(239,68,68,0.08)]">
               <span className="text-[11px] font-semibold uppercase tracking-widest text-gray-500 dark:text-gray-400">
                 NAVIGASI SOAL
               </span>
@@ -381,7 +381,7 @@ export default function QuizAttemptAILN({
                       "bg-black text-white dark:bg-red-500/20 dark:text-red-100 dark:border dark:border-red-500/40";
                   } else {
                     cls =
-                      "border border-gray-200 bg-gray-100 text-gray-500 dark:border-dashboard-border dark:bg-card-inside-bg dark:text-gray-400";
+                      "border border-gray-200 bg-gray-100 text-gray-500 dark:border-dashboard-border dark:bg-card-2 dark:text-gray-400";
                   }
 
                   return (
@@ -406,7 +406,7 @@ export default function QuizAttemptAILN({
                   label="Saat ini"
                 />
                 <LegendItem
-                  color="bg-gray-100 border border-gray-200 dark:bg-card-inside-bg dark:border-dashboard-border"
+                  color="bg-gray-100 border border-gray-200 dark:bg-card-2 dark:border-dashboard-border"
                   label="Belum"
                 />
               </div>

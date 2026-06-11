@@ -13,7 +13,7 @@ dayjs.locale("id");
 
 // Soft red gradient surface — khas Today's Focus (beda dari card lain yang #FCFCFD).
 const SURFACE =
-  "rounded-lg border border-red-100 bg-gradient-to-br from-red-50 via-white to-rose-50/60 p-5 dark:border-red-500/25 dark:from-red-500/10 dark:via-card-bg dark:to-rose-500/10";
+  "rounded-lg border border-red-100 bg-gradient-to-br from-red-50 via-white to-rose-50/60 p-5 dark:border-red-500/25 dark:from-red-500/10 dark:via-card-1 dark:to-rose-500/10";
 
 type FocusKind =
   | "Quiz"
@@ -141,7 +141,7 @@ export default function TodayFocusCardAILN() {
               {labelForKind(focus.kind)}
             </span>
             {focus.level_number != null && (
-              <span className="inline-flex items-center rounded-full border border-dashboard-border bg-white px-3 py-1 text-xs font-semibold text-gray-700 dark:bg-card-bg dark:text-gray-300">
+              <span className="inline-flex items-center rounded-full border border-dashboard-border bg-white px-3 py-1 text-xs font-semibold text-gray-700 dark:bg-card-1 dark:text-gray-300">
                 L{focus.level_number}
               </span>
             )}
@@ -201,7 +201,7 @@ export default function TodayFocusCardAILN() {
         </div>
 
         {/* Kanan — detail tugas */}
-        <aside className="h-fit rounded-xl border border-red-100 bg-white/70 p-4 dark:border-red-500/20 dark:bg-card-bg/60">
+        <aside className="h-fit rounded-xl border border-red-100 bg-white/70 p-4 dark:border-red-500/20 dark:bg-card-1/60">
           <div className="mono text-[10px] font-bold uppercase tracking-widest text-gray-400 dark:text-gray-500">
             Detail Tugas
           </div>

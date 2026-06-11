@@ -219,7 +219,7 @@ export default function MaterialDetailsAILN({
           )}
 
           <div className="mt-1 flex flex-wrap items-center gap-2 text-sm">
-            <span className="inline-flex items-center gap-1.5 rounded-md border border-dashboard-border bg-white px-2 py-1 dark:bg-card-bg dark:text-gray-300">
+            <span className="inline-flex items-center gap-1.5 rounded-md border border-dashboard-border bg-white px-2 py-1 dark:bg-card-1 dark:text-gray-300">
               <FontAwesomeIcon
                 icon={faPenRuler}
                 className="h-3 w-3 text-red-500"
@@ -228,7 +228,7 @@ export default function MaterialDetailsAILN({
             </span>
 
             {readTime && (
-              <span className="inline-flex items-center gap-1.5 rounded-md border border-dashboard-border bg-white px-2 py-1 dark:bg-card-bg dark:text-gray-300">
+              <span className="inline-flex items-center gap-1.5 rounded-md border border-dashboard-border bg-white px-2 py-1 dark:bg-card-1 dark:text-gray-300">
                 <FontAwesomeIcon
                   icon={faClock}
                   className="h-3 w-3 text-gray-500 dark:text-gray-400"
@@ -240,7 +240,7 @@ export default function MaterialDetailsAILN({
             )}
 
             {publishedAt && (
-              <span className="inline-flex items-center gap-1.5 rounded-md border border-dashboard-border bg-white px-2 py-1 dark:bg-card-bg dark:text-gray-300">
+              <span className="inline-flex items-center gap-1.5 rounded-md border border-dashboard-border bg-white px-2 py-1 dark:bg-card-1 dark:text-gray-300">
                 <FontAwesomeIcon
                   icon={faCalendarDay}
                   className="h-3 w-3 text-gray-500 dark:text-gray-400"
@@ -250,7 +250,7 @@ export default function MaterialDetailsAILN({
             )}
 
             {material.chapter?.name && (
-              <span className="inline-flex items-center gap-1.5 rounded-md border border-dashboard-border bg-white px-2 py-1 dark:bg-card-bg dark:text-gray-300">
+              <span className="inline-flex items-center gap-1.5 rounded-md border border-dashboard-border bg-white px-2 py-1 dark:bg-card-1 dark:text-gray-300">
                 <FontAwesomeIcon
                   icon={faTag}
                   className="h-3 w-3 text-gray-500 dark:text-gray-400"
@@ -259,7 +259,7 @@ export default function MaterialDetailsAILN({
               </span>
             )}
 
-            <span className="inline-flex items-center gap-1.5 rounded-md border border-dashboard-border bg-white px-2 py-1 dark:bg-card-bg dark:text-gray-300">
+            <span className="inline-flex items-center gap-1.5 rounded-md border border-dashboard-border bg-white px-2 py-1 dark:bg-card-1 dark:text-gray-300">
               <FontAwesomeIcon
                 icon={faStar}
                 className="h-3 w-3 text-yellow-500"
@@ -281,7 +281,7 @@ export default function MaterialDetailsAILN({
           {/* Main content */}
           <div className="flex flex-col gap-6 min-w-0">
             {fileUrl && (
-              <div className="overflow-hidden rounded-xl border border-dashboard-border bg-white dark:bg-card-bg dark:shadow-[0_0_18px_rgba(239,68,68,0.08)]">
+              <div className="overflow-hidden rounded-xl border border-dashboard-border bg-white dark:bg-card-1 dark:shadow-[0_0_18px_rgba(239,68,68,0.08)]">
                 <div className="flex items-center justify-between gap-3 border-b border-dashboard-border px-4 py-3">
                   <div className="flex items-center gap-2 text-sm font-semibold text-sevenpreneur-coal dark:text-white">
                     <FontAwesomeIcon
@@ -324,7 +324,7 @@ export default function MaterialDetailsAILN({
                     </a>
                   </div>
                 )}
-                <div className="border-t border-dashboard-border bg-gray-50 px-4 py-2 text-sm text-gray-500 dark:bg-card-inside-bg dark:text-gray-400">
+                <div className="border-t border-dashboard-border bg-gray-50 px-4 py-2 text-sm text-gray-500 dark:bg-card-2 dark:text-gray-400">
                   Tips: Gunakan tombol di atas viewer untuk memperbesar,
                   mengunduh, atau membuka PDF di tab baru.
                 </div>
@@ -338,7 +338,7 @@ export default function MaterialDetailsAILN({
               />
             ) : (
               !fileUrl && (
-                <div className="rounded-xl border border-dashed border-dashboard-border bg-white px-4 py-8 text-center text-sm text-gray-500 dark:bg-card-bg dark:text-gray-400">
+                <div className="rounded-xl border border-dashed border-dashboard-border bg-white px-4 py-8 text-center text-sm text-gray-500 dark:bg-card-1 dark:text-gray-400">
                   Materi ini belum memiliki konten artikel.
                 </div>
               )
@@ -349,7 +349,7 @@ export default function MaterialDetailsAILN({
           <aside className="hidden lg:block">
             <div className="sticky top-6 flex flex-col gap-4">
               {toc.length > 0 && (
-                <div className="rounded-xl border border-dashboard-border bg-white p-4 dark:bg-card-bg dark:shadow-[0_0_18px_rgba(239,68,68,0.08)]">
+                <div className="rounded-xl border border-dashboard-border bg-white p-4 dark:bg-card-1 dark:shadow-[0_0_18px_rgba(239,68,68,0.08)]">
                   <div className="mb-3 flex items-center gap-2 text-sm font-semibold text-sevenpreneur-coal dark:text-white">
                     <FontAwesomeIcon
                       icon={faListUl}
@@ -374,7 +374,7 @@ export default function MaterialDetailsAILN({
                             entry.level === 3 ? "pl-5" : "pl-2.5",
                             isActive
                               ? "bg-red-500/10 text-red-500 dark:bg-red-500/15 dark:text-red-400"
-                              : "text-gray-600 hover:bg-gray-50 hover:text-sevenpreneur-coal dark:text-gray-400 dark:hover:bg-card-inside-bg dark:hover:text-white",
+                              : "text-gray-600 hover:bg-gray-50 hover:text-sevenpreneur-coal dark:text-gray-400 dark:hover:bg-card-2 dark:hover:text-white",
                           ].join(" ")}
                         >
                           {entry.text}
@@ -386,7 +386,7 @@ export default function MaterialDetailsAILN({
               )}
 
               {otherMaterials.length > 0 && (
-                <div className="rounded-xl border border-dashboard-border bg-white p-4 dark:bg-card-bg dark:shadow-[0_0_18px_rgba(239,68,68,0.08)]">
+                <div className="rounded-xl border border-dashboard-border bg-white p-4 dark:bg-card-1 dark:shadow-[0_0_18px_rgba(239,68,68,0.08)]">
                   <div className="mb-3 flex items-center gap-2 text-xs font-semibold uppercase tracking-wide text-gray-500 dark:text-gray-400">
                     <FontAwesomeIcon
                       icon={faLayerGroup}
@@ -443,7 +443,7 @@ export default function MaterialDetailsAILN({
                         <Link
                           key={m.id}
                           href={`/student/materials/${m.id}`}
-                          className="flex items-start gap-2 rounded-md px-2 py-2 transition-colors hover:bg-gray-50 dark:hover:bg-card-inside-bg"
+                          className="flex items-start gap-2 rounded-md px-2 py-2 transition-colors hover:bg-gray-50 dark:hover:bg-card-2"
                         >
                           {row}
                         </Link>
@@ -454,7 +454,7 @@ export default function MaterialDetailsAILN({
               )}
 
               {updatedAt && (
-                <div className="rounded-xl border border-dashboard-border bg-white p-4 dark:bg-card-bg dark:shadow-[0_0_18px_rgba(239,68,68,0.08)]">
+                <div className="rounded-xl border border-dashboard-border bg-white p-4 dark:bg-card-1 dark:shadow-[0_0_18px_rgba(239,68,68,0.08)]">
                   <div className="mb-2 text-sm font-semibold text-sevenpreneur-coal dark:text-white">
                     Di halaman ini
                   </div>

@@ -180,7 +180,7 @@ export default function SubmissionsChampionAILN({
                 review-mu.
               </div>
             )}
-            <div className="overflow-hidden rounded-lg border border-dashboard-border bg-white dark:bg-card-bg">
+            <div className="overflow-hidden rounded-lg border border-dashboard-border bg-white dark:bg-card-1">
               <table className="w-full text-sm">
                 <thead>
                   <tr className="border-b border-dashboard-border text-left text-xs text-gray-500 dark:text-gray-400">
@@ -295,7 +295,7 @@ function SubmissionsSkeleton() {
       {Array.from({ length: 5 }).map((_, i) => (
         <div
           key={i}
-          className="h-14 animate-pulse rounded-md border border-dashboard-border bg-gray-100 dark:bg-card-bg"
+          className="h-14 animate-pulse rounded-md border border-dashboard-border bg-gray-100 dark:bg-card-1"
         />
       ))}
     </div>

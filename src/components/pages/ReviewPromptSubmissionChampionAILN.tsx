@@ -200,7 +200,7 @@ export default function ReviewPromptSubmissionChampionAILN({
         </div>
 
         {/* Member + deadline */}
-        <div className="flex flex-wrap items-center gap-4 rounded-lg border border-dashboard-border bg-white p-4 dark:bg-card-bg">
+        <div className="flex flex-wrap items-center gap-4 rounded-lg border border-dashboard-border bg-white p-4 dark:bg-card-1">
           <div className="flex items-center gap-3">
             <Image
               src={s.member.avatar || DEFAULT_AVATAR}
@@ -233,7 +233,7 @@ export default function ReviewPromptSubmissionChampionAILN({
         </div>
 
         {/* Original prompt context */}
-        <div className="flex flex-col gap-4 rounded-lg border border-dashboard-border bg-white p-4 dark:bg-card-bg">
+        <div className="flex flex-col gap-4 rounded-lg border border-dashboard-border bg-white p-4 dark:bg-card-1">
           <div className="flex flex-col gap-1">
             <div className="text-[11px] font-semibold uppercase tracking-wide text-gray-500 dark:text-gray-400">
               Skenario
@@ -262,7 +262,7 @@ export default function ReviewPromptSubmissionChampionAILN({
               <div className="text-[11px] font-semibold uppercase tracking-wide text-gray-500 dark:text-gray-400">
                 Prompt yang dia pakai
               </div>
-              <p className="text-sm whitespace-pre-wrap rounded-md border border-dashboard-border bg-card-inside-bg p-3 text-gray-700 dark:text-gray-200">
+              <p className="text-sm whitespace-pre-wrap rounded-md border border-dashboard-border bg-card-2 p-3 text-gray-700 dark:text-gray-200">
                 {s.input ?? "—"}
               </p>
             </div>
@@ -270,7 +270,7 @@ export default function ReviewPromptSubmissionChampionAILN({
               <div className="text-[11px] font-semibold uppercase tracking-wide text-gray-500 dark:text-gray-400">
                 Output dari AI
               </div>
-              <p className="text-sm whitespace-pre-wrap rounded-md border border-dashboard-border bg-card-inside-bg p-3 text-gray-700 dark:text-gray-200">
+              <p className="text-sm whitespace-pre-wrap rounded-md border border-dashboard-border bg-card-2 p-3 text-gray-700 dark:text-gray-200">
                 {s.output ?? "—"}
               </p>
             </div>
@@ -285,7 +285,7 @@ export default function ReviewPromptSubmissionChampionAILN({
         {canReview && (
           <form
             onSubmit={(e) => e.preventDefault()}
-            className="flex flex-col gap-3 rounded-lg border border-dashboard-border bg-white p-4 dark:bg-card-bg"
+            className="flex flex-col gap-3 rounded-lg border border-dashboard-border bg-white p-4 dark:bg-card-1"
           >
             <h2 className="text-base font-bold dark:text-white">
               {status === "NEEDS_REVISION"
@@ -306,7 +306,7 @@ export default function ReviewPromptSubmissionChampionAILN({
                 onChange={(e) => setComment(e.target.value.slice(0, 2000))}
                 rows={4}
                 placeholder="Tulis feedback (wajib kalau minta revisi, opsional kalau accept)"
-                className="rounded-md border border-dashboard-border bg-card-inside-bg px-3 py-2 text-sm focus:border-emerald-500 focus:outline-none dark:text-gray-200 dark:placeholder:text-gray-500"
+                className="rounded-md border border-dashboard-border bg-card-2 px-3 py-2 text-sm focus:border-emerald-500 focus:outline-none dark:text-gray-200 dark:placeholder:text-gray-500"
               />
               <div className="self-end text-xs text-gray-400">
                 {comment.length}/2000

@@ -102,7 +102,7 @@ function FieldRow({
   return (
     <div className="flex gap-3">
       {icon && (
-        <div className="size-9 shrink-0 rounded-md border border-dashboard-border bg-card-inside-bg flex items-center justify-center text-foreground dark:text-gray-300">
+        <div className="size-9 shrink-0 rounded-md border border-dashboard-border bg-card-2 flex items-center justify-center text-foreground dark:text-gray-300">
           {icon}
         </div>
       )}
@@ -402,14 +402,14 @@ export default function AddPracticeAILN({
                   className={`flex items-center gap-3 rounded-lg border p-3 text-left transition ${
                     active
                       ? "border-red-500 bg-red-50 dark:border-red-400 dark:bg-red-500/10"
-                      : "border-dashboard-border bg-white hover:border-foreground/30 dark:bg-card-bg"
+                      : "border-dashboard-border bg-white hover:border-foreground/30 dark:bg-card-1"
                   }`}
                 >
                   <div
                     className={`flex size-9 shrink-0 items-center justify-center rounded-md ${
                       active
                         ? "bg-red-500 text-white"
-                        : "bg-card-inside-bg text-foreground dark:text-gray-300"
+                        : "bg-card-2 text-foreground dark:text-gray-300"
                     }`}
                   >
                     <Icon className="size-4" />
@@ -428,7 +428,7 @@ export default function AddPracticeAILN({
           </div>
         </div>
 
-        <div className="flex flex-col gap-4 rounded-lg border border-dashboard-border bg-white p-4 dark:bg-card-bg sm:p-5">
+        <div className="flex flex-col gap-4 rounded-lg border border-dashboard-border bg-white p-4 dark:bg-card-1 sm:p-5">
           {/* Judul */}
           <FieldRow
             icon={<FileText className="size-4" />}
@@ -479,7 +479,7 @@ export default function AddPracticeAILN({
               unstyled
               classNames={{
                 control: ({ isFocused }) =>
-                  `rounded-md border bg-card-inside-bg px-2 py-1 text-sm transition ${
+                  `rounded-md border bg-card-2 px-2 py-1 text-sm transition ${
                     isFocused ? "border-red-500" : "border-dashboard-border"
                   }`,
                 valueContainer: () => "flex flex-wrap gap-1 py-0.5",
@@ -495,7 +495,7 @@ export default function AddPracticeAILN({
                 dropdownIndicator: () => "px-1 hover:text-gray-600",
                 clearIndicator: () => "px-1 hover:text-gray-600",
                 menu: () =>
-                  "z-50 mt-1 overflow-hidden rounded-md border border-dashboard-border bg-card-bg shadow-lg",
+                  "z-50 mt-1 overflow-hidden rounded-md border border-dashboard-border bg-card-1 shadow-lg",
                 menuList: () => "max-h-60 overflow-y-auto p-1",
                 option: ({ isFocused, isDisabled }) =>
                   `rounded px-2 py-1.5 text-sm ${
@@ -718,7 +718,7 @@ export default function AddPracticeAILN({
                           className={`rounded-full border px-3 py-1 text-xs font-medium  transition ${
                             selected
                               ? "border-black bg-black text-white dark:border-white dark:bg-white dark:text-black"
-                              : "border-dashboard-border bg-white text-foreground hover:border-foreground/40 dark:bg-card-inside-bg dark:text-gray-200"
+                              : "border-dashboard-border bg-white text-foreground hover:border-foreground/40 dark:bg-card-2 dark:text-gray-200"
                           }`}
                         >
                           {tool}
@@ -764,7 +764,7 @@ export default function AddPracticeAILN({
                         );
                         setAiToolCustomInput("");
                       }}
-                      className="rounded-md border border-dashboard-border bg-white px-3 py-2 text-xs font-semibold  text-foreground hover:border-foreground/40 disabled:cursor-not-allowed disabled:opacity-60 dark:bg-card-inside-bg dark:text-gray-200"
+                      className="rounded-md border border-dashboard-border bg-white px-3 py-2 text-xs font-semibold  text-foreground hover:border-foreground/40 disabled:cursor-not-allowed disabled:opacity-60 dark:bg-card-2 dark:text-gray-200"
                     >
                       Tambah
                     </button>
@@ -791,10 +791,10 @@ export default function AddPracticeAILN({
                     }}
                     className={`relative flex flex-col items-center justify-center gap-1.5 rounded-md border-2 border-dashed px-4 py-6 text-center transition ${
                       isUploading
-                        ? "cursor-not-allowed opacity-60 border-dashboard-border bg-card-inside-bg"
+                        ? "cursor-not-allowed opacity-60 border-dashboard-border bg-card-2"
                         : isDragOver
                           ? "border-black bg-black/5 cursor-pointer dark:border-white dark:bg-white/5"
-                          : "border-dashboard-border bg-card-inside-bg cursor-pointer hover:border-foreground/40"
+                          : "border-dashboard-border bg-card-2 cursor-pointer hover:border-foreground/40"
                     }`}
                   >
                     {isUploading ? (
@@ -840,7 +840,7 @@ export default function AddPracticeAILN({
                 </div>
 
                 {outcomeFileName && (
-                  <div className="mt-2 flex items-center justify-between gap-2 rounded-md border border-dashboard-border bg-card-inside-bg px-3 py-2">
+                  <div className="mt-2 flex items-center justify-between gap-2 rounded-md border border-dashboard-border bg-card-2 px-3 py-2">
                     <div className="flex items-center gap-2 min-w-0">
                       <FileUp className="size-4 shrink-0 text-foreground dark:text-gray-300" />
                       <span className="truncate text-xs font-medium  text-foreground dark:text-gray-200">

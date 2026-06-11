@@ -2,15 +2,16 @@
 import ButtonAILN from "@/components/buttons/ButtonAILN";
 import DashboardStudentSkeletonAILN from "@/components/cards/DashboardStudentSkeletonAILN";
 import FirstWinCardAILN from "@/components/cards/FirstWinCardAILN";
-import MomentumStripAILN from "@/components/cards/MomentumStripAILN";
-import QuickActionsAILN from "@/components/cards/QuickActionsAILN";
 import TodayFocusCardAILN from "@/components/cards/TodayFocusCardAILN";
+import CompetencyProfileAILN from "@/components/charts/CompetencyProfileAILN";
+import StreakCardAILN from "@/components/charts/StreakCardAILN";
 import AnnouncementTickerAILN from "@/components/indexes/AnnouncementTickerAILN";
 import RecommendationsAILN from "@/components/indexes/RecommendationsAILN";
 import MemberStatsLabelAILN from "@/components/labels/MemberStatsLabelAILN";
 import PageContainerAILN from "@/components/pages/PageContainerAILN";
 import AppErrorComponents from "@/components/states/AppErrorComponents";
 import { setSessionToken, trpc } from "@/trpc/client";
+import dayjs from "dayjs";
 import { PlusCircle } from "lucide-react";
 import Link from "next/link";
 import { useEffect } from "react";
@@ -49,7 +50,11 @@ export default function DashboardStudentAILN({
   }
 
   const user = userQ.data.user;
+  const member = memberQ.data.ail_member;
   const firstName = user.full_name.split(" ")[0] ?? user.full_name;
+  // Rentang streak = sejak member bergabung sampai hari ini.
+  const cohortStart = dayjs(member.created_at).format("YYYY-MM-DD");
+  const cohortEnd = dayjs().format("YYYY-MM-DD");
 
   return (
     <PageContainerAILN>
@@ -75,8 +80,14 @@ export default function DashboardStudentAILN({
         <AnnouncementTickerAILN />
         <FirstWinCardAILN />
         <TodayFocusCardAILN />
-        <MomentumStripAILN />
-        <QuickActionsAILN />
+        <div className="grid grid-cols-1 gap-4 xl:grid-cols-[minmax(0,3fr)_minmax(0,2fr)]">
+          <CompetencyProfileAILN className="h-full" />
+          <StreakCardAILN
+            startDate={cohortStart}
+            endDate={cohortEnd}
+            className="h-full"
+          />
+        </div>
         <RecommendationsAILN />
       </div>
     </PageContainerAILN>

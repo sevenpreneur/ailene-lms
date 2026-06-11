@@ -142,7 +142,7 @@ function ReportContent({
             </p>
           </div>
 
-          <div className="inline-flex h-10 rounded-lg border border-dashboard-border bg-white p-1 dark:bg-card-bg">
+          <div className="inline-flex h-10 rounded-lg border border-dashboard-border bg-white p-1 dark:bg-card-1">
             <button
               onClick={() => onPeriodChange("weekly")}
               className={`rounded-md px-4 text-sm font-semibold ${
@@ -167,7 +167,7 @@ function ReportContent({
         </div>
 
         <div className="grid grid-cols-1 gap-4 xl:grid-cols-[minmax(0,1fr)_minmax(20rem,0.42fr)]">
-          <section className="rounded-lg border border-dashboard-border bg-white shadow-sm dark:bg-card-bg">
+          <section className="rounded-lg border border-dashboard-border bg-white shadow-sm dark:bg-card-1">
             <div className="border-b border-dashboard-border p-5">
               <div className="text-[11px] font-bold uppercase tracking-widest text-emerald-700 dark:text-emerald-300">
                 Draft - auto-generated
@@ -253,7 +253,7 @@ function ReportContent({
                 value={narrative}
                 onChange={(event) => setNarrative(event.target.value)}
                 rows={5}
-                className="w-full resize-none rounded-md border border-dashboard-border bg-gray-50 px-4 py-3 text-sm leading-6 text-gray-900 outline-none focus:border-emerald-500 dark:bg-card-inside-bg dark:text-white"
+                className="w-full resize-none rounded-md border border-dashboard-border bg-gray-50 px-4 py-3 text-sm leading-6 text-gray-900 outline-none focus:border-emerald-500 dark:bg-card-2 dark:text-white"
               />
             </div>
           </section>

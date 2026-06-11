@@ -195,7 +195,7 @@ export default function ChapterItemAILN(props: ChapterItemAILNProps) {
 export function ChapterItemSkeleton() {
   return (
     <div className="relative pl-12 animate-pulse">
-      <div className="absolute top-4 left-0 flex h-8 w-8 items-center justify-center rounded-full border-2 border-gray-200 bg-gray-100 dark:border-dashboard-border dark:bg-card-bg" />
+      <div className="absolute top-4 left-0 flex h-8 w-8 items-center justify-center rounded-full border-2 border-gray-200 bg-gray-100 dark:border-dashboard-border dark:bg-card-1" />
       <div className="rounded-md bg-gray-50 shadow-sm dark:border dark:border-dashboard-border dark:bg-[#0E111A]/50">
         <div className="flex w-full items-center justify-between gap-4 p-4">
           <div className="flex-1 space-y-2">
@@ -215,7 +215,7 @@ export function ChapterItemSkeleton() {
 
 function TaskItemSkeleton() {
   return (
-    <div className="flex items-center gap-3 rounded-lg border border-dashboard-border bg-white p-3 animate-pulse dark:bg-card-bg">
+    <div className="flex items-center gap-3 rounded-lg border border-dashboard-border bg-white p-3 animate-pulse dark:bg-card-1">
       <div className="h-10 w-10 shrink-0 rounded-md bg-gray-200 dark:bg-dashboard-border" />
       <div className="flex-1 space-y-2">
         <div className="h-2.5 w-16 rounded bg-gray-200 dark:bg-dashboard-border" />

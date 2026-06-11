@@ -434,7 +434,7 @@ export default function SubmitUseCaseAILN({
           </h1>
 
           <div className="mt-1 flex flex-wrap items-center gap-2 text-sm">
-            <span className="inline-flex items-center gap-1.5 rounded-md border border-dashboard-border bg-white px-2 py-1 dark:bg-card-bg dark:text-gray-300">
+            <span className="inline-flex items-center gap-1.5 rounded-md border border-dashboard-border bg-white px-2 py-1 dark:bg-card-1 dark:text-gray-300">
               <Layers className="h-3 w-3 text-red-500" />
               <span className="font-medium">
                 Level {a.use_case.level.level_number}
@@ -444,7 +444,7 @@ export default function SubmitUseCaseAILN({
             {a.use_case.categories.map((c) => (
               <span
                 key={c.id}
-                className="inline-flex items-center gap-1.5 rounded-md border border-dashboard-border bg-white px-2 py-1 dark:bg-card-bg dark:text-gray-300"
+                className="inline-flex items-center gap-1.5 rounded-md border border-dashboard-border bg-white px-2 py-1 dark:bg-card-1 dark:text-gray-300"
               >
                 <Tag className="h-3 w-3 text-gray-500 dark:text-gray-400" />
                 <span className="font-medium">{c.name}</span>
@@ -470,7 +470,7 @@ export default function SubmitUseCaseAILN({
         <div className="grid grid-cols-1 gap-4 lg:grid-cols-[1fr_1.8fr] lg:items-start">
           {/* LEFT: Deskripsi use case + champion review notes */}
           <div className="flex flex-col gap-4 lg:sticky lg:top-6 lg:self-start lg:max-h-[calc(100vh-3rem)] lg:overflow-y-auto">
-            <div className="flex flex-col gap-4 rounded-lg border border-dashboard-border bg-white p-5 dark:bg-card-bg">
+            <div className="flex flex-col gap-4 rounded-lg border border-dashboard-border bg-white p-5 dark:bg-card-1">
               <div className="size-10 rounded-full bg-black flex items-center justify-center text-white dark:bg-white dark:text-black">
                 <FileText className="size-5" />
               </div>
@@ -529,7 +529,7 @@ export default function SubmitUseCaseAILN({
           {/* RIGHT: Form */}
           <form
             onSubmit={handleSubmit}
-            className="flex flex-col gap-4 rounded-lg border border-dashboard-border bg-white p-4 dark:bg-card-bg"
+            className="flex flex-col gap-4 rounded-lg border border-dashboard-border bg-white p-4 dark:bg-card-1"
           >
             <h2 className="text-base font-bold  text-foreground dark:text-white">
               {isLocked ? "Submission kamu" : "Laporkan use case-mu"}
@@ -706,7 +706,7 @@ export default function SubmitUseCaseAILN({
                         className={`rounded-full border px-3 py-1 text-xs font-medium  transition disabled:cursor-not-allowed disabled:opacity-60 ${
                           selected
                             ? "border-black bg-black text-white dark:border-white dark:bg-white dark:text-black"
-                            : "border-dashboard-border bg-white text-foreground hover:border-foreground/40 dark:bg-card-inside-bg dark:text-gray-200"
+                            : "border-dashboard-border bg-white text-foreground hover:border-foreground/40 dark:bg-card-2 dark:text-gray-200"
                         }`}
                       >
                         {tool}
@@ -767,7 +767,7 @@ export default function SubmitUseCaseAILN({
                               }
                         );
                       }}
-                      className="rounded-md border border-dashboard-border bg-white px-3 py-2 text-xs font-semibold  text-foreground hover:border-foreground/40 disabled:cursor-not-allowed disabled:opacity-60 dark:bg-card-inside-bg dark:text-gray-200"
+                      className="rounded-md border border-dashboard-border bg-white px-3 py-2 text-xs font-semibold  text-foreground hover:border-foreground/40 disabled:cursor-not-allowed disabled:opacity-60 dark:bg-card-2 dark:text-gray-200"
                     >
                       Tambah
                     </button>
@@ -797,10 +797,10 @@ export default function SubmitUseCaseAILN({
                   }}
                   className={`relative flex flex-col items-center justify-center gap-1.5 rounded-md border-2 border-dashed px-4 py-6 text-center transition ${
                     isLocked || isUploading
-                      ? "cursor-not-allowed opacity-60 border-dashboard-border bg-card-inside-bg"
+                      ? "cursor-not-allowed opacity-60 border-dashboard-border bg-card-2"
                       : isDragOver
                         ? "border-black bg-black/5 cursor-pointer dark:border-white dark:bg-white/5"
-                        : "border-dashboard-border bg-card-inside-bg cursor-pointer hover:border-foreground/40"
+                        : "border-dashboard-border bg-card-2 cursor-pointer hover:border-foreground/40"
                   }`}
                 >
                   {isUploading ? (
@@ -849,7 +849,7 @@ export default function SubmitUseCaseAILN({
 
               {/* Uploaded file chip */}
               {formData.outcomeFileName && (
-                <div className="flex items-center justify-between gap-2 rounded-md border border-dashboard-border bg-card-inside-bg px-3 py-2">
+                <div className="flex items-center justify-between gap-2 rounded-md border border-dashboard-border bg-card-2 px-3 py-2">
                   <div className="flex items-center gap-2 min-w-0">
                     <FileUp className="size-4 shrink-0 text-foreground dark:text-gray-300" />
                     <span className="truncate text-xs font-medium  text-foreground dark:text-gray-200">

@@ -26,8 +26,8 @@ const variantStyles: Record<
     focusWithin:
       "focus-within:outline-black/10 focus-within:border-black dark:focus-within:outline-white/15 dark:focus-within:border-white",
     border: "border border-dashboard-border",
-    background: "bg-card-inside-bg",
-    disabled: "bg-card-inside-bg text-muted-foreground dark:text-foreground/30",
+    background: "bg-card-2",
+    disabled: "bg-card-2 text-muted-foreground dark:text-foreground/30",
   },
   CHAMPION: {
     focus:
@@ -35,8 +35,8 @@ const variantStyles: Record<
     focusWithin:
       "focus-within:outline-emerald-500/15 focus-within:border-emerald-600 dark:focus-within:outline-emerald-400/15 dark:focus-within:border-emerald-400",
     border: "border border-dashboard-border",
-    background: "bg-card-inside-bg",
-    disabled: "bg-card-inside-bg text-muted-foreground dark:text-foreground/30",
+    background: "bg-card-2",
+    disabled: "bg-card-2 text-muted-foreground dark:text-foreground/30",
   },
   SPONSOR: {
     focus:
@@ -44,8 +44,8 @@ const variantStyles: Record<
     focusWithin:
       "focus-within:outline-blue-500/15 focus-within:border-blue-600 dark:focus-within:outline-blue-400/15 dark:focus-within:border-blue-400",
     border: "border border-dashboard-border",
-    background: "bg-card-inside-bg",
-    disabled: "bg-card-inside-bg text-muted-foreground dark:text-foreground/30",
+    background: "bg-card-2",
+    disabled: "bg-card-2 text-muted-foreground dark:text-foreground/30",
   },
 };
 
@@ -213,7 +213,7 @@ export default function NumberInputAILN({
               type="button"
               disabled={disabled as boolean}
               onClick={() => setCountryOpen((p) => !p)}
-              className={`flex items-center gap-1.5 h-full px-3 border-r border-dashboard-border text-sm font-medium rounded-l-md transition hover:bg-card-inside-bg hover:cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed`}
+              className={`flex items-center gap-1.5 h-full px-3 border-r border-dashboard-border text-sm font-medium rounded-l-md transition hover:bg-card-2 hover:cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed`}
             >
               {selectedCountry?.icon ? (
                 <Image
@@ -235,7 +235,7 @@ export default function NumberInputAILN({
             </button>
 
             {countryOpen && (
-              <div className="absolute top-full left-0 z-50 mt-1 w-60 max-h-56 overflow-y-auto rounded-md border border-dashboard-border bg-card-bg shadow-lg">
+              <div className="absolute top-full left-0 z-50 mt-1 w-60 max-h-56 overflow-y-auto rounded-md border border-dashboard-border bg-card-1 shadow-lg">
                 {countryCodes.map((c) => (
                   <button
                     key={c.id}
@@ -245,7 +245,7 @@ export default function NumberInputAILN({
                       onCountryChange?.(c.id, c.phone_code);
                       setCountryOpen(false);
                     }}
-                    className={`flex items-center gap-2 w-full px-3 py-2 text-sm text-left transition hover:bg-card-inside-bg ${
+                    className={`flex items-center gap-2 w-full px-3 py-2 text-sm text-left transition hover:bg-card-2 ${
                       selectedCountry?.id === c.id
                         ? "bg-primary/5 text-primary"
                         : ""

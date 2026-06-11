@@ -151,7 +151,7 @@ export default function ChampionTeamMembersAILN(props: { members: Member[] }) {
               value={search}
               onChange={(e) => setSearch(e.target.value)}
               placeholder="Cari anggota…"
-              className="h-10 w-full rounded-lg border border-dashboard-border bg-white pl-9 pr-3 text-sm text-foreground placeholder:text-gray-400 focus:border-emerald-500 focus:outline-none dark:bg-card-bg dark:text-gray-200"
+              className="h-10 w-full rounded-lg border border-dashboard-border bg-white pl-9 pr-3 text-sm text-foreground placeholder:text-gray-400 focus:border-emerald-500 focus:outline-none dark:bg-card-1 dark:text-gray-200"
             />
           </div>
           <div className="relative" ref={filterRef}>
@@ -161,14 +161,14 @@ export default function ChampionTeamMembersAILN(props: { members: Member[] }) {
               className={`flex h-10 items-center gap-2 rounded-lg border px-3 text-sm font-medium transition ${
                 statusFilter
                   ? "border-emerald-400 bg-emerald-50 text-emerald-700 dark:border-emerald-500/40 dark:bg-emerald-500/10 dark:text-emerald-300"
-                  : "border-dashboard-border bg-white text-foreground hover:border-foreground/40 dark:bg-card-bg dark:text-gray-200"
+                  : "border-dashboard-border bg-white text-foreground hover:border-foreground/40 dark:bg-card-1 dark:text-gray-200"
               }`}
             >
               <ListFilter className="size-4" />
               Filter
             </button>
             {filterOpen && (
-              <div className="absolute right-0 z-20 mt-1.5 w-48 overflow-hidden rounded-lg border border-dashboard-border bg-white py-1 shadow-lg dark:bg-card-bg">
+              <div className="absolute right-0 z-20 mt-1.5 w-48 overflow-hidden rounded-lg border border-dashboard-border bg-white py-1 shadow-lg dark:bg-card-1">
                 {filterOptions.map((opt) => (
                   <button
                     key={opt.value || "all"}
@@ -177,7 +177,7 @@ export default function ChampionTeamMembersAILN(props: { members: Member[] }) {
                       setStatusFilter(opt.value);
                       setFilterOpen(false);
                     }}
-                    className={`flex w-full items-center justify-between px-3 py-2 text-left text-sm transition hover:bg-gray-50 dark:hover:bg-card-inside-bg ${
+                    className={`flex w-full items-center justify-between px-3 py-2 text-left text-sm transition hover:bg-gray-50 dark:hover:bg-card-2 ${
                       statusFilter === opt.value
                         ? "font-semibold text-emerald-700 dark:text-emerald-300"
                         : "text-foreground dark:text-gray-200"
@@ -201,11 +201,11 @@ export default function ChampionTeamMembersAILN(props: { members: Member[] }) {
         <table className="w-full border-collapse text-sm">
           <thead>
             <tr className="text-left text-[10px] font-semibold uppercase tracking-wider text-gray-500 dark:text-gray-400">
-              <th className="sticky top-0 z-10 border-y border-dashboard-border bg-gray-50 px-4 py-2.5 dark:bg-card-inside-bg">Anggota</th>
-              <th className="sticky top-0 z-10 border-y border-dashboard-border bg-gray-50 px-4 py-2.5 dark:bg-card-inside-bg">Level</th>
-              <th className="sticky top-0 z-10 border-y border-dashboard-border bg-gray-50 px-4 py-2.5 text-center dark:bg-card-inside-bg">Use Case</th>
-              <th className="sticky top-0 z-10 border-y border-dashboard-border bg-gray-50 px-4 py-2.5 dark:bg-card-inside-bg">Status</th>
-              <th className="sticky top-0 z-10 border-y border-dashboard-border bg-gray-50 px-4 py-2.5 text-right dark:bg-card-inside-bg">Aksi</th>
+              <th className="sticky top-0 z-10 border-y border-dashboard-border bg-gray-50 px-4 py-2.5 dark:bg-card-2">Anggota</th>
+              <th className="sticky top-0 z-10 border-y border-dashboard-border bg-gray-50 px-4 py-2.5 dark:bg-card-2">Level</th>
+              <th className="sticky top-0 z-10 border-y border-dashboard-border bg-gray-50 px-4 py-2.5 text-center dark:bg-card-2">Use Case</th>
+              <th className="sticky top-0 z-10 border-y border-dashboard-border bg-gray-50 px-4 py-2.5 dark:bg-card-2">Status</th>
+              <th className="sticky top-0 z-10 border-y border-dashboard-border bg-gray-50 px-4 py-2.5 text-right dark:bg-card-2">Aksi</th>
             </tr>
           </thead>
           <tbody>
@@ -231,7 +231,7 @@ export default function ChampionTeamMembersAILN(props: { members: Member[] }) {
                   <tr
                     key={m.member_id}
                     onClick={() => router.push(href)}
-                    className="group cursor-pointer border-b border-dashboard-border transition hover:bg-gray-50 dark:hover:bg-card-inside-bg"
+                    className="group cursor-pointer border-b border-dashboard-border transition hover:bg-gray-50 dark:hover:bg-card-2"
                   >
                     {/* Anggota */}
                     <td className="px-4 py-3">

@@ -1,4 +1,5 @@
 "use client";
+import SectionContainerAILN from "@/components/cards/SectionContainerAILN";
 import { trpc } from "@/trpc/client";
 import {
   Chart as ChartJS,
@@ -53,18 +54,18 @@ export default function CompetencyProfileAILN({
 
   if (q.isLoading) {
     return (
-      <Shell className={className}>
+      <SectionContainerAILN title="Profil Kompetensi AI" className={className}>
         <div className="h-[360px] animate-pulse rounded-md bg-gray-100 dark:bg-dashboard-border" />
-      </Shell>
+      </SectionContainerAILN>
     );
   }
   if (q.error || !q.data) {
     return (
-      <Shell className={className}>
+      <SectionContainerAILN title="Profil Kompetensi AI" className={className}>
         <div className="flex h-[360px] items-center justify-center text-sm text-gray-500">
           Gagal memuat profil kompetensi.
         </div>
-      </Shell>
+      </SectionContainerAILN>
     );
   }
 
@@ -73,23 +74,20 @@ export default function CompetencyProfileAILN({
   const values = dimensions.map((d) => d.score);
 
   return (
-    <Shell className={className}>
-      <div className="flex flex-wrap items-start justify-between gap-3">
-        <div>
-          <h2 className="text-base font-bold text-foreground dark:text-white">
-            Profil Kompetensi AI
-          </h2>
-          <p className="mt-1 text-xs text-gray-500 dark:text-gray-400">
-            6 dimensi · Rata-rata saat ini:{" "}
-            <span className="font-semibold text-foreground dark:text-white">
-              {formatScore(avg)}
-            </span>{" "}
-            / 5,0 — Level {tier_number} {tier_name}
-          </p>
-        </div>
-      </div>
-
-      <div className="mt-4 grid grid-cols-1 gap-4 lg:grid-cols-[1.1fr_1fr] lg:items-center">
+    <SectionContainerAILN
+      title="Profil Kompetensi AI"
+      desc={
+        <>
+          6 dimensi · Rata-rata saat ini:{" "}
+          <span className="font-semibold text-foreground dark:text-white">
+            {formatScore(avg)}
+          </span>{" "}
+          / 5,0 — Level {tier_number} {tier_name}
+        </>
+      }
+      className={className}
+    >
+      <div className="grid grid-cols-1 gap-4 lg:grid-cols-[1.1fr_1fr] lg:items-center">
         {/* Radar chart */}
         <div className="min-w-0">
           <RadarBlock labels={labels} values={values} />
@@ -124,7 +122,7 @@ export default function CompetencyProfileAILN({
           })}
         </div>
       </div>
-    </Shell>
+    </SectionContainerAILN>
   );
 }
 
@@ -210,22 +208,6 @@ function RadarBlock({
   return (
     <div className="h-[280px]">
       <Radar data={data} options={options} />
-    </div>
-  );
-}
-
-function Shell({
-  className,
-  children,
-}: {
-  className?: string;
-  children: React.ReactNode;
-}) {
-  return (
-    <div
-      className={`rounded-lg border border-dashboard-border bg-white p-5 dark:bg-card-bg ${className ?? ""}`}
-    >
-      {children}
     </div>
   );
 }

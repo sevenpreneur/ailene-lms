@@ -3,7 +3,7 @@ import React from "react";
 
 interface SectionContainerAILNProps {
   title: string;
-  desc?: string;
+  desc?: React.ReactNode;
   headerRight?: React.ReactNode;
   className?: string;
   contentClassName?: string;

@@ -229,7 +229,7 @@ export default function PreAssessmentAILN({
     <PageContainerSVP className="flex min-h-screen justify-center">
       <div className="flex w-full flex-col gap-4 my-10">
         {/* Header */}
-        <div className="flex flex-col gap-3 rounded-xl border bg-white p-4 dark:border-dashboard-border dark:bg-card-bg dark:shadow-[0_0_18px_rgba(239,68,68,0.08)]">
+        <div className="flex flex-col gap-3 rounded-xl border bg-white p-4 dark:border-dashboard-border dark:bg-card-1 dark:shadow-[0_0_18px_rgba(239,68,68,0.08)]">
           <div className="flex flex-wrap items-center gap-3">
             <div className="flex-1">
               <h1 className="text-base font-semibold dark:text-white">
@@ -268,7 +268,7 @@ export default function PreAssessmentAILN({
         {/* Main body */}
         <div className="flex flex-1 gap-4">
           {/* Left: question */}
-          <div className="flex flex-1 flex-col gap-4 rounded-xl border bg-white p-6 dark:border-dashboard-border dark:bg-card-bg dark:shadow-[0_0_18px_rgba(239,68,68,0.08)]">
+          <div className="flex flex-1 flex-col gap-4 rounded-xl border bg-white p-6 dark:border-dashboard-border dark:bg-card-1 dark:shadow-[0_0_18px_rgba(239,68,68,0.08)]">
             <div className="flex flex-wrap items-center gap-2">
               <span className="text-[11px] font-semibold uppercase tracking-widest text-gray-500 dark:text-gray-400">
                 SOAL {currentIdx + 1}
@@ -280,11 +280,11 @@ export default function PreAssessmentAILN({
               >
                 {currentQ.category}
               </span>
-              <span className="rounded-full border border-dashboard-border bg-gray-50 px-2.5 py-0.5 text-[11px] font-medium text-gray-600 dark:bg-card-bg dark:text-gray-300">
+              <span className="rounded-full border border-dashboard-border bg-gray-50 px-2.5 py-0.5 text-[11px] font-medium text-gray-600 dark:bg-card-1 dark:text-gray-300">
                 {PRE_ASSESSMENT_TYPE_LABELS[currentQ.type]}
               </span>
               {!currentQ.required && (
-                <span className="rounded-full border border-dashboard-border bg-white px-2.5 py-0.5 text-[11px] font-medium text-gray-500 dark:bg-card-bg dark:text-gray-400">
+                <span className="rounded-full border border-dashboard-border bg-white px-2.5 py-0.5 text-[11px] font-medium text-gray-500 dark:bg-card-1 dark:text-gray-400">
                   Opsional
                 </span>
               )}
@@ -327,7 +327,7 @@ export default function PreAssessmentAILN({
 
           {/* Right: navigation panel */}
           <div className="flex w-80 shrink-0 flex-col gap-4">
-            <div className="flex flex-col gap-3 rounded-xl border bg-white p-4 dark:border-dashboard-border dark:bg-card-bg dark:shadow-[0_0_18px_rgba(239,68,68,0.08)]">
+            <div className="flex flex-col gap-3 rounded-xl border bg-white p-4 dark:border-dashboard-border dark:bg-card-1 dark:shadow-[0_0_18px_rgba(239,68,68,0.08)]">
               <span className="text-[11px] font-semibold uppercase tracking-widest text-gray-500 dark:text-gray-400">
                 NAVIGASI
               </span>
@@ -345,7 +345,7 @@ export default function PreAssessmentAILN({
                       "bg-black text-white dark:bg-red-500/20 dark:text-red-100 dark:border dark:border-red-500/40";
                   } else {
                     cls =
-                      "border border-dashboard-border bg-gray-100 text-gray-500 dark:bg-card-inside-bg dark:text-gray-400";
+                      "border border-dashboard-border bg-gray-100 text-gray-500 dark:bg-card-2 dark:text-gray-400";
                   }
 
                   return (
@@ -371,13 +371,13 @@ export default function PreAssessmentAILN({
                   label="Saat ini"
                 />
                 <LegendItem
-                  color="bg-gray-100 border border-dashboard-border dark:bg-card-inside-bg"
+                  color="bg-gray-100 border border-dashboard-border dark:bg-card-2"
                   label="Belum"
                 />
               </div>
             </div>
 
-            <div className="flex flex-col gap-2 rounded-xl border bg-white p-4 dark:border-dashboard-border dark:bg-card-bg dark:shadow-[0_0_18px_rgba(239,68,68,0.08)]">
+            <div className="flex flex-col gap-2 rounded-xl border bg-white p-4 dark:border-dashboard-border dark:bg-card-1 dark:shadow-[0_0_18px_rgba(239,68,68,0.08)]">
               <span className="text-[11px] font-semibold uppercase tracking-widest text-gray-500 dark:text-gray-400">
                 STATUS
               </span>
@@ -460,7 +460,7 @@ function QuestionBody({
               className={`flex items-center gap-3 rounded-lg border-[1.5px] px-4 py-3 text-left text-sm transition ${
                 selected
                   ? "border-emerald-500 bg-emerald-50 dark:border-emerald-500/60 dark:bg-emerald-500/10 dark:text-white dark:shadow-[0_0_10px_rgba(16,185,129,0.25)]"
-                  : "border-dashboard-border bg-white hover:border-black/30 hover:bg-gray-50 dark:bg-card-bg dark:text-gray-200 dark:hover:border-red-500/30 dark:hover:bg-card-inside-bg"
+                  : "border-dashboard-border bg-white hover:border-black/30 hover:bg-gray-50 dark:bg-card-1 dark:text-gray-200 dark:hover:border-red-500/30 dark:hover:bg-card-2"
               }`}
             >
               <div
@@ -497,14 +497,14 @@ function QuestionBody({
               className={`flex items-center gap-3 rounded-lg border-[1.5px] px-4 py-3 text-left text-sm transition ${
                 selected
                   ? "border-emerald-500 bg-emerald-50 dark:border-emerald-500/60 dark:bg-emerald-500/10 dark:text-white dark:shadow-[0_0_10px_rgba(16,185,129,0.25)]"
-                  : "border-dashboard-border bg-white hover:border-black/30 hover:bg-gray-50 dark:bg-card-bg dark:text-gray-200 dark:hover:border-red-500/30 dark:hover:bg-card-inside-bg"
+                  : "border-dashboard-border bg-white hover:border-black/30 hover:bg-gray-50 dark:bg-card-1 dark:text-gray-200 dark:hover:border-red-500/30 dark:hover:bg-card-2"
               }`}
             >
               <div
                 className={`flex size-6 shrink-0 items-center justify-center rounded-md text-xs font-bold ${
                   selected
                     ? "bg-emerald-500 text-white dark:shadow-[0_0_8px_rgba(16,185,129,0.6)]"
-                    : "border border-gray-300 bg-white text-gray-700 dark:border-dashboard-border dark:bg-card-bg dark:text-gray-300"
+                    : "border border-gray-300 bg-white text-gray-700 dark:border-dashboard-border dark:bg-card-1 dark:text-gray-300"
                 }`}
               >
                 {selected ? "✓" : ""}
@@ -529,7 +529,7 @@ function QuestionBody({
           onChange={(e) => onTextChange(e.target.value)}
           maxLength={255}
           placeholder={question.placeholder}
-          className="w-full rounded-lg border border-dashboard-border px-4 py-3 text-sm transition focus:border-emerald-500 focus:outline-none dark:bg-card-bg dark:text-white dark:placeholder:text-gray-500 dark:focus:border-emerald-500/60 dark:focus:shadow-[0_0_10px_rgba(16,185,129,0.2)]"
+          className="w-full rounded-lg border border-dashboard-border px-4 py-3 text-sm transition focus:border-emerald-500 focus:outline-none dark:bg-card-1 dark:text-white dark:placeholder:text-gray-500 dark:focus:border-emerald-500/60 dark:focus:shadow-[0_0_10px_rgba(16,185,129,0.2)]"
         />
       </div>
     );
@@ -545,7 +545,7 @@ function QuestionBody({
         onChange={(e) => onTextChange(e.target.value)}
         placeholder={question.placeholder}
         rows={6}
-        className="w-full resize-none rounded-lg border border-dashboard-border px-4 py-3 text-sm transition focus:border-emerald-500 focus:outline-none dark:bg-card-bg dark:text-white dark:placeholder:text-gray-500 dark:focus:border-emerald-500/60 dark:focus:shadow-[0_0_10px_rgba(16,185,129,0.2)]"
+        className="w-full resize-none rounded-lg border border-dashboard-border px-4 py-3 text-sm transition focus:border-emerald-500 focus:outline-none dark:bg-card-1 dark:text-white dark:placeholder:text-gray-500 dark:focus:border-emerald-500/60 dark:focus:shadow-[0_0_10px_rgba(16,185,129,0.2)]"
       />
     </div>
   );
@@ -613,7 +613,7 @@ function PreAssessmentCompletedAILN({
           </div>
 
           <div className="grid grid-cols-1 gap-5 lg:grid-cols-[minmax(0,1.25fr)_minmax(20rem,1fr)]">
-            <section className="rounded-lg border border-dashboard-border bg-white p-6 shadow-sm dark:bg-card-bg">
+            <section className="rounded-lg border border-dashboard-border bg-white p-6 shadow-sm dark:bg-card-1">
               <div className="flex items-start justify-between gap-4">
                 <div>
                   <h2 className="text-lg font-bold text-gray-900 dark:text-white">
@@ -623,14 +623,14 @@ function PreAssessmentCompletedAILN({
                     Self-rating - skala 0-5 - 6 dimensi
                   </p>
                 </div>
-                <span className="rounded-full border border-dashboard-border bg-gray-50 px-3 py-1 text-xs font-semibold text-gray-600 dark:bg-card-inside-bg dark:text-gray-300">
+                <span className="rounded-full border border-dashboard-border bg-gray-50 px-3 py-1 text-xs font-semibold text-gray-600 dark:bg-card-2 dark:text-gray-300">
                   Titik berangkat
                 </span>
               </div>
 
               <PreAssessmentRadar dimensions={result.dimensions} />
 
-              <div className="mx-auto mt-4 flex w-fit items-center gap-3 rounded-full border border-dashboard-border bg-gray-50 px-5 py-3 dark:bg-card-inside-bg">
+              <div className="mx-auto mt-4 flex w-fit items-center gap-3 rounded-full border border-dashboard-border bg-gray-50 px-5 py-3 dark:bg-card-2">
                 <span className="text-sm text-gray-500 dark:text-gray-400">
                   Kesiapan rata-rata
                 </span>
@@ -658,7 +658,7 @@ function PreAssessmentCompletedAILN({
                 description={result.focus.description}
                 tone="amber"
               />
-              <section className="rounded-lg border border-dashboard-border bg-white p-6 shadow-sm dark:bg-card-bg">
+              <section className="rounded-lg border border-dashboard-border bg-white p-6 shadow-sm dark:bg-card-1">
                 <div className="text-[11px] font-semibold uppercase tracking-widest text-gray-500 dark:text-gray-400">
                   Pemahaman dasar AI
                 </div>
@@ -678,7 +678,7 @@ function PreAssessmentCompletedAILN({
             </div>
           </div>
 
-          <section className="rounded-lg border border-dashboard-border bg-white p-6 shadow-sm dark:bg-card-bg">
+          <section className="rounded-lg border border-dashboard-border bg-white p-6 shadow-sm dark:bg-card-1">
             <h2 className="text-lg font-bold text-gray-900 dark:text-white">
               Yang kamu tulis sendiri
             </h2>
@@ -839,7 +839,7 @@ function InsightCard({
       : "border-amber-300 bg-amber-50 text-amber-700 dark:border-amber-500/40 dark:bg-amber-500/10 dark:text-amber-300";
 
   return (
-    <section className="flex items-center gap-4 rounded-lg border border-dashboard-border bg-white p-6 shadow-sm dark:bg-card-bg">
+    <section className="flex items-center gap-4 rounded-lg border border-dashboard-border bg-white p-6 shadow-sm dark:bg-card-1">
       <div
         className={`flex size-11 shrink-0 items-center justify-center rounded-lg border ${toneCls}`}
       >
@@ -894,12 +894,12 @@ function RecommendationRow({
   onClick: () => void;
 }) {
   return (
-    <div className="grid grid-cols-[3.5rem_minmax(0,1fr)_4rem_6rem] items-center gap-4 rounded-lg border border-dashboard-border bg-white p-4 shadow-sm dark:bg-card-bg">
+    <div className="grid grid-cols-[3.5rem_minmax(0,1fr)_4rem_6rem] items-center gap-4 rounded-lg border border-dashboard-border bg-white p-4 shadow-sm dark:bg-card-1">
       <div
         className={`flex size-11 items-center justify-center rounded-lg border  text-sm font-bold ${
           primary
             ? "border-black bg-black text-white dark:border-white dark:bg-white dark:text-black"
-            : "border-dashboard-border bg-gray-50 text-gray-700 dark:bg-card-inside-bg dark:text-gray-200"
+            : "border-dashboard-border bg-gray-50 text-gray-700 dark:bg-card-2 dark:text-gray-200"
         }`}
       >
         {item.code}
@@ -910,7 +910,7 @@ function RecommendationRow({
           <h3 className="truncate text-lg font-bold text-gray-900 dark:text-white">
             {item.title}
           </h3>
-          <span className="rounded-full border border-dashboard-border bg-gray-50 px-2 py-0.5 text-xs font-medium text-gray-600 dark:bg-card-inside-bg dark:text-gray-300">
+          <span className="rounded-full border border-dashboard-border bg-gray-50 px-2 py-0.5 text-xs font-medium text-gray-600 dark:bg-card-2 dark:text-gray-300">
             {item.pillar}
           </span>
         </div>

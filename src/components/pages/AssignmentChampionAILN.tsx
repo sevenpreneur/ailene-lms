@@ -285,7 +285,7 @@ function AssignmentCard({
     <button
       type="button"
       onClick={onClick}
-      className={`flex flex-col gap-3 rounded-lg border bg-white p-4 text-left transition hover:border-emerald-400 hover:shadow-sm dark:bg-card-bg ${
+      className={`flex flex-col gap-3 rounded-lg border bg-white p-4 text-left transition hover:border-emerald-400 hover:shadow-sm dark:bg-card-1 ${
         isSelected
           ? "border-emerald-500 ring-1 ring-emerald-500 dark:border-emerald-400 dark:ring-emerald-400"
           : "border-dashboard-border"
@@ -386,7 +386,7 @@ function AssignmentGridSkeleton() {
       {Array.from({ length: 6 }).map((_, i) => (
         <div
           key={i}
-          className="h-40 animate-pulse rounded-lg border border-dashboard-border bg-gray-100 dark:bg-card-bg"
+          className="h-40 animate-pulse rounded-lg border border-dashboard-border bg-gray-100 dark:bg-card-1"
         />
       ))}
     </div>

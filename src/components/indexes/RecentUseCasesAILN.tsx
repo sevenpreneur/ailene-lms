@@ -21,7 +21,7 @@ export default function RecentUseCasesAILN() {
     .slice(0, 3);
 
   return (
-    <section className="rounded-xl border border-dashboard-border bg-white p-5 shadow-sm dark:bg-card-bg">
+    <section className="rounded-xl border border-dashboard-border bg-white p-5 shadow-sm dark:bg-card-1">
       <h3 className="mb-3 text-sm font-bold text-gray-900 dark:text-white">
         Use Case Terbaru
       </h3>

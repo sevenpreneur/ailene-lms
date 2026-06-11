@@ -301,7 +301,7 @@ export default function DashboardOutcomeAILN({
             title={`Proses · % capai ≥ L${TARGET_LEVEL}`}
             desc={`Karyawan yang mencapai ${targetLevelName(levelQ.data)} dari waktu ke waktu`}
             headerRight={
-              <span className="shrink-0 rounded-full border border-dashboard-border bg-muted px-2.5 py-0.5 text-[11px] font-semibold text-muted-foreground dark:bg-card-inside-bg dark:text-muted-foreground">
+              <span className="shrink-0 rounded-full border border-dashboard-border bg-muted px-2.5 py-0.5 text-[11px] font-semibold text-muted-foreground dark:bg-card-2 dark:text-muted-foreground">
                 data contoh
               </span>
             }
@@ -335,7 +335,7 @@ export default function DashboardOutcomeAILN({
           desc="Bintang individual seluruh organisasi · composite score"
           headerRight={
             performersQ.data ? (
-              <span className="shrink-0 rounded-full border border-dashboard-border bg-muted px-2.5 py-0.5 text-[11px] font-semibold text-muted-foreground dark:bg-card-inside-bg dark:text-muted-foreground">
+              <span className="shrink-0 rounded-full border border-dashboard-border bg-muted px-2.5 py-0.5 text-[11px] font-semibold text-muted-foreground dark:bg-card-2 dark:text-muted-foreground">
                 {`${formatInt(performersQ.data.total)} karyawan`}
               </span>
             ) : undefined
@@ -564,7 +564,7 @@ function TopPerformersTable({
   return (
     <div className="max-h-[640px] overflow-auto">
       <table className="w-full text-sm">
-        <thead className="sticky top-0 z-10 bg-white dark:bg-card-bg">
+        <thead className="sticky top-0 z-10 bg-white dark:bg-card-1">
           <tr className="border-b border-dashboard-border text-left text-[11px] uppercase tracking-wider text-muted-foreground">
             <th className="pb-2 pr-3 font-semibold">#</th>
             <th className="pb-2 pr-3 font-semibold">Karyawan</th>
@@ -591,7 +591,7 @@ function TopPerformersTable({
                 {p.department}
               </td>
               <td className="py-2.5 pr-3">
-                <span className="inline-flex items-center rounded-full border border-dashboard-border bg-muted px-2 py-0.5 text-[11px] font-semibold text-muted-foreground dark:bg-card-inside-bg ">
+                <span className="inline-flex items-center rounded-full border border-dashboard-border bg-muted px-2 py-0.5 text-[11px] font-semibold text-muted-foreground dark:bg-card-2 ">
                   {p.level_code}
                 </span>
               </td>

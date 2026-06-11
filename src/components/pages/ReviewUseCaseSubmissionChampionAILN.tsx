@@ -208,7 +208,7 @@ export default function ReviewUseCaseSubmissionChampionAILN({
           </h1>
         </div>
 
-        <div className="flex flex-wrap items-center gap-4 rounded-lg border border-dashboard-border bg-white p-4 dark:bg-card-bg">
+        <div className="flex flex-wrap items-center gap-4 rounded-lg border border-dashboard-border bg-white p-4 dark:bg-card-1">
           <div className="flex items-center gap-3">
             <Image
               src={s.member.avatar || DEFAULT_AVATAR}
@@ -277,7 +277,7 @@ export default function ReviewUseCaseSubmissionChampionAILN({
               <div className="text-[11px] font-semibold uppercase tracking-wide text-gray-500 dark:text-gray-400">
                 Deskripsi penerapan
               </div>
-              <p className="text-sm whitespace-pre-wrap rounded-md border border-dashboard-border bg-card-inside-bg p-3 text-gray-700 dark:text-gray-200">
+              <p className="text-sm whitespace-pre-wrap rounded-md border border-dashboard-border bg-card-2 p-3 text-gray-700 dark:text-gray-200">
                 {s.description ?? "—"}
               </p>
             </div>
@@ -291,7 +291,7 @@ export default function ReviewUseCaseSubmissionChampionAILN({
         {canReview && (
           <form
             onSubmit={(e) => e.preventDefault()}
-            className="flex flex-col gap-3 rounded-lg border border-dashboard-border bg-white p-4 dark:bg-card-bg"
+            className="flex flex-col gap-3 rounded-lg border border-dashboard-border bg-white p-4 dark:bg-card-1"
           >
             <h2 className="text-base font-bold dark:text-white">
               {status === "NEEDS_REVISION"
@@ -312,7 +312,7 @@ export default function ReviewUseCaseSubmissionChampionAILN({
                 onChange={(e) => setComment(e.target.value.slice(0, 2000))}
                 rows={4}
                 placeholder="Tulis feedback (wajib kalau minta revisi, opsional kalau accept)"
-                className="rounded-md border border-dashboard-border bg-card-inside-bg px-3 py-2 text-sm focus:border-emerald-500 focus:outline-none dark:text-gray-200 dark:placeholder:text-gray-500"
+                className="rounded-md border border-dashboard-border bg-card-2 px-3 py-2 text-sm focus:border-emerald-500 focus:outline-none dark:text-gray-200 dark:placeholder:text-gray-500"
               />
               <div className="self-end text-xs text-gray-400">
                 {comment.length}/2000
@@ -375,7 +375,7 @@ function OutcomeProof({ value }: { value: string | null | undefined }) {
 
   if (!proof) {
     return (
-      <p className="text-sm rounded-md border border-dashboard-border bg-card-inside-bg p-3 text-gray-700 dark:text-gray-200">
+      <p className="text-sm rounded-md border border-dashboard-border bg-card-2 p-3 text-gray-700 dark:text-gray-200">
         —
       </p>
     );
@@ -393,7 +393,7 @@ function OutcomeProof({ value }: { value: string | null | undefined }) {
           href={proof}
           target="_blank"
           rel="noopener noreferrer"
-          className="block overflow-hidden rounded-md border border-dashboard-border bg-card-inside-bg"
+          className="block overflow-hidden rounded-md border border-dashboard-border bg-card-2"
         >
           <Image
             src={proof}
@@ -433,7 +433,7 @@ function OutcomeProof({ value }: { value: string | null | undefined }) {
         href={proof}
         target="_blank"
         rel="noopener noreferrer"
-        className="inline-flex w-fit items-center gap-1.5 rounded-md border border-dashboard-border bg-card-inside-bg px-3 py-2 text-sm font-medium text-emerald-700 hover:underline dark:text-emerald-300 break-all"
+        className="inline-flex w-fit items-center gap-1.5 rounded-md border border-dashboard-border bg-card-2 px-3 py-2 text-sm font-medium text-emerald-700 hover:underline dark:text-emerald-300 break-all"
       >
         <FileText className="size-4 shrink-0" />
         {proof}
@@ -442,7 +442,7 @@ function OutcomeProof({ value }: { value: string | null | undefined }) {
   }
 
   return (
-    <p className="text-sm rounded-md border border-dashboard-border bg-card-inside-bg p-3 text-gray-700 dark:text-gray-200 break-words">
+    <p className="text-sm rounded-md border border-dashboard-border bg-card-2 p-3 text-gray-700 dark:text-gray-200 break-words">
       {proof}
     </p>
   );
@@ -450,7 +450,7 @@ function OutcomeProof({ value }: { value: string | null | undefined }) {
 
 function Field({ label, value }: { label: string; value: string }) {
   return (
-    <div className="flex flex-col gap-0.5 rounded-md border border-dashboard-border bg-card-inside-bg p-2">
+    <div className="flex flex-col gap-0.5 rounded-md border border-dashboard-border bg-card-2 p-2">
       <div className="text-[10px] font-semibold uppercase tracking-wide text-gray-500 dark:text-gray-400">
         {label}
       </div>

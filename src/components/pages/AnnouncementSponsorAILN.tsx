@@ -134,7 +134,7 @@ function AnnouncementForm({
         <div className="grid grid-cols-1 gap-5 xl:grid-cols-[minmax(0,1.25fr)_minmax(360px,0.75fr)]">
           <form
             onSubmit={handleSubmit}
-            className="rounded-lg border border-dashboard-border bg-white p-5 shadow-sm dark:bg-card-bg dark:shadow-[0_0_16px_rgba(0,53,157,0.06)]"
+            className="rounded-lg border border-dashboard-border bg-white p-5 shadow-sm dark:bg-card-1 dark:shadow-[0_0_16px_rgba(0,53,157,0.06)]"
           >
             <div className="flex items-center gap-2 text-base font-bold text-gray-900 dark:text-white">
               <Megaphone className="size-4" />
@@ -230,7 +230,7 @@ function AnnouncementForm({
                 </div>
                 <div className="p-4">
                   <div className="h-2 w-28 rounded bg-gray-200 dark:bg-dashboard-border" />
-                  <div className="mt-4 h-20 rounded-md border border-dashboard-border bg-white dark:bg-card-bg" />
+                  <div className="mt-4 h-20 rounded-md border border-dashboard-border bg-white dark:bg-card-1" />
                 </div>
               </div>
 
@@ -267,8 +267,8 @@ function AnnouncementForm({
 function AnnouncementSkeleton() {
   return (
     <div className="grid w-full grid-cols-1 gap-5 xl:grid-cols-[minmax(0,1.25fr)_minmax(360px,0.75fr)]">
-      <div className="h-[480px] rounded-lg border border-dashboard-border bg-gray-100 dark:bg-card-bg" />
-      <div className="h-[320px] rounded-lg border border-dashboard-border bg-gray-100 dark:bg-card-bg" />
+      <div className="h-[480px] rounded-lg border border-dashboard-border bg-gray-100 dark:bg-card-1" />
+      <div className="h-[320px] rounded-lg border border-dashboard-border bg-gray-100 dark:bg-card-1" />
     </div>
   );
 }

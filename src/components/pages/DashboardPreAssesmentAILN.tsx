@@ -221,7 +221,7 @@ export default function DashboardPreAssesmentAILN({
         </div>
 
         {/* Filter row */}
-        <div className="flex flex-wrap items-center justify-between gap-3 rounded-lg border border-dashboard-border bg-white px-4 py-3 dark:bg-card-bg">
+        <div className="flex flex-wrap items-center justify-between gap-3 rounded-lg border border-dashboard-border bg-white px-4 py-3 dark:bg-card-1">
           <div className="flex flex-wrap items-center gap-3">
             <DepartmentFilter
               departments={departmentsQ.data?.departments ?? []}
@@ -229,7 +229,7 @@ export default function DashboardPreAssesmentAILN({
               groupId={groupId}
               onChange={setGroupId}
             />
-            <span className="rounded-full border border-dashboard-border bg-gray-50 px-3 py-1 text-xs font-medium text-gray-600 dark:bg-card-inside-bg dark:text-gray-300">
+            <span className="rounded-full border border-dashboard-border bg-gray-50 px-3 py-1 text-xs font-medium text-gray-600 dark:bg-card-2 dark:text-gray-300">
               Titik nol — sebelum modul pertama
             </span>
           </div>
@@ -291,7 +291,7 @@ export default function DashboardPreAssesmentAILN({
                   labels={pillarsQ.data.pillars.map((p) => p.name)}
                   values={pillarsQ.data.pillars.map((p) => p.score)}
                 />
-                <div className="inline-flex items-center gap-2 rounded-full border border-dashboard-border bg-card-inside-bg px-4 py-1.5 text-sm dark:bg-card-inside-bg/60">
+                <div className="inline-flex items-center gap-2 rounded-full border border-dashboard-border bg-card-2 px-4 py-1.5 text-sm dark:bg-card-2/60">
                   <span className="text-gray-500 dark:text-gray-400">
                     Rata-rata org
                   </span>
@@ -528,7 +528,7 @@ function DepartmentFilter({
       <button
         type="button"
         onClick={() => setOpen((o) => !o)}
-        className="inline-flex h-9 items-center gap-2 rounded-md border border-dashboard-border bg-white px-3 text-sm font-medium text-gray-700 transition-colors hover:bg-gray-50 dark:bg-card-bg dark:text-gray-200 dark:hover:bg-card-inside-bg"
+        className="inline-flex h-9 items-center gap-2 rounded-md border border-dashboard-border bg-white px-3 text-sm font-medium text-gray-700 transition-colors hover:bg-gray-50 dark:bg-card-1 dark:text-gray-200 dark:hover:bg-card-2"
       >
         <Building2 className="size-4 text-gray-400" />
         Departemen: {label}
@@ -544,7 +544,7 @@ function DepartmentFilter({
             onClick={() => setOpen(false)}
             className="fixed inset-0 z-10 cursor-default"
           />
-          <div className="absolute left-0 z-20 mt-1 max-h-72 w-64 overflow-auto rounded-md border border-dashboard-border bg-white py-1 shadow-lg dark:bg-card-bg">
+          <div className="absolute left-0 z-20 mt-1 max-h-72 w-64 overflow-auto rounded-md border border-dashboard-border bg-white py-1 shadow-lg dark:bg-card-1">
             <DeptItem
               active={!groupId}
               onClick={() => {
@@ -586,7 +586,7 @@ function DeptItem({
     <button
       type="button"
       onClick={onClick}
-      className={`flex w-full items-center px-3 py-2 text-left text-sm transition-colors hover:bg-gray-50 dark:hover:bg-card-inside-bg ${
+      className={`flex w-full items-center px-3 py-2 text-left text-sm transition-colors hover:bg-gray-50 dark:hover:bg-card-2 ${
         active
           ? "font-semibold text-gray-900 dark:text-white"
           : "text-gray-600 dark:text-gray-300"
@@ -622,7 +622,7 @@ function SectionBadge({
       className={`shrink-0 rounded-full border px-2.5 py-0.5 text-[11px] font-semibold ${
         tone === "warn"
           ? "border-amber-300 bg-amber-50 text-amber-700 dark:border-amber-500/40 dark:bg-amber-500/10 dark:text-amber-300"
-          : "border-dashboard-border bg-gray-50 text-gray-500 dark:bg-card-inside-bg dark:text-gray-400"
+          : "border-dashboard-border bg-gray-50 text-gray-500 dark:bg-card-2 dark:text-gray-400"
       }`}
     >
       {children}
@@ -696,11 +696,11 @@ function VoiceChip({
   const toneCls =
     tone === "green"
       ? "border-emerald-300 bg-emerald-50 text-emerald-800 dark:border-emerald-500/40 dark:bg-emerald-500/10 dark:text-emerald-200"
-      : "border-dashboard-border bg-gray-50 text-gray-700 dark:bg-card-inside-bg dark:text-gray-300";
+      : "border-dashboard-border bg-gray-50 text-gray-700 dark:bg-card-2 dark:text-gray-300";
   const countCls =
     tone === "green"
       ? "bg-white/70 text-emerald-700 dark:bg-emerald-500/20 dark:text-emerald-200"
-      : "bg-white text-gray-600 dark:bg-card-bg dark:text-gray-300";
+      : "bg-white text-gray-600 dark:bg-card-1 dark:text-gray-300";
   return (
     <span
       className={`inline-flex items-center gap-2 rounded-full border px-3 py-1.5 text-sm ${toneCls}`}

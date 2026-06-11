@@ -22,12 +22,12 @@ export default function DashboardStudentSkeletonAILN() {
         </div>
       </div>
 
-      <div className="h-36 rounded-lg border border-dashboard-border bg-gray-100 dark:bg-card-bg" />
+      <div className="h-36 rounded-lg border border-dashboard-border bg-gray-100 dark:bg-card-1" />
 
       <div className="grid grid-cols-1 gap-4 lg:grid-cols-3">
-        <div className="h-[360px] rounded-lg border border-dashboard-border bg-gray-100 dark:bg-card-bg" />
-        <div className="h-[360px] rounded-lg border border-dashboard-border bg-gray-100 dark:bg-card-bg" />
-        <div className="h-[360px] rounded-lg border border-dashboard-border bg-gray-100 dark:bg-card-bg" />
+        <div className="h-[360px] rounded-lg border border-dashboard-border bg-gray-100 dark:bg-card-1" />
+        <div className="h-[360px] rounded-lg border border-dashboard-border bg-gray-100 dark:bg-card-1" />
+        <div className="h-[360px] rounded-lg border border-dashboard-border bg-gray-100 dark:bg-card-1" />
       </div>
     </div>
   );

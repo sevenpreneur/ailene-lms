@@ -382,7 +382,7 @@ export default function CreateAssignmentFormAILN({
               unstyled
               classNames={{
                 control: ({ isFocused }) =>
-                  `rounded-md border bg-card-inside-bg px-2 py-1 text-sm transition ${
+                  `rounded-md border bg-card-2 px-2 py-1 text-sm transition ${
                     isFocused ? "border-emerald-500" : "border-dashboard-border"
                   }`,
                 valueContainer: () => "flex flex-wrap gap-1 py-0.5",
@@ -398,7 +398,7 @@ export default function CreateAssignmentFormAILN({
                 dropdownIndicator: () => "px-1 hover:text-gray-600",
                 clearIndicator: () => "px-1 hover:text-gray-600",
                 menu: () =>
-                  "z-50 mt-1 overflow-hidden rounded-md border border-dashboard-border bg-card-bg shadow-lg",
+                  "z-50 mt-1 overflow-hidden rounded-md border border-dashboard-border bg-card-1 shadow-lg",
                 menuList: () => "max-h-60 overflow-y-auto p-1",
                 option: ({ isFocused, isDisabled }) =>
                   `rounded px-2 py-1.5 text-sm ${

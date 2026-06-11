@@ -65,7 +65,7 @@ export default function OrganizationLeaderboardAILN() {
  </div>
 
  {q.data.list.length === 0 ? (
- <div className="mt-3 flex h-32 items-center justify-center rounded-md bg-muted text-sm text-muted-foreground dark:bg-card-inside-bg dark:text-muted-foreground">
+ <div className="mt-3 flex h-32 items-center justify-center rounded-md bg-muted text-sm text-muted-foreground dark:bg-card-2 dark:text-muted-foreground">
  Belum ada use case yang tersubmit.
  </div>
  ) : (
@@ -77,7 +77,7 @@ export default function OrganizationLeaderboardAILN() {
  return (
  <li
  key={department.id}
- className="rounded-md transition hover:bg-muted dark:hover:bg-card-inside-bg"
+ className="rounded-md transition hover:bg-muted dark:hover:bg-card-2"
  >
  <Link
  href={`/sponsor/groups/${department.id}`}

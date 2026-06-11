@@ -259,14 +259,14 @@ export default function AssignFormChampionAILN({
                 type="date"
                 value={deadlineDate}
                 onChange={(e) => setDeadlineDate(e.target.value)}
-                className="rounded-md border border-dashboard-border bg-card-inside-bg px-3 py-2 text-sm focus:border-emerald-500 focus:outline-none dark:text-gray-200"
+                className="rounded-md border border-dashboard-border bg-card-2 px-3 py-2 text-sm focus:border-emerald-500 focus:outline-none dark:text-gray-200"
                 required
               />
               <input
                 type="time"
                 value={deadlineTime}
                 onChange={(e) => setDeadlineTime(e.target.value)}
-                className="rounded-md border border-dashboard-border bg-card-inside-bg px-3 py-2 text-sm focus:border-emerald-500 focus:outline-none dark:text-gray-200"
+                className="rounded-md border border-dashboard-border bg-card-2 px-3 py-2 text-sm focus:border-emerald-500 focus:outline-none dark:text-gray-200"
                 required
               />
             </div>
@@ -282,7 +282,7 @@ export default function AssignFormChampionAILN({
               onChange={(e) => setMessage(e.target.value.slice(0, 500))}
               placeholder="Tambahkan catatan atau instruksi khusus…"
               rows={4}
-              className="resize-none rounded-md border border-dashboard-border bg-card-inside-bg px-3 py-2 text-sm focus:border-emerald-500 focus:outline-none dark:text-gray-200 dark:placeholder:text-gray-500"
+              className="resize-none rounded-md border border-dashboard-border bg-card-2 px-3 py-2 text-sm focus:border-emerald-500 focus:outline-none dark:text-gray-200 dark:placeholder:text-gray-500"
             />
             <div className="self-end text-xs text-gray-400">
               {message.length}/500
