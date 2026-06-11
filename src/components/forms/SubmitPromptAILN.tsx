@@ -205,6 +205,8 @@ export default function SubmitPromptAILN({
           });
           utils.ailene.read.todayFocus.invalidate();
           utils.ailene.list.assignedPrompts.invalidate();
+          utils.ailene.list.memberPromptLibrary.invalidate();
+          utils.ailene.list.practiceSubmissions.invalidate();
           router.push("/student/practice");
         },
         onError: (err) => {

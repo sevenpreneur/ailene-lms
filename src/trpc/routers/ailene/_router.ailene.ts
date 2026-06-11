@@ -18,6 +18,9 @@ export const aileneRouter = createTRPCRouter({
     assignedPrompts: listAilene.myAssignedPrompts,
     assignedUseCases: listAilene.myAssignedUseCases,
     memberCategories: listAilene.memberCategories,
+    memberPromptLibrary: listAilene.memberPromptLibrary,
+    memberUseCaseLibrary: listAilene.memberUseCaseLibrary,
+    practiceSubmissions: listAilene.myPracticeSubmissions,
     // champion only
     members: listAilene.championMembers,
     categories: listAilene.categories,
@@ -32,6 +35,8 @@ export const aileneRouter = createTRPCRouter({
     completeMaterial: createAilene.completeMaterial,
     completeVideo: createAilene.completeVideo,
     coachingNote: createAilene.coachingNote,
+    selfAssignPrompt: createAilene.selfAssignPrompt,
+    selfAssignUseCase: createAilene.selfAssignUseCase,
     selfPrompt: createAilene.selfPrompt,
     selfUseCase: createAilene.selfUseCase,
     // champion only

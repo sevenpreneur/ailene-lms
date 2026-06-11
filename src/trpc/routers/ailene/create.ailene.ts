@@ -691,6 +691,134 @@ export const createAilene = {
   // (assigned_by_id) so it lands in the champion's review queue exactly like an
   // assigned task that's already been submitted (status: AWAITING_REVIEW).
 
+  selfAssignPrompt: ailMemberProcedure
+    .input(z.object({ prompt_id: z.number().int().positive() }))
+    .mutation(async (opts) => {
+      const member = opts.ctx.ail_member;
+      const { prompt_id } = opts.input;
+
+      const prompt = await opts.ctx.prisma.ailPrompt.findFirst({
+        where: { id: prompt_id, status: "ACTIVE" },
+        select: { id: true },
+      });
+      if (!prompt) {
+        throw new TRPCError({
+          code: STATUS_NOT_FOUND,
+          message: "Prompt not found.",
+        });
+      }
+
+      const existing = await opts.ctx.prisma.ailPromptSubmission.findUnique({
+        where: {
+          member_id_prompt_id: { member_id: member.id, prompt_id },
+        },
+        select: { id: true, assigned_by_id: true },
+      });
+
+      if (existing) {
+        if (!existing.assigned_by_id) {
+          const championId = await resolveMemberChampion(
+            opts.ctx.prisma,
+            member.group_id
+          );
+          await opts.ctx.prisma.ailPromptSubmission.update({
+            where: { id: existing.id },
+            data: { assigned_by_id: championId },
+          });
+        }
+        return {
+          code: STATUS_OK,
+          message: "Prompt practice ready",
+          prompt_id,
+          submission_id: existing.id,
+        };
+      }
+
+      const championId = await resolveMemberChampion(
+        opts.ctx.prisma,
+        member.group_id
+      );
+      const submission = await opts.ctx.prisma.ailPromptSubmission.create({
+        data: {
+          member_id: member.id,
+          prompt_id,
+          assigned_by_id: championId,
+        },
+        select: { id: true },
+      });
+
+      return {
+        code: STATUS_OK,
+        message: "Prompt practice ready",
+        prompt_id,
+        submission_id: submission.id,
+      };
+    }),
+
+  selfAssignUseCase: ailMemberProcedure
+    .input(z.object({ use_case_id: z.number().int().positive() }))
+    .mutation(async (opts) => {
+      const member = opts.ctx.ail_member;
+      const { use_case_id } = opts.input;
+
+      const useCase = await opts.ctx.prisma.ailUseCase.findFirst({
+        where: { id: use_case_id, status: "ACTIVE" },
+        select: { id: true },
+      });
+      if (!useCase) {
+        throw new TRPCError({
+          code: STATUS_NOT_FOUND,
+          message: "Use case not found.",
+        });
+      }
+
+      const existing = await opts.ctx.prisma.ailUseCaseSubmission.findUnique({
+        where: {
+          member_id_use_case_id: { member_id: member.id, use_case_id },
+        },
+        select: { id: true, assigned_by_id: true },
+      });
+
+      if (existing) {
+        if (!existing.assigned_by_id) {
+          const championId = await resolveMemberChampion(
+            opts.ctx.prisma,
+            member.group_id
+          );
+          await opts.ctx.prisma.ailUseCaseSubmission.update({
+            where: { id: existing.id },
+            data: { assigned_by_id: championId },
+          });
+        }
+        return {
+          code: STATUS_OK,
+          message: "Use case practice ready",
+          use_case_id,
+          submission_id: existing.id,
+        };
+      }
+
+      const championId = await resolveMemberChampion(
+        opts.ctx.prisma,
+        member.group_id
+      );
+      const submission = await opts.ctx.prisma.ailUseCaseSubmission.create({
+        data: {
+          member_id: member.id,
+          use_case_id,
+          assigned_by_id: championId,
+        },
+        select: { id: true },
+      });
+
+      return {
+        code: STATUS_OK,
+        message: "Use case practice ready",
+        use_case_id,
+        submission_id: submission.id,
+      };
+    }),
+
   selfPrompt: ailMemberProcedure
     .input(
       z.object({

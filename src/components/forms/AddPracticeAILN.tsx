@@ -241,6 +241,9 @@ export default function AddPracticeAILN({
     toast.success("Latihan berhasil dikirim ke champion untuk direview.");
     utils.ailene.list.assignedPrompts.invalidate();
     utils.ailene.list.assignedUseCases.invalidate();
+    utils.ailene.list.memberPromptLibrary.invalidate();
+    utils.ailene.list.memberUseCaseLibrary.invalidate();
+    utils.ailene.list.practiceSubmissions.invalidate();
     utils.ailene.read.todayFocus.invalidate();
     router.push("/student/practice");
   };

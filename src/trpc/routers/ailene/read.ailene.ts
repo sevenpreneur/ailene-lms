@@ -618,6 +618,7 @@ export const readAilene = {
         where: {
           member_id: memberId,
           assigned_by_id: { not: null },
+          deadline: { not: null },
           submitted_at: null,
           prompt: { status: "ACTIVE" },
         },
@@ -641,6 +642,7 @@ export const readAilene = {
         where: {
           member_id: memberId,
           assigned_by_id: { not: null },
+          deadline: { not: null },
           submitted_at: null,
           use_case: { status: "ACTIVE" },
         },

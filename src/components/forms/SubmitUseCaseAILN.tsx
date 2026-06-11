@@ -415,6 +415,8 @@ export default function SubmitUseCaseAILN({
           });
           utils.ailene.read.todayFocus.invalidate();
           utils.ailene.list.assignedUseCases.invalidate();
+          utils.ailene.list.memberUseCaseLibrary.invalidate();
+          utils.ailene.list.practiceSubmissions.invalidate();
           router.push("/student/practice");
         },
         onError: (err) => {
