@@ -1,5 +1,6 @@
 "use client";
 
+import SectionContainerAILN from "@/components/cards/SectionContainerAILN";
 import {
   BookOpen,
   ClipboardList,
@@ -10,11 +11,12 @@ import Link from "next/link";
 
 export default function QuickActionsAILN() {
   return (
-    <div className="rounded-lg border border-dashboard-border bg-white p-5 dark:bg-card-bg">
-      <div className="text-[10px] font-semibold uppercase tracking-widest text-gray-500 dark:text-gray-400">
-        Aksi Cepat
-      </div>
-      <div className="mt-3 grid grid-cols-1 gap-3 sm:grid-cols-3">
+    <SectionContainerAILN
+      title="Aksi Cepat"
+      desc="Pintasan ke aktivitas yang paling sering kamu pakai."
+      className="bg-[#FCFCFD] dark:bg-card-bg"
+    >
+      <div className="grid grid-cols-1 gap-3 sm:grid-cols-3">
         <ActionTileAILN
           href="/student/modules"
           icon={BookOpen}
@@ -34,7 +36,7 @@ export default function QuickActionsAILN() {
           desc="Level, streak & kompetensi"
         />
       </div>
-    </div>
+    </SectionContainerAILN>
   );
 }
 

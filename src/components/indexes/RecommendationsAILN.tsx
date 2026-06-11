@@ -1,4 +1,5 @@
 "use client";
+import SectionContainerAILN from "@/components/cards/SectionContainerAILN";
 import { trpc } from "@/trpc/client";
 import { FileText, Sparkles } from "lucide-react";
 import Link from "next/link";
@@ -69,8 +70,11 @@ export default function RecommendationsAILN() {
 
   if (q.isLoading) {
     return (
-      <Shell>
-        <div className="mt-4 grid grid-cols-1 gap-3 md:grid-cols-3">
+      <SectionContainerAILN
+        title="Rekomendasi untuk Kamu"
+        className="bg-[#FCFCFD] dark:bg-card-bg"
+      >
+        <div className="grid grid-cols-1 gap-3 md:grid-cols-3">
           {[0, 1, 2].map((i) => (
             <div
               key={i}
@@ -78,7 +82,7 @@ export default function RecommendationsAILN() {
             />
           ))}
         </div>
-      </Shell>
+      </SectionContainerAILN>
     );
   }
 
@@ -89,32 +93,26 @@ export default function RecommendationsAILN() {
   const department = q.data?.department ?? null;
 
   return (
-    <Shell>
-      <div className="flex flex-wrap items-end justify-between gap-2">
-        <div>
-          <div className="flex items-center gap-2">
-            <h2 className="text-base font-bold text-foreground dark:text-white">
-              Rekomendasi untuk Kamu
-            </h2>
-            {isSample && (
-              <span className="rounded-full bg-gray-100 px-2 py-0.5 text-[10px] font-medium text-gray-500 dark:bg-dashboard-border dark:text-gray-400">
-                data contoh
-              </span>
-            )}
-          </div>
-          <p className="mt-0.5 text-xs text-gray-500 dark:text-gray-400">
-            Use case &amp; prompt mandiri sesuai level L{levelNumber}
-            {department ? ` · ${department}` : ""}
-          </p>
-        </div>
-      </div>
-
-      <div className="mt-4 grid grid-cols-1 gap-3 md:grid-cols-3">
+    <SectionContainerAILN
+      title="Rekomendasi untuk Kamu"
+      desc={`Use case & prompt mandiri sesuai level L${levelNumber}${
+        department ? ` · ${department}` : ""
+      }`}
+      headerRight={
+        isSample ? (
+          <span className="rounded-full bg-gray-100 px-2 py-0.5 text-[10px] font-medium text-gray-500 dark:bg-dashboard-border dark:text-gray-400">
+            data contoh
+          </span>
+        ) : undefined
+      }
+      className="bg-[#FCFCFD] dark:bg-card-bg"
+    >
+      <div className="grid grid-cols-1 gap-3 md:grid-cols-3">
         {items.map((it) => (
           <RecCard key={`${it.kind}-${it.id}`} item={it} levelNumber={levelNumber} />
         ))}
       </div>
-    </Shell>
+    </SectionContainerAILN>
   );
 }
 
@@ -168,13 +166,5 @@ function RecCard({
         </span>
       </div>
     </Link>
-  );
-}
-
-function Shell({ children }: { children: React.ReactNode }) {
-  return (
-    <div className="rounded-lg border border-dashboard-border bg-white p-5 dark:bg-card-bg">
-      {children}
-    </div>
   );
 }

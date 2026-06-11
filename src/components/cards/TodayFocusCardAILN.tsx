@@ -2,10 +2,18 @@
 import ButtonAILN from "@/components/buttons/ButtonAILN";
 import AlertConfirmDialogAILN from "@/components/modals/AlertConfirmDialogAILN";
 import { trpc } from "@/trpc/client";
-import { ArrowRight } from "lucide-react";
+import dayjs from "dayjs";
+import "dayjs/locale/id";
+import { ArrowRight, Clock, Lightbulb } from "lucide-react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
+
+dayjs.locale("id");
+
+// Soft red gradient surface — khas Today's Focus (beda dari card lain yang #FCFCFD).
+const SURFACE =
+  "rounded-lg border border-red-100 bg-gradient-to-br from-red-50 via-white to-rose-50/60 p-5 dark:border-red-500/25 dark:from-red-500/10 dark:via-card-bg dark:to-rose-500/10";
 
 type FocusKind =
   | "Quiz"
@@ -16,38 +24,28 @@ type FocusKind =
 
 function labelForKind(kind: FocusKind) {
   if (kind === "Quiz") return "Quiz";
-  if (kind === "Video") return "Recording";
-  if (kind === "PromptPractice") return "Prompt Practice";
-  if (kind === "UseCasePractice") return "Use Case Practice";
+  if (kind === "Video") return "Video";
+  if (kind === "PromptPractice") return "Prompt";
+  if (kind === "UseCasePractice") return "Use Case";
   return "Materi";
 }
 
-function headlineForFocus(focus: {
+// Kalimat ajakan — sebelumnya jadi judul, sekarang turun ke deskripsi.
+function descForFocus(focus: {
   kind: FocusKind;
-  task_title: string;
   chapter_name: string | null;
 }) {
+  const label = labelForKind(focus.kind).toLowerCase();
   if (focus.kind === "PromptPractice" || focus.kind === "UseCasePractice") {
-    return (
-      <>
-        Kerjakan {labelForKind(focus.kind).toLowerCase()}{" "}
-        <span className="rounded px-1 text-red-600 dark:text-red-400 dark:drop-shadow-[0_0_4px_rgba(239,68,68,0.6)]">
-          {focus.task_title}
-        </span>
-        {focus.chapter_name ? ` di ${focus.chapter_name}.` : "."}
-      </>
-    );
+    return `Kerjakan ${label} ini sebelum tenggat yang diberikan Champion kamu.`;
   }
+  return `Selesaikan ${label} ini${
+    focus.chapter_name ? ` di Chapter ${focus.chapter_name}` : ""
+  } supaya progres kamu terus maju.`;
+}
 
-  return (
-    <>
-      Selesaikan {labelForKind(focus.kind).toLowerCase()}{" "}
-      <span className="rounded px-1 text-red-600 dark:text-red-400 dark:drop-shadow-[0_0_4px_rgba(239,68,68,0.6)]">
-        {focus.task_title}
-      </span>{" "}
-      di Chapter {focus.chapter_name}.
-    </>
-  );
+function formatDeadline(d: Date | string) {
+  return dayjs(d).format("ddd, D MMM YYYY · HH:mm");
 }
 
 export default function TodayFocusCardAILN() {
@@ -66,14 +64,14 @@ export default function TodayFocusCardAILN() {
 
   if (q.isLoading) {
     return (
-      <CardShell title="● FOKUS HARI INI">
+      <CardShell>
         <CardLoading />
       </CardShell>
     );
   }
   if (q.error || !q.data) {
     return (
-      <CardShell title="● FOKUS HARI INI">
+      <CardShell>
         <CardError />
       </CardShell>
     );
@@ -81,27 +79,17 @@ export default function TodayFocusCardAILN() {
 
   const focus = q.data.focus;
 
-  const detailHref = focus
-    ? focus.kind === "PromptPractice" || focus.kind === "UseCasePractice"
-      ? focus.level_id != null
-        ? `/student/modules?practice=${focus.level_id}`
-        : "/student/modules"
-      : focus.chapter_id != null
-        ? `/student/modules?chapter=${focus.chapter_id}`
-        : "/student/modules"
-    : "/student/modules";
-
   if (!focus) {
     return (
-      <CardShell title="● FOKUS HARI INI">
+      <CardShell>
         <h2 className="text-xl font-bold leading-snug text-gray-900 dark:text-white">
           Semua task terbaru sudah kamu selesaikan 🎉
         </h2>
-        <p className="text-sm text-gray-500 dark:text-gray-400">
+        <p className="mt-1 text-sm text-gray-500 dark:text-gray-400">
           Tunggu chapter berikutnya terbuka, atau lihat ulang materi yang sudah
           dikerjakan.
         </p>
-        <div className="mt-2">
+        <div className="mt-3">
           <Link href="/student/modules">
             <ButtonAILN>Lihat modul belajar</ButtonAILN>
           </Link>
@@ -110,63 +98,134 @@ export default function TodayFocusCardAILN() {
     );
   }
 
+  const detailHref =
+    focus.kind === "PromptPractice" || focus.kind === "UseCasePractice"
+      ? focus.level_id != null
+        ? `/student/modules?practice=${focus.level_id}`
+        : "/student/modules"
+      : focus.chapter_id != null
+        ? `/student/modules?chapter=${focus.chapter_id}`
+        : "/student/modules";
+
+  const jenisLabel =
+    labelForKind(focus.kind) +
+    (focus.level_number != null ? ` L${focus.level_number}` : "");
+
   return (
-    <div className="flex h-fit flex-col gap-3 rounded-lg border border-dashboard-border bg-white p-5 dark:bg-card-bg">
-      <div className="flex items-center gap-2 text-xs font-medium uppercase tracking-widest text-gray-500 dark:text-gray-400">
-        <span className="size-2 rounded-full bg-red-500 dark:shadow-[0_0_8px_rgba(239,68,68,0.9)]" />
-        FOKUS HARI INI
-      </div>
-      <h2 className="text-xl font-bold leading-snug text-gray-900 dark:text-white">
-        {headlineForFocus(focus)}
-      </h2>
-      <p className="text-sm text-gray-500 dark:text-gray-400">
-        {focus.kind === "PromptPractice" || focus.kind === "UseCasePractice"
-          ? "Practice dengan deadline terdekat dari Champion kamu."
-          : "Pilih task ini sebagai langkah berikutnya supaya progres chapter kamu terus maju."}
-      </p>
-      <div className="mt-2 flex flex-wrap items-center gap-2">
-        {focus.kind === "Video" && (
-          <a
-            href={focus.href}
-            target="_blank"
-            rel="noopener noreferrer"
-            className="inline-block"
-            onClick={() =>
-              completeVideo.mutate({ video_id: Number(focus.task_id) })
-            }
-          >
-            <ButtonAILN>
-              Mulai sekarang
-              <ArrowRight className="size-3.5" />
-            </ButtonAILN>
-          </a>
-        )}
-        {focus.kind === "Material" && (
-          <Link href={focus.href}>
-            <ButtonAILN>
-              Mulai sekarang
-              <ArrowRight className="size-3.5" />
-            </ButtonAILN>
-          </Link>
-        )}
-        {(focus.kind === "PromptPractice" ||
-          focus.kind === "UseCasePractice") && (
-          <Link href={focus.href}>
-            <ButtonAILN>
-              Mulai sekarang
-              <ArrowRight className="size-3.5" />
-            </ButtonAILN>
-          </Link>
-        )}
-        {focus.kind === "Quiz" && (
-          <ButtonAILN onClick={() => setIsQuizDialogOpen(true)}>
-            Mulai sekarang
-            <ArrowRight className="size-3.5" />
-          </ButtonAILN>
-        )}
-        <Link href={detailHref}>
-          <ButtonAILN variant="outline">Lihat detail</ButtonAILN>
-        </Link>
+    <div className={`${SURFACE} flex h-fit flex-col`}>
+      <div className="grid grid-cols-1 gap-5 lg:grid-cols-3">
+        {/* Kiri — fokus utama */}
+        <div className="flex flex-col gap-3 lg:col-span-2">
+          <div className="flex items-center gap-2 text-xs font-semibold uppercase tracking-widest text-red-600 dark:text-red-400">
+            <span className="size-2 rounded-full bg-red-500 dark:shadow-[0_0_8px_rgba(239,68,68,0.9)]" />
+            Fokus Hari Ini
+          </div>
+
+          <h2 className="text-[30px] font-bold leading-tight text-gray-900 dark:text-white">
+            {focus.task_title}
+          </h2>
+
+          <p className="text-sm text-gray-600 dark:text-gray-300">
+            {descForFocus(focus)}
+          </p>
+
+          {/* Label-label */}
+          <div className="mt-1 flex flex-wrap items-center gap-2">
+            {focus.deadline && (
+              <span className="inline-flex items-center gap-1.5 rounded-full border border-blue-200 bg-blue-50 px-3 py-1 text-xs font-semibold text-blue-700 dark:border-blue-500/30 dark:bg-blue-500/10 dark:text-blue-300">
+                <Clock className="size-3.5" />
+                Deadline {formatDeadline(focus.deadline)}
+              </span>
+            )}
+            <span className="inline-flex items-center rounded-full border border-violet-200 bg-violet-50 px-3 py-1 text-xs font-semibold text-violet-700 dark:border-violet-500/30 dark:bg-violet-500/10 dark:text-violet-300">
+              {labelForKind(focus.kind)}
+            </span>
+            {focus.level_number != null && (
+              <span className="inline-flex items-center rounded-full border border-dashboard-border bg-white px-3 py-1 text-xs font-semibold text-gray-700 dark:bg-card-bg dark:text-gray-300">
+                L{focus.level_number}
+              </span>
+            )}
+            {focus.assigned_by_name && (
+              <span className="inline-flex items-center gap-1.5 rounded-full border border-emerald-200 bg-emerald-50 px-3 py-1 text-xs font-semibold text-emerald-700 dark:border-emerald-500/30 dark:bg-emerald-500/10 dark:text-emerald-300">
+                <Lightbulb className="size-3.5" />
+                Dari {focus.assigned_by_name} (Champion)
+              </span>
+            )}
+          </div>
+
+          {/* Aksi */}
+          <div className="mt-2 flex flex-wrap items-center gap-2">
+            {focus.kind === "Video" && (
+              <a
+                href={focus.href}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="inline-block"
+                onClick={() =>
+                  completeVideo.mutate({ video_id: Number(focus.task_id) })
+                }
+              >
+                <ButtonAILN>
+                  Mulai sekarang
+                  <ArrowRight className="size-3.5" />
+                </ButtonAILN>
+              </a>
+            )}
+            {focus.kind === "Material" && (
+              <Link href={focus.href}>
+                <ButtonAILN>
+                  Mulai sekarang
+                  <ArrowRight className="size-3.5" />
+                </ButtonAILN>
+              </Link>
+            )}
+            {(focus.kind === "PromptPractice" ||
+              focus.kind === "UseCasePractice") && (
+              <Link href={focus.href}>
+                <ButtonAILN>
+                  Mulai sekarang
+                  <ArrowRight className="size-3.5" />
+                </ButtonAILN>
+              </Link>
+            )}
+            {focus.kind === "Quiz" && (
+              <ButtonAILN onClick={() => setIsQuizDialogOpen(true)}>
+                Mulai sekarang
+                <ArrowRight className="size-3.5" />
+              </ButtonAILN>
+            )}
+            <Link href={detailHref}>
+              <ButtonAILN variant="outline">Lihat detail</ButtonAILN>
+            </Link>
+          </div>
+        </div>
+
+        {/* Kanan — detail tugas */}
+        <aside className="h-fit rounded-xl border border-red-100 bg-white/70 p-4 dark:border-red-500/20 dark:bg-card-bg/60">
+          <div className="mono text-[10px] font-bold uppercase tracking-widest text-gray-400 dark:text-gray-500">
+            Detail Tugas
+          </div>
+          <dl className="mt-3 flex flex-col gap-2.5 text-sm">
+            <div className="flex items-center justify-between gap-3">
+              <dt className="text-gray-500 dark:text-gray-400">Jenis</dt>
+              <dd className="mono font-semibold text-red-600 dark:text-red-400">
+                {jenisLabel}
+              </dd>
+            </div>
+            <div className="flex items-center justify-between gap-3">
+              <dt className="text-gray-500 dark:text-gray-400">Kategori</dt>
+              <dd className="mono font-semibold text-gray-900 dark:text-white">
+                {focus.category ?? "—"}
+              </dd>
+            </div>
+            <div className="flex items-center justify-between gap-3">
+              <dt className="text-gray-500 dark:text-gray-400">Status</dt>
+              <dd className="mono font-semibold text-amber-600 dark:text-amber-400">
+                Belum dikerjakan
+              </dd>
+            </div>
+          </dl>
+        </aside>
       </div>
 
       {focus.kind === "Quiz" && (
@@ -187,17 +246,12 @@ export default function TodayFocusCardAILN() {
   );
 }
 
-function CardShell({
-  title,
-  children,
-}: {
-  title: string;
-  children: React.ReactNode;
-}) {
+function CardShell({ children }: { children: React.ReactNode }) {
   return (
-    <div className="flex h-fit flex-col gap-3 rounded-lg border border-dashboard-border bg-white p-5 dark:bg-card-bg">
-      <div className="text-xs font-medium uppercase tracking-widest text-gray-500 dark:text-gray-400">
-        {title}
+    <div className={`${SURFACE} flex h-fit flex-col gap-3`}>
+      <div className="flex items-center gap-2 text-xs font-semibold uppercase tracking-widest text-red-600 dark:text-red-400">
+        <span className="size-2 rounded-full bg-red-500" />
+        Fokus Hari Ini
       </div>
       {children}
     </div>
@@ -206,8 +260,8 @@ function CardShell({
 
 function CardLoading() {
   return (
-    <div className="flex flex-col gap-3 animate-pulse">
-      <div className="h-6 w-3/4 rounded bg-gray-200 dark:bg-dashboard-border" />
+    <div className="flex animate-pulse flex-col gap-3">
+      <div className="h-8 w-3/4 rounded bg-gray-200 dark:bg-dashboard-border" />
       <div className="h-4 w-full rounded bg-gray-200 dark:bg-dashboard-border" />
       <div className="h-4 w-2/3 rounded bg-gray-200 dark:bg-dashboard-border" />
       <div className="mt-2 flex items-center gap-2">

@@ -106,12 +106,22 @@ export default function DashboardChampionAILN({
   return (
     <PageContainerAILN>
       <div className="flex w-full flex-col gap-6">
+        {/* Active Loop — sticky full-bleed page header (selaras dengan lms-fe-ailene).
+            Negative margin meng-cancel padding page-container (px-4 md:px-6 xl:px-8
+            + py-6) supaya bener-bener full width; offset sidebar tetap (ada di
+            page-root, bukan di sini). */}
+        <header className="sticky top-0 z-30 -mx-4 -mt-6 flex items-center justify-between border-b border-dashboard-border bg-background/80 px-4 py-4 backdrop-blur-md md:-mx-6 md:px-6 xl:-mx-8 xl:px-8">
+          <h1 className="display-font text-xl font-bold tracking-tight text-foreground">
+            Active Loop
+          </h1>
+        </header>
+
         {/* Header */}
         <div className="flex items-start gap-3">
           <div>
-            <h1 className="text-2xl font-bold dark:text-white">
+            <h2 className="text-2xl font-bold dark:text-white">
               Team Overview
-            </h1>
+            </h2>
             <p className="text-sm text-gray-500 dark:text-gray-400">
               Monitor your team&apos;s learning progress and performance.
             </p>

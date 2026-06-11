@@ -628,8 +628,13 @@ export const readAilene = {
               id: true,
               name: true,
               level: { select: { id: true, level_number: true, name: true } },
+              categories: {
+                select: { category: { select: { name: true } } },
+                take: 1,
+              },
             },
           },
+          assigned_by: { select: { user: { select: { full_name: true } } } },
         },
       }),
       opts.ctx.prisma.ailUseCaseSubmission.findMany({
@@ -646,8 +651,13 @@ export const readAilene = {
               id: true,
               name: true,
               level: { select: { id: true, level_number: true, name: true } },
+              categories: {
+                select: { category: { select: { name: true } } },
+                take: 1,
+              },
             },
           },
+          assigned_by: { select: { user: { select: { full_name: true } } } },
         },
       }),
     ]);
@@ -670,6 +680,9 @@ export const readAilene = {
       chapter_id: number | null;
       chapter_name: string | null;
       level_id: number | null;
+      level_number: number | null;
+      category: string | null;
+      assigned_by_name: string | null;
       deadline?: Date | null;
       href: string;
     };
@@ -683,6 +696,9 @@ export const readAilene = {
         chapter_id: null,
         chapter_name: row.prompt.level.name,
         level_id: row.prompt.level.id,
+        level_number: row.prompt.level.level_number,
+        category: row.prompt.categories[0]?.category.name ?? null,
+        assigned_by_name: row.assigned_by?.user.full_name ?? null,
         deadline: row.deadline,
         href: `/student/practice/prompts/${row.prompt.id}`,
       })),
@@ -693,6 +709,9 @@ export const readAilene = {
         chapter_id: null,
         chapter_name: row.use_case.level.name,
         level_id: row.use_case.level.id,
+        level_number: row.use_case.level.level_number,
+        category: row.use_case.categories[0]?.category.name ?? null,
+        assigned_by_name: row.assigned_by?.user.full_name ?? null,
         deadline: row.deadline,
         href: `/student/practice/use-cases/${row.use_case.id}`,
       })),
@@ -715,6 +734,9 @@ export const readAilene = {
           chapter_id: ch.id,
           chapter_name: ch.name,
           level_id: ch.level_id,
+          level_number: ch.level.level_number,
+          category: null,
+          assigned_by_name: null,
           href: `/student/materials/${m.id}`,
         };
         break;
@@ -728,6 +750,9 @@ export const readAilene = {
           chapter_id: ch.id,
           chapter_name: ch.name,
           level_id: ch.level_id,
+          level_number: ch.level.level_number,
+          category: null,
+          assigned_by_name: null,
           href: `/student/quizzes/${q.id}`,
         };
         break;
@@ -745,6 +770,9 @@ export const readAilene = {
           chapter_id: ch.id,
           chapter_name: ch.name,
           level_id: ch.level_id,
+          level_number: ch.level.level_number,
+          category: null,
+          assigned_by_name: null,
           href: v.video_url,
         };
         break;
