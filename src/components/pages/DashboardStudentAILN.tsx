@@ -67,7 +67,6 @@ export default function DashboardStudentAILN({
           <div className="flex items-center gap-3">
             <MemberStatsLabelAILN />
 
-            {/* Catat Use Case — CTA merah (ButtonAILN dibungkus Link) */}
             <Link href="/student/practice/create">
               <ButtonAILN variant="destructive" size="medium">
                 <PlusCircle className="size-4" />

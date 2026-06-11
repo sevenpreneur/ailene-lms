@@ -21,7 +21,7 @@ import {
   Send,
 } from "lucide-react";
 import Link from "next/link";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import { useEffect, useMemo, useState, type ReactNode } from "react";
 import { toast } from "sonner";
 
@@ -83,6 +83,12 @@ function practiceHref(kind: PracticeKind, refId: number) {
     : `/student/practice/use-cases/${refId}`;
 }
 
+function tabFromParam(value: string | null): PracticeTab {
+  if (value === "library") return "LIBRARY";
+  if (value === "history") return "HISTORY";
+  return "ASSIGNED";
+}
+
 function deriveStatus(item: {
   submitted_at: string | null;
   reviewed_at: string | null;
@@ -131,14 +137,21 @@ export default function PracticeStudentAILN({
   sessionToken: string;
 }) {
   const router = useRouter();
+  const searchParams = useSearchParams();
   const utils = trpc.useUtils();
 
   useEffect(() => {
     setSessionToken(sessionToken);
   }, [sessionToken]);
 
-  const [tab, setTab] = useState<PracticeTab>("ASSIGNED");
+  const [tab, setTab] = useState<PracticeTab>(() =>
+    tabFromParam(searchParams.get("tab"))
+  );
   const [startingKey, setStartingKey] = useState<string | null>(null);
+
+  useEffect(() => {
+    setTab(tabFromParam(searchParams.get("tab")));
+  }, [searchParams]);
 
   const assignedPromptsQ = trpc.ailene.list.assignedPrompts.useQuery();
   const assignedUseCasesQ = trpc.ailene.list.assignedUseCases.useQuery();

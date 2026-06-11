@@ -164,8 +164,8 @@ export const readAilene = {
     };
   }),
 
-  // Rekomendasi use case / prompt mandiri dari KATALOG — relevan ke level +
-  // (ringan) role/departemen. Read-only; tidak butuh migrasi.
+  // Rekomendasi use case mandiri dari katalog. Hanya ambil use case yang
+  // belum pernah dibuatkan submission oleh member ini.
   recommendations: ailMemberProcedure.query(async (opts) => {
     const memberId = opts.ctx.ail_member.id;
 
@@ -175,106 +175,82 @@ export const readAilene = {
         current_level_id: true,
         job_title: true,
         group: { select: { name: true } },
-        current_level: { select: { level_number: true } },
+        current_level: { select: { id: true, level_number: true } },
       },
     });
     if (!me) {
-      return { code: STATUS_OK, message: "Success", level_number: 0, department: null, items: [] };
+      return {
+        code: STATUS_OK,
+        message: "Success",
+        level_number: 0,
+        role: null,
+        department: null,
+        items: [],
+      };
     }
 
-    const levelId = me.current_level_id;
     const levelNumber = me.current_level?.level_number ?? 0;
+    const role = me.job_title ?? null;
     const department = me.group?.name ?? null;
-    // Hint untuk preferensi kategori (Opsi A — ringan, dipakai utk SORT).
-    const hint = `${me.job_title ?? ""} ${department ?? ""}`.toLowerCase();
+    const hint = `${role ?? ""} ${department ?? ""}`.toLowerCase();
 
-    const [doneUc, donePr] = await Promise.all([
-      opts.ctx.prisma.ailUseCaseSubmission.findMany({
-        where: { member_id: memberId },
-        select: { use_case_id: true },
-      }),
-      opts.ctx.prisma.ailPromptSubmission.findMany({
-        where: { member_id: memberId },
-        select: { prompt_id: true },
-      }),
-    ]);
+    const doneUc = await opts.ctx.prisma.ailUseCaseSubmission.findMany({
+      where: { member_id: memberId },
+      select: { use_case_id: true },
+    });
     const doneUcIds = doneUc
       .map((x) => x.use_case_id)
       .filter((x): x is number => x != null);
-    const donePrIds = donePr
-      .map((x) => x.prompt_id)
-      .filter((x): x is number => x != null);
 
-    const [useCases, prompts] = await Promise.all([
-      opts.ctx.prisma.ailUseCase.findMany({
-        where: {
-          level_id: levelId,
-          status: "ACTIVE",
-          ...(doneUcIds.length ? { id: { notIn: doneUcIds } } : {}),
-        },
-        select: {
-          id: true,
-          name: true,
-          description: true,
-          categories: { select: { category: { select: { name: true } } } },
-        },
-        take: 12,
-      }),
-      opts.ctx.prisma.ailPrompt.findMany({
-        where: {
-          level_id: levelId,
-          status: "ACTIVE",
-          ...(donePrIds.length ? { id: { notIn: donePrIds } } : {}),
-        },
-        select: {
-          id: true,
-          name: true,
-          scenario: true,
-          categories: { select: { category: { select: { name: true } } } },
-        },
-        take: 12,
-      }),
-    ]);
+    const useCases = await opts.ctx.prisma.ailUseCase.findMany({
+      where: {
+        status: "ACTIVE",
+        ...(doneUcIds.length ? { id: { notIn: doneUcIds } } : {}),
+      },
+      orderBy: [{ level: { level_number: "asc" } }, { name: "asc" }],
+      select: {
+        id: true,
+        name: true,
+        description: true,
+        level: { select: { level_number: true } },
+        categories: { select: { category: { select: { name: true } } } },
+      },
+      take: 24,
+    });
 
     type Rec = {
       id: number;
-      kind: "use_case" | "prompt";
       title: string;
       description: string;
       category: string | null;
+      level_number: number;
     };
     const ucItems: Rec[] = useCases.map((u) => ({
       id: u.id,
-      kind: "use_case",
       title: u.name,
       description: u.description,
       category: u.categories[0]?.category.name ?? null,
-    }));
-    const prItems: Rec[] = prompts.map((p) => ({
-      id: p.id,
-      kind: "prompt",
-      title: p.name,
-      description: p.scenario,
-      category: p.categories[0]?.category.name ?? null,
+      level_number: u.level.level_number,
     }));
 
-    // Relevansi ringan: item yg kategorinya nyerempet role/dept didahulukan.
     const relevance = (r: Rec) =>
       r.category && hint.includes(r.category.toLowerCase()) ? 1 : 0;
-    const byRelevance = (a: Rec, b: Rec) => relevance(b) - relevance(a);
-    ucItems.sort(byRelevance);
-    prItems.sort(byRelevance);
-
-    // Mix tergantung level: L0–L1 condong prompt, L2+ condong use case.
-    const caseFirst = levelNumber >= 2;
-    const primary = caseFirst ? ucItems : prItems;
-    const secondary = caseFirst ? prItems : ucItems;
-    const items = [...primary, ...secondary].slice(0, 6);
+    const byRelevance = (a: Rec, b: Rec) => {
+      const rel = relevance(b) - relevance(a);
+      if (rel !== 0) return rel;
+      const levelDistance =
+        Math.abs(a.level_number - levelNumber) -
+        Math.abs(b.level_number - levelNumber);
+      if (levelDistance !== 0) return levelDistance;
+      return a.title.localeCompare(b.title);
+    };
+    const items = ucItems.sort(byRelevance).slice(0, 3);
 
     return {
       code: STATUS_OK,
       message: "Success",
       level_number: levelNumber,
+      role,
       department,
       items,
     };

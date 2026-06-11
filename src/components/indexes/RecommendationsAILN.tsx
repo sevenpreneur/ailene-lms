@@ -1,170 +1,200 @@
 "use client";
-import SectionContainerAILN from "@/components/cards/SectionContainerAILN";
 import { trpc } from "@/trpc/client";
-import { FileText, Sparkles } from "lucide-react";
+import {
+  ArrowRight,
+  BarChart3,
+  FilePenLine,
+  Loader2,
+  Target,
+} from "lucide-react";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
+import { useState } from "react";
+import { toast } from "sonner";
 
 type RecItem = {
   id: number;
-  kind: "use_case" | "prompt";
   title: string;
   description: string;
   category: string | null;
+  level_number: number;
 };
 
-// Data contoh — strukturnya niru katalog (AilUseCase/AilPrompt: kind, kategori,
-// judul, deskripsi). Dipakai sampai katalog asli terisi.
-const SAMPLE_RECS: RecItem[] = [
-  {
-    id: -1,
-    kind: "prompt",
-    title: "Generator caption Instagram",
-    description:
-      "Pakai ChatGPT untuk bikin 10 caption Instagram sesuai brand voice dalam 5 menit.",
-    category: "Content Creation",
-  },
-  {
-    id: -2,
-    kind: "use_case",
-    title: "Analisis kompetitor via NotebookLM",
-    description:
-      "Upload materi kompetitor ke NotebookLM, dapatkan positioning analysis ringkas.",
-    category: "Research",
-  },
-  {
-    id: -3,
-    kind: "use_case",
-    title: "Analyzer performa campaign",
-    description:
-      "Analisis data campaign + hasilkan rekomendasi peningkatan otomatis.",
-    category: "Data Analysis",
-  },
-  {
-    id: -4,
-    kind: "prompt",
-    title: "Ringkas meeting jadi action items",
-    description:
-      "Ubah transkrip meeting jadi keputusan + action item dengan PIC & tenggat.",
-    category: "Communication",
-  },
-  {
-    id: -5,
-    kind: "use_case",
-    title: "Draf balasan email klien",
-    description:
-      "Susun balasan email follow-up klien yang sopan dan to-the-point.",
-    category: "Communication",
-  },
-  {
-    id: -6,
-    kind: "prompt",
-    title: "Riset tren industri 30 menit",
-    description:
-      "Kumpulkan tren & insight industri terbaru beserta sumbernya secara cepat.",
-    category: "Research",
-  },
-];
+const cardIcons = [FilePenLine, Target, BarChart3] as const;
+
+function categoryLabelClass(category: string) {
+  if (category.trim().toLowerCase() === "human capital") {
+    return "border-emerald-200 bg-emerald-50 text-emerald-700 dark:border-emerald-500/30 dark:bg-emerald-500/10 dark:text-emerald-300";
+  }
+  return "border-red-200 bg-red-50 text-red-700 dark:border-red-500/30 dark:bg-red-500/10 dark:text-red-300";
+}
 
 export default function RecommendationsAILN() {
+  const router = useRouter();
+  const utils = trpc.useUtils();
   const q = trpc.ailene.read.recommendations.useQuery();
+  const selfAssignM = trpc.ailene.create.selfAssignUseCase.useMutation();
+  const [startingId, setStartingId] = useState<number | null>(null);
+
+  const items = q.data?.items ?? [];
+  const levelNumber = q.data?.level_number ?? 0;
+  const roleLabel = q.data?.role ?? q.data?.department ?? "role Anda";
+
+  const handleStart = (item: RecItem) => {
+    setStartingId(item.id);
+    selfAssignM.mutate(
+      { use_case_id: item.id },
+      {
+        onSuccess: () => {
+          utils.ailene.list.memberUseCaseLibrary.invalidate();
+          utils.ailene.list.practiceSubmissions.invalidate();
+          router.push(`/student/practice/use-cases/${item.id}`);
+        },
+        onError: (err) => {
+          toast.error("Gagal membuka use case", {
+            description: err.message,
+          });
+        },
+        onSettled: () => setStartingId(null),
+      }
+    );
+  };
 
   if (q.isLoading) {
     return (
-      <SectionContainerAILN
-        title="Rekomendasi untuk Kamu"
-        className="bg-[#FCFCFD] dark:bg-card-1"
-      >
-        <div className="grid grid-cols-1 gap-3 md:grid-cols-3">
+      <section className="flex flex-col gap-4">
+        <RecommendationHeader
+          levelNumber={levelNumber}
+          roleLabel={roleLabel}
+        />
+        <div className="grid grid-cols-1 gap-4 md:grid-cols-3">
           {[0, 1, 2].map((i) => (
             <div
               key={i}
-              className="h-32 animate-pulse rounded-lg bg-gray-100 dark:bg-dashboard-border"
+              className="h-64 animate-pulse rounded-lg border border-dashboard-border bg-card-1"
             />
           ))}
         </div>
-      </SectionContainerAILN>
+      </section>
     );
   }
 
-  const real = q.data?.items ?? [];
-  const isSample = real.length === 0;
-  const items = isSample ? SAMPLE_RECS : real;
-  const levelNumber = q.data?.level_number ?? 0;
-  const department = q.data?.department ?? null;
+  if (items.length === 0) {
+    return (
+      <section className="flex flex-col gap-4">
+        <RecommendationHeader
+          levelNumber={levelNumber}
+          roleLabel={roleLabel}
+        />
+        <div className="rounded-lg border border-dashed border-dashboard-border bg-card-1 px-4 py-10 text-center text-sm text-muted-foreground">
+          Semua rekomendasi use case yang tersedia sudah pernah kamu kerjakan.
+        </div>
+      </section>
+    );
+  }
 
   return (
-    <SectionContainerAILN
-      title="Rekomendasi untuk Kamu"
-      desc={`Use case & prompt mandiri sesuai level L${levelNumber}${
-        department ? ` · ${department}` : ""
-      }`}
-      headerRight={
-        isSample ? (
-          <span className="rounded-full bg-gray-100 px-2 py-0.5 text-[10px] font-medium text-gray-500 dark:bg-dashboard-border dark:text-gray-400">
-            data contoh
-          </span>
-        ) : undefined
-      }
-      className="bg-[#FCFCFD] dark:bg-card-1"
-    >
-      <div className="grid grid-cols-1 gap-3 md:grid-cols-3">
-        {items.map((it) => (
-          <RecCard key={`${it.kind}-${it.id}`} item={it} levelNumber={levelNumber} />
+    <section className="flex flex-col gap-4">
+      <RecommendationHeader levelNumber={levelNumber} roleLabel={roleLabel} />
+      <div className="grid grid-cols-1 gap-4 md:grid-cols-3">
+        {items.map((item, index) => (
+          <RecommendationCard
+            key={item.id}
+            item={item}
+            iconIndex={index}
+            isStarting={startingId === item.id}
+            onStart={() => handleStart(item)}
+          />
         ))}
       </div>
-    </SectionContainerAILN>
+    </section>
   );
 }
 
-function RecCard({
-  item,
+function RecommendationHeader({
   levelNumber,
+  roleLabel,
+}: {
+  levelNumber: number;
+  roleLabel: string;
+}) {
+  return (
+    <div className="flex flex-wrap items-start justify-between gap-3">
+      <div>
+        <h2 className="text-xl font-bold leading-tight text-foreground dark:text-white">
+          Rekomendasi Use Case untuk Anda
+        </h2>
+        <p className="mt-1 text-sm text-muted-foreground">
+          Ide use case dari role ({roleLabel}) + level (L{levelNumber}) - klik
+          untuk mencatatnya
+        </p>
+      </div>
+      <Link
+        href="/student/practice?tab=library"
+        className="inline-flex items-center gap-1 text-sm font-semibold text-red-600 transition hover:text-red-700 hover:underline dark:text-red-400 dark:hover:text-red-300"
+      >
+        Lihat semua
+        <ArrowRight className="size-4" />
+      </Link>
+    </div>
+  );
+}
+
+function RecommendationCard({
+  item,
+  iconIndex,
+  isStarting,
+  onStart,
 }: {
   item: RecItem;
-  levelNumber: number;
+  iconIndex: number;
+  isStarting: boolean;
+  onStart: () => void;
 }) {
-  const isPrompt = item.kind === "prompt";
-  const isSample = item.id < 0; // SAMPLE_RECS pakai id negatif → belum ada di katalog
-  const href = isSample
-    ? isPrompt
-      ? "/student/practice"
-      : "/student/modules"
-    : isPrompt
-      ? `/student/practice/prompts/${item.id}`
-      : `/student/practice/use-cases/${item.id}`;
-  const Icon = isPrompt ? Sparkles : FileText;
+  const Icon = cardIcons[iconIndex % cardIcons.length];
+  const category = item.category ?? "Use Case";
 
   return (
-    <Link
-      href={href}
-      className="group flex flex-col rounded-lg border border-dashboard-border bg-gray-50/50 p-4 transition hover:border-red-300 hover:bg-white dark:bg-card-2 dark:hover:border-red-500/40"
-    >
-      <div className="flex items-center justify-between gap-2">
-        <span className="flex size-8 shrink-0 items-center justify-center rounded-md bg-white text-red-500 shadow-sm dark:bg-card-1 dark:text-red-400">
-          <Icon className="size-4" />
+    <article className="flex min-h-72 flex-col rounded-lg border border-dashboard-border bg-card-1 p-5 transition hover:border-red-300 hover:shadow-sm dark:hover:border-red-500/50">
+      <div className="flex items-start justify-between gap-3">
+        <span className="flex size-12 shrink-0 items-center justify-center rounded-lg bg-gray-100 text-black dark:bg-white dark:text-black">
+          <Icon className="size-5" />
         </span>
-        {item.category && (
-          <span className="rounded-full bg-gray-100 px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wide text-gray-500 dark:bg-dashboard-border dark:text-gray-400">
-            {item.category}
-          </span>
-        )}
-      </div>
-
-      <h3 className="mt-3 text-sm font-semibold leading-snug text-foreground dark:text-white">
-        {item.title}
-      </h3>
-      <p className="mt-1 line-clamp-2 text-xs text-gray-500 dark:text-gray-400">
-        {item.description}
-      </p>
-
-      <div className="mt-3 flex items-center justify-between text-[11px] text-gray-400 dark:text-gray-500">
-        <span>
-          Level {levelNumber} · {isPrompt ? "Prompt practice" : "Use case"}
-        </span>
-        <span className="font-medium text-red-600 group-hover:underline dark:text-red-400">
-          Mulai →
+        <span
+          className={`inline-flex items-center rounded-full border px-3 py-1 text-xs font-semibold ${categoryLabelClass(category)}`}
+        >
+          {category}
         </span>
       </div>
-    </Link>
+
+      <div className="mt-5 flex flex-1 flex-col gap-3">
+        <h3 className="text-lg font-bold leading-snug text-foreground dark:text-white">
+          {item.title}
+        </h3>
+        <p className="text-sm leading-6 text-muted-foreground line-clamp-3">
+          {item.description}
+        </p>
+      </div>
+
+      <div className="mt-5 flex flex-wrap items-center gap-2">
+        <span className="inline-flex items-center rounded-full border border-dashboard-border bg-white px-3 py-1 text-xs font-semibold text-gray-700 dark:bg-card-1 dark:text-gray-300">
+          L{item.level_number}
+        </span>
+        <span className="inline-flex items-center rounded-full border border-amber-200 bg-amber-50 px-3 py-1 text-xs font-semibold text-amber-700 dark:border-amber-500/30 dark:bg-amber-500/10 dark:text-amber-300">
+          Belum dicatat
+        </span>
+      </div>
+
+      <button
+        type="button"
+        className="mt-4 inline-flex w-fit items-center gap-2 text-sm font-bold text-red-600 transition hover:text-red-700 hover:underline disabled:cursor-not-allowed disabled:opacity-60 dark:text-red-400 dark:hover:text-red-300"
+        onClick={onStart}
+        disabled={isStarting}
+      >
+        {isStarting ? <Loader2 className="size-4 animate-spin" /> : null}
+        Catat use case ini
+        {!isStarting ? <ArrowRight className="size-4" /> : null}
+      </button>
+    </article>
   );
 }
