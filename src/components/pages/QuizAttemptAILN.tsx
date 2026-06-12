@@ -78,7 +78,7 @@ export default function QuizAttemptAILN({
   }, []);
 
   const isDark = mounted && resolvedTheme === "dark";
-  const nextVariant = isDark ? "outline" : "primary";
+  const nextVariant = isDark ? "neutral" : "primary";
 
   // Jawaban user, key = question id (string), value = option_code yang dipilih
   const [answers, setAnswers] = useState<Record<string, string | null>>({});
@@ -342,7 +342,7 @@ export default function QuizAttemptAILN({
 
             <div className="mt-auto flex items-center justify-between border-t pt-4 dark:border-dashboard-border">
               <ButtonAILN
-                variant="outline"
+                variant="neutral"
                 onClick={handlePrev}
                 disabled={currentIdx === 0}
               >

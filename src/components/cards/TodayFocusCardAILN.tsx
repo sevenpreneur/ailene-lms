@@ -200,7 +200,7 @@ export default function TodayFocusCardAILN() {
               </ButtonAILN>
             )}
             <Link href={detailHref}>
-              <ButtonAILN variant="outline">Lihat detail</ButtonAILN>
+              <ButtonAILN variant="neutral">Lihat detail</ButtonAILN>
             </Link>
           </div>
         </div>

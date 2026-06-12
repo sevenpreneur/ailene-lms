@@ -720,7 +720,7 @@ function BasePracticeCard({
         ) : (
           <ButtonAILN
             type="button"
-            variant="outline"
+            variant="neutral"
             size="medium"
             onClick={onClick}
             disabled={isLoading}

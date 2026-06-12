@@ -161,7 +161,7 @@ export default function LevelUnlockSuccessModalAILN({
                 <Download className="size-4" />
                 Unduh PDF
               </ButtonAILN>
-              <ButtonAILN variant="outline" size="medium">
+              <ButtonAILN variant="neutral" size="medium">
                 <ArrowRight className="size-4" />
                 Bagikan
               </ButtonAILN>

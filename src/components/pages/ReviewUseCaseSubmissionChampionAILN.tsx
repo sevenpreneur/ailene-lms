@@ -321,7 +321,7 @@ export default function ReviewUseCaseSubmissionChampionAILN({
             <div className="flex flex-col gap-2 md:flex-row">
               <ButtonAILN
                 type="button"
-                variant="outline"
+                variant="neutral"
                 disabled={reviewM.isPending}
                 onClick={(e) => handleReview(e, false)}
                 className="flex-1"
@@ -331,7 +331,7 @@ export default function ReviewUseCaseSubmissionChampionAILN({
               </ButtonAILN>
               <ButtonAILN
                 type="button"
-                variant="secondary"
+                variant="champion"
                 disabled={reviewM.isPending}
                 onClick={(e) => handleReview(e, true)}
                 className="flex-1"

@@ -50,7 +50,7 @@ export default function AlertConfirmDialogAILN({
           </p>
         </div>
         <div className="button-action flex gap-2 justify-end">
-          <ButtonAILN variant="outline" size="medium" onClick={onClose}>
+          <ButtonAILN variant="neutral" size="medium" onClick={onClose}>
             {alertCancelLabel}
           </ButtonAILN>
           <ButtonAILN size="medium" onClick={onConfirm}>

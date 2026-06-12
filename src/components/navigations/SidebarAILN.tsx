@@ -112,7 +112,7 @@ const VARIANT_CONFIG: Record<SidebarAILNVariant, VariantConfig> = {
   },
   CHAMPION: {
     accent: "#107158",
-    buttonVariant: "secondary",
+    buttonVariant: "champion",
     dashboardName: "Dashboard Champion",
     menu: [
       {
@@ -152,7 +152,7 @@ const VARIANT_CONFIG: Record<SidebarAILNVariant, VariantConfig> = {
   },
   SPONSOR: {
     accent: "#1F2937",
-    buttonVariant: "tertiary",
+    buttonVariant: "sponsor",
     dashboardName: "Dashboard Sponsor",
     menu: [
       {
@@ -417,7 +417,6 @@ export default function SidebarAILN({
                 onClick={handleLogout}
                 disabled={isLoggingOut}
                 className={variant === "SPONSOR" ? "mt-3 w-full" : "mt-2 w-full"}
-                style={variant === "SPONSOR" ? { backgroundColor: config.accent } : undefined}
               >
                 <LogOut className="size-4" />
                 {isLoggingOut ? "Logging out..." : "Logout"}
@@ -498,7 +497,7 @@ function RoleSwitch({
   if (variant === "STUDENT" && memberRole === "CHAMPION") {
     return (
       <Link href="/champion" className="mt-2 block">
-        <ButtonAILN variant="outline" size="small" className="w-full">
+        <ButtonAILN variant="neutral" size="small" className="w-full">
           <UserRoundKey className="size-4" />
           Mode Champion
         </ButtonAILN>
@@ -509,7 +508,7 @@ function RoleSwitch({
   if (variant === "CHAMPION") {
     return (
       <Link href="/student" className="mt-2 block">
-        <ButtonAILN variant="outline" size="small" className="w-full">
+        <ButtonAILN variant="neutral" size="small" className="w-full">
           <UserRound className="size-4" />
           Mode Student
         </ButtonAILN>

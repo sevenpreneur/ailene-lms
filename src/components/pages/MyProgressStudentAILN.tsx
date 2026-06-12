@@ -757,7 +757,7 @@ function OutcomeView({
             .
           </p>
         </div>
-        <ButtonAILN variant="outline">
+        <ButtonAILN variant="neutral">
           <Download className="size-4" />
           Unduh ringkasan PDF
         </ButtonAILN>
@@ -878,11 +878,11 @@ function OutcomeCertificateCard({
         </p>
       </div>
       <div className="flex shrink-0 flex-wrap items-center gap-2">
-        <ButtonAILN variant="outline" size="small">
+        <ButtonAILN variant="neutral" size="small">
           <Download className="size-4" />
           Unduh PDF
         </ButtonAILN>
-        <ButtonAILN variant="outline" size="small">
+        <ButtonAILN variant="neutral" size="small">
           <Share2 className="size-4" />
           Bagikan
         </ButtonAILN>

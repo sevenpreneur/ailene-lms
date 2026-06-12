@@ -3,11 +3,12 @@ import React, { ButtonHTMLAttributes, ForwardedRef, forwardRef } from "react";
 
 export type VariantType =
   | "primary"
-  | "secondary"
-  | "tertiary"
   | "destructive"
-  | "light"
-  | "outline";
+  | "student"
+  | "champion"
+  | "sponsor"
+  | "neutral"
+  | "light";
 
 export type SizeType =
   | "default"
@@ -46,19 +47,29 @@ const ButtonAILN = forwardRef<HTMLButtonElement, ButtonAILNProps>(
     const baseClasses =
       "app-button  relative inline-flex gap-2 font-semibold items-center justify-center truncate transition transform hover:cursor-pointer active:scale-95 focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:cursor-not-allowed";
 
+    const primaryClasses =
+      "bg-black text-white hover:bg-[#140303] active:bg-[#140303] disabled:bg-gray-300 disabled:text-gray-500 dark:border dark:border-dashboard-border dark:bg-dashboard-bg dark:text-white dark:hover:bg-card-1 dark:active:bg-card-1 dark:disabled:bg-card-1/40 dark:disabled:text-red-100/40";
+    const studentClasses =
+      "bg-stakeholder-student text-white hover:bg-[color-mix(in_oklch,var(--stakeholder-student)_88%,black)] active:bg-[color-mix(in_oklch,var(--stakeholder-student)_78%,black)] disabled:bg-stakeholder-student-soft disabled:text-stakeholder-student-foreground/50";
+    const championClasses =
+      "bg-stakeholder-champion text-white hover:bg-[color-mix(in_oklch,var(--stakeholder-champion)_88%,black)] active:bg-[color-mix(in_oklch,var(--stakeholder-champion)_78%,black)] disabled:bg-stakeholder-champion-soft disabled:text-stakeholder-champion-foreground/50";
+    const sponsorClasses =
+      "bg-stakeholder-sponsor text-white hover:bg-[color-mix(in_oklch,var(--stakeholder-sponsor)_88%,black)] active:bg-[color-mix(in_oklch,var(--stakeholder-sponsor)_78%,black)] disabled:bg-stakeholder-sponsor-soft disabled:text-stakeholder-sponsor-foreground/50";
+    const destructiveClasses =
+      "bg-destructive-background text-destructive-foreground hover:bg-destructive-hover active:bg-destructive-active disabled:bg-destructive-muted dark:disabled:text-destructive-foreground/50";
+    const lightClasses =
+      "bg-light-background text-light-foreground border hover:bg-light-hover active:bg-light-active disabled:bg-light-muted disabled:text-light-foreground/30";
+    const neutralClasses =
+      "bg-light-background text-light-foreground border border-dashboard-border hover:bg-light-hover active:bg-light-active disabled:bg-light-muted disabled:text-light-foreground/30 dark:bg-dashboard-bg dark:text-white dark:hover:bg-card-1 dark:active:bg-card-1 dark:disabled:bg-card-1/40 dark:disabled:text-red-100/40";
+
     const variantClasses: Record<VariantType, string> = {
-      primary:
-        "bg-black text-white hover:bg-[#140303] active:bg-[#140303] disabled:bg-gray-300 disabled:text-gray-500 dark:border dark:border-dashboard-border dark:bg-dashboard-bg dark:text-white dark:hover:bg-card-1 dark:active:bg-card-1 dark:disabled:bg-card-1/40 dark:disabled:text-red-100/40",
-      secondary:
-        "bg-[#107158] text-white hover:bg-[#0d5d48] active:bg-[#0a4a39] disabled:bg-emerald-200 disabled:text-emerald-50",
-      tertiary:
-        "bg-[#00359D] text-white hover:bg-[#002a7d] active:bg-[#001f5d] disabled:bg-blue-200 disabled:text-blue-50",
-      destructive:
-        "bg-destructive-background text-destructive-foreground hover:bg-destructive-hover active:bg-destructive-active disabled:bg-destructive-muted dark:disabled:text-destructive-foreground/50",
-      light:
-        "bg-light-background text-light-foreground border hover:bg-light-hover active:bg-light-active disabled:bg-light-muted disabled:text-light-foreground/30",
-      outline:
-        "bg-light-background text-light-foreground border border-dashboard-border hover:bg-light-hover active:bg-light-active disabled:bg-light-muted disabled:text-light-foreground/30 dark:bg-dashboard-bg dark:text-white dark:hover:bg-card-1 dark:active:bg-card-1 dark:disabled:bg-card-1/40 dark:disabled:text-red-100/40",
+      primary: primaryClasses,
+      destructive: destructiveClasses,
+      student: studentClasses,
+      champion: championClasses,
+      sponsor: sponsorClasses,
+      neutral: neutralClasses,
+      light: lightClasses,
     };
 
     const sizeClasses: Record<SizeType, string> = {

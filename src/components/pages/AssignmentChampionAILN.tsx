@@ -90,7 +90,7 @@ export default function AssignmentChampionAILN({
           </div>
           <ButtonAILN
             type="button"
-            variant="secondary"
+            variant="champion"
             onClick={() => setCreateOpen(true)}
           >
             <Plus className="size-4" />
@@ -198,7 +198,7 @@ export default function AssignmentChampionAILN({
                     <div className="mt-4 border-t border-dashboard-border pt-4">
                       <ButtonAILN
                         type="button"
-                        variant="secondary"
+                        variant="champion"
                         className="w-full"
                         onClick={() => setAssignOpen(true)}
                       >
@@ -226,7 +226,7 @@ export default function AssignmentChampionAILN({
                   <div className="mt-4 border-t border-dashboard-border pt-4">
                     <ButtonAILN
                       type="button"
-                      variant="secondary"
+                      variant="champion"
                       className="w-full"
                       onClick={() => setAssignOpen(true)}
                     >

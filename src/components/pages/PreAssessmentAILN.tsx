@@ -50,7 +50,7 @@ export default function PreAssessmentAILN({
     setMounted(true);
   }, []);
   const isDark = mounted && resolvedTheme === "dark";
-  const nextVariant = isDark ? "outline" : "primary";
+  const nextVariant = isDark ? "neutral" : "primary";
 
   useEffect(() => {
     if (sessionToken) setSessionToken(sessionToken);
@@ -307,7 +307,7 @@ export default function PreAssessmentAILN({
 
             <div className="mt-auto flex items-center justify-between border-t pt-4 dark:border-dashboard-border">
               <ButtonAILN
-                variant="outline"
+                variant="neutral"
                 onClick={handlePrev}
                 disabled={currentIdx === 0}
               >
@@ -920,7 +920,7 @@ function RecommendationRow({
       </div>
       <span className="text-right text-sm text-gray-400">{item.duration}</span>
       <ButtonAILN
-        variant={primary ? "secondary" : "outline"}
+        variant={primary ? "champion" : "neutral"}
         size="medium"
         onClick={onClick}
       >
