@@ -1,9 +1,14 @@
 "use client";
 import ButtonAILN from "@/components/buttons/ButtonAILN";
+import SectionContainerAILN from "@/components/cards/SectionContainerAILN";
 import TextAreaAILN from "@/components/fields/TextAreaAILN";
+import GeneralLabelAILN, {
+  type GeneralLabelVariantAILN,
+} from "@/components/labels/GeneralLabelAILN";
 import PageContainerAILN from "@/components/pages/PageContainerAILN";
 import AppErrorComponents from "@/components/states/AppErrorComponents";
 import AppPageState from "@/components/states/AppPageState";
+import PageHeaderAILN from "@/components/titles/PageHeaderAILN";
 import { setSessionToken, trpc } from "@/trpc/client";
 import dayjs from "dayjs";
 import {
@@ -33,26 +38,26 @@ type Status =
 
 const statusMeta: Record<
   Status,
-  { label: string; cls: string; icon: typeof CheckCircle2 }
+  { label: string; variant: GeneralLabelVariantAILN; icon: typeof CheckCircle2 }
 > = {
   PENDING_SUBMIT: {
     label: "Belum dikerjakan",
-    cls: "bg-amber-100 text-amber-700 dark:bg-amber-500/10 dark:text-amber-300",
+    variant: "yellow",
     icon: Clock,
   },
   AWAITING_REVIEW: {
     label: "Menunggu review",
-    cls: "bg-blue-100 text-blue-700 dark:bg-blue-500/10 dark:text-blue-300",
+    variant: "blue",
     icon: Clock,
   },
   NEEDS_REVISION: {
     label: "Perlu revisi",
-    cls: "bg-red-100 text-red-700 dark:bg-red-500/10 dark:text-red-300",
+    variant: "red",
     icon: CircleAlert,
   },
   ACCEPTED: {
     label: "Diterima",
-    cls: "bg-emerald-100 text-emerald-700 dark:bg-emerald-500/10 dark:text-emerald-300",
+    variant: "green",
     icon: CheckCircle2,
   },
 };
@@ -82,9 +87,7 @@ function FieldRow({
         </label>
         {children}
         {helper && (
-          <p className="text-xs  text-gray-500 dark:text-gray-400">
-            {helper}
-          </p>
+          <p className="text-xs  text-gray-500 dark:text-gray-400">{helper}</p>
         )}
       </div>
     </div>
@@ -178,8 +181,10 @@ export default function SubmitPromptAILN({
   const meta = statusMeta[status];
   const StatusIcon = meta.icon;
   const isLocked = status === "ACCEPTED";
-  const deadlineDate = dayjs(a.deadline as unknown as string);
-  const deadlineOverdue = !a.is_accepted && deadlineDate.isBefore(dayjs());
+  const deadline = a.deadline as unknown as string | null;
+  const deadlineDate = deadline ? dayjs(deadline) : null;
+  const deadlineOverdue =
+    deadlineDate !== null && !a.is_accepted && deadlineDate.isBefore(dayjs());
 
   const handleSubmit = (e: FormEvent) => {
     e.preventDefault();
@@ -218,37 +223,33 @@ export default function SubmitPromptAILN({
 
   return (
     <PageContainerAILN>
-      <div className="flex w-full flex-col gap-6 py-4">
-        {/* Header — MaterialDetailsAILN-style: big title + badge row */}
+      <div className="flex w-full flex-col gap-6">
         <div className="flex flex-col gap-3">
-          <h1 className="text-3xl font-bold leading-tight  text-sevenpreneur-coal dark:text-white">
-            {a.prompt.name}
-          </h1>
-
+          <PageHeaderAILN title={a.prompt.name} />
           <div className="mt-1 flex flex-wrap items-center gap-2 text-sm">
-            <span className="inline-flex items-center gap-1.5 rounded-md border border-dashboard-border bg-white px-2 py-1 dark:bg-card-1 dark:text-gray-300">
-              <Layers className="h-3 w-3 text-red-500" />
-              <span className="font-medium">
-                Level {a.prompt.level.level_number}
-              </span>
-            </span>
+            <GeneralLabelAILN
+              variant="red"
+              icon={<Layers className="h-3 w-3" />}
+            >
+              Level {a.prompt.level.level_number}
+            </GeneralLabelAILN>
 
             {a.prompt.categories.map((c) => (
-              <span
+              <GeneralLabelAILN
                 key={c.id}
-                className="inline-flex items-center gap-1.5 rounded-md border border-dashboard-border bg-white px-2 py-1 dark:bg-card-1 dark:text-gray-300"
+                variant="white"
+                icon={<Tag className="h-3 w-3" />}
               >
-                <Tag className="h-3 w-3 text-gray-500 dark:text-gray-400" />
-                <span className="font-medium">{c.name}</span>
-              </span>
+                {c.name}
+              </GeneralLabelAILN>
             ))}
 
-            <span
-              className={`inline-flex items-center gap-1.5 rounded-md px-2 py-1 font-semibold ${meta.cls}`}
+            <GeneralLabelAILN
+              variant={meta.variant}
+              icon={<StatusIcon className="h-3 w-3" />}
             >
-              <StatusIcon className="h-3 w-3" />
               {meta.label}
-            </span>
+            </GeneralLabelAILN>
           </div>
 
           {a.message && (
@@ -261,13 +262,13 @@ export default function SubmitPromptAILN({
 
         <div className="grid grid-cols-1 gap-4 lg:grid-cols-[1fr_1.8fr] lg:items-start">
           {/* LEFT: Detail prompt + champion review notes */}
-          <div className="flex flex-col gap-4">
-            <div className="flex flex-col gap-4 rounded-lg border border-dashboard-border bg-white p-5 dark:bg-card-1">
+          <div className="flex flex-col gap-4 lg:sticky lg:top-6 lg:self-start lg:max-h-[calc(100vh-3rem)] lg:overflow-y-auto">
+            <div className="ailn-card flex flex-col gap-4 bg-card-1 p-5 border">
               <div className="size-10 rounded-full bg-black flex items-center justify-center text-white dark:bg-white dark:text-black">
                 <FileText className="size-5" />
               </div>
               <h2 className="text-lg font-bold  text-foreground dark:text-white">
-                Detail Prompt
+                Deskripsi Prompt
               </h2>
 
               <div className="flex flex-col gap-1">
@@ -288,25 +289,27 @@ export default function SubmitPromptAILN({
                 </p>
               </div>
 
-              <div className="flex items-center gap-2 border-t border-dashboard-border pt-3 text-xs ">
-                <CalendarClock
-                  className={`size-3.5 shrink-0 ${
-                    deadlineOverdue
-                      ? "text-red-500"
-                      : "text-gray-500 dark:text-gray-400"
-                  }`}
-                />
-                <span
-                  className={
-                    deadlineOverdue
-                      ? "font-semibold text-red-600 dark:text-red-400"
-                      : "text-gray-600 dark:text-gray-300"
-                  }
-                >
-                  Deadline: {deadlineDate.format("ddd, D MMM YYYY · HH:mm")}
-                  {deadlineOverdue ? " (lewat)" : ""}
-                </span>
-              </div>
+              {deadlineDate && (
+                <div className="flex items-center gap-2 border-t border-dashboard-border pt-3 text-xs ">
+                  <CalendarClock
+                    className={`size-3.5 shrink-0 ${
+                      deadlineOverdue
+                        ? "text-red-500"
+                        : "text-gray-500 dark:text-gray-400"
+                    }`}
+                  />
+                  <span
+                    className={
+                      deadlineOverdue
+                        ? "font-semibold text-red-600 dark:text-red-400"
+                        : "text-gray-600 dark:text-gray-300"
+                    }
+                  >
+                    Deadline: {deadlineDate.format("ddd, D MMM YYYY · HH:mm")}
+                    {deadlineOverdue ? " (lewat)" : ""}
+                  </span>
+                </div>
+              )}
             </div>
 
             {status === "NEEDS_REVISION" && a.comment && (
@@ -334,99 +337,97 @@ export default function SubmitPromptAILN({
           </div>
 
           {/* RIGHT: Form */}
-          <form
-            onSubmit={handleSubmit}
-            className="flex flex-col gap-4 rounded-lg border border-dashboard-border bg-white p-4 dark:bg-card-1"
+          <SectionContainerAILN
+            title={isLocked ? "Submission kamu" : "Kirim tugasmu"}
+            desc="Tulis prompt yang kamu pakai dan tempel output dari AI untuk direview."
           >
-            <h2 className="text-base font-bold  text-foreground dark:text-white">
-              {isLocked ? "Submission kamu" : "Kirim tugasmu"}
-            </h2>
-
-            <FieldRow
-              icon={<SquarePen className="size-4" />}
-              label="Prompt yang kamu pakai"
-              helper="Tulis prompt persis seperti yang kamu kirim ke AI."
-              required
-            >
-              <div className="flex flex-col gap-1">
-                <TextAreaAILN
-                  textAreaId="prompt-input"
-                  textAreaPlaceholder="Tulis prompt yang kamu kirim ke AI…"
-                  value={formData.input}
-                  onTextAreaChange={(v) =>
-                    setFormData((prev) => ({ ...prev, input: v }))
-                  }
-                  characterLength={5000}
-                  textAreaHeight="min-h-[160px]"
-                  variant="STUDENT"
-                  disabled={isLocked}
-                  required
-                />
-                <div className="self-end text-xs  text-gray-400">
-                  {formData.input.length}/5000 karakter
-                </div>
-              </div>
-            </FieldRow>
-
-            <FieldRow
-              icon={<Sparkles className="size-4" />}
-              label="Output dari AI"
-              helper="Tempel hasil dari AI apa adanya, tanpa diedit."
-              required
-            >
-              <div className="flex flex-col gap-1">
-                <TextAreaAILN
-                  textAreaId="prompt-output"
-                  textAreaPlaceholder="Tempel hasil dari AI…"
-                  value={formData.output}
-                  onTextAreaChange={(v) =>
-                    setFormData((prev) => ({ ...prev, output: v }))
-                  }
-                  characterLength={10000}
-                  textAreaHeight="min-h-[200px]"
-                  variant="STUDENT"
-                  disabled={isLocked}
-                  required
-                />
-                <div className="self-end text-xs  text-gray-400">
-                  {formData.output.length}/10000 karakter
-                </div>
-              </div>
-            </FieldRow>
-
-            {!isLocked && (
-              <ButtonAILN
-                type="submit"
-                variant="primary"
-                disabled={submitM.isPending}
-                className="w-fit self-end"
+            <form onSubmit={handleSubmit} className="flex flex-col gap-4">
+              <FieldRow
+                icon={<SquarePen className="size-4" />}
+                label="Prompt yang kamu pakai"
+                helper="Tulis prompt persis seperti yang kamu kirim ke AI."
+                required
               >
-                {submitM.isPending ? (
-                  <>
-                    <Loader2 className="size-4 animate-spin" />
-                    Mengirim…
-                  </>
-                ) : (
-                  <>
-                    <Send className="size-4" />
-                    {status === "NEEDS_REVISION"
-                      ? "Kirim Revisi"
-                      : a.submitted_at
-                        ? "Update Submission"
-                        : "Kirim Tugas"}
-                  </>
-                )}
-              </ButtonAILN>
-            )}
-            {isLocked && (
-              <Link
-                href="/student/skill-practice"
-                className="self-center text-sm text-gray-500 underline dark:text-gray-400"
+                <div className="flex flex-col gap-1">
+                  <TextAreaAILN
+                    textAreaId="prompt-input"
+                    textAreaPlaceholder="Tulis prompt yang kamu kirim ke AI…"
+                    value={formData.input}
+                    onTextAreaChange={(v) =>
+                      setFormData((prev) => ({ ...prev, input: v }))
+                    }
+                    characterLength={5000}
+                    textAreaHeight="min-h-[160px]"
+                    variant="STUDENT"
+                    disabled={isLocked}
+                    required
+                  />
+                  <div className="self-end text-xs  text-gray-400">
+                    {formData.input.length}/5000 karakter
+                  </div>
+                </div>
+              </FieldRow>
+
+              <FieldRow
+                icon={<Sparkles className="size-4" />}
+                label="Output dari AI"
+                helper="Tempel hasil dari AI apa adanya, tanpa diedit."
+                required
               >
-                Kembali ke daftar tugas
-              </Link>
-            )}
-          </form>
+                <div className="flex flex-col gap-1">
+                  <TextAreaAILN
+                    textAreaId="prompt-output"
+                    textAreaPlaceholder="Tempel hasil dari AI…"
+                    value={formData.output}
+                    onTextAreaChange={(v) =>
+                      setFormData((prev) => ({ ...prev, output: v }))
+                    }
+                    characterLength={10000}
+                    textAreaHeight="min-h-[200px]"
+                    variant="STUDENT"
+                    disabled={isLocked}
+                    required
+                  />
+                  <div className="self-end text-xs  text-gray-400">
+                    {formData.output.length}/10000 karakter
+                  </div>
+                </div>
+              </FieldRow>
+
+              {!isLocked && (
+                <ButtonAILN
+                  type="submit"
+                  variant="primary"
+                  disabled={submitM.isPending}
+                  className="w-fit self-end"
+                >
+                  {submitM.isPending ? (
+                    <>
+                      <Loader2 className="size-4 animate-spin" />
+                      Mengirim…
+                    </>
+                  ) : (
+                    <>
+                      <Send className="size-4" />
+                      {status === "NEEDS_REVISION"
+                        ? "Kirim Revisi"
+                        : a.submitted_at
+                          ? "Update Submission"
+                          : "Kirim Tugas"}
+                    </>
+                  )}
+                </ButtonAILN>
+              )}
+              {isLocked && (
+                <Link
+                  href="/student/skill-practice"
+                  className="self-center text-sm text-gray-500 underline dark:text-gray-400"
+                >
+                  Kembali ke daftar tugas
+                </Link>
+              )}
+            </form>
+          </SectionContainerAILN>
         </div>
       </div>
     </PageContainerAILN>
