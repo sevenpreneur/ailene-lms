@@ -1,4 +1,6 @@
 "use client";
+import SectionContainerAILN from "@/components/cards/SectionContainerAILN";
+import GeneralLabelAILN from "@/components/labels/GeneralLabelAILN";
 import { trpc } from "@/trpc/client";
 import { Star } from "lucide-react";
 
@@ -11,50 +13,50 @@ export default function LevelProgressCardAILN(
 ) {
   const q = trpc.read.levelProgress.useQuery();
 
+  let content: React.ReactNode;
   if (q.isLoading) {
-    return (
-      <StatShell className={props.className}>
-        <CardLoading />
-      </StatShell>
+    content = <CardLoading />;
+  } else if (q.error || !q.data) {
+    content = <CardError />;
+  } else {
+    const { levels, current_level_number, tasks_required, tasks_done } = q.data;
+    const target = Math.max(tasks_required, 1);
+    const pct = Math.min(100, Math.round((tasks_done / target) * 100));
+    content = (
+      <>
+        <LevelStepper
+          levels={levels}
+          currentLevelNumber={current_level_number}
+          tasksRequired={tasks_required}
+          tasksDone={tasks_done}
+        />
+        <div className="mt-5 rounded-lg border border-gray-200 p-3 dark:border-dashboard-border">
+          <div className="mb-2 text-xs text-gray-700 dark:text-gray-300">
+            Progress di Level {current_level_number}
+          </div>
+          <div className="flex items-center gap-3">
+            <div className="h-2 flex-1 overflow-hidden rounded-full bg-gray-100 dark:bg-dashboard-border">
+              <div
+                className="h-full rounded-full bg-red-500 dark:shadow-[0_0_8px_rgba(239,68,68,0.7)]"
+                style={{ width: `${pct}%` }}
+              />
+            </div>
+            <span className="text-xs font-semibold text-gray-700 dark:text-gray-300">
+              {tasks_done} / {tasks_required}
+            </span>
+          </div>
+        </div>
+      </>
     );
   }
-  if (q.error || !q.data) {
-    return (
-      <StatShell className={props.className}>
-        <CardError />
-      </StatShell>
-    );
-  }
-
-  const { levels, current_level_number, tasks_required, tasks_done } = q.data;
-  const target = Math.max(tasks_required, 1);
-  const pct = Math.min(100, Math.round((tasks_done / target) * 100));
 
   return (
-    <StatShell className={props.className}>
-      <LevelStepper
-        levels={levels}
-        currentLevelNumber={current_level_number}
-        tasksRequired={tasks_required}
-        tasksDone={tasks_done}
-      />
-      <div className="mt-5 rounded-lg border border-gray-200 p-3 dark:border-dashboard-border">
-        <div className="mb-2 text-xs text-gray-700 dark:text-gray-300">
-          Progress di Level {current_level_number}
-        </div>
-        <div className="flex items-center gap-3">
-          <div className="h-2 flex-1 overflow-hidden rounded-full bg-gray-100 dark:bg-dashboard-border">
-            <div
-              className="h-full rounded-full bg-red-500 dark:shadow-[0_0_8px_rgba(239,68,68,0.7)]"
-              style={{ width: `${pct}%` }}
-            />
-          </div>
-          <span className="text-xs font-semibold text-gray-700 dark:text-gray-300">
-            {tasks_done} / {tasks_required}
-          </span>
-        </div>
-      </div>
-    </StatShell>
+    <SectionContainerAILN
+      title="Level Progress"
+      desc="Pantau perkembangan level belajar kamu."
+    >
+      <StatShell className={props.className}>{content}</StatShell>
+    </SectionContainerAILN>
   );
 }
 
@@ -169,23 +171,19 @@ function LevelBadge({
   total: number;
 }) {
   if (state === "past") {
-    return (
-      <span className="rounded-full bg-green-100 px-2 py-0.5 text-[10px] font-medium text-green-700 dark:bg-green-500/15 dark:text-green-400">
-        Selesai
-      </span>
-    );
+    return <GeneralLabelAILN variant="green">Selesai</GeneralLabelAILN>;
   }
   if (state === "current") {
     return (
-      <span className="rounded-full bg-red-100 px-2 py-0.5 text-[10px] font-medium text-red-600 dark:bg-red-500/15 dark:text-red-400">
+      <GeneralLabelAILN variant="red">
         {done} / {total}
-      </span>
+      </GeneralLabelAILN>
     );
   }
   return (
-    <span className="rounded-full bg-gray-100 px-2 py-0.5 text-[10px] font-medium text-gray-500 dark:bg-dashboard-border dark:text-gray-400">
+    <GeneralLabelAILN variant="white">
       {done} / {total}
-    </span>
+    </GeneralLabelAILN>
   );
 }
 
@@ -196,21 +194,7 @@ function StatShell({
   className?: string;
   children: React.ReactNode;
 }) {
-  return (
-    <div
-      className={`flex h-full flex-col rounded-lg border border-dashboard-border bg-white p-5 dark:bg-card-1 ${className}`}
-    >
-      <div>
-        <h2 className="text-base font-bold text-foreground dark:text-white">
-          Level Progress
-        </h2>
-        <p className="mt-1 text-xs text-gray-500 dark:text-gray-400">
-          Pantau perkembangan level belajar kamu.
-        </p>
-      </div>
-      {children}
-    </div>
-  );
+  return <div className={`flex h-full flex-col ${className}`}>{children}</div>;
 }
 
 function CardLoading() {

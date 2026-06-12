@@ -7,7 +7,8 @@ import StreakCardAILN from "@/components/charts/StreakCardAILN";
 import AnnouncementTickerAILN from "@/components/indexes/AnnouncementTickerAILN";
 import CoachingNotesAILN from "@/components/indexes/CoachingNotesAILN";
 import RecommendationsAILN from "@/components/indexes/RecommendationsAILN";
-import MemberStatsLabelAILN from "@/components/labels/MemberStatsLabelAILN";
+import LevelLabelStudentAILN from "@/components/labels/LevelLabelStudentAILN";
+import RewardLabelStudentAILN from "@/components/labels/RewardLabelStudentAILN";
 import PageContainerAILN from "@/components/pages/PageContainerAILN";
 import AppErrorComponents from "@/components/states/AppErrorComponents";
 import { setSessionToken, trpc } from "@/trpc/client";
@@ -66,7 +67,8 @@ export default function DashboardStudentAILN({
           </h1>
 
           <div className="flex items-center gap-3">
-            <MemberStatsLabelAILN />
+            <LevelLabelStudentAILN variant="compact" />
+            <RewardLabelStudentAILN variant="compact" />
 
             <Link href="/student/skill-practice/create">
               <ButtonAILN variant="student" size="medium">

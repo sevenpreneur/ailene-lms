@@ -1,4 +1,4 @@
-import LearningPathStudentAILN from "@/components/indexes/LearningPathStudentAILN";
+import LearningPathStudentAILN from "@/components/pages/LearningPathStudentAILN";
 import AppPageState from "@/components/states/AppPageState";
 import { getAilGate } from "@/lib/ail-gate";
 import { Metadata } from "next";

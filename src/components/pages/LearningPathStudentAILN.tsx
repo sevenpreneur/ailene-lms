@@ -5,15 +5,14 @@ import ChapterItemAILN, {
 import LevelDividerAILN from "@/components/items/LevelDividerAILN";
 import SkillPracticeListAILN from "@/components/items/SkillPracticeListAILN";
 import type { SkillPracticeItem } from "@/components/items/SkillPracticeItemAILN";
+import LevelLabelStudentAILN from "@/components/labels/LevelLabelStudentAILN";
+import RewardLabelStudentAILN from "@/components/labels/RewardLabelStudentAILN";
 import PageContainerAILN from "@/components/pages/PageContainerAILN";
 import AppErrorComponents from "@/components/states/AppErrorComponents";
 import PageHeaderAILN from "@/components/titles/PageHeaderAILN";
 import { setSessionToken, trpc } from "@/trpc/client";
-import { faStar } from "@fortawesome/free-solid-svg-icons";
-import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import dayjs from "dayjs";
 import "dayjs/locale/id";
-import Image from "next/image";
 import { useSearchParams } from "next/navigation";
 import { useEffect, useRef, useState } from "react";
 
@@ -356,39 +355,8 @@ export default function LearningPathStudentAILN({
           title="Jalur Belajar"
           desc="Tuntaskan semua tugas mingguan untuk maju ke level berikutnya."
         >
-          <div className="flex items-center gap-2 rounded-md bg-white p-3 border dark:border-red-500/30 dark:bg-red-500/5">
-            {member.current_level?.icon && (
-              <Image
-                src={member.current_level.icon}
-                alt={member.current_level.name}
-                width={32}
-                height={32}
-                className="h-8 w-8"
-              />
-            )}
-            <div className="flex flex-col">
-              <div className="text-xs text-gray-500 dark:text-gray-400">
-                Level Sekarang
-              </div>
-              <div className="font-bold dark:text-white">
-                Level {member.current_level?.level_number ?? 0}
-              </div>
-            </div>
-          </div>
-          <div className="flex items-center gap-2 rounded-md bg-white p-3 border dark:border-red-500/30 dark:bg-red-500/5">
-            <FontAwesomeIcon
-              icon={faStar}
-              className="text-warning dark:text-amber-400"
-            />
-            <div className="flex flex-col">
-              <div className="text-xs text-gray-500 dark:text-gray-400">
-                Reward
-              </div>
-              <div className="font-bold dark:text-white">
-                {member.total_xp.toLocaleString()} XP
-              </div>
-            </div>
-          </div>
+          <LevelLabelStudentAILN variant="summary" />
+          <RewardLabelStudentAILN variant="summary" />
         </PageHeaderAILN>
 
         {/* Timeline */}
