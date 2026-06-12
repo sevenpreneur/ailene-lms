@@ -547,7 +547,7 @@ export const listRouter = createTRPCRouter({
   }),
 
   // Member-accessible category list — used by students when adding their own
-  // self-initiated practice (prompt / use case) from /student/practice/create.
+  // self-initiated practice (prompt / use case) from /student/skill-practice/create.
   memberCategories: ailMemberProcedure.query(async (opts) => {
     const list = await opts.ctx.prisma.ailCategory.findMany({
       orderBy: { name: "asc" },

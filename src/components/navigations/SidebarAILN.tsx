@@ -18,7 +18,7 @@ import {
   LineChart,
   LogOut,
   Megaphone,
-  NotebookPen,
+  PlusCircle,
   Target,
   UserRound,
   UserRoundKey,
@@ -86,7 +86,11 @@ const VARIANT_CONFIG: Record<SidebarAILNVariant, VariantConfig> = {
         icon: BookOpen,
         exact: true,
       },
-      { name: "Skill Practice", url: "/student/practice", icon: ClipboardList },
+      {
+        name: "Latihan Skill",
+        url: "/student/skill-practice",
+        icon: ClipboardList,
+      },
       { name: "Progress Saya", url: "/student/my-progress", icon: LineChart },
     ],
     classes: {
@@ -95,8 +99,7 @@ const VARIANT_CONFIG: Record<SidebarAILNVariant, VariantConfig> = {
       toggle:
         "dark:border-red-500/40 dark:bg-black dark:shadow-[0_0_8px_rgba(239,68,68,0.4)]",
       toggleIcon: "dark:text-red-400",
-      mode:
-        "border-red-200 bg-red-50 dark:border-red-500/30 dark:bg-red-500/10 dark:shadow-[0_0_12px_rgba(239,68,68,0.15)]",
+      mode: "border-red-200 bg-red-50 dark:border-red-500/30 dark:bg-red-500/10 dark:shadow-[0_0_12px_rgba(239,68,68,0.15)]",
       modeDot: "bg-red-500 dark:shadow-[0_0_8px_rgba(239,68,68,0.9)]",
       modeText: "text-red-600 dark:text-red-200",
       active:
@@ -135,8 +138,7 @@ const VARIANT_CONFIG: Record<SidebarAILNVariant, VariantConfig> = {
       toggle:
         "dark:border-emerald-500/40 dark:bg-black dark:shadow-[0_0_8px_rgba(16,185,129,0.4)]",
       toggleIcon: "dark:text-emerald-400",
-      mode:
-        "border-emerald-200 bg-emerald-50 dark:border-emerald-500/30 dark:bg-emerald-500/10 dark:shadow-[0_0_12px_rgba(16,185,129,0.15)]",
+      mode: "border-emerald-200 bg-emerald-50 dark:border-emerald-500/30 dark:bg-emerald-500/10 dark:shadow-[0_0_12px_rgba(16,185,129,0.15)]",
       modeDot: "bg-emerald-500 dark:shadow-[0_0_8px_rgba(16,185,129,0.9)]",
       modeText: "text-emerald-700 dark:text-emerald-200",
       active:
@@ -180,12 +182,10 @@ const VARIANT_CONFIG: Record<SidebarAILNVariant, VariantConfig> = {
       toggle:
         "dark:border-blue-500/40 dark:bg-black dark:shadow-[0_0_8px_rgba(0,53,157,0.4)]",
       toggleIcon: "dark:text-gray-300",
-      mode:
-        "border-blue-200 bg-blue-50 dark:border-blue-500/30 dark:bg-blue-500/10 dark:shadow-[0_0_12px_rgba(0,53,157,0.12)]",
+      mode: "border-blue-200 bg-blue-50 dark:border-blue-500/30 dark:bg-blue-500/10 dark:shadow-[0_0_12px_rgba(0,53,157,0.12)]",
       modeDot: "bg-blue-600 dark:shadow-[0_0_8px_rgba(59,130,246,0.7)]",
       modeText: "text-blue-700 dark:text-blue-200",
-      active:
-        "text-white dark:shadow-[inset_0_0_0_1px_rgba(148,163,184,0.25)]",
+      active: "text-white dark:shadow-[inset_0_0_0_1px_rgba(148,163,184,0.25)]",
       inactive:
         "text-gray-700 hover:bg-gray-100 hover:text-black dark:text-gray-300 dark:hover:bg-white/5 dark:hover:text-white",
       userCard: "dark:bg-white/5",
@@ -265,7 +265,7 @@ export default function SidebarAILN({
       ? championedGroups.length > 0
         ? championedGroups.map((g) => g.name).join(", ")
         : "-"
-      : member?.group?.name ?? "-";
+      : (member?.group?.name ?? "-");
   const totalMembers = championedGroups.reduce(
     (sum, group) => sum + (group._count?.members ?? 0),
     0
@@ -361,13 +361,13 @@ export default function SidebarAILN({
                 className={`my-1 border-t border-dashboard-border ${config.classes.divider}`}
               />
               <Link
-                href="/student/practice/create"
+                href="/student/skill-practice/create"
                 title="Catat Use Case"
                 className={`flex items-center gap-3 rounded-md p-2 text-sm font-medium text-red-600 transition hover:bg-red-50 dark:text-red-300 dark:hover:bg-red-500/10 ${
                   isCollapsed ? "justify-center" : ""
                 }`}
               >
-                <NotebookPen className="h-4 w-4 shrink-0" />
+                <PlusCircle className="h-4 w-4 shrink-0" />
                 {!isCollapsed && <span>Catat Use Case</span>}
               </Link>
             </>
@@ -416,7 +416,9 @@ export default function SidebarAILN({
                 size="small"
                 onClick={handleLogout}
                 disabled={isLoggingOut}
-                className={variant === "SPONSOR" ? "mt-3 w-full" : "mt-2 w-full"}
+                className={
+                  variant === "SPONSOR" ? "mt-3 w-full" : "mt-2 w-full"
+                }
               >
                 <LogOut className="size-4" />
                 {isLoggingOut ? "Logging out..." : "Logout"}

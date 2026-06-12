@@ -207,7 +207,7 @@ export default function SubmitPromptAILN({
           utils.list.assignedPrompts.invalidate();
           utils.list.memberPromptLibrary.invalidate();
           utils.list.practiceSubmissions.invalidate();
-          router.push("/student/practice");
+          router.push("/student/skill-practice");
         },
         onError: (err) => {
           toast.error("Gagal kirim", { description: err.message });
@@ -420,7 +420,7 @@ export default function SubmitPromptAILN({
             )}
             {isLocked && (
               <Link
-                href="/student/practice"
+                href="/student/skill-practice"
                 className="self-center text-sm text-gray-500 underline dark:text-gray-400"
               >
                 Kembali ke daftar tugas

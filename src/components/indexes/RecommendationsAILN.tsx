@@ -84,7 +84,7 @@ export default function RecommendationsAILN() {
         onSuccess: () => {
           utils.list.memberUseCaseLibrary.invalidate();
           utils.list.practiceSubmissions.invalidate();
-          router.push(`/student/practice/use-cases/${item.id}`);
+          router.push(`/student/skill-practice/use-cases/${item.id}`);
         },
         onError: (err) => {
           toast.error("Gagal membuka use case", {
@@ -156,7 +156,7 @@ function RecommendationHeader({
         </p>
       </div>
       <Link
-        href="/student/practice?tab=library"
+        href="/student/skill-practice?tab=library"
         className="inline-flex items-center gap-1 text-sm font-semibold text-red-600 transition hover:text-red-700 hover:underline dark:text-red-400 dark:hover:text-red-300"
       >
         Lihat semua
@@ -179,7 +179,7 @@ function RecommendationCard({
 
   return (
     <Link
-      href={`/student/practice/use-cases/${item.id}`}
+      href={`/student/skill-practice/use-cases/${item.id}`}
       onClick={(event) => {
         event.preventDefault();
         if (!isStarting) onStart();

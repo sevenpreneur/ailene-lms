@@ -245,7 +245,7 @@ export default function AddPracticeAILN({
     utils.list.memberUseCaseLibrary.invalidate();
     utils.list.practiceSubmissions.invalidate();
     utils.read.todayFocus.invalidate();
-    router.push("/student/practice");
+    router.push("/student/skill-practice");
   };
 
   const handleSubmit = (e: FormEvent) => {
@@ -353,14 +353,14 @@ export default function AddPracticeAILN({
         {/* Header */}
         <div className="flex flex-col gap-3">
           <Link
-            href="/student/practice"
+            href="/student/skill-practice"
             className="flex w-fit items-center gap-1.5 text-sm text-gray-500 hover:text-foreground dark:text-gray-400 dark:hover:text-white"
           >
             <ArrowLeft className="size-4" />
             Kembali ke daftar latihan
           </Link>
           <h1 className="text-3xl font-bold leading-tight  text-sevenpreneur-coal dark:text-white">
-            Tambah Latihan Mandiri
+            Catat Latihan Mandiri
           </h1>
           <p className="text-sm text-gray-500 dark:text-gray-400">
             Catat prompt atau use case yang kamu kerjakan sendiri. Setelah
@@ -868,7 +868,7 @@ export default function AddPracticeAILN({
 
           <div className="flex items-center justify-end gap-3 border-t border-dashboard-border pt-4">
             <Link
-              href="/student/practice"
+              href="/student/skill-practice"
               className="text-sm text-gray-500 underline dark:text-gray-400"
             >
               Batal

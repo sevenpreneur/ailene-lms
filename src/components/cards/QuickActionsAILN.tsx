@@ -24,7 +24,7 @@ export default function QuickActionsAILN() {
           desc="Modul & materi level kamu"
         />
         <ActionTileAILN
-          href="/student/practice"
+          href="/student/skill-practice"
           icon={ClipboardList}
           title="Latihan Prompt"
           desc="Skill practice dari Champion"

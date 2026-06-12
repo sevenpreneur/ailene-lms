@@ -68,7 +68,7 @@ export default function DashboardStudentAILN({
           <div className="flex items-center gap-3">
             <MemberStatsLabelAILN />
 
-            <Link href="/student/practice/create">
+            <Link href="/student/skill-practice/create">
               <ButtonAILN variant="student" size="medium">
                 <PlusCircle className="size-4" />
                 Catat Use Case

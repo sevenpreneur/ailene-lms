@@ -38,7 +38,7 @@ export default function MomentumStripAILN() {
       </div>
 
       <Link
-        href="/student/practice"
+        href="/student/skill-practice"
         className="group flex flex-col justify-center gap-1 rounded-lg border border-dashboard-border bg-[#FCFCFD] p-5 transition hover:border-red-300 dark:bg-card-1 dark:hover:border-red-500/40"
       >
         <div className="flex items-center gap-1.5 text-[10px] font-semibold uppercase tracking-widest text-gray-500 dark:text-gray-400">

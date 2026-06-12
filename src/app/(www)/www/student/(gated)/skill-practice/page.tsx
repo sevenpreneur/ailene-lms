@@ -1,4 +1,4 @@
-import PracticeStudentAILN from "@/components/pages/PracticeStudentAILN";
+import SkillPracticeStudentAILN from "@/components/pages/SkillPracticeStudentAILN";
 import { setSessionToken } from "@/trpc/server";
 import { Metadata } from "next";
 import { cookies } from "next/headers";
@@ -14,5 +14,5 @@ export default async function StudentPracticePage() {
   if (!sessionToken) return null;
   setSessionToken(sessionToken);
 
-  return <PracticeStudentAILN sessionToken={sessionToken} />;
+  return <SkillPracticeStudentAILN sessionToken={sessionToken} />;
 }

@@ -1,4 +1,8 @@
-import { STATUS_NOT_FOUND, STATUS_OK } from "@/lib/status_code";
+import {
+  STATUS_BAD_REQUEST,
+  STATUS_NOT_FOUND,
+  STATUS_OK,
+} from "@/lib/status_code";
 import {
   ailMemberProcedure,
   championProcedure,
@@ -11,9 +15,86 @@ import {
   ailenePreAssessmentOrg,
   aileneReportRouter,
 } from "./ailene/_router.ailene";
+import { PrismaClient } from "@prisma/client";
 import { TRPCError } from "@trpc/server";
 import dayjs from "dayjs";
 import { z } from "zod";
+
+const promptAssignmentInclude = {
+  prompt: {
+    include: {
+      level: {
+        select: { id: true, level_number: true, name: true },
+      },
+      categories: {
+        include: { category: { select: { id: true, name: true } } },
+      },
+    },
+  },
+  assigned_by: {
+    select: {
+      id: true,
+      user: { select: { full_name: true, avatar: true } },
+    },
+  },
+  reviewed_by: {
+    select: {
+      id: true,
+      user: { select: { full_name: true, avatar: true } },
+    },
+  },
+} as const;
+
+const useCaseAssignmentInclude = {
+  use_case: {
+    include: {
+      level: {
+        select: { id: true, level_number: true, name: true },
+      },
+      categories: {
+        include: { category: { select: { id: true, name: true } } },
+      },
+    },
+  },
+  assigned_by: {
+    select: {
+      id: true,
+      user: { select: { full_name: true, avatar: true } },
+    },
+  },
+  reviewed_by: {
+    select: {
+      id: true,
+      user: { select: { full_name: true, avatar: true } },
+    },
+  },
+} as const;
+
+async function resolveMemberChampion(
+  prisma: PrismaClient,
+  memberGroupId: number | null
+): Promise<number> {
+  if (!memberGroupId) {
+    throw new TRPCError({
+      code: STATUS_BAD_REQUEST,
+      message:
+        "Kamu belum tergabung dalam grup, jadi belum bisa membuka latihan mandiri.",
+    });
+  }
+
+  const group = await prisma.ailGroup.findUnique({
+    where: { id: memberGroupId },
+    select: { champion_id: true },
+  });
+  if (!group) {
+    throw new TRPCError({
+      code: STATUS_NOT_FOUND,
+      message: "Group not found.",
+    });
+  }
+
+  return group.champion_id;
+}
 
 export const readRouter = createTRPCRouter({
   // Coaching notes left for the logged-in member by their champion(s), newest
@@ -732,7 +813,7 @@ export const readRouter = createTRPCRouter({
         category: row.prompt.categories[0]?.category.name ?? null,
         assigned_by_name: row.assigned_by?.user.full_name ?? null,
         deadline: row.deadline,
-        href: `/student/practice/prompts/${row.prompt.id}`,
+        href: `/student/skill-practice/prompts/${row.prompt.id}`,
       })),
       ...useCaseAssignments.map((row) => ({
         kind: "UseCasePractice" as const,
@@ -745,7 +826,7 @@ export const readRouter = createTRPCRouter({
         category: row.use_case.categories[0]?.category.name ?? null,
         assigned_by_name: row.assigned_by?.user.full_name ?? null,
         deadline: row.deadline,
-        href: `/student/practice/use-cases/${row.use_case.id}`,
+        href: `/student/skill-practice/use-cases/${row.use_case.id}`,
       })),
     ].sort((a, b) => {
       const aTime = a.deadline?.getTime() ?? Number.MAX_SAFE_INTEGER;
@@ -2067,43 +2148,50 @@ export const readRouter = createTRPCRouter({
   promptAssignment: ailMemberProcedure
     .input(z.object({ prompt_id: z.number().int().positive() }))
     .query(async (opts) => {
-      const memberId = opts.ctx.ail_member.id;
+      const member = opts.ctx.ail_member;
+      const memberId = member.id;
       const { prompt_id } = opts.input;
 
-      const row = await opts.ctx.prisma.ailPromptSubmission.findUnique({
+      let row = await opts.ctx.prisma.ailPromptSubmission.findUnique({
         where: {
           member_id_prompt_id: { member_id: memberId, prompt_id },
         },
-        include: {
-          prompt: {
-            include: {
-              level: {
-                select: { id: true, level_number: true, name: true },
-              },
-              categories: {
-                include: { category: { select: { id: true, name: true } } },
-              },
-            },
-          },
-          assigned_by: {
-            select: {
-              id: true,
-              user: { select: { full_name: true, avatar: true } },
-            },
-          },
-          reviewed_by: {
-            select: {
-              id: true,
-              user: { select: { full_name: true, avatar: true } },
-            },
-          },
-        },
+        include: promptAssignmentInclude,
       });
 
-      if (!row || !row.assigned_by_id) {
-        throw new TRPCError({
-          code: STATUS_NOT_FOUND,
-          message: "Assignment not found.",
+      if (!row) {
+        const prompt = await opts.ctx.prisma.ailPrompt.findFirst({
+          where: { id: prompt_id, status: "ACTIVE" },
+          select: { id: true },
+        });
+        if (!prompt) {
+          throw new TRPCError({
+            code: STATUS_NOT_FOUND,
+            message: "Prompt not found.",
+          });
+        }
+
+        const championId = await resolveMemberChampion(
+          opts.ctx.prisma,
+          member.group_id
+        );
+        row = await opts.ctx.prisma.ailPromptSubmission.create({
+          data: {
+            member_id: memberId,
+            prompt_id,
+            assigned_by_id: championId,
+          },
+          include: promptAssignmentInclude,
+        });
+      } else if (!row.assigned_by_id) {
+        const championId = await resolveMemberChampion(
+          opts.ctx.prisma,
+          member.group_id
+        );
+        row = await opts.ctx.prisma.ailPromptSubmission.update({
+          where: { id: row.id },
+          data: { assigned_by_id: championId },
+          include: promptAssignmentInclude,
         });
       }
 
@@ -2149,43 +2237,50 @@ export const readRouter = createTRPCRouter({
   useCaseAssignment: ailMemberProcedure
     .input(z.object({ use_case_id: z.number().int().positive() }))
     .query(async (opts) => {
-      const memberId = opts.ctx.ail_member.id;
+      const member = opts.ctx.ail_member;
+      const memberId = member.id;
       const { use_case_id } = opts.input;
 
-      const row = await opts.ctx.prisma.ailUseCaseSubmission.findUnique({
+      let row = await opts.ctx.prisma.ailUseCaseSubmission.findUnique({
         where: {
           member_id_use_case_id: { member_id: memberId, use_case_id },
         },
-        include: {
-          use_case: {
-            include: {
-              level: {
-                select: { id: true, level_number: true, name: true },
-              },
-              categories: {
-                include: { category: { select: { id: true, name: true } } },
-              },
-            },
-          },
-          assigned_by: {
-            select: {
-              id: true,
-              user: { select: { full_name: true, avatar: true } },
-            },
-          },
-          reviewed_by: {
-            select: {
-              id: true,
-              user: { select: { full_name: true, avatar: true } },
-            },
-          },
-        },
+        include: useCaseAssignmentInclude,
       });
 
-      if (!row || !row.assigned_by_id) {
-        throw new TRPCError({
-          code: STATUS_NOT_FOUND,
-          message: "Assignment not found.",
+      if (!row) {
+        const useCase = await opts.ctx.prisma.ailUseCase.findFirst({
+          where: { id: use_case_id, status: "ACTIVE" },
+          select: { id: true },
+        });
+        if (!useCase) {
+          throw new TRPCError({
+            code: STATUS_NOT_FOUND,
+            message: "Use case not found.",
+          });
+        }
+
+        const championId = await resolveMemberChampion(
+          opts.ctx.prisma,
+          member.group_id
+        );
+        row = await opts.ctx.prisma.ailUseCaseSubmission.create({
+          data: {
+            member_id: memberId,
+            use_case_id,
+            assigned_by_id: championId,
+          },
+          include: useCaseAssignmentInclude,
+        });
+      } else if (!row.assigned_by_id) {
+        const championId = await resolveMemberChampion(
+          opts.ctx.prisma,
+          member.group_id
+        );
+        row = await opts.ctx.prisma.ailUseCaseSubmission.update({
+          where: { id: row.id },
+          data: { assigned_by_id: championId },
+          include: useCaseAssignmentInclude,
         });
       }
 

@@ -100,12 +100,12 @@ const variantMeta: Record<
   Prompt: {
     icon: <FontAwesomeIcon icon={faWandMagicSparkles} size="lg" />,
     badge: "Prompt",
-    basePath: "/student/practice/prompts",
+    basePath: "/student/skill-practice/prompts",
   },
   UseCase: {
     icon: <FontAwesomeIcon icon={faPuzzlePiece} size="lg" />,
     badge: "Use Case",
-    basePath: "/student/practice/use-cases",
+    basePath: "/student/skill-practice/use-cases",
   },
 };
 

@@ -417,7 +417,7 @@ export default function SubmitUseCaseAILN({
           utils.list.assignedUseCases.invalidate();
           utils.list.memberUseCaseLibrary.invalidate();
           utils.list.practiceSubmissions.invalidate();
-          router.push("/student/practice");
+          router.push("/student/skill-practice");
         },
         onError: (err) => {
           toast.error("Gagal kirim", { description: err.message });
@@ -897,7 +897,7 @@ export default function SubmitUseCaseAILN({
             )}
             {isLocked && (
               <Link
-                href="/student/practice"
+                href="/student/skill-practice"
                 className="self-center text-sm text-gray-500 underline dark:text-gray-400"
               >
                 Kembali ke daftar tugas
