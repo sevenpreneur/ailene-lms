@@ -5,6 +5,7 @@ import TodayFocusCardAILN from "@/components/cards/TodayFocusCardAILN";
 import CompetencyProfileAILN from "@/components/charts/CompetencyProfileAILN";
 import StreakCardAILN from "@/components/charts/StreakCardAILN";
 import AnnouncementTickerAILN from "@/components/indexes/AnnouncementTickerAILN";
+import CoachingNotesAILN from "@/components/indexes/CoachingNotesAILN";
 import RecommendationsAILN from "@/components/indexes/RecommendationsAILN";
 import MemberStatsLabelAILN from "@/components/labels/MemberStatsLabelAILN";
 import PageContainerAILN from "@/components/pages/PageContainerAILN";
@@ -41,7 +42,7 @@ export default function DashboardStudentAILN({
   const user = userQ.data?.user;
   const member = memberQ.data?.ail_member;
   const firstName = user
-    ? user.full_name.split(" ")[0] ?? user.full_name
+    ? (user.full_name.split(" ")[0] ?? user.full_name)
     : null;
   // Rentang streak = sejak member bergabung sampai hari ini.
   const cohortStart = member
@@ -68,7 +69,7 @@ export default function DashboardStudentAILN({
             <MemberStatsLabelAILN />
 
             <Link href="/student/practice/create">
-              <ButtonAILN variant="destructive" size="medium">
+              <ButtonAILN variant="student" size="medium">
                 <PlusCircle className="size-4" />
                 Catat Use Case
               </ButtonAILN>
@@ -92,6 +93,7 @@ export default function DashboardStudentAILN({
           )}
         </div>
         <RecommendationsAILN />
+        <CoachingNotesAILN />
       </div>
     </PageContainerAILN>
   );

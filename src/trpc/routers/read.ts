@@ -16,6 +16,40 @@ import dayjs from "dayjs";
 import { z } from "zod";
 
 export const readRouter = createTRPCRouter({
+  // Coaching notes left for the logged-in member by their champion(s), newest
+  // first. Drives the "Catatan dari Champion" section on the student dashboard.
+  coachingNotes: ailMemberProcedure.query(async (opts) => {
+    const memberId = opts.ctx.ail_member.id;
+    const notes = await opts.ctx.prisma.ailCoachingNote.findMany({
+      where: { member_id: memberId },
+      orderBy: { created_at: "desc" },
+      include: {
+        champion: {
+          select: {
+            id: true,
+            role: true,
+            user: { select: { full_name: true, avatar: true } },
+          },
+        },
+      },
+    });
+    return {
+      code: STATUS_OK,
+      message: "Success",
+      notes: notes.map((n) => ({
+        id: n.id,
+        text: n.text,
+        created_at: n.created_at,
+        champion: {
+          id: n.champion.id,
+          role: n.champion.role,
+          full_name: n.champion.user.full_name,
+          avatar: n.champion.user.avatar,
+        },
+      })),
+    };
+  }),
+
   competencyProfile: ailMemberProcedure.query(async (opts) => {
     const memberId = opts.ctx.ail_member.id;
     const currentLevelNumber =
