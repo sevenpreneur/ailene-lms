@@ -137,17 +137,14 @@
      ============================================================ */
 
   /* Stakeholder · Student (red) */
-  --stakeholder-student: oklch(0.704 0.191 22.216);
   --stakeholder-student-soft: oklch(0.704 0.191 22.216 / 0.15);
-  --stakeholder-student-foreground: oklch(0.82 0.11 22);
+  --stakeholder-student-foreground: oklch(0.82 0.14 22);
 
   /* Stakeholder · Champion (green) */
-  --stakeholder-champion: oklch(0.7 0.14 162);
   --stakeholder-champion-soft: oklch(0.7 0.14 162 / 0.15);
   --stakeholder-champion-foreground: oklch(0.84 0.12 165);
 
   /* Stakeholder · Sponsor (azure) */
-  --stakeholder-sponsor: oklch(0.68 0.16 254);
   --stakeholder-sponsor-soft: oklch(0.68 0.16 254 / 0.15);
   --stakeholder-sponsor-foreground: oklch(0.82 0.1 252);
 
@@ -193,7 +190,6 @@
   --color-card-1: var(--card-1);
   --color-card-2: var(--card-2);
   --color-dashboard-border: var(--dashboard-border);
-
   /* --- sidebar --- */
   --color-sb-bg: var(--sb-bg);
   --color-sb-text: var(--sb-text);
@@ -217,7 +213,6 @@
   --color-stakeholder-sponsor: var(--stakeholder-sponsor);
   --color-stakeholder-sponsor-soft: var(--stakeholder-sponsor-soft);
   --color-stakeholder-sponsor-foreground: var(--stakeholder-sponsor-foreground);
-
   /* --- states --- */
   --color-success: var(--state-success);
   --color-success-soft: var(--state-success-soft);
@@ -232,6 +227,7 @@
   --color-info-soft: var(--state-info-soft);
   --color-info-foreground: var(--state-info-foreground);
 
+  /* Radius */
   --radius-2xl: calc(var(--radius) * 1.8);
   --radius-3xl: calc(var(--radius) * 2.2);
   --radius-4xl: calc(var(--radius) * 2.6);

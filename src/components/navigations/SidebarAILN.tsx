@@ -54,6 +54,7 @@ type VariantConfig = {
     modeDot: string;
     modeText: string;
     active: string;
+    activeBar: string;
     inactive: string;
     userCard: string;
     userAvatar: string;
@@ -102,15 +103,14 @@ const VARIANT_CONFIG: Record<SidebarAILNVariant, VariantConfig> = {
       mode: "border-red-200 bg-red-50 dark:border-red-500/30 dark:bg-red-500/10 dark:shadow-[0_0_12px_rgba(239,68,68,0.15)]",
       modeDot: "bg-red-500 dark:shadow-[0_0_8px_rgba(239,68,68,0.9)]",
       modeText: "text-red-600 dark:text-red-200",
-      active:
-        "bg-black text-white dark:bg-red-500/15 dark:text-red-100 dark:shadow-[inset_0_0_0_1px_rgba(239,68,68,0.4),0_0_12px_rgba(239,68,68,0.25)]",
+      active: "bg-gray-200 text-black dark:bg-white/10 dark:text-white",
+      activeBar: "bg-black dark:bg-white",
       inactive:
-        "text-gray-700 hover:bg-gray-100 hover:text-black dark:text-gray-300 dark:hover:bg-red-500/10 dark:hover:text-red-100",
-      userCard:
-        "dark:border-red-500/25 dark:bg-red-500/5 dark:shadow-[0_0_20px_rgba(239,68,68,0.08)]",
-      userAvatar: "dark:ring-red-500/40",
-      divider: "dark:border-red-500/20",
-      metaText: "dark:text-red-100",
+        "text-gray-600 hover:bg-gray-100 hover:text-black dark:text-gray-400 dark:hover:bg-white/5 dark:hover:text-white",
+      userCard: "",
+      userAvatar: "",
+      divider: "",
+      metaText: "dark:text-white",
     },
   },
   CHAMPION: {
@@ -143,6 +143,7 @@ const VARIANT_CONFIG: Record<SidebarAILNVariant, VariantConfig> = {
       modeText: "text-emerald-700 dark:text-emerald-200",
       active:
         "text-white dark:bg-emerald-500/15 dark:text-emerald-100 dark:shadow-[inset_0_0_0_1px_rgba(16,185,129,0.4),0_0_12px_rgba(16,185,129,0.25)]",
+      activeBar: "bg-stakeholder-champion",
       inactive:
         "text-gray-700 hover:bg-gray-100 hover:text-black dark:text-gray-300 dark:hover:bg-emerald-500/10 dark:hover:text-emerald-100",
       userCard:
@@ -186,6 +187,7 @@ const VARIANT_CONFIG: Record<SidebarAILNVariant, VariantConfig> = {
       modeDot: "bg-blue-600 dark:shadow-[0_0_8px_rgba(59,130,246,0.7)]",
       modeText: "text-blue-700 dark:text-blue-200",
       active: "text-white dark:shadow-[inset_0_0_0_1px_rgba(148,163,184,0.25)]",
+      activeBar: "bg-stakeholder-sponsor",
       inactive:
         "text-gray-700 hover:bg-gray-100 hover:text-black dark:text-gray-300 dark:hover:bg-white/5 dark:hover:text-white",
       userCard: "dark:bg-white/5",
@@ -331,9 +333,7 @@ export default function SidebarAILN({
             const Icon = item.icon;
             const shouldUseInlineActiveColor =
               active &&
-              (variant === "SPONSOR" ||
-                variant === "STUDENT" ||
-                (variant === "CHAMPION" && !isDark));
+              (variant === "SPONSOR" || (variant === "CHAMPION" && !isDark));
             const activeStyle = shouldUseInlineActiveColor
               ? { backgroundColor: config.accent }
               : undefined;
@@ -343,10 +343,15 @@ export default function SidebarAILN({
                 key={item.url}
                 href={item.url}
                 style={activeStyle}
-                className={`flex items-center gap-3 rounded-md p-2 text-sm transition ${
+                className={`relative flex items-center gap-3 rounded-md p-2 text-sm transition ${
                   active ? config.classes.active : config.classes.inactive
-                } ${isCollapsed ? "justify-center" : ""}`}
+                } ${isCollapsed ? "justify-center" : "pl-3.5"}`}
               >
+                {active && !isCollapsed && (
+                  <span
+                    className={`absolute left-1 top-1/2 h-5 w-1 -translate-y-1/2 rounded-full ${config.classes.activeBar}`}
+                  />
+                )}
                 <Icon className="h-4 w-4 shrink-0" />
                 {!isCollapsed && (
                   <span className="font-medium">{item.name}</span>
@@ -363,7 +368,7 @@ export default function SidebarAILN({
               <Link
                 href="/student/skill-practice/create"
                 title="Catat Use Case"
-                className={`flex items-center gap-3 rounded-md p-2 text-sm font-medium text-red-600 transition hover:bg-red-50 dark:text-red-300 dark:hover:bg-red-500/10 ${
+                className={`flex items-center gap-3 rounded-md p-2 text-sm font-medium text-stakeholder-student-foreground transition hover:bg-red-50 dark:hover:bg-red-500/10 ${
                   isCollapsed ? "justify-center" : ""
                 }`}
               >
