@@ -511,7 +511,7 @@ export const listRouter = createTRPCRouter({
 
   promptLibrary: championProcedure.query(async (opts) => {
     const prompts = await opts.ctx.prisma.ailPrompt.findMany({
-      where: { status: "ACTIVE" },
+      where: { status: "ACTIVE", is_self_created: false },
       orderBy: [{ level: { level_number: "asc" } }, { name: "asc" }],
       include: {
         level: {
@@ -559,7 +559,7 @@ export const listRouter = createTRPCRouter({
   memberPromptLibrary: ailMemberProcedure.query(async (opts) => {
     const memberId = opts.ctx.ail_member.id;
     const prompts = await opts.ctx.prisma.ailPrompt.findMany({
-      where: { status: "ACTIVE" },
+      where: { status: "ACTIVE", is_self_created: false },
       orderBy: [{ level: { level_number: "asc" } }, { name: "asc" }],
       include: {
         level: {
@@ -603,7 +603,7 @@ export const listRouter = createTRPCRouter({
 
   useCaseLibrary: championProcedure.query(async (opts) => {
     const useCases = await opts.ctx.prisma.ailUseCase.findMany({
-      where: { status: "ACTIVE" },
+      where: { status: "ACTIVE", is_self_created: false },
       orderBy: [{ level: { level_number: "asc" } }, { name: "asc" }],
       include: {
         level: {
@@ -632,7 +632,7 @@ export const listRouter = createTRPCRouter({
   memberUseCaseLibrary: ailMemberProcedure.query(async (opts) => {
     const memberId = opts.ctx.ail_member.id;
     const useCases = await opts.ctx.prisma.ailUseCase.findMany({
-      where: { status: "ACTIVE" },
+      where: { status: "ACTIVE", is_self_created: false },
       orderBy: [{ level: { level_number: "asc" } }, { name: "asc" }],
       include: {
         level: {

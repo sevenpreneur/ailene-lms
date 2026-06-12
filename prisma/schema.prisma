@@ -135,19 +135,19 @@ model Role {
 }
 
 model User {
-  id               String       @id @default(uuid()) @db.Uuid
-  full_name        String       @db.VarChar()
-  email            String       @unique @db.VarChar()
-  phone_country_id Int?         @db.SmallInt
-  phone_number     String?      @db.VarChar()
-  avatar           String?      @db.VarChar()
-  role             Role         @relation(fields: [role_id], references: [id])
-  role_id          Int          @default(3) @db.SmallInt
-  status           StatusEnum   @default(ACTIVE)
-  created_at       DateTime     @default(now()) @db.Timestamptz()
-  updated_at       DateTime     @default(now()) @updatedAt @db.Timestamptz()
-  last_login       DateTime     @default(now()) @updatedAt @db.Timestamptz()
-  deleted_at       DateTime?    @db.Timestamptz()
+  id               String     @id @default(uuid()) @db.Uuid
+  full_name        String     @db.VarChar()
+  email            String     @unique @db.VarChar()
+  phone_country_id Int?       @db.SmallInt
+  phone_number     String?    @db.VarChar()
+  avatar           String?    @db.VarChar()
+  role             Role       @relation(fields: [role_id], references: [id])
+  role_id          Int        @default(3) @db.SmallInt
+  status           StatusEnum @default(ACTIVE)
+  created_at       DateTime   @default(now()) @db.Timestamptz()
+  updated_at       DateTime   @default(now()) @updatedAt @db.Timestamptz()
+  last_login       DateTime   @default(now()) @updatedAt @db.Timestamptz()
+  deleted_at       DateTime?  @db.Timestamptz()
   tokens           Token[]
   ail_member       AilMember?
 
@@ -166,13 +166,13 @@ model Token {
 }
 
 model AileneAnnouncement {
-  id         Int      @id @default(1) @db.SmallInt
-  title      String   @db.VarChar()
-  callout    String   @db.VarChar()
+  id         Int        @id @default(1) @db.SmallInt
+  title      String     @db.VarChar()
+  callout    String     @db.VarChar()
   status     StatusEnum @default(ACTIVE)
-  start_date DateTime? @db.Timestamptz()
-  end_date   DateTime? @db.Timestamptz()
-  updated_at DateTime @default(now()) @updatedAt @db.Timestamptz()
+  start_date DateTime?  @db.Timestamptz()
+  end_date   DateTime?  @db.Timestamptz()
+  updated_at DateTime   @default(now()) @updatedAt @db.Timestamptz()
 
   @@map("ail_announcement")
 }
@@ -362,6 +362,7 @@ model AilPrompt {
   scenario        String                @db.Text
   expected_output String                @db.Text
   status          StatusEnum            @default(ACTIVE)
+  is_self_created Boolean               @default(false) @db.Boolean
   created_at      DateTime              @default(now()) @db.Timestamptz()
   updated_at      DateTime              @default(now()) @updatedAt @db.Timestamptz()
   categories      AilPromptCategory[]
@@ -371,16 +372,17 @@ model AilPrompt {
 }
 
 model AilUseCase {
-  id          Int                    @id @default(autoincrement()) @db.Integer
-  level       AilLevel               @relation(fields: [level_id], references: [id])
-  level_id    Int                    @db.Integer
-  name        String                 @db.VarChar()
-  description String                 @db.Text
-  status      StatusEnum             @default(ACTIVE)
-  created_at  DateTime               @default(now()) @db.Timestamptz()
-  updated_at  DateTime               @default(now()) @updatedAt @db.Timestamptz()
-  categories  AilUseCaseCategory[]
-  submissions AilUseCaseSubmission[]
+  id              Int                    @id @default(autoincrement()) @db.Integer
+  level           AilLevel               @relation(fields: [level_id], references: [id])
+  level_id        Int                    @db.Integer
+  name            String                 @db.VarChar()
+  description     String                 @db.Text
+  status          StatusEnum             @default(ACTIVE)
+  is_self_created Boolean                @default(false) @db.Boolean
+  created_at      DateTime               @default(now()) @db.Timestamptz()
+  updated_at      DateTime               @default(now()) @updatedAt @db.Timestamptz()
+  categories      AilUseCaseCategory[]
+  submissions     AilUseCaseSubmission[]
 
   @@map("ail_use_cases")
 }

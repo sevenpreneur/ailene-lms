@@ -1,4 +1,4 @@
-import AddPracticeAILN from "@/components/forms/AddPracticeAILN";
+import CreateSelfPracticeAILN from "@/components/forms/CreateSelfPracticeAILN";
 import { setSessionToken } from "@/trpc/server";
 import { Metadata } from "next";
 import { cookies } from "next/headers";
@@ -14,5 +14,5 @@ export default async function AddPracticePage() {
   if (!sessionToken) return null;
   setSessionToken(sessionToken);
 
-  return <AddPracticeAILN sessionToken={sessionToken} />;
+  return <CreateSelfPracticeAILN sessionToken={sessionToken} />;
 }

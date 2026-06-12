@@ -126,6 +126,14 @@ CREATE TABLE ail_groups (
     updated_at  TIMESTAMPTZ  NOT NULL DEFAULT CURRENT_TIMESTAMP
 );
 
+CREATE TABLE ail_coaching_notes (
+    id          SERIAL       PRIMARY KEY,
+    member_id   INTEGER      NOT NULL,   -- member the note is about
+    champion_id INTEGER      NOT NULL,   -- champion who wrote it
+    text        TEXT         NOT NULL,
+    created_at  TIMESTAMPTZ  NOT NULL DEFAULT CURRENT_TIMESTAMP
+);
+
 -- Learning related
 
 CREATE TABLE ail_levels (
@@ -215,6 +223,7 @@ CREATE TABLE ail_prompts (
     scenario        TEXT         NOT NULL,
     expected_output TEXT         NOT NULL,
     status          status_enum  NOT NULL DEFAULT 'active',
+    is_self_created BOOLEAN      NOT NULL DEFAULT FALSE,
     created_at      TIMESTAMPTZ  NOT NULL DEFAULT CURRENT_TIMESTAMP,
     updated_at      TIMESTAMPTZ  NOT NULL DEFAULT CURRENT_TIMESTAMP
 );
@@ -251,6 +260,7 @@ CREATE TABLE ail_use_cases (
     name        VARCHAR      NOT NULL,
     description TEXT         NOT NULL,
     status      status_enum  NOT NULL DEFAULT 'active',
+    is_self_created BOOLEAN  NOT NULL DEFAULT FALSE,
     created_at  TIMESTAMPTZ  NOT NULL DEFAULT CURRENT_TIMESTAMP,
     updated_at  TIMESTAMPTZ  NOT NULL DEFAULT CURRENT_TIMESTAMP
 );
@@ -373,6 +383,10 @@ ALTER TABLE ail_members
   ADD FOREIGN KEY (current_level_id) REFERENCES ail_levels (id);
 
 ALTER TABLE ail_groups
+  ADD FOREIGN KEY (champion_id) REFERENCES ail_members (id);
+
+ALTER TABLE ail_coaching_notes
+  ADD FOREIGN KEY (member_id)   REFERENCES ail_members (id),
   ADD FOREIGN KEY (champion_id) REFERENCES ail_members (id);
 
 ALTER TABLE ail_chapters
@@ -501,10 +515,12 @@ CREATE TRIGGER update_ail_announcement_updated_at_trigger
   FOR EACH ROW
     EXECUTE FUNCTION update_updated_at();
 
---------------------
--- Unique Indices --
---------------------
+-------------
+-- Indices --
+-------------
 
--- Announcement
+-- Coaching notes — lookup a member's notes for the dashboard.
+CREATE INDEX ail_coaching_notes_member_id_idx ON ail_coaching_notes (member_id);
 
+-- Announcement — enforce single-row table.
 CREATE UNIQUE INDEX ail_announcement_one_row_only ON ail_announcement ((TRUE));

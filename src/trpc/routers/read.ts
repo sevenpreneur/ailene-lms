@@ -332,6 +332,7 @@ export const readRouter = createTRPCRouter({
     const useCases = await opts.ctx.prisma.ailUseCase.findMany({
       where: {
         status: "ACTIVE",
+        is_self_created: false,
         ...(doneUcIds.length ? { id: { notIn: doneUcIds } } : {}),
       },
       orderBy: [{ level: { level_number: "asc" } }, { name: "asc" }],

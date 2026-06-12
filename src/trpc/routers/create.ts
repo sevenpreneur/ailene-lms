@@ -877,6 +877,7 @@ export const createRouter = createTRPCRouter({
             // Self-practice has no champion-defined target output.
             expected_output: SELF_PRACTICE_PLACEHOLDER,
             status: "ACTIVE",
+            is_self_created: true,
             categories: {
               create: uniqueCategoryIds.map((cid) => ({
                 category: { connect: { id: cid } },
@@ -985,6 +986,7 @@ export const createRouter = createTRPCRouter({
             // The student's write-up doubles as the use case description.
             description,
             status: "ACTIVE",
+            is_self_created: true,
             categories: {
               create: uniqueCategoryIds.map((cid) => ({
                 category: { connect: { id: cid } },
