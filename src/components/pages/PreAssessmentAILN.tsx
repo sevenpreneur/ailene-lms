@@ -1064,7 +1064,7 @@ function buildRecommendations(
       pillar: "Ethics & Safety",
       description: "Dari pillar paling perlu dikuatkan: Ethics & Safety",
       duration: "18 mnt",
-      href: "/student/modules",
+      href: "/student/learning-path",
     },
     prompting: {
       code: "PR-2",
@@ -1072,7 +1072,7 @@ function buildRecommendations(
       pillar: "Prompting",
       description: "Cocok dengan kebutuhan: menulis email & laporan",
       duration: "22 mnt",
-      href: "/student/modules",
+      href: "/student/learning-path",
     },
     workplace: {
       code: "WU-1",
@@ -1080,7 +1080,7 @@ function buildRecommendations(
       pillar: "Workplace Use",
       description: "Cocok dengan kebutuhan: meringkas notulen & laporan",
       duration: "14 mnt",
-      href: "/student/modules",
+      href: "/student/learning-path",
     },
     foundations: {
       code: "AF-1",
@@ -1088,7 +1088,7 @@ function buildRecommendations(
       pillar: "AI Foundations",
       description: "Mulai dari konsep dasar, limitasi, dan cara memakai output.",
       duration: "16 mnt",
-      href: "/student/modules",
+      href: "/student/learning-path",
     },
     tooling: {
       code: "TL-1",
@@ -1096,7 +1096,7 @@ function buildRecommendations(
       pillar: "Tooling",
       description: "Bantu pilih tools sesuai kebutuhan dan risiko data.",
       duration: "20 mnt",
-      href: "/student/modules",
+      href: "/student/learning-path",
     },
     mindset: {
       code: "MS-1",
@@ -1104,7 +1104,7 @@ function buildRecommendations(
       pillar: "Mindset",
       description: "Mulai kecil, ukur dampak, lalu ulangi di workflow nyata.",
       duration: "12 mnt",
-      href: "/student/modules",
+      href: "/student/learning-path",
     },
   };
 

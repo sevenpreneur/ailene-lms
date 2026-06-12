@@ -1,5 +1,8 @@
 "use client";
 import ButtonAILN from "@/components/buttons/ButtonAILN";
+import GeneralLabelAILN, {
+  type GeneralLabelVariantAILN,
+} from "@/components/labels/GeneralLabelAILN";
 import {
   faLock,
   faPuzzlePiece,
@@ -59,31 +62,31 @@ export function deriveSkillPracticeStatus(
 
 const statusMeta: Record<
   SkillPracticeStatus,
-  { label: string; cls: string; icon: React.ReactNode }
+  { label: string; variant: GeneralLabelVariantAILN; icon: React.ReactNode }
 > = {
   accepted: {
     label: "Diterima",
-    cls: "bg-emerald-50 text-emerald-700 dark:bg-emerald-500/10 dark:text-emerald-300",
+    variant: "green",
     icon: <CheckCircle2 className="size-3.5" />,
   },
   rejected: {
     label: "Perlu Revisi",
-    cls: "bg-red-50 text-red-700 dark:bg-red-500/10 dark:text-red-300",
+    variant: "red",
     icon: <XCircle className="size-3.5" />,
   },
   pending_review: {
     label: "Menunggu Review",
-    cls: "bg-amber-50 text-amber-700 dark:bg-amber-500/10 dark:text-amber-300",
+    variant: "yellow",
     icon: <Clock className="size-3.5" />,
   },
   overdue: {
     label: "Lewat Deadline",
-    cls: "bg-red-50 text-red-700 dark:bg-red-500/10 dark:text-red-300",
+    variant: "red",
     icon: <Clock className="size-3.5" />,
   },
   todo: {
     label: "Belum Dikerjakan",
-    cls: "bg-gray-100 text-gray-700 dark:bg-white/5 dark:text-gray-300",
+    variant: "white",
     icon: <Clock className="size-3.5" />,
   },
 };
@@ -144,17 +147,15 @@ export default function SkillPracticeItemAILN(
 
   return (
     <div
-      className={`flex items-center gap-3 rounded-lg border border-dashboard-border p-3 ${
-        locked
-          ? "bg-gray-50 dark:bg-red-500/[0.03]"
-          : "bg-white dark:bg-red-500/5 dark:shadow-[0_0_10px_rgba(239,68,68,0.1)]"
+      className={`flex items-center gap-3 rounded-xl border border-dashboard-border p-3 ${
+        locked ? "bg-card-2 opacity-60" : "bg-card-2"
       }`}
     >
       <div
         className={`flex h-10 w-10 shrink-0 items-center justify-center rounded-md ${
           locked
             ? "bg-gray-100 text-gray-400 dark:bg-red-500/5 dark:text-red-500/40"
-            : "bg-rose-100 text-rose-600 dark:bg-rose-500/15 dark:text-rose-300 dark:shadow-[0_0_10px_rgba(244,63,94,0.4)]"
+            : "bg-rose-100 text-rose-600 dark:bg-rose-500/15 dark:text-rose-300"
         }`}
       >
         {v.icon}
@@ -167,12 +168,9 @@ export default function SkillPracticeItemAILN(
           {item.name}
         </div>
         <div className="mt-1.5 flex flex-wrap items-center gap-2">
-          <span
-            className={`inline-flex items-center gap-1 rounded-md px-2 py-0.5 text-[11px] font-semibold ${sMeta.cls}`}
-          >
-            {sMeta.icon}
+          <GeneralLabelAILN variant={sMeta.variant} icon={sMeta.icon}>
             {sMeta.label}
-          </span>
+          </GeneralLabelAILN>
           <span className="inline-flex items-center gap-1 text-xs text-gray-500 dark:text-gray-400">
             <Calendar className="size-3.5" />
             {item.deadline

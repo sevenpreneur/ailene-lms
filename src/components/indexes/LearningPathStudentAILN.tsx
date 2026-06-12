@@ -3,10 +3,11 @@ import ChapterItemAILN, {
   ChapterItemSkeleton,
 } from "@/components/items/ChapterItemAILN";
 import LevelDividerAILN from "@/components/items/LevelDividerAILN";
-import SkillPracticeModuleAILN from "@/components/items/SkillPracticeModuleAILN";
+import SkillPracticeListAILN from "@/components/items/SkillPracticeListAILN";
 import type { SkillPracticeItem } from "@/components/items/SkillPracticeItemAILN";
 import PageContainerAILN from "@/components/pages/PageContainerAILN";
 import AppErrorComponents from "@/components/states/AppErrorComponents";
+import PageHeaderAILN from "@/components/titles/PageHeaderAILN";
 import { setSessionToken, trpc } from "@/trpc/client";
 import { faStar } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
@@ -35,7 +36,7 @@ interface Chapter {
   progress: "not_started" | "in_progress" | "completed";
 }
 
-export default function ModuleListStudentAILN({
+export default function LearningPathStudentAILN({
   sessionToken,
 }: {
   sessionToken: string;
@@ -72,8 +73,8 @@ export default function ModuleListStudentAILN({
     const member = memberQ.data?.ail_member;
     const levels = levelsQ.data?.list;
     if (!chapters || !member || !levels) return;
-    // Practice queries are non-blocking for the main render, but they decide
-    // the practice tier — wait until both have settled before deciding.
+    // This effect also runs during the loading phase; the practice queries
+    // decide the practice tier, so wait until both have settled before deciding.
     if (promptsQ.isLoading || useCasesQ.isLoading) return;
     autoExpandedRef.current = true;
 
@@ -154,18 +155,23 @@ export default function ModuleListStudentAILN({
     practiceParam,
   ]);
 
+  // Gate the full-page skeleton on everything the timeline needs to render in
+  // one shot — including the practice queries — so skill-practice modules don't
+  // pop into the timeline afterward and shift it. levelProgress is intentionally
+  // NOT here: it only feeds the "claimable" badge and degrades to false.
   if (
     memberQ.isLoading ||
     levelsQ.isLoading ||
     chaptersQ.isLoading ||
-    levelProgressQ.isLoading
+    promptsQ.isLoading ||
+    useCasesQ.isLoading
   ) {
     return (
       <PageContainerAILN>
         <div className="flex w-full flex-col gap-6">
           <div className="flex items-center justify-between gap-4">
             <div className="space-y-2">
-              <div className="h-7 w-48 rounded bg-gray-200 dark:bg-dashboard-border animate-pulse" />
+              <div className="h-7 w-48 rounded bg-gray-300 dark:bg-gray-700 animate-pulse" />
               <div className="h-3 w-72 rounded bg-gray-200 dark:bg-dashboard-border animate-pulse" />
             </div>
             <div className="flex items-center gap-3">
@@ -174,7 +180,7 @@ export default function ModuleListStudentAILN({
             </div>
           </div>
           <div className="relative">
-            <div className="absolute top-0 bottom-0 left-4 w-0.5 bg-red-200 dark:bg-red-500/40 dark:shadow-[0_0_6px_rgba(239,68,68,0.6)]" />
+            <div className="absolute top-0 bottom-0 left-4 w-0.5 bg-gray-200 dark:bg-dashboard-border" />
             <div className="space-y-4">
               {[0, 1, 2, 3].map((i) => (
                 <ChapterItemSkeleton key={i} />
@@ -185,12 +191,9 @@ export default function ModuleListStudentAILN({
       </PageContainerAILN>
     );
   }
-  if (
-    memberQ.error ||
-    levelsQ.error ||
-    chaptersQ.error ||
-    levelProgressQ.error
-  ) {
+  // levelProgress failing only costs the claimable badge (falls back to false),
+  // so it must not take the whole page down.
+  if (memberQ.error || levelsQ.error || chaptersQ.error) {
     return (
       <PageContainerAILN>
         <AppErrorComponents />
@@ -349,55 +352,48 @@ export default function ModuleListStudentAILN({
   return (
     <PageContainerAILN>
       <div className="flex w-full flex-col gap-6">
-        <div className="flex items-center justify-between gap-4">
-          <div>
-            <h1 className="text-2xl font-bold dark:text-white">
-              Modul Belajar AI
-            </h1>
-            <p className="text-sm text-gray-500 dark:text-gray-400">
-              Tuntaskan semua tugas mingguan untuk maju ke level berikutnya.
-            </p>
-          </div>
-          <div className="flex items-center gap-3">
-            <div className="flex items-center gap-2 rounded-md bg-white p-3 shadow-sm dark:border dark:border-red-500/30 dark:bg-red-500/5 dark:shadow-[0_0_16px_rgba(239,68,68,0.15)]">
-              {member.current_level?.icon && (
-                <Image
-                  src={member.current_level.icon}
-                  alt={member.current_level.name}
-                  width={32}
-                  height={32}
-                  className="h-8 w-8"
-                />
-              )}
-              <div className="flex flex-col">
-                <div className="text-xs text-gray-500 dark:text-gray-400">
-                  Level Sekarang
-                </div>
-                <div className="font-bold dark:text-white">
-                  Level {member.current_level?.level_number ?? 0}
-                </div>
-              </div>
-            </div>
-            <div className="flex items-center gap-2 rounded-md bg-white p-3 shadow-sm dark:border dark:border-red-500/30 dark:bg-red-500/5 dark:shadow-[0_0_16px_rgba(239,68,68,0.15)]">
-              <FontAwesomeIcon
-                icon={faStar}
-                className="text-warning dark:text-amber-400 dark:drop-shadow-[0_0_6px_rgba(251,191,36,0.7)]"
+        <PageHeaderAILN
+          title="Jalur Belajar"
+          desc="Tuntaskan semua tugas mingguan untuk maju ke level berikutnya."
+        >
+          <div className="flex items-center gap-2 rounded-md bg-white p-3 border dark:border-red-500/30 dark:bg-red-500/5">
+            {member.current_level?.icon && (
+              <Image
+                src={member.current_level.icon}
+                alt={member.current_level.name}
+                width={32}
+                height={32}
+                className="h-8 w-8"
               />
-              <div className="flex flex-col">
-                <div className="text-xs text-gray-500 dark:text-gray-400">
-                  Reward
-                </div>
-                <div className="font-bold dark:text-white">
-                  {member.total_xp.toLocaleString()} XP
-                </div>
+            )}
+            <div className="flex flex-col">
+              <div className="text-xs text-gray-500 dark:text-gray-400">
+                Level Sekarang
+              </div>
+              <div className="font-bold dark:text-white">
+                Level {member.current_level?.level_number ?? 0}
               </div>
             </div>
           </div>
-        </div>
+          <div className="flex items-center gap-2 rounded-md bg-white p-3 border dark:border-red-500/30 dark:bg-red-500/5">
+            <FontAwesomeIcon
+              icon={faStar}
+              className="text-warning dark:text-amber-400"
+            />
+            <div className="flex flex-col">
+              <div className="text-xs text-gray-500 dark:text-gray-400">
+                Reward
+              </div>
+              <div className="font-bold dark:text-white">
+                {member.total_xp.toLocaleString()} XP
+              </div>
+            </div>
+          </div>
+        </PageHeaderAILN>
 
         {/* Timeline */}
         <div className="relative">
-          <div className="absolute top-0 bottom-0 left-4 w-0.5 bg-red-200 dark:bg-red-500/40 dark:shadow-[0_0_6px_rgba(239,68,68,0.6)]" />
+          <div className="absolute top-0 bottom-0 left-4 w-0.5 bg-red-200 dark:bg-red-500/40" />
           <div className="space-y-4">
             {items.map((item, i) => {
               if (item.kind === "level") {
@@ -423,7 +419,7 @@ export default function ModuleListStudentAILN({
                 );
               }
               return (
-                <SkillPracticeModuleAILN
+                <SkillPracticeListAILN
                   key={`skill-${item.level.id}`}
                   level={item.level}
                   unlocked={item.levelUnlocked}

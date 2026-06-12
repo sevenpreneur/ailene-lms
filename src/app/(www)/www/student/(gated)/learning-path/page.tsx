@@ -1,4 +1,4 @@
-import ModuleListStudentAILN from "@/components/indexes/ModuleListStudentAILN";
+import LearningPathStudentAILN from "@/components/indexes/LearningPathStudentAILN";
 import AppPageState from "@/components/states/AppPageState";
 import { getAilGate } from "@/lib/ail-gate";
 import { Metadata } from "next";
@@ -7,7 +7,7 @@ export const metadata: Metadata = {
   title: "Student",
 };
 
-export default async function ModulesPage() {
+export default async function LearningPathPage() {
   const { sessionToken, ailMember } = await getAilGate();
 
   if (!sessionToken) return null;
@@ -19,5 +19,5 @@ export default async function ModulesPage() {
     return <AppPageState variant="FORBIDDEN" />;
   }
 
-  return <ModuleListStudentAILN sessionToken={sessionToken} />;
+  return <LearningPathStudentAILN sessionToken={sessionToken} />;
 }

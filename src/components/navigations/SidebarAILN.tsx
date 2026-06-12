@@ -81,8 +81,8 @@ const VARIANT_CONFIG: Record<SidebarAILNVariant, VariantConfig> = {
     menu: [
       { name: "Hari Ini", url: "/student", icon: CalendarDays, exact: true },
       {
-        name: "Modul Belajar",
-        url: "/student/modules",
+        name: "Jalur Belajar",
+        url: "/student/learning-path",
         icon: BookOpen,
         exact: true,
       },

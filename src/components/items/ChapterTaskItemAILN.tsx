@@ -1,5 +1,8 @@
 "use client";
 import ButtonAILN from "@/components/buttons/ButtonAILN";
+import GeneralLabelAILN, {
+  type GeneralLabelVariantAILN,
+} from "@/components/labels/GeneralLabelAILN";
 import { TaskVariant } from "@/lib/app-types";
 import { trpc } from "@/trpc/client";
 import {
@@ -106,6 +109,7 @@ export default function ChapterTaskItemAILN(props: ChapterTaskItemAILNProps) {
 
   let title = "";
   let meta = "";
+  let statusVariant: GeneralLabelVariantAILN = "white";
   let xpReward = 0;
   let hasMark = false;
   let cta: React.ReactNode = null;
@@ -121,6 +125,7 @@ export default function ChapterTaskItemAILN(props: ChapterTaskItemAILNProps) {
       : !hasAttempt
         ? "Not taken yet"
         : `Score: ${q.best_score}%`;
+    statusVariant = !props.unlocked ? "white" : !hasAttempt ? "blue" : "green";
     cta = !props.unlocked ? (
       <ButtonAILN size="small" disabled className="w-full">
         Locked
@@ -150,6 +155,7 @@ export default function ChapterTaskItemAILN(props: ChapterTaskItemAILNProps) {
       : v.completed
         ? "Watched"
         : "Not watched yet";
+    statusVariant = !props.unlocked ? "white" : v.completed ? "green" : "blue";
     const handleCompleteVideo = () => {
       if (!v.completed) {
         completeVideo.mutate({ video_id: v.id });
@@ -177,6 +183,7 @@ export default function ChapterTaskItemAILN(props: ChapterTaskItemAILNProps) {
     xpReward = m.xp_reward;
     hasMark = m.completed;
     meta = !props.unlocked ? lockedText : m.completed ? "Read" : "Not started";
+    statusVariant = !props.unlocked ? "white" : m.completed ? "green" : "blue";
 
     cta = !props.unlocked ? (
       <ButtonAILN size="small" disabled className="w-full">
@@ -205,19 +212,19 @@ export default function ChapterTaskItemAILN(props: ChapterTaskItemAILNProps) {
 
   return (
     <div
-      className={`flex items-center gap-3 rounded-lg border p-3 transition-shadow ${
+      className={`flex items-center gap-3 rounded-xl border p-3 ${
         locked
-          ? "border-dashboard-border bg-gray-50 dark:bg-red-500/[0.03]"
+          ? "border-dashboard-border bg-card-2 opacity-60"
           : isNext
-            ? "border-red-500 bg-red-50/60 ring-1 ring-red-500 dark:border-red-400 dark:bg-red-500/10 dark:ring-red-400/60 dark:shadow-[0_0_16px_rgba(239,68,68,0.25)]"
-            : "border-dashboard-border bg-white dark:bg-red-500/5 dark:shadow-[0_0_10px_rgba(239,68,68,0.1)]"
+            ? "border-red-500 bg-card-2 ring-1 ring-red-500 dark:border-red-400 dark:ring-red-400/60"
+            : "border-dashboard-border bg-card-2"
       }`}
     >
       <div
         className={`flex h-10 w-10 items-center justify-center rounded-md ${
           locked
             ? "bg-gray-100 text-gray-400 dark:bg-red-500/5 dark:text-red-500/40"
-            : "bg-red-100 text-red-500 dark:bg-red-500/15 dark:text-red-400 dark:shadow-[0_0_10px_rgba(239,68,68,0.4)]"
+            : "bg-red-100 text-red-500 dark:bg-red-500/15 dark:text-red-400"
         }`}
       >
         {style.icon}
@@ -228,20 +235,20 @@ export default function ChapterTaskItemAILN(props: ChapterTaskItemAILNProps) {
         </div>
         <div className="text-sm font-semibold dark:text-white">{title}</div>
         <div className="mt-1 flex items-center gap-2">
-          <span className="inline-flex items-center gap-1 rounded-full bg-gray-50 border px-2 py-0.5 text-xs font-semibold dark:border-amber-400/40 dark:bg-amber-400/10 dark:text-amber-200">
-            <FontAwesomeIcon
-              icon={faStar}
-              className="h-3 w-3 text-warning dark:text-amber-400 dark:drop-shadow-[0_0_4px_rgba(251,191,36,0.7)]"
-            />
+          <GeneralLabelAILN
+            variant="white"
+            icon={
+              <FontAwesomeIcon
+                icon={faStar}
+                className="h-3 w-3 text-warning dark:text-amber-400"
+              />
+            }
+          >
             {xpReward} XP
-          </span>
-          <span className="text-xs text-gray-500 dark:text-gray-400">
-            {meta}
-          </span>
+          </GeneralLabelAILN>
+          <GeneralLabelAILN variant={statusVariant}>{meta}</GeneralLabelAILN>
           {isNext && (
-            <span className="inline-flex items-center rounded-full bg-red-500 px-2 py-0.5 text-[10px] font-bold uppercase tracking-wide text-white">
-              Lanjutkan
-            </span>
+            <GeneralLabelAILN variant="red">Lanjutkan</GeneralLabelAILN>
           )}
         </div>
       </div>
@@ -255,7 +262,7 @@ export default function ChapterTaskItemAILN(props: ChapterTaskItemAILNProps) {
         ) : hasMark ? (
           <FontAwesomeIcon
             icon={faCircleCheck}
-            className="h-5 w-5 text-red-500 dark:text-red-400 dark:drop-shadow-[0_0_6px_rgba(239,68,68,0.8)]"
+            className="h-5 w-5 text-red-500 dark:text-red-400"
           />
         ) : (
           <span className="block h-4 w-4 rounded-full border-2 border-gray-300 dark:border-red-500/40" />

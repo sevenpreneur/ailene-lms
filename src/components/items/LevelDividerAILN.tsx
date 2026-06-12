@@ -55,7 +55,7 @@ export default function LevelDividerAILN(props: LevelDividerAILNProps) {
     return (
       <>
         <div className="relative pl-12">
-          <div className="relative overflow-hidden rounded-xl border-2 border-red-300 bg-gradient-to-r from-red-50 to-white p-4 shadow-sm dark:border-red-500/70 dark:bg-gradient-to-r dark:from-red-500/15 dark:via-red-500/5 dark:to-black dark:shadow-[0_0_40px_rgba(239,68,68,0.35),inset_0_0_24px_rgba(239,68,68,0.15)]">
+          <div className="relative overflow-hidden rounded-xl border-2 border-red-300 bg-gradient-to-r from-red-50 to-white p-4 dark:border-red-500/70 dark:bg-gradient-to-r dark:from-red-500/15 dark:via-red-500/5 dark:to-black">
             {/* Neon glitch dot pattern overlay (dark mode only) */}
             <div
               className="pointer-events-none absolute inset-0 hidden opacity-40 dark:block"
@@ -70,12 +70,12 @@ export default function LevelDividerAILN(props: LevelDividerAILNProps) {
                 <Image
                   src={iconUrl}
                   alt={`Level ${props.level.level_number}`}
-                  className="h-14 w-14 shrink-0 dark:drop-shadow-[0_0_12px_rgba(239,68,68,0.9)]"
+                  className="h-14 w-14 shrink-0"
                   width={300}
                   height={300}
                 />
                 <div>
-                  <div className="text-sm font-bold text-red-500 dark:text-red-400 dark:drop-shadow-[0_0_8px_rgba(239,68,68,0.8)]">
+                  <div className="text-sm font-bold text-red-500 dark:text-red-400">
                     Level {props.level.level_number} Unlocked!
                   </div>
                   <div className="text-xl font-bold text-gray-900 dark:text-white">
@@ -85,7 +85,7 @@ export default function LevelDividerAILN(props: LevelDividerAILNProps) {
               </div>
               <div className="flex items-center gap-4 border-l border-gray-200 pl-6 dark:border-red-500/30">
                 <div>
-                  <div className="text-sm font-bold text-red-500 dark:text-red-400 dark:drop-shadow-[0_0_6px_rgba(239,68,68,0.7)]">
+                  <div className="text-sm font-bold text-red-500 dark:text-red-400">
                     Congrats!
                   </div>
                   <div className="text-sm text-gray-600 dark:text-gray-300">
@@ -108,7 +108,7 @@ export default function LevelDividerAILN(props: LevelDividerAILNProps) {
   return (
     <>
       <div className="relative pl-12">
-        <div className="rounded-xl bg-white p-4 shadow-sm dark:border dark:border-red-500/15 dark:bg-red-500/[0.03]">
+        <div className="rounded-xl bg-white p-4 dark:border dark:border-red-500/15 dark:bg-red-500/[0.03]">
           <div className="flex items-center justify-between gap-4">
             <div className="flex items-center gap-4">
               <Image

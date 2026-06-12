@@ -91,7 +91,7 @@ export default function TodayFocusCardAILN() {
           dikerjakan.
         </p>
         <div className="mt-3">
-          <Link href="/student/modules">
+          <Link href="/student/learning-path">
             <ButtonAILN>Lihat modul belajar</ButtonAILN>
           </Link>
         </div>
@@ -102,11 +102,11 @@ export default function TodayFocusCardAILN() {
   const detailHref =
     focus.kind === "PromptPractice" || focus.kind === "UseCasePractice"
       ? focus.level_id != null
-        ? `/student/modules?practice=${focus.level_id}`
-        : "/student/modules"
+        ? `/student/learning-path?practice=${focus.level_id}`
+        : "/student/learning-path"
       : focus.chapter_id != null
-        ? `/student/modules?chapter=${focus.chapter_id}`
-        : "/student/modules";
+        ? `/student/learning-path?chapter=${focus.chapter_id}`
+        : "/student/learning-path";
 
   const jenisLabel =
     labelForKind(focus.kind) +

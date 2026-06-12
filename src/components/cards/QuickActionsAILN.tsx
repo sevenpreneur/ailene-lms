@@ -18,7 +18,7 @@ export default function QuickActionsAILN() {
     >
       <div className="grid grid-cols-1 gap-3 sm:grid-cols-3">
         <ActionTileAILN
-          href="/student/modules"
+          href="/student/learning-path"
           icon={BookOpen}
           title="Lanjutkan Belajar"
           desc="Modul & materi level kamu"

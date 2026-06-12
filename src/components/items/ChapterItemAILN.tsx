@@ -1,5 +1,8 @@
 "use client";
 import ChapterTaskItemAILN from "@/components/items/ChapterTaskItemAILN";
+import GeneralLabelAILN, {
+  type GeneralLabelVariantAILN,
+} from "@/components/labels/GeneralLabelAILN";
 import { trpc } from "@/trpc/client";
 import type { ChapterProgress } from "@/trpc/routers/ailene/utils.ailene";
 import { faLock } from "@fortawesome/free-solid-svg-icons";
@@ -14,19 +17,13 @@ interface Chapter {
   progress: ChapterProgress;
 }
 
-const progressMeta: Record<ChapterProgress, { label: string; cls: string }> = {
-  not_started: {
-    label: "Not Started",
-    cls: "bg-gray-100 text-gray-600 dark:bg-gray-500/10 dark:text-gray-300 dark:border dark:border-gray-500/30",
-  },
-  in_progress: {
-    label: "In Progress",
-    cls: "bg-blue-100 text-blue-500 dark:bg-blue-500/10 dark:text-blue-300 dark:border dark:border-blue-500/40",
-  },
-  completed: {
-    label: "Completed",
-    cls: "bg-green-100 text-green-700 dark:bg-green-500/10 dark:text-green-300 dark:border dark:border-green-500/40",
-  },
+const progressMeta: Record<
+  ChapterProgress,
+  { label: string; variant: GeneralLabelVariantAILN }
+> = {
+  not_started: { label: "Not Started", variant: "white" },
+  in_progress: { label: "In Progress", variant: "blue" },
+  completed: { label: "Completed", variant: "green" },
 };
 
 interface ChapterItemAILNProps {
@@ -48,19 +45,19 @@ export default function ChapterItemAILN(props: ChapterItemAILNProps) {
       <div
         className={`absolute top-4 left-0 flex h-8 w-8 items-center justify-center rounded-full border-2 ${
           props.unlocked
-            ? "border-red-500 bg-white text-red-500 dark:bg-black dark:shadow-[0_0_12px_rgba(239,68,68,0.7)]"
+            ? "border-red-500 bg-white text-red-500 dark:bg-black"
             : "border-gray-300 bg-gray-100 text-gray-400 dark:border-red-500/30 dark:bg-black dark:text-red-500/40"
         }`}
       >
         {props.unlocked ? (
-          <span className="h-2 w-2 rounded-full bg-red-500 dark:shadow-[0_0_8px_rgba(239,68,68,0.9)]" />
+          <span className="h-2 w-2 rounded-full bg-red-500" />
         ) : (
           <FontAwesomeIcon icon={faLock} className="h-4 w-4" />
         )}
       </div>
 
       <div
-        className={`rounded-md bg-white border border-dashboard-border dark:bg-[#0E111A]/50 dark:shadow-[0_0_18px_rgba(239,68,68,0.08)] ${
+        className={`rounded-xl bg-card-1 border border-dashboard-border ${
           !props.unlocked ? "opacity-60 dark:opacity-50" : ""
         }`}
       >
@@ -84,15 +81,13 @@ export default function ChapterItemAILN(props: ChapterItemAILNProps) {
           </div>
           <div className="flex items-center gap-3">
             {props.unlocked ? (
-              <span
-                className={`rounded px-2 py-0.5 text-xs font-medium ${progressMeta[props.chapter.progress].cls}`}
+              <GeneralLabelAILN
+                variant={progressMeta[props.chapter.progress].variant}
               >
                 {progressMeta[props.chapter.progress].label}
-              </span>
+              </GeneralLabelAILN>
             ) : (
-              <span className="rounded bg-gray-200 px-2 py-0.5 text-xs text-gray-600 dark:bg-red-500/10 dark:text-red-300/70">
-                Locked
-              </span>
+              <GeneralLabelAILN variant="white">Locked</GeneralLabelAILN>
             )}
             <ChevronDown
               className={`h-4 w-4 text-gray-400 transition-transform duration-300 dark:text-red-300/70 ${
@@ -196,11 +191,11 @@ export function ChapterItemSkeleton() {
   return (
     <div className="relative pl-12 animate-pulse">
       <div className="absolute top-4 left-0 flex h-8 w-8 items-center justify-center rounded-full border-2 border-gray-200 bg-gray-100 dark:border-dashboard-border dark:bg-card-1" />
-      <div className="rounded-md bg-gray-50 shadow-sm dark:border dark:border-dashboard-border dark:bg-[#0E111A]/50">
+      <div className="rounded-xl bg-card-1 border border-dashboard-border">
         <div className="flex w-full items-center justify-between gap-4 p-4">
           <div className="flex-1 space-y-2">
-            <div className="h-2.5 w-24 rounded bg-gray-200 dark:bg-dashboard-border" />
-            <div className="h-4 w-64 rounded bg-gray-200 dark:bg-dashboard-border" />
+            <div className="h-2.5 w-24 rounded bg-gray-100 dark:bg-dashboard-border" />
+            <div className="h-4 w-64 rounded bg-gray-300 dark:bg-gray-700" />
             <div className="h-3 w-80 rounded bg-gray-200 dark:bg-dashboard-border" />
           </div>
           <div className="flex items-center gap-3">
@@ -215,11 +210,11 @@ export function ChapterItemSkeleton() {
 
 function TaskItemSkeleton() {
   return (
-    <div className="flex items-center gap-3 rounded-lg border border-dashboard-border bg-white p-3 animate-pulse dark:bg-card-1">
+    <div className="flex items-center gap-3 rounded-xl border border-dashboard-border bg-card-2 p-3 animate-pulse">
       <div className="h-10 w-10 shrink-0 rounded-md bg-gray-200 dark:bg-dashboard-border" />
       <div className="flex-1 space-y-2">
-        <div className="h-2.5 w-16 rounded bg-gray-200 dark:bg-dashboard-border" />
-        <div className="h-3.5 w-48 rounded bg-gray-200 dark:bg-dashboard-border" />
+        <div className="h-2.5 w-16 rounded bg-gray-100 dark:bg-dashboard-border" />
+        <div className="h-3.5 w-48 rounded bg-gray-300 dark:bg-gray-700" />
         <div className="flex items-center gap-2 pt-0.5">
           <div className="h-4 w-14 rounded-full bg-gray-200 dark:bg-dashboard-border" />
           <div className="h-3 w-20 rounded bg-gray-200 dark:bg-dashboard-border" />

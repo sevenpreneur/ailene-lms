@@ -1,4 +1,5 @@
 "use client";
+import GeneralLabelAILN from "@/components/labels/GeneralLabelAILN";
 import SkillPracticeItemAILN, {
   deriveSkillPracticeStatus,
   type SkillPracticeItem,
@@ -7,7 +8,7 @@ import { faLock } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { ChevronDown, GraduationCap } from "lucide-react";
 
-interface SkillPracticeModuleAILNProps {
+interface SkillPracticeListAILNProps {
   level: { id: number; level_number: number; name: string };
   unlocked: boolean;
   expanded: boolean;
@@ -16,8 +17,8 @@ interface SkillPracticeModuleAILNProps {
   useCases: SkillPracticeItem[];
 }
 
-export default function SkillPracticeModuleAILN(
-  props: SkillPracticeModuleAILNProps
+export default function SkillPracticeListAILN(
+  props: SkillPracticeListAILNProps
 ) {
   const total = props.prompts.length + props.useCases.length;
   const accepted =
@@ -31,19 +32,19 @@ export default function SkillPracticeModuleAILN(
       <div
         className={`absolute top-4 left-0 flex h-8 w-8 items-center justify-center rounded-full border-2 ${
           props.unlocked
-            ? "border-red-500 bg-white text-red-500 dark:bg-black dark:shadow-[0_0_12px_rgba(239,68,68,0.7)]"
+            ? "border-red-500 bg-white text-red-500 dark:bg-black"
             : "border-gray-300 bg-gray-100 text-gray-400 dark:border-red-500/30 dark:bg-black dark:text-red-500/40"
         }`}
       >
         {props.unlocked ? (
-          <GraduationCap className="size-4 text-red-500 dark:text-red-400 dark:drop-shadow-[0_0_6px_rgba(239,68,68,0.8)]" />
+          <GraduationCap className="size-4 text-red-500 dark:text-red-400" />
         ) : (
           <FontAwesomeIcon icon={faLock} className="h-4 w-4" />
         )}
       </div>
 
       <div
-        className={`rounded-md bg-white border border-dashboard-border dark:bg-[#0E111A]/50 dark:shadow-[0_0_18px_rgba(239,68,68,0.08)] ${
+        className={`rounded-xl bg-card-1 border border-dashboard-border ${
           !props.unlocked ? "opacity-60 dark:opacity-50" : ""
         }`}
       >
@@ -66,13 +67,11 @@ export default function SkillPracticeModuleAILN(
           </div>
           <div className="flex items-center gap-3">
             {props.unlocked ? (
-              <span className="rounded px-2 py-0.5 text-xs font-medium bg-rose-50 text-rose-700 dark:bg-rose-500/10 dark:text-rose-300 dark:border dark:border-rose-500/40">
+              <GeneralLabelAILN variant="green">
                 {accepted}/{total} Diterima
-              </span>
+              </GeneralLabelAILN>
             ) : (
-              <span className="rounded bg-gray-200 px-2 py-0.5 text-xs text-gray-600 dark:bg-red-500/10 dark:text-red-300/70">
-                Locked
-              </span>
+              <GeneralLabelAILN variant="white">Locked</GeneralLabelAILN>
             )}
             <ChevronDown
               className={`h-4 w-4 text-gray-400 transition-transform duration-300 dark:text-red-300/70 ${
