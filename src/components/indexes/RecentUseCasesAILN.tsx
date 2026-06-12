@@ -1,4 +1,5 @@
 "use client";
+import SectionContainerAILN from "@/components/cards/SectionContainerAILN";
 import { trpc } from "@/trpc/client";
 import dayjs from "dayjs";
 import relativeTime from "dayjs/plugin/relativeTime";
@@ -6,8 +7,6 @@ import Link from "next/link";
 
 dayjs.extend(relativeTime);
 
-// Use Case Terbaru — 3 submission use case terakhir dari tim champion (data nyata
-// via list.useCaseSubmissions). Selaras dengan kartu "Use Case Terbaru" di lms-fe.
 export default function RecentUseCasesAILN() {
   const q = trpc.list.useCaseSubmissions.useQuery();
 
@@ -21,11 +20,7 @@ export default function RecentUseCasesAILN() {
     .slice(0, 3);
 
   return (
-    <section className="rounded-xl border border-dashboard-border bg-white p-5 shadow-sm dark:bg-card-1">
-      <h3 className="mb-3 text-sm font-bold text-gray-900 dark:text-white">
-        Use Case Terbaru
-      </h3>
-
+    <SectionContainerAILN title="Use Case Terbaru">
       {q.isLoading ? (
         <div className="space-y-2.5">
           {[0, 1, 2].map((i) => (
@@ -49,7 +44,9 @@ export default function RecentUseCasesAILN() {
                 </p>
                 <p className="truncate text-[10px] text-gray-500 dark:text-gray-400">
                   oleh {r.member.full_name}
-                  {r.use_case.level ? ` · L${r.use_case.level.level_number}` : ""}
+                  {r.use_case.level
+                    ? ` · L${r.use_case.level.level_number}`
+                    : ""}
                   {r.is_accepted ? " · diterima" : " · menunggu review"}
                 </p>
               </div>
@@ -67,6 +64,6 @@ export default function RecentUseCasesAILN() {
       >
         Lihat semua use case
       </Link>
-    </section>
+    </SectionContainerAILN>
   );
 }

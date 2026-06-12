@@ -1,5 +1,8 @@
 "use client";
 import SectionContainerAILN from "@/components/cards/SectionContainerAILN";
+import GeneralLabelAILN, {
+  type GeneralLabelVariantAILN,
+} from "@/components/labels/GeneralLabelAILN";
 import type { AppRouter } from "@/trpc/routers/_app";
 import type { inferRouterOutputs } from "@trpc/server";
 import dayjs from "dayjs";
@@ -11,8 +14,7 @@ import { useEffect, useRef, useState } from "react";
 
 dayjs.extend(relativeTime);
 
-type Member =
-  inferRouterOutputs<AppRouter>["list"]["members"]["list"][number];
+type Member = inferRouterOutputs<AppRouter>["list"]["members"]["list"][number];
 
 type StatusKey = "on_track" | "at_risk" | "behind";
 
@@ -44,11 +46,11 @@ export const statusMeta: Record<
 };
 
 // Level pill accent rotates by level number so each level reads distinctly.
-const LEVEL_STYLES = [
-  "border-amber-300 text-amber-700 bg-amber-50 dark:border-amber-500/40 dark:bg-amber-500/10 dark:text-amber-300",
-  "border-blue-300 text-blue-700 bg-blue-50 dark:border-blue-500/40 dark:bg-blue-500/10 dark:text-blue-300",
-  "border-violet-300 text-violet-700 bg-violet-50 dark:border-violet-500/40 dark:bg-violet-500/10 dark:text-violet-300",
-  "border-emerald-300 text-emerald-700 bg-emerald-50 dark:border-emerald-500/40 dark:bg-emerald-500/10 dark:text-emerald-300",
+const LEVEL_VARIANTS: GeneralLabelVariantAILN[] = [
+  "yellow",
+  "blue",
+  "green",
+  "red",
 ];
 
 // Deterministic avatar gradient from the member's name.
@@ -140,7 +142,7 @@ export default function ChampionTeamMembersAILN(props: { members: Member[] }) {
   return (
     <SectionContainerAILN
       title="Anggota Tim Langsung"
-      desc="Klik baris untuk melihat detail member · Sortir: Status"
+      desc="Klik baris untuk melihat detail member"
       contentClassName="overflow-visible"
       headerRight={
         <div className="flex flex-wrap items-center gap-2">
@@ -195,17 +197,25 @@ export default function ChampionTeamMembersAILN(props: { members: Member[] }) {
         </div>
       }
     >
-      {/* max-height + scroll: kalau anggota banyak, tabel scroll (tidak melebihi
-          kolom kanan). Header sticky biar tetap terlihat saat scroll. */}
       <div className="max-h-[460px] overflow-auto">
         <table className="w-full border-collapse text-sm">
           <thead>
             <tr className="text-left text-[10px] font-semibold uppercase tracking-wider text-gray-500 dark:text-gray-400">
-              <th className="sticky top-0 z-10 border-y border-dashboard-border bg-gray-50 px-4 py-2.5 dark:bg-card-2">Anggota</th>
-              <th className="sticky top-0 z-10 border-y border-dashboard-border bg-gray-50 px-4 py-2.5 dark:bg-card-2">Level</th>
-              <th className="sticky top-0 z-10 border-y border-dashboard-border bg-gray-50 px-4 py-2.5 text-center dark:bg-card-2">Use Case</th>
-              <th className="sticky top-0 z-10 border-y border-dashboard-border bg-gray-50 px-4 py-2.5 dark:bg-card-2">Status</th>
-              <th className="sticky top-0 z-10 border-y border-dashboard-border bg-gray-50 px-4 py-2.5 text-right dark:bg-card-2">Aksi</th>
+              <th className="sticky top-0 z-10 border-y border-dashboard-border bg-gray-50 px-4 py-2.5 dark:bg-card-2">
+                Anggota
+              </th>
+              <th className="sticky top-0 z-10 border-y border-dashboard-border bg-gray-50 px-4 py-2.5 dark:bg-card-2">
+                Level
+              </th>
+              <th className="sticky top-0 z-10 border-y border-dashboard-border bg-gray-50 px-4 py-2.5 text-center dark:bg-card-2">
+                Use Case
+              </th>
+              <th className="sticky top-0 z-10 border-y border-dashboard-border bg-gray-50 px-4 py-2.5 dark:bg-card-2">
+                Status
+              </th>
+              <th className="sticky top-0 z-10 border-y border-dashboard-border bg-gray-50 px-4 py-2.5 text-right dark:bg-card-2">
+                Aksi
+              </th>
             </tr>
           </thead>
           <tbody>
@@ -221,10 +231,10 @@ export default function ChampionTeamMembersAILN(props: { members: Member[] }) {
             ) : (
               filtered.map((m) => {
                 const status = statusMeta[m.status];
-                const levelCls =
-                  LEVEL_STYLES[
-                    (m.current_level.level_number - 1 + LEVEL_STYLES.length) %
-                      LEVEL_STYLES.length
+                const levelVariant =
+                  LEVEL_VARIANTS[
+                    (m.current_level.level_number - 1 + LEVEL_VARIANTS.length) %
+                      LEVEL_VARIANTS.length
                   ];
                 const href = `/champion/members/${m.member_id}`;
                 return (
@@ -244,7 +254,7 @@ export default function ChampionTeamMembersAILN(props: { members: Member[] }) {
                           <div className="truncate text-sm font-semibold text-gray-900 dark:text-white">
                             {m.user.full_name}
                           </div>
-                          <div className="truncate text-[10px] text-gray-500 dark:text-gray-400">
+                          <div className="truncate font-inter text-xs text-gray-500 dark:text-gray-400">
                             {m.user.email}
                           </div>
                         </div>
@@ -253,11 +263,9 @@ export default function ChampionTeamMembersAILN(props: { members: Member[] }) {
 
                     {/* Level */}
                     <td className="px-4 py-3">
-                      <span
-                        className={`inline-flex items-center rounded-md border px-2 py-0.5 text-xs font-semibold ${levelCls}`}
-                      >
+                      <GeneralLabelAILN variant={levelVariant}>
                         L{m.current_level.level_number}
-                      </span>
+                      </GeneralLabelAILN>
                     </td>
 
                     {/* Use Case */}
@@ -271,7 +279,9 @@ export default function ChampionTeamMembersAILN(props: { members: Member[] }) {
                         <span
                           className={`size-1.5 shrink-0 rounded-full ${status.dot}`}
                         />
-                        <span className={`text-xs font-semibold ${status.text}`}>
+                        <span
+                          className={`text-xs font-semibold ${status.text}`}
+                        >
                           {status.label}
                         </span>
                       </div>

@@ -22,7 +22,6 @@ import {
   Target,
   UserRound,
   UserRoundKey,
-  Users,
   type LucideIcon,
 } from "lucide-react";
 import { useTheme } from "next-themes";
@@ -55,13 +54,15 @@ type VariantConfig = {
     modeText: string;
     active: string;
     activeBar: string;
-    inactive: string;
     userCard: string;
     userAvatar: string;
     divider: string;
     metaText: string;
   };
 };
+
+const INACTIVE_CLASSES =
+  "text-gray-600 hover:bg-gray-100 hover:text-black dark:text-gray-400 dark:hover:bg-white/5 dark:hover:text-white";
 
 const HUTAMA_KARYA_LOGO =
   "https://tskubmriuclmbcfmaiur.supabase.co/storage/v1/object/public/sevenpreneur/logo-hk-danantara.webp";
@@ -105,9 +106,7 @@ const VARIANT_CONFIG: Record<SidebarAILNVariant, VariantConfig> = {
       modeText: "text-red-600 dark:text-red-200",
       active: "bg-gray-200 text-black dark:bg-white/10 dark:text-white",
       activeBar: "bg-black dark:bg-white",
-      inactive:
-        "text-gray-600 hover:bg-gray-100 hover:text-black dark:text-gray-400 dark:hover:bg-white/5 dark:hover:text-white",
-      userCard: "",
+      userCard: "bg-card-1 dark:bg-card-1/60",
       userAvatar: "",
       divider: "",
       metaText: "dark:text-white",
@@ -141,16 +140,12 @@ const VARIANT_CONFIG: Record<SidebarAILNVariant, VariantConfig> = {
       mode: "border-emerald-200 bg-emerald-50 dark:border-emerald-500/30 dark:bg-emerald-500/10 dark:shadow-[0_0_12px_rgba(16,185,129,0.15)]",
       modeDot: "bg-emerald-500 dark:shadow-[0_0_8px_rgba(16,185,129,0.9)]",
       modeText: "text-emerald-700 dark:text-emerald-200",
-      active:
-        "text-white dark:bg-emerald-500/15 dark:text-emerald-100 dark:shadow-[inset_0_0_0_1px_rgba(16,185,129,0.4),0_0_12px_rgba(16,185,129,0.25)]",
+      active: "bg-stakeholder-champion-soft text-stakeholder-champion",
       activeBar: "bg-stakeholder-champion",
-      inactive:
-        "text-gray-700 hover:bg-gray-100 hover:text-black dark:text-gray-300 dark:hover:bg-emerald-500/10 dark:hover:text-emerald-100",
-      userCard:
-        "dark:border-emerald-500/25 dark:bg-emerald-500/5 dark:shadow-[0_0_20px_rgba(16,185,129,0.08)]",
-      userAvatar: "dark:ring-emerald-500/40",
-      divider: "dark:border-emerald-500/20",
-      metaText: "dark:text-emerald-100",
+      userCard: "bg-card-1 dark:bg-card-1/60",
+      userAvatar: "",
+      divider: "",
+      metaText: "dark:text-white",
     },
   },
   SPONSOR: {
@@ -188,8 +183,6 @@ const VARIANT_CONFIG: Record<SidebarAILNVariant, VariantConfig> = {
       modeText: "text-blue-700 dark:text-blue-200",
       active: "text-white dark:shadow-[inset_0_0_0_1px_rgba(148,163,184,0.25)]",
       activeBar: "bg-stakeholder-sponsor",
-      inactive:
-        "text-gray-700 hover:bg-gray-100 hover:text-black dark:text-gray-300 dark:hover:bg-white/5 dark:hover:text-white",
       userCard: "dark:bg-white/5",
       userAvatar: "dark:ring-white/15",
       divider: "",
@@ -268,10 +261,6 @@ export default function SidebarAILN({
         ? championedGroups.map((g) => g.name).join(", ")
         : "-"
       : (member?.group?.name ?? "-");
-  const totalMembers = championedGroups.reduce(
-    (sum, group) => sum + (group._count?.members ?? 0),
-    0
-  );
 
   return (
     <div
@@ -331,9 +320,7 @@ export default function SidebarAILN({
               ? pathname === item.url
               : pathname.startsWith(item.url);
             const Icon = item.icon;
-            const shouldUseInlineActiveColor =
-              active &&
-              (variant === "SPONSOR" || (variant === "CHAMPION" && !isDark));
+            const shouldUseInlineActiveColor = active && variant === "SPONSOR";
             const activeStyle = shouldUseInlineActiveColor
               ? { backgroundColor: config.accent }
               : undefined;
@@ -344,7 +331,7 @@ export default function SidebarAILN({
                 href={item.url}
                 style={activeStyle}
                 className={`relative flex items-center gap-3 rounded-md p-2 text-sm transition ${
-                  active ? config.classes.active : config.classes.inactive
+                  active ? config.classes.active : INACTIVE_CLASSES
                 } ${isCollapsed ? "justify-center" : "pl-3.5"}`}
               >
                 {active && !isCollapsed && (
@@ -408,8 +395,6 @@ export default function SidebarAILN({
                 <IdentityMeta
                   variant={variant}
                   groupName={groupName}
-                  totalMembers={totalMembers}
-                  accent={config.accent}
                   metaTextClassName={config.classes.metaText}
                 />
               </div>
@@ -447,14 +432,10 @@ export default function SidebarAILN({
 function IdentityMeta({
   variant,
   groupName,
-  totalMembers,
-  accent,
   metaTextClassName,
 }: {
   variant: SidebarAILNVariant;
   groupName: string;
-  totalMembers: number;
-  accent: string;
   metaTextClassName: string;
 }) {
   if (variant === "SPONSOR") {
@@ -483,13 +464,6 @@ function IdentityMeta({
         </div>
         <ThemeSwitcherAILN />
       </div>
-      {variant === "CHAMPION" && (
-        <div className="mt-1 flex items-center gap-1.5 text-xs text-gray-600 dark:text-gray-300">
-          <Users className="h-3 w-3" style={{ color: accent }} />
-          <span className="font-semibold">{totalMembers}</span>
-          <span className="text-gray-500 dark:text-gray-400">members led</span>
-        </div>
-      )}
     </>
   );
 }

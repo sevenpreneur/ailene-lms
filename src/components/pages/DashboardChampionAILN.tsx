@@ -1,13 +1,16 @@
 "use client";
+import ButtonAILN from "@/components/buttons/ButtonAILN";
 import ScorecardAILN from "@/components/cards/ScorecardAILN";
 import TeamScoreBannerAILN from "@/components/cards/TeamScoreBannerAILN";
 import ChampionCoachingAlertAILN from "@/components/indexes/ChampionCoachingAlertAILN";
 import ChampionTeamMembersAILN from "@/components/indexes/ChampionTeamMembersAILN";
+import MembersLabelChampionAILN from "@/components/labels/MembersLabelChampionAILN";
 import RecentUseCasesAILN from "@/components/indexes/RecentUseCasesAILN";
 import PageContainerAILN from "@/components/pages/PageContainerAILN";
 import AppErrorComponents from "@/components/states/AppErrorComponents";
 import { setSessionToken, trpc } from "@/trpc/client";
-import { Activity, Clock, Send } from "lucide-react";
+import { Activity, Clock, Plus, Send } from "lucide-react";
+import Link from "next/link";
 import { useEffect } from "react";
 
 // Platform tops out at L4 (L0 Assessment … L4 Advanced) — used to normalize
@@ -88,11 +91,6 @@ export default function DashboardChampionAILN({
     (m) => m.current_level.level_number >= 2
   ).length;
 
-  // Composite team score (0–5), mean of three size-independent ratios so it is
-  // comparable across groups regardless of headcount:
-  //   1. level mastery   = avg level / max level
-  //   2. weekly activity = active this week / total members
-  //   3. use case adoption = distinct members who submitted / total members
   const ratio = (n: number, d: number) => (d > 0 ? n / d : 0);
   const teamScore =
     stats.total > 0
@@ -106,27 +104,20 @@ export default function DashboardChampionAILN({
   return (
     <PageContainerAILN>
       <div className="flex w-full flex-col gap-6">
-        {/* Active Loop — sticky full-bleed page header (selaras dengan lms-fe-ailene).
-            Negative margin meng-cancel padding page-container (px-4 md:px-6 xl:px-8
-            + py-6) supaya bener-bener full width; offset sidebar tetap (ada di
-            page-root, bukan di sini). */}
         <header className="sticky top-0 z-30 -mx-4 -mt-6 flex items-center justify-between border-b border-dashboard-border bg-background/80 px-4 py-4 backdrop-blur-md md:-mx-6 md:px-6 xl:-mx-8 xl:px-8">
           <h1 className="display-font text-xl font-bold tracking-tight text-foreground">
-            Active Loop
+            Dashboard Team
           </h1>
-        </header>
-
-        {/* Header */}
-        <div className="flex items-start gap-3">
-          <div>
-            <h2 className="text-2xl font-bold dark:text-white">
-              Team Overview
-            </h2>
-            <p className="text-sm text-gray-500 dark:text-gray-400">
-              Monitor your team&apos;s learning progress and performance.
-            </p>
+          <div className="flex items-center gap-3">
+            <MembersLabelChampionAILN count={stats.total} />
+            <Link href="/champion/assignment">
+              <ButtonAILN variant="champion" size="medium">
+                <Plus className="size-4" />
+                Assign Tugas
+              </ButtonAILN>
+            </Link>
           </div>
-        </div>
+        </header>
 
         {/* Team score banner */}
         <TeamScoreBannerAILN
@@ -173,15 +164,10 @@ export default function DashboardChampionAILN({
             </p>
           </ScorecardAILN>
         </div>
-
-        {/* Team members (kiri, 2 kolom) + coaching alerts (kanan, 1 kolom).
-            Pakai grid 3 kolom yang sama dengan stat cards di atas supaya lebar
-            tabel = 2 kartu dan kartu coaching = 1 kartu (batas kolom sejajar). */}
         <div className="grid grid-cols-1 gap-4 md:grid-cols-3 md:items-start">
           <div className="md:col-span-2">
             <ChampionTeamMembersAILN members={allMembers} />
           </div>
-
           <div className="flex flex-col gap-4">
             <ChampionCoachingAlertAILN members={allMembers} />
             <RecentUseCasesAILN />
