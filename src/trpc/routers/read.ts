@@ -2403,6 +2403,11 @@ export const readRouter = createTRPCRouter({
           reviewed_at: row.reviewed_at,
           comment: row.comment,
           is_accepted: row.is_accepted,
+          rubric_specificity: row.rubric_specificity,
+          rubric_context: row.rubric_context,
+          rubric_constraints: row.rubric_constraints,
+          rubric_examples: row.rubric_examples,
+          rubric_iteration: row.rubric_iteration,
         },
       };
     }),

@@ -1,4 +1,4 @@
-import ReviewPromptSubmissionChampionAILN from "@/components/pages/ReviewPromptSubmissionChampionAILN";
+import ReviewPromptAILN from "@/components/forms/ReviewPromptAILN";
 import { setSessionToken } from "@/trpc/server";
 import { Metadata } from "next";
 import { cookies } from "next/headers";
@@ -21,7 +21,7 @@ export default async function ChampionPromptSubmissionPage({
   const submissionId = Number(submission_id);
 
   return (
-    <ReviewPromptSubmissionChampionAILN
+    <ReviewPromptAILN
       sessionToken={sessionToken}
       submissionId={submissionId}
     />

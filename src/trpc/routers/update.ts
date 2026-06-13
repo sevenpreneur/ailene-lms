@@ -488,11 +488,25 @@ export const updateRouter = createTRPCRouter({
         submission_id: z.number().int().positive(),
         is_accepted: z.boolean(),
         comment: z.string().max(2000).nullable().optional(),
+        rubric_specificity: z.number().int().min(1).max(5).nullable().optional(),
+        rubric_context: z.number().int().min(1).max(5).nullable().optional(),
+        rubric_constraints: z.number().int().min(1).max(5).nullable().optional(),
+        rubric_examples: z.number().int().min(1).max(5).nullable().optional(),
+        rubric_iteration: z.number().int().min(1).max(5).nullable().optional(),
       })
     )
     .mutation(async (opts) => {
       const championId = opts.ctx.ail_member.id;
-      const { submission_id, is_accepted, comment } = opts.input;
+      const {
+        submission_id,
+        is_accepted,
+        comment,
+        rubric_specificity,
+        rubric_context,
+        rubric_constraints,
+        rubric_examples,
+        rubric_iteration,
+      } = opts.input;
 
       const existing = await opts.ctx.prisma.ailPromptSubmission.findUnique({
         where: { id: submission_id },
@@ -534,6 +548,11 @@ export const updateRouter = createTRPCRouter({
           reviewed_at: new Date(),
           comment: comment?.trim() ?? null,
           is_accepted,
+          rubric_specificity,
+          rubric_context,
+          rubric_constraints,
+          rubric_examples,
+          rubric_iteration,
         },
       });
 
