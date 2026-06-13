@@ -143,7 +143,7 @@ export default function ChampionCoachingAlertAILN(props: {
                 {buildTalkingPoint(m, mentor)}
               </p>
               <Link
-                href={`/champion/members/${m.member_id}`}
+                href={`/champion/members?member_id=${m.member_id}`}
                 className="flex items-center justify-center gap-1.5 rounded-lg border border-violet-200 px-3 py-1.5 text-xs font-semibold text-violet-700 transition hover:bg-violet-50 dark:border-violet-500/30 dark:text-violet-300 dark:hover:bg-violet-500/10"
               >
                 Buka 1:1 prep brief

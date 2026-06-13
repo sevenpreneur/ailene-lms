@@ -236,7 +236,7 @@ export default function ChampionTeamMembersAILN(props: { members: Member[] }) {
                     (m.current_level.level_number - 1 + LEVEL_VARIANTS.length) %
                       LEVEL_VARIANTS.length
                   ];
-                const href = `/champion/members/${m.member_id}`;
+                const href = `/champion/members?member_id=${m.member_id}`;
                 return (
                   <tr
                     key={m.member_id}
