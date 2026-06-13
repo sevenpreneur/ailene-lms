@@ -125,7 +125,7 @@ const VARIANT_CONFIG: Record<SidebarAILNVariant, VariantConfig> = {
       },
       { name: "Assignment", url: "/champion/assignment", icon: BookMarked },
       {
-        name: "Submissions",
+        name: "Review Tugas",
         url: "/champion/submissions",
         icon: ClipboardCheck,
       },

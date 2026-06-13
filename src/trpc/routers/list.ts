@@ -869,7 +869,11 @@ export const listRouter = createTRPCRouter({
           select: {
             id: true,
             name: true,
+            scenario: true,
             level: { select: { id: true, level_number: true, name: true } },
+            categories: {
+              include: { category: { select: { id: true, name: true } } },
+            },
           },
         },
         member: {
@@ -883,7 +887,13 @@ export const listRouter = createTRPCRouter({
 
     const list = rows.map((r) => ({
       id: r.id,
-      prompt: r.prompt,
+      prompt: {
+        id: r.prompt.id,
+        name: r.prompt.name,
+        scenario: r.prompt.scenario,
+        level: r.prompt.level,
+        categories: r.prompt.categories.map((c) => c.category),
+      },
       member: {
         id: r.member.id,
         full_name: r.member.user.full_name,
@@ -908,7 +918,11 @@ export const listRouter = createTRPCRouter({
           select: {
             id: true,
             name: true,
+            description: true,
             level: { select: { id: true, level_number: true, name: true } },
+            categories: {
+              include: { category: { select: { id: true, name: true } } },
+            },
           },
         },
         member: {
@@ -922,7 +936,13 @@ export const listRouter = createTRPCRouter({
 
     const list = rows.map((r) => ({
       id: r.id,
-      use_case: r.use_case,
+      use_case: {
+        id: r.use_case.id,
+        name: r.use_case.name,
+        description: r.use_case.description,
+        level: r.use_case.level,
+        categories: r.use_case.categories.map((c) => c.category),
+      },
       member: {
         id: r.member.id,
         full_name: r.member.user.full_name,
@@ -932,6 +952,8 @@ export const listRouter = createTRPCRouter({
       submitted_at: r.submitted_at,
       reviewed_at: r.reviewed_at,
       is_accepted: r.is_accepted,
+      hours_saved: r.hours_saved ? Number(r.hours_saved) : null,
+      ai_tool: r.ai_tool,
     }));
 
     return { code: STATUS_OK, message: "Success", list };
