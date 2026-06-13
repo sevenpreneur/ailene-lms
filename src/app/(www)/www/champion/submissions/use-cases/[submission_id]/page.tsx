@@ -1,4 +1,4 @@
-import ReviewUseCaseSubmissionChampionAILN from "@/components/pages/ReviewUseCaseSubmissionChampionAILN";
+import ReviewUseCaseAILN from "@/components/forms/ReviewUseCaseAILN";
 import { setSessionToken } from "@/trpc/server";
 import { Metadata } from "next";
 import { cookies } from "next/headers";
@@ -21,7 +21,7 @@ export default async function ChampionUseCaseSubmissionPage({
   const submissionId = Number(submission_id);
 
   return (
-    <ReviewUseCaseSubmissionChampionAILN
+    <ReviewUseCaseAILN
       sessionToken={sessionToken}
       submissionId={submissionId}
     />

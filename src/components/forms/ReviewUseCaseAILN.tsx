@@ -16,6 +16,8 @@ import {
   CalendarClock,
   CheckCircle2,
   Clock,
+  ExternalLink,
+  FileText,
   Loader2,
   RotateCcw,
 } from "lucide-react";
@@ -42,25 +44,17 @@ const STATUS_META: Record<
   ACCEPTED: { label: "Diterima", variant: "green" },
 };
 
-type RubricKey =
-  | "rubric_specificity"
-  | "rubric_context"
-  | "rubric_constraints"
-  | "rubric_examples"
-  | "rubric_iteration";
-
-const RUBRIC: { key: RubricKey; label: string }[] = [
-  { key: "rubric_specificity", label: "Spesifik" },
-  { key: "rubric_context", label: "Konteks" },
-  { key: "rubric_constraints", label: "Batasan (Constraints)" },
-  { key: "rubric_examples", label: "Contoh (Few-shot)" },
-  { key: "rubric_iteration", label: "Iterasi" },
-];
+const FREQUENCY_LABEL: Record<string, string> = {
+  DAILY: "Harian",
+  WEEKLY: "Mingguan",
+  MONTHLY: "Bulanan",
+  OCCASIONALLY: "Sesekali",
+};
 
 const fmt = (d: string) =>
   dayjs(d).locale("id").format("ddd, D MMM YYYY · HH:mm");
 
-export default function ReviewPromptAILN({
+export default function ReviewUseCaseAILN({
   sessionToken,
   submissionId,
 }: {
@@ -72,33 +66,19 @@ export default function ReviewPromptAILN({
   }, [sessionToken]);
 
   const utils = trpc.useUtils();
-  const detailQ = trpc.read.promptSubmissionDetail.useQuery({
+  const detailQ = trpc.read.useCaseSubmissionDetail.useQuery({
     submission_id: submissionId,
   });
-  const reviewM = trpc.update.reviewPromptSubmission.useMutation();
+  const reviewM = trpc.update.reviewUseCaseSubmission.useMutation();
 
   const s = detailQ.data?.submission;
 
   const [comment, setComment] = useState("");
-  const [rubric, setRubric] = useState<Record<RubricKey, number | null>>({
-    rubric_specificity: null,
-    rubric_context: null,
-    rubric_constraints: null,
-    rubric_examples: null,
-    rubric_iteration: null,
-  });
 
   useEffect(() => {
     if (!s) return;
     queueMicrotask(() => {
       setComment(s.comment ?? "");
-      setRubric({
-        rubric_specificity: s.rubric_specificity ?? null,
-        rubric_context: s.rubric_context ?? null,
-        rubric_constraints: s.rubric_constraints ?? null,
-        rubric_examples: s.rubric_examples ?? null,
-        rubric_iteration: s.rubric_iteration ?? null,
-      });
     });
   }, [s]);
 
@@ -148,7 +128,8 @@ export default function ReviewPromptAILN({
   }
 
   const meta = STATUS_META[status];
-  const canReview = status === "AWAITING_REVIEW" || status === "NEEDS_REVISION";
+  const canReview =
+    status === "AWAITING_REVIEW" || status === "NEEDS_REVISION";
   const deadline = s.deadline as unknown as string | null;
   const submittedAt = s.submitted_at as unknown as string | null;
 
@@ -162,17 +143,16 @@ export default function ReviewPromptAILN({
         submission_id: submissionId,
         is_accepted: isAccepted,
         comment: comment.trim() || null,
-        ...rubric,
       },
       {
         onSuccess: () => {
           toast.success(
             isAccepted ? "Submisi diterima." : "Revisi diminta ke student."
           );
-          utils.read.promptSubmissionDetail.invalidate({
+          utils.read.useCaseSubmissionDetail.invalidate({
             submission_id: submissionId,
           });
-          utils.list.promptSubmissions.invalidate();
+          utils.list.useCaseSubmissions.invalidate();
         },
         onError: (err) => {
           toast.error("Gagal menyimpan review", { description: err.message });
@@ -185,7 +165,7 @@ export default function ReviewPromptAILN({
     <PageContainerAILN>
       <div className="flex w-full flex-col gap-6">
         <PageHeaderAILN
-          title={s.prompt.name}
+          title={s.use_case.name}
           desc={`Review submission dari ${s.member.full_name}`}
         >
           {canReview && (
@@ -218,11 +198,11 @@ export default function ReviewPromptAILN({
 
         {/* Labels */}
         <div className="flex flex-wrap items-center gap-1.5">
-          <GeneralLabelAILN variant="yellow">Prompt</GeneralLabelAILN>
+          <GeneralLabelAILN variant="green">Use Case</GeneralLabelAILN>
           <GeneralLabelAILN variant="blue">
-            Level {s.prompt.level.level_number}
+            Level {s.use_case.level.level_number}
           </GeneralLabelAILN>
-          {s.prompt.categories.map((c) => (
+          {s.use_case.categories.map((c) => (
             <GeneralLabelAILN key={c.id} variant="white">
               {c.name}
             </GeneralLabelAILN>
@@ -269,17 +249,10 @@ export default function ReviewPromptAILN({
         <div className="grid grid-cols-1 gap-6 xl:grid-cols-[minmax(0,1fr)_380px]">
           {/* Left: student answer */}
           <div className="flex flex-col gap-6">
-            <SectionContainerAILN
-              title="Konteks Prompt"
-              contentClassName="flex flex-col gap-4"
-            >
-              <Field label="Skenario" text={s.prompt.scenario} />
-              <div className="border-t border-dashboard-border pt-4">
-                <Field
-                  label="Expected Output"
-                  text={s.prompt.expected_output}
-                />
-              </div>
+            <SectionContainerAILN title="Deskripsi Use Case">
+              <p className="whitespace-pre-wrap text-sm text-gray-700 dark:text-gray-200">
+                {s.use_case.description}
+              </p>
             </SectionContainerAILN>
 
             <SectionContainerAILN
@@ -288,8 +261,35 @@ export default function ReviewPromptAILN({
             >
               {submittedAt ? (
                 <>
-                  <Field label="Prompt yang dia pakai" text={s.input} boxed />
-                  <Field label="Output dari AI" text={s.output} boxed />
+                  <div className="grid grid-cols-1 gap-4 md:grid-cols-3">
+                    <Metric
+                      label="Hours saved"
+                      value={
+                        s.hours_saved !== null && s.hours_saved !== undefined
+                          ? `${s.hours_saved} jam`
+                          : "—"
+                      }
+                    />
+                    <Metric label="AI tool" value={s.ai_tool ?? "—"} />
+                    <Metric
+                      label="Frekuensi"
+                      value={s.frequency ? FREQUENCY_LABEL[s.frequency] : "—"}
+                    />
+                  </div>
+                  <div className="flex flex-col gap-1">
+                    <div className="text-[11px] font-semibold uppercase tracking-wide text-gray-500 dark:text-gray-400">
+                      Outcome / bukti
+                    </div>
+                    <OutcomeProof value={s.outcome_proof} />
+                  </div>
+                  <div className="flex flex-col gap-1">
+                    <div className="text-[11px] font-semibold uppercase tracking-wide text-gray-500 dark:text-gray-400">
+                      Deskripsi penerapan
+                    </div>
+                    <p className="whitespace-pre-wrap rounded-md border border-dashboard-border bg-card-2 p-3 text-sm text-gray-700 dark:text-gray-200">
+                      {s.description ?? "—"}
+                    </p>
+                  </div>
                 </>
               ) : (
                 <p className="text-sm text-gray-500 dark:text-gray-400">
@@ -302,25 +302,11 @@ export default function ReviewPromptAILN({
           {/* Right: assessment */}
           <SectionContainerAILN
             title="Penilaian"
-            desc="Skor rubric 1–5 dan catatan untuk student."
+            desc="Catatan review untuk student."
             className="self-start xl:sticky xl:top-6"
             contentClassName="flex flex-col gap-5"
           >
-            <div className="flex flex-col gap-3">
-              {RUBRIC.map((r) => (
-                <RubricRow
-                  key={r.key}
-                  label={r.label}
-                  value={rubric[r.key]}
-                  disabled={!canReview}
-                  onChange={(n) =>
-                    setRubric((prev) => ({ ...prev, [r.key]: n }))
-                  }
-                />
-              ))}
-            </div>
-
-            <div className="border-t border-dashboard-border pt-4">
+            <div>
               <div className="mb-1.5 text-[11px] font-semibold uppercase tracking-wide text-gray-500 dark:text-gray-400">
                 Catatan Submission
               </div>
@@ -334,7 +320,7 @@ export default function ReviewPromptAILN({
                 onTextAreaChange={setComment}
                 disabled={!canReview}
               />
-              <div className="mt-1 self-end text-right text-xs text-gray-400">
+              <div className="mt-1 text-right text-xs text-gray-400">
                 {comment.length}/2000
               </div>
             </div>
@@ -358,62 +344,91 @@ export default function ReviewPromptAILN({
   );
 }
 
-function Field({
-  label,
-  text,
-  boxed,
-}: {
-  label: string;
-  text: string | null;
-  boxed?: boolean;
-}) {
+function Metric({ label, value }: { label: string; value: string }) {
   return (
-    <div className="flex flex-col gap-1">
-      <div className="text-[11px] font-semibold uppercase tracking-wide text-gray-500 dark:text-gray-400">
+    <div className="flex flex-col gap-0.5 rounded-md border border-dashboard-border bg-card-2 p-2">
+      <div className="text-[10px] font-semibold uppercase tracking-wide text-gray-500 dark:text-gray-400">
         {label}
       </div>
-      <p
-        className={`whitespace-pre-wrap text-sm text-gray-700 dark:text-gray-200 ${
-          boxed ? "rounded-md border border-dashboard-border bg-card-2 p-3" : ""
-        }`}
-      >
-        {text ?? "—"}
-      </p>
+      <div className="text-sm font-medium dark:text-gray-200">{value}</div>
     </div>
   );
 }
 
-function RubricRow({
-  label,
-  value,
-  disabled,
-  onChange,
-}: {
-  label: string;
-  value: number | null;
-  disabled: boolean;
-  onChange: (n: number) => void;
-}) {
-  return (
-    <div className="flex items-center justify-between gap-3">
-      <span className="text-sm text-gray-700 dark:text-gray-200">{label}</span>
-      <div className="flex gap-1">
-        {[1, 2, 3, 4, 5].map((n) => (
-          <button
-            key={n}
-            type="button"
-            disabled={disabled}
-            onClick={() => onChange(n)}
-            className={`size-7 rounded-md border text-xs font-bold transition ${
-              value === n
-                ? "border-emerald-500 bg-emerald-500 text-white"
-                : "border-dashboard-border text-gray-500 hover:border-emerald-400 dark:text-gray-400"
-            } ${disabled ? "cursor-not-allowed opacity-60" : ""}`}
-          >
-            {n}
-          </button>
-        ))}
+function OutcomeProof({ value }: { value: string | null | undefined }) {
+  const proof = value?.trim();
+
+  if (!proof) {
+    return (
+      <p className="rounded-md border border-dashboard-border bg-card-2 p-3 text-sm text-gray-700 dark:text-gray-200">
+        —
+      </p>
+    );
+  }
+
+  const isUrl = /^https?:\/\//i.test(proof);
+  const cleanUrl = proof.split(/[?#]/)[0].toLowerCase();
+  const isImage = isUrl && /\.(png|jpe?g|gif|webp|avif|svg)$/.test(cleanUrl);
+  const isVideo = isUrl && /\.(mp4|webm|mov)$/.test(cleanUrl);
+
+  if (isImage) {
+    return (
+      <div className="flex flex-col gap-2">
+        <a
+          href={proof}
+          target="_blank"
+          rel="noopener noreferrer"
+          className="block overflow-hidden rounded-md border border-dashboard-border bg-card-2"
+        >
+          <Image
+            src={proof}
+            alt="Bukti outcome"
+            width={1200}
+            height={800}
+            unoptimized
+            className="h-auto max-h-[480px] w-full object-contain"
+          />
+        </a>
+        <a
+          href={proof}
+          target="_blank"
+          rel="noopener noreferrer"
+          className="inline-flex w-fit items-center gap-1.5 text-xs font-medium text-emerald-700 hover:underline dark:text-emerald-300"
+        >
+          <ExternalLink className="size-3.5" />
+          Buka gambar di tab baru
+        </a>
       </div>
-    </div>
+    );
+  }
+
+  if (isVideo) {
+    return (
+      <video
+        src={proof}
+        controls
+        className="max-h-[480px] w-full rounded-md border border-dashboard-border bg-black"
+      />
+    );
+  }
+
+  if (isUrl) {
+    return (
+      <a
+        href={proof}
+        target="_blank"
+        rel="noopener noreferrer"
+        className="inline-flex w-fit items-center gap-1.5 break-all rounded-md border border-dashboard-border bg-card-2 px-3 py-2 text-sm font-medium text-emerald-700 hover:underline dark:text-emerald-300"
+      >
+        <FileText className="size-4 shrink-0" />
+        {proof}
+      </a>
+    );
+  }
+
+  return (
+    <p className="break-words rounded-md border border-dashboard-border bg-card-2 p-3 text-sm text-gray-700 dark:text-gray-200">
+      {proof}
+    </p>
   );
 }
