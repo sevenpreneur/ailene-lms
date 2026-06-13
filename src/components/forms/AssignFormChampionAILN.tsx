@@ -1,5 +1,6 @@
 "use client";
 import ButtonAILN from "@/components/buttons/ButtonAILN";
+import InputAILN from "@/components/fields/InputAILN";
 import TextAreaAILN from "@/components/fields/TextAreaAILN";
 import SheetAILN from "@/components/modals/SheetAILN";
 import { trpc } from "@/trpc/client";
@@ -255,18 +256,20 @@ export default function AssignFormChampionAILN({
               Deadline
             </label>
             <div className="grid grid-cols-2 gap-2">
-              <input
-                type="date"
+              <InputAILN
+                inputId="assign-deadline-date"
+                inputType="date"
+                variant="CHAMPION"
                 value={deadlineDate}
-                onChange={(e) => setDeadlineDate(e.target.value)}
-                className="rounded-md border border-dashboard-border bg-card-2 px-3 py-2 text-sm focus:border-emerald-500 focus:outline-none dark:text-gray-200"
+                onInputChange={setDeadlineDate}
                 required
               />
-              <input
-                type="time"
+              <InputAILN
+                inputId="assign-deadline-time"
+                inputType="time"
+                variant="CHAMPION"
                 value={deadlineTime}
-                onChange={(e) => setDeadlineTime(e.target.value)}
-                className="rounded-md border border-dashboard-border bg-card-2 px-3 py-2 text-sm focus:border-emerald-500 focus:outline-none dark:text-gray-200"
+                onInputChange={setDeadlineTime}
                 required
               />
             </div>
@@ -277,12 +280,14 @@ export default function AssignFormChampionAILN({
             <label className="text-xs font-semibold uppercase tracking-wide text-gray-500 dark:text-gray-400">
               Catatan untuk anggota (opsional)
             </label>
-            <textarea
+            <TextAreaAILN
+              textAreaId="assign-message"
+              textAreaPlaceholder="Tambahkan catatan atau instruksi khusus…"
+              textAreaHeight="h-24"
+              characterLength={500}
+              variant="CHAMPION"
               value={message}
-              onChange={(e) => setMessage(e.target.value.slice(0, 500))}
-              placeholder="Tambahkan catatan atau instruksi khusus…"
-              rows={4}
-              className="resize-none rounded-md border border-dashboard-border bg-card-2 px-3 py-2 text-sm focus:border-emerald-500 focus:outline-none dark:text-gray-200 dark:placeholder:text-gray-500"
+              onTextAreaChange={setMessage}
             />
             <div className="self-end text-xs text-gray-400">
               {message.length}/500

@@ -5,8 +5,12 @@ import SectionContainerAILN from "@/components/cards/SectionContainerAILN";
 import PageContainerAILN from "@/components/pages/PageContainerAILN";
 import AppErrorComponents from "@/components/states/AppErrorComponents";
 import ButtonAILN from "@/components/buttons/ButtonAILN";
+import PageHeaderAILN from "@/components/titles/PageHeaderAILN";
+import InputAILN from "@/components/fields/InputAILN";
+import AssignmentItemChampion from "@/components/items/AssignmentItemChampion";
+import GeneralLabelAILN from "@/components/labels/GeneralLabelAILN";
 import { setSessionToken, trpc } from "@/trpc/client";
-import { BookOpen, Bookmark, Plus, Send } from "lucide-react";
+import { BookOpen, Plus, Search, Send } from "lucide-react";
 import { useEffect, useState } from "react";
 
 type AssignmentTab = "PROMPT" | "USE_CASE";
@@ -54,16 +58,21 @@ export default function AssignmentChampionAILN({
   );
   const [assignOpen, setAssignOpen] = useState(false);
   const [createOpen, setCreateOpen] = useState(false);
+  const [search, setSearch] = useState("");
 
-  const promptQ = trpc.list.promptLibrary.useQuery(undefined, {
-    enabled: tab === "PROMPT",
-  });
-  const useCaseQ = trpc.list.useCaseLibrary.useQuery(undefined, {
-    enabled: tab === "USE_CASE",
-  });
+  const promptQ = trpc.list.promptLibrary.useQuery(undefined);
+  const useCaseQ = trpc.list.useCaseLibrary.useQuery(undefined);
 
   const prompts = (promptQ.data?.list ?? []) as PromptItem[];
   const useCases = (useCaseQ.data?.list ?? []) as UseCaseItem[];
+
+  const q = search.trim().toLowerCase();
+  const filteredPrompts = q
+    ? prompts.filter((p) => p.name.toLowerCase().includes(q))
+    : prompts;
+  const filteredUseCases = q
+    ? useCases.filter((u) => u.name.toLowerCase().includes(q))
+    : useCases;
 
   const selectedPrompt =
     selectedPromptId !== null
@@ -80,14 +89,10 @@ export default function AssignmentChampionAILN({
   return (
     <PageContainerAILN>
       <div className="flex w-full flex-col gap-6">
-        {/* Header */}
-        <div className="flex items-start justify-between gap-4">
-          <div>
-            <h1 className="text-2xl font-bold dark:text-white">Assignment</h1>
-            <p className="text-sm text-gray-500 dark:text-gray-400">
-              Kelola prompt &amp; use case dan assign ke tim Anda.
-            </p>
-          </div>
+        <PageHeaderAILN
+          title="Assignment"
+          desc="Kelola prompt & use case dan assign ke tim Anda."
+        >
           <ButtonAILN
             type="button"
             variant="champion"
@@ -96,32 +101,35 @@ export default function AssignmentChampionAILN({
             <Plus className="size-4" />
             Buat Assignment
           </ButtonAILN>
-        </div>
+        </PageHeaderAILN>
 
-        {/* Tabs */}
-        <div className="flex items-center gap-2 border-b border-dashboard-border">
-          <button
-            type="button"
-            onClick={() => setTab("PROMPT")}
-            className={`-mb-px border-b-2 px-3 py-2 text-sm font-semibold transition ${
-              tab === "PROMPT"
-                ? "border-emerald-600 text-emerald-700 dark:border-emerald-400 dark:text-emerald-300"
-                : "border-transparent text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200"
-            }`}
-          >
-            Prompt (L2)
-          </button>
-          <button
-            type="button"
-            onClick={() => setTab("USE_CASE")}
-            className={`-mb-px border-b-2 px-3 py-2 text-sm font-semibold transition ${
-              tab === "USE_CASE"
-                ? "border-emerald-600 text-emerald-700 dark:border-emerald-400 dark:text-emerald-300"
-                : "border-transparent text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200"
-            }`}
-          >
-            Use Case (L3)
-          </button>
+        {/* Tabs + search */}
+        <div className="flex flex-wrap items-center justify-between gap-3 border-b border-dashboard-border">
+          <div className="flex items-center">
+            <TabButton
+              active={tab === "PROMPT"}
+              label="Prompt"
+              count={prompts.length}
+              onClick={() => setTab("PROMPT")}
+            />
+            <TabButton
+              active={tab === "USE_CASE"}
+              label="Use Case"
+              count={useCases.length}
+              onClick={() => setTab("USE_CASE")}
+            />
+          </div>
+          <div className="w-full pb-2 sm:w-64">
+            <InputAILN
+              inputId="assignment-search"
+              inputType="text"
+              variant="CHAMPION"
+              inputIcon={<Search className="size-4" />}
+              inputPlaceholder="Cari assignment…"
+              value={search}
+              onInputChange={setSearch}
+            />
+          </div>
         </div>
 
         {error ? (
@@ -130,21 +138,15 @@ export default function AssignmentChampionAILN({
           <div className="grid grid-cols-1 gap-6 xl:grid-cols-[1fr_360px]">
             {/* Grid of items */}
             <div className="flex flex-col gap-3">
-              <div className="text-xs text-gray-500 dark:text-gray-400">
-                {isLoading
-                  ? "Memuat…"
-                  : `Menampilkan ${tab === "PROMPT" ? prompts.length : useCases.length} item`}
-              </div>
-
               {isLoading ? (
                 <AssignmentGridSkeleton />
               ) : tab === "PROMPT" ? (
-                prompts.length === 0 ? (
+                filteredPrompts.length === 0 ? (
                   <EmptyState label="Belum ada prompt." />
                 ) : (
                   <div className="grid grid-cols-1 gap-3 md:grid-cols-2 2xl:grid-cols-3">
-                    {prompts.map((p) => (
-                      <AssignmentCard
+                    {filteredPrompts.map((p) => (
+                      <AssignmentItemChampion
                         key={p.id}
                         levelNumber={p.level.level_number}
                         name={p.name}
@@ -156,12 +158,12 @@ export default function AssignmentChampionAILN({
                     ))}
                   </div>
                 )
-              ) : useCases.length === 0 ? (
+              ) : filteredUseCases.length === 0 ? (
                 <EmptyState label="Belum ada use case." />
               ) : (
                 <div className="grid grid-cols-1 gap-3 md:grid-cols-2 2xl:grid-cols-3">
-                  {useCases.map((u) => (
-                    <AssignmentCard
+                  {filteredUseCases.map((u) => (
+                    <AssignmentItemChampion
                       key={u.id}
                       levelNumber={u.level.level_number}
                       name={u.name}
@@ -266,57 +268,35 @@ export default function AssignmentChampionAILN({
   );
 }
 
-function AssignmentCard({
-  levelNumber,
-  name,
-  body,
-  categories,
-  isSelected,
+function TabButton({
+  active,
+  label,
+  count,
   onClick,
 }: {
-  levelNumber: number;
-  name: string;
-  body: string;
-  categories: CategoryRef[];
-  isSelected: boolean;
+  active: boolean;
+  label: string;
+  count: number;
   onClick: () => void;
 }) {
   return (
     <button
       type="button"
       onClick={onClick}
-      className={`flex flex-col gap-3 rounded-lg border bg-white p-4 text-left transition hover:border-emerald-400 hover:shadow-sm dark:bg-card-1 ${
-        isSelected
-          ? "border-emerald-500 ring-1 ring-emerald-500 dark:border-emerald-400 dark:ring-emerald-400"
-          : "border-dashboard-border"
+      className={`-mb-px inline-flex h-12 cursor-pointer items-center gap-2 border-b-2 px-4 text-sm font-semibold transition ${
+        active
+          ? "border-emerald-600 text-emerald-700 dark:border-emerald-400 dark:text-emerald-300"
+          : "border-transparent text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200"
       }`}
     >
-      <div className="flex items-start justify-between gap-2">
-        <span className="rounded-md bg-emerald-50 px-2 py-0.5 text-xs font-bold text-emerald-700 dark:bg-emerald-500/10 dark:text-emerald-300">
-          L{levelNumber}
-        </span>
-        <Bookmark className="size-4 shrink-0 text-gray-400" />
-      </div>
-      <div className="flex flex-col gap-1">
-        <h3 className="text-sm font-bold line-clamp-2 dark:text-white">
-          {name}
-        </h3>
-        <p className="text-xs text-gray-500 line-clamp-3 dark:text-gray-400">
-          {body}
-        </p>
-      </div>
-      {categories.length > 0 && (
-        <div className="flex flex-wrap gap-1.5">
-          {categories.map((c) => (
-            <span
-              key={c.id}
-              className="rounded bg-gray-100 px-2 py-0.5 text-[11px] font-medium text-gray-700 dark:bg-white/5 dark:text-gray-300"
-            >
-              {c.name}
-            </span>
-          ))}
-        </div>
-      )}
+      <span>{label}</span>
+      <span
+        className={`inline-flex min-w-5 items-center justify-center rounded-md px-1.5 py-0.5 text-[11px] font-bold text-white ${
+          active ? "bg-emerald-600" : "bg-gray-400 dark:bg-gray-600"
+        }`}
+      >
+        {count}
+      </span>
     </button>
   );
 }
@@ -334,17 +314,12 @@ function PreviewBody({
 }) {
   return (
     <div className="flex flex-col gap-3">
-      <div className="flex items-center gap-2 text-xs">
-        <span className="rounded-md bg-emerald-50 px-2 py-0.5 font-bold text-emerald-700 dark:bg-emerald-500/10 dark:text-emerald-300">
-          L{levelNumber}
-        </span>
+      <div className="flex flex-wrap items-center gap-1.5">
+        <GeneralLabelAILN variant="green">Level {levelNumber}</GeneralLabelAILN>
         {categories.map((c) => (
-          <span
-            key={c.id}
-            className="rounded bg-gray-100 px-2 py-0.5 font-medium text-gray-700 dark:bg-white/5 dark:text-gray-300"
-          >
+          <GeneralLabelAILN key={c.id} variant="white">
             {c.name}
-          </span>
+          </GeneralLabelAILN>
         ))}
       </div>
       <h2 className="text-base font-bold dark:text-white">{title}</h2>
