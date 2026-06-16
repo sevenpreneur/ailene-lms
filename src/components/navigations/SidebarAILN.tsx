@@ -41,7 +41,6 @@ type MenuItem = {
 };
 
 type VariantConfig = {
-  accent: string;
   buttonVariant: VariantType;
   dashboardName: string;
   menu: MenuItem[];
@@ -77,7 +76,6 @@ const DEFAULT_AVATAR =
 
 const VARIANT_CONFIG: Record<SidebarAILNVariant, VariantConfig> = {
   STUDENT: {
-    accent: "#000000",
     buttonVariant: "primary",
     dashboardName: "Dashboard Student",
     menu: [
@@ -113,7 +111,6 @@ const VARIANT_CONFIG: Record<SidebarAILNVariant, VariantConfig> = {
     },
   },
   CHAMPION: {
-    accent: "#107158",
     buttonVariant: "champion",
     dashboardName: "Dashboard Champion",
     menu: [
@@ -149,7 +146,6 @@ const VARIANT_CONFIG: Record<SidebarAILNVariant, VariantConfig> = {
     },
   },
   SPONSOR: {
-    accent: "#1F2937",
     buttonVariant: "sponsor",
     dashboardName: "Dashboard Sponsor",
     menu: [
@@ -181,12 +177,12 @@ const VARIANT_CONFIG: Record<SidebarAILNVariant, VariantConfig> = {
       mode: "border-blue-200 bg-blue-50 dark:border-blue-500/30 dark:bg-blue-500/10 dark:shadow-[0_0_12px_rgba(0,53,157,0.12)]",
       modeDot: "bg-blue-600 dark:shadow-[0_0_8px_rgba(59,130,246,0.7)]",
       modeText: "text-blue-700 dark:text-blue-200",
-      active: "text-white dark:shadow-[inset_0_0_0_1px_rgba(148,163,184,0.25)]",
+      active: "bg-stakeholder-sponsor-soft text-stakeholder-sponsor",
       activeBar: "bg-stakeholder-sponsor",
-      userCard: "dark:bg-white/5",
-      userAvatar: "dark:ring-white/15",
+      userCard: "bg-card-1 dark:bg-card-1/60",
+      userAvatar: "",
       divider: "",
-      metaText: "dark:text-gray-200",
+      metaText: "dark:text-white",
     },
   },
 };
@@ -320,16 +316,11 @@ export default function SidebarAILN({
               ? pathname === item.url
               : pathname.startsWith(item.url);
             const Icon = item.icon;
-            const shouldUseInlineActiveColor = active && variant === "SPONSOR";
-            const activeStyle = shouldUseInlineActiveColor
-              ? { backgroundColor: config.accent }
-              : undefined;
 
             return (
               <Link
                 key={item.url}
                 href={item.url}
-                style={activeStyle}
                 className={`relative flex items-center gap-3 rounded-md p-2 text-sm transition ${
                   active ? config.classes.active : INACTIVE_CLASSES
                 } ${isCollapsed ? "justify-center" : "pl-3.5"}`}
