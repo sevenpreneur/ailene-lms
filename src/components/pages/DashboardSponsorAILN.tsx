@@ -318,10 +318,11 @@ export default function DashboardSponsorAILN({
           <ProficiencyTrendsSponsorAILN />
         </div>
 
-        {/* Top Departemen (kiri) + Kesehatan Program & Aktivitas (kanan) */}
-        <div className="grid grid-cols-1 gap-4 lg:grid-cols-[minmax(0,1fr)_minmax(0,1.5fr)]">
-          <OrganizationLeaderboardAILN />
-          <div className="flex flex-col gap-4">
+        {/* Kinerja per Departemen (full width) */}
+        <OrganizationLeaderboardAILN />
+
+        {/* Kesehatan Program + Aktivitas terkini */}
+        <div className="grid grid-cols-1 gap-4 lg:grid-cols-2">
             <SectionContainerAILN
               title="Kesehatan Program"
               desc="Capaian program vs target · update real-time."
@@ -397,7 +398,6 @@ export default function DashboardSponsorAILN({
                 </ul>
               )}
             </SectionContainerAILN>
-          </div>
         </div>
       </div>
     </PageContainerAILN>

@@ -1619,70 +1619,137 @@ export const readRouter = createTRPCRouter({
     };
   }),
 
+  // Per-department performance for the sponsor "Kinerja per Departemen" table:
+  // member count, average competency level, top submitted use case, total
+  // submissions (use case + prompt), cumulative hours saved, and a
+  // week-over-week hours-saved trend. All derived from real submission data.
   organizationLeaderboard: sponsorProcedure.query(async (opts) => {
-    const [groups, submissions] = await Promise.all([
+    const now = dayjs();
+    const weekAgo = now.subtract(7, "day");
+    const twoWeeksAgo = now.subtract(14, "day");
+
+    const [groups, levels, useCaseSubs, promptSubs] = await Promise.all([
       opts.ctx.prisma.ailGroup.findMany({
         orderBy: { name: "asc" },
         select: {
           id: true,
           name: true,
-          members: { select: { id: true } },
-        },
-      }),
-      opts.ctx.prisma.ailUseCaseSubmission.findMany({
-        where: {
-          submitted_at: { not: null },
-        },
-        select: {
-          hours_saved: true,
-          hours_without_ai: true,
-          member: {
-            select: {
-              group: {
-                select: {
-                  id: true,
-                  name: true,
-                },
-              },
-            },
+          members: {
+            select: { current_level: { select: { level_number: true } } },
           },
         },
       }),
+      opts.ctx.prisma.ailLevel.findMany({
+        where: { status: "ACTIVE" },
+        select: { level_number: true },
+      }),
+      opts.ctx.prisma.ailUseCaseSubmission.findMany({
+        where: { submitted_at: { not: null } },
+        select: {
+          hours_saved: true,
+          hours_without_ai: true,
+          submitted_at: true,
+          use_case: { select: { name: true } },
+          member: { select: { group_id: true } },
+        },
+      }),
+      opts.ctx.prisma.ailPromptSubmission.findMany({
+        where: { submitted_at: { not: null } },
+        select: { member: { select: { group_id: true } } },
+      }),
     ]);
 
-    const hoursByGroup = new Map<number, { name: string; hours: number }>();
-    for (const submission of submissions) {
-      const group = submission.member.group;
-      if (!group) continue;
-      if (
-        submission.hours_saved === null ||
-        submission.hours_without_ai === null
-      ) {
-        continue;
-      }
-      const saved =
-        Number(submission.hours_without_ai) - Number(submission.hours_saved);
-      if (saved <= 0) continue;
+    const maxScore = Math.max(...levels.map((l) => l.level_number), 3);
 
-      const existing = hoursByGroup.get(group.id) ?? {
-        name: group.name,
-        hours: 0,
-      };
-      existing.hours += saved;
-      hoursByGroup.set(group.id, existing);
+    type GroupAcc = {
+      hoursTotal: number;
+      hoursThisWeek: number;
+      hoursPrevWeek: number;
+      submissionCount: number;
+      useCaseCounts: Map<string, number>;
+    };
+    const acc = new Map<number, GroupAcc>();
+    const ensure = (groupId: number): GroupAcc => {
+      let a = acc.get(groupId);
+      if (!a) {
+        a = {
+          hoursTotal: 0,
+          hoursThisWeek: 0,
+          hoursPrevWeek: 0,
+          submissionCount: 0,
+          useCaseCounts: new Map(),
+        };
+        acc.set(groupId, a);
+      }
+      return a;
+    };
+
+    for (const sub of useCaseSubs) {
+      const groupId = sub.member.group_id;
+      if (groupId == null) continue;
+      const a = ensure(groupId);
+      a.submissionCount += 1;
+      const name = sub.use_case?.name;
+      if (name) a.useCaseCounts.set(name, (a.useCaseCounts.get(name) ?? 0) + 1);
+      if (sub.hours_saved === null || sub.hours_without_ai === null) continue;
+      const saved = Number(sub.hours_without_ai) - Number(sub.hours_saved);
+      if (saved <= 0) continue;
+      a.hoursTotal += saved;
+      const at = dayjs(sub.submitted_at);
+      if (at.isAfter(weekAgo)) a.hoursThisWeek += saved;
+      else if (at.isAfter(twoWeeksAgo)) a.hoursPrevWeek += saved;
+    }
+    for (const sub of promptSubs) {
+      const groupId = sub.member.group_id;
+      if (groupId == null) continue;
+      ensure(groupId).submissionCount += 1;
     }
 
     const list = groups
-      .map((group) => ({
-        id: group.id,
-        name: group.name,
-        member_count: group.members.length,
-        hours: Math.round((hoursByGroup.get(group.id)?.hours ?? 0) * 10) / 10,
-      }))
-      .sort((a, b) => b.hours - a.hours || a.name.localeCompare(b.name))
+      .map((group) => {
+        const a = acc.get(group.id);
+        const memberCount = group.members.length;
+        const avgScore =
+          memberCount === 0
+            ? 0
+            : group.members.reduce(
+                (sum, m) => sum + (m.current_level?.level_number ?? 0),
+                0
+              ) / memberCount;
+
+        let topUseCase: string | null = null;
+        if (a && a.useCaseCounts.size > 0) {
+          let best = -1;
+          for (const [name, count] of a.useCaseCounts) {
+            if (count > best) {
+              best = count;
+              topUseCase = name;
+            }
+          }
+        }
+
+        const hoursThisWeek = a?.hoursThisWeek ?? 0;
+        const hoursPrevWeek = a?.hoursPrevWeek ?? 0;
+        const trendPercent =
+          hoursPrevWeek > 0
+            ? Math.round(((hoursThisWeek - hoursPrevWeek) / hoursPrevWeek) * 100)
+            : null;
+
+        return {
+          id: group.id,
+          name: group.name,
+          member_count: memberCount,
+          avg_score: Math.round(avgScore * 10) / 10,
+          top_use_case: topUseCase,
+          submission_count: a?.submissionCount ?? 0,
+          hours: Math.round((a?.hoursTotal ?? 0) * 10) / 10,
+          trend_percent: trendPercent,
+        };
+      })
+      .sort((a, b) => b.avg_score - a.avg_score || a.name.localeCompare(b.name))
       .map((item, index) => ({ ...item, rank: index + 1 }));
 
-    return { code: STATUS_OK, message: "Success", list };
+    return { code: STATUS_OK, message: "Success", max_score: maxScore, list };
   }),
 
   memberDetail: championProcedure
