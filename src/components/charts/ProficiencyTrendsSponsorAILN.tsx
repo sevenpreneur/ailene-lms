@@ -93,12 +93,11 @@ export default function ProficiencyTrendsSponsorAILN() {
   if (q.isLoading) {
     return (
       <SectionContainerAILN
-        className="h-full"
         title="Perkembangan Kemampuan Tim"
         desc="Rata-rata level tim & porsi yang sudah Level 1+ · 12 minggu terakhir"
         headerRight={legend}
       >
-        <div className="h-72 animate-pulse rounded-md bg-muted" />
+        <div className="h-[200px] animate-pulse rounded-md bg-muted" />
       </SectionContainerAILN>
     );
   }
@@ -106,37 +105,25 @@ export default function ProficiencyTrendsSponsorAILN() {
   if (q.error || !q.data) {
     return (
       <SectionContainerAILN
-        className="h-full"
         title="Perkembangan Kemampuan Tim"
         desc="Rata-rata level tim & porsi yang sudah Level 1+ · 12 minggu terakhir"
         headerRight={legend}
       >
-        <div className="flex h-72 items-center justify-center text-sm text-muted-foreground">
+        <div className="flex h-[200px] items-center justify-center text-sm text-muted-foreground">
           Gagal memuat tren penguasaan.
         </div>
       </SectionContainerAILN>
     );
   }
 
-  const { weeks, isSample } = resolveWeeks(q.data.weeks);
+  const { weeks } = resolveWeeks(q.data.weeks);
 
   return (
     <SectionContainerAILN
-      className="h-full"
       title="Perkembangan Kemampuan Tim"
       desc="Rata-rata level tim & porsi yang sudah Level 1+ · 12 minggu terakhir"
-      headerRight={
-        <div className="flex items-center gap-3">
-          {isSample && (
-            <span className="rounded-full bg-muted px-2 py-0.5 text-[10px] font-medium text-muted-foreground">
-              data contoh
-            </span>
-          )}
-          {legend}
-        </div>
-      }
     >
-      <div className="min-h-[240px]">
+      <div className="h-[200px]">
         <TrendChart data={weeks} />
       </div>
     </SectionContainerAILN>
@@ -222,7 +209,9 @@ function TrendChart({ data }: { data: ProficiencyWeek[] }) {
           {data.map((d, i) => (
             <Cell
               key={d.label}
-              fill={d.highlight ?? i === data.length - 1 ? BAR_DEEP : BAR_SOFT}
+              fill={
+                (d.highlight ?? i === data.length - 1) ? BAR_DEEP : BAR_SOFT
+              }
             />
           ))}
         </Bar>

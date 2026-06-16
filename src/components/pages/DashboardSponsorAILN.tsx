@@ -312,20 +312,16 @@ export default function DashboardSponsorAILN({
           ))}
         </div>
 
-        {/* Trend + Distribusi Level (1 row) */}
+        {/* Distribusi Karyawan (kiri, lebih lebar) + Tren Skor Kompetensi (kanan) */}
         <div className="grid grid-cols-1 gap-4 lg:grid-cols-[minmax(0,1.7fr)_minmax(0,1fr)]">
-          <ProficiencyTrendsSponsorAILN />
           <LevelDistributionSponsorAILN />
+          <ProficiencyTrendsSponsorAILN />
         </div>
 
         {/* Top Departemen (kiri) + Kesehatan Program & Aktivitas (kanan) */}
         <div className="grid grid-cols-1 gap-4 lg:grid-cols-[minmax(0,1fr)_minmax(0,1.5fr)]">
-          {/* Top Departemen */}
           <OrganizationLeaderboardAILN />
-
-          {/* Kanan: Kesehatan Program + Aktivitas terkini */}
           <div className="flex flex-col gap-4">
-            {/* Kesehatan Program */}
             <SectionContainerAILN
               title="Kesehatan Program"
               desc="Capaian program vs target · update real-time."
@@ -355,7 +351,6 @@ export default function DashboardSponsorAILN({
               )}
             </SectionContainerAILN>
 
-            {/* Aktivitas terkini */}
             <SectionContainerAILN title="Aktivitas terkini">
               {activityQ.isLoading ? (
                 <ul className="flex flex-col gap-3">
@@ -408,4 +403,3 @@ export default function DashboardSponsorAILN({
     </PageContainerAILN>
   );
 }
-

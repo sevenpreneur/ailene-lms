@@ -24,7 +24,7 @@ export default function ScorecardAILN({
     <div className="ailn-card flex flex-col border overflow-hidden">
       <div className="flex flex-1 items-start justify-between gap-3 p-5">
         <div className="min-w-0">
-          <div className="text-xs font-bold text-muted-foreground tracking-widest">
+          <div className="text-xs font-bold text-muted-foreground">
             {title.toUpperCase()}
           </div>
 
