@@ -1287,8 +1287,10 @@ export const readRouter = createTRPCRouter({
       }),
     ]);
 
+    type ActivityKind = "submission" | "accepted" | "review" | "assessment";
     type Activity = {
       at: Date;
+      type: ActivityKind;
       actor: string;
       action: string;
       meta: string;
@@ -1299,6 +1301,7 @@ export const readRouter = createTRPCRouter({
       if (!row.submitted_at) continue;
       items.push({
         at: row.submitted_at,
+        type: "submission",
         actor: row.member.user?.full_name ?? "Staff",
         action: "kirim use case",
         meta: [row.member.group?.name, row.use_case?.name]
@@ -1310,6 +1313,7 @@ export const readRouter = createTRPCRouter({
       if (!row.reviewed_at) continue;
       items.push({
         at: row.reviewed_at,
+        type: row.is_accepted ? "accepted" : "review",
         actor: row.reviewed_by?.user?.full_name ?? "Champion",
         action: row.is_accepted ? "terima use case" : "review use case",
         meta: [row.member.group?.name, row.use_case?.name]
@@ -1320,6 +1324,7 @@ export const readRouter = createTRPCRouter({
     for (const row of preAssessments) {
       items.push({
         at: row.created_at,
+        type: "assessment",
         actor: row.member.user?.full_name ?? "Staff",
         action: "selesai pre-assessment",
         meta: [row.member.group?.name, row.q3_job_role]
@@ -1344,10 +1349,12 @@ export const readRouter = createTRPCRouter({
       .sort((a, b) => dayjs(b.at).valueOf() - dayjs(a.at).valueOf())
       .slice(0, 6)
       .map((item) => ({
+        type: item.type,
         actor: item.actor,
         action: item.action,
         meta: item.meta,
         time: relTime(item.at),
+        at: dayjs(item.at).toISOString(),
       }));
 
     return { code: STATUS_OK, message: "Success", activity };

@@ -16,6 +16,7 @@ import LevelDistributionSponsorAILN from "@/components/charts/LevelDistributionS
 import ProficiencyTrendsSponsorAILN from "@/components/charts/ProficiencyTrendsSponsorAILN";
 import HeadlineAILN from "@/components/heroes/HeadlineAILN";
 import OrganizationLeaderboardAILN from "@/components/indexes/OrganizationLeaderboardAILN";
+import RecentActivityAILN from "@/components/indexes/RecentActivityAILN";
 import HealthMetricAILN from "@/components/items/HealthMetricAILN";
 import PageContainerAILN from "@/components/pages/PageContainerAILN";
 import AppErrorComponents from "@/components/states/AppErrorComponents";
@@ -352,52 +353,7 @@ export default function DashboardSponsorAILN({
               )}
             </SectionContainerAILN>
 
-            <SectionContainerAILN title="Aktivitas terkini">
-              {activityQ.isLoading ? (
-                <ul className="flex flex-col gap-3">
-                  {[0, 1, 2, 3].map((i) => (
-                    <li key={i} className="flex items-start gap-3">
-                      <span className="mt-1.5 size-1.5 shrink-0 rounded-full bg-muted" />
-                      <div className="flex-1 space-y-1.5">
-                        <div className="h-3 w-3/4 animate-pulse rounded bg-muted" />
-                        <div className="h-2.5 w-1/2 animate-pulse rounded bg-muted/60" />
-                      </div>
-                    </li>
-                  ))}
-                </ul>
-              ) : activity.length === 0 ? (
-                <p className="text-sm text-muted-foreground">
-                  Belum ada aktivitas.
-                </p>
-              ) : (
-                <ul className="flex flex-col gap-3 text-sm">
-                  {activity.map((a, i) => (
-                    <li key={i} className="flex items-start gap-3">
-                      <span
-                        className="mt-1.5 inline-block size-1.5 shrink-0 rounded-full"
-                        style={{ backgroundColor: "var(--destructive)" }}
-                      />
-                      <div className="min-w-0 flex-1">
-                        <div className="text-sm text-foreground">
-                          <span className="font-semibold">{a.actor}</span>{" "}
-                          <span className="text-muted-foreground">
-                            {a.action}
-                          </span>
-                        </div>
-                        {a.meta && (
-                          <div className="text-xs text-muted-foreground">
-                            {a.meta}
-                          </div>
-                        )}
-                      </div>
-                      <span className="shrink-0 text-xs text-muted-foreground">
-                        {a.time}
-                      </span>
-                    </li>
-                  ))}
-                </ul>
-              )}
-            </SectionContainerAILN>
+            <RecentActivityAILN />
         </div>
       </div>
     </PageContainerAILN>
