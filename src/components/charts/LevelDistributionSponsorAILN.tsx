@@ -2,7 +2,6 @@
 import type React from "react";
 import { trpc } from "@/trpc/client";
 import { Label, Pie, PieChart } from "recharts";
-import { GROWTH_RAMP } from "./sponsor-palette";
 import {
   ChartContainer,
   ChartTooltip,
@@ -47,14 +46,14 @@ export default function LevelDistributionSponsorAILN() {
   const levels = q.data.levels as Level[];
   const total = levels.reduce((acc, l) => acc + l.count, 0);
 
-  // Segment color follows the preset chart ramp (light → deep) by level index.
+  // Segment color follows the maturity ramp (globals.css --ailn-level-N) by index.
   const chartData = levels.map((level, i) => ({
     code: level.code,
     label: level.label ?? level.code,
     name: level.name,
     count: level.count,
     percent: level.percent,
-    fill: GROWTH_RAMP[i % GROWTH_RAMP.length],
+    fill: `var(--ailn-level-${(i % 5) + 1})`,
   }));
 
   return (

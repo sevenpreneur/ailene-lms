@@ -1,26 +1,38 @@
 "use client";
-import { AILENE_ORG_NAME, AILENE_PROGRAM_NAME } from "@/lib/ailene-config";
+import {
+  AILENE_ORG_NAME,
+  AILENE_PROGRAM_NAME,
+  AILENE_PROGRAM_START,
+  AILENE_PROGRAM_TOTAL_WEEKS,
+} from "@/lib/ailene-config";
 import {
   usePdfReport,
   type ReportProps,
-} from "@/components/reports/AileneReportPDF";
+} from "@/components/pdf/AileneReportPDF";
 import ButtonAILN from "@/components/buttons/ButtonAILN";
 import ScorecardAILN from "@/components/cards/ScorecardAILN";
 import SectionContainerAILN from "@/components/cards/SectionContainerAILN";
 import LevelDistributionSponsorAILN from "@/components/charts/LevelDistributionSponsorAILN";
 import ProficiencyTrendsSponsorAILN from "@/components/charts/ProficiencyTrendsSponsorAILN";
+import HeadlineAILN from "@/components/heroes/HeadlineAILN";
 import OrganizationLeaderboardAILN from "@/components/indexes/OrganizationLeaderboardAILN";
+import HealthMetricAILN from "@/components/items/HealthMetricAILN";
 import PageContainerAILN from "@/components/pages/PageContainerAILN";
 import AppErrorComponents from "@/components/states/AppErrorComponents";
+import { SkeletonBlockAILN } from "@/components/states/DataStatesAILN";
+import SkeletonExecutiveViewAILN from "@/components/states/SkeletonExecutiveViewAILN";
+import TransformationJourneyAILN from "@/components/steppers/TransformationJourneyAILN";
+import PageHeaderAILN from "@/components/titles/PageHeaderAILN";
+import { formatCompactIdr } from "@/lib/ailene-format";
 import { setSessionToken, trpc } from "@/trpc/client";
 import dayjs from "dayjs";
+import "dayjs/locale/id";
+import relativeTime from "dayjs/plugin/relativeTime";
 import { Clock, Coins, Download, Gauge, Users } from "lucide-react";
 import type { LucideIcon } from "lucide-react";
 import { useEffect } from "react";
 
-// Ailene brand accent — used for the activity timeline so the dashboard carries
-// brand identity, not just gray.
-const AILN_ACCENT = "var(--destructive)";
+dayjs.extend(relativeTime);
 
 // Floor an avg level (0..4) to its tier name for the card caption.
 function tierLabel(level: number): string {
@@ -48,6 +60,7 @@ export default function DashboardSponsorAILN({
 
   const pdf = usePdfReport();
   const executiveQ = trpc.read.executiveView.useQuery();
+  const headlineQ = trpc.read.headline.useQuery();
   const orgStatsQ = trpc.read.organizationStats.useQuery();
   const healthQ = trpc.read.programHealth.useQuery();
   const activityQ = trpc.read.recentActivity.useQuery();
@@ -59,7 +72,7 @@ export default function DashboardSponsorAILN({
   if (executiveQ.isLoading) {
     return (
       <PageContainerAILN>
-        <DashboardSponsorSkeleton />
+        <SkeletonExecutiveViewAILN />
       </PageContainerAILN>
     );
   }
@@ -78,6 +91,7 @@ export default function DashboardSponsorAILN({
       ? "0"
       : metrics.staff_active_weekly_percent.toLocaleString("id-ID");
   const roi = formatCompactIdr(metrics.roi_cohort_to_date);
+  const roiUnit = roi.suffix ? `${roi.suffix} Rp` : "Rp";
   const workdaysSaved = Math.round(metrics.hours_saved_total / 8);
 
   const healthMetrics = healthQ.data?.metrics ?? [];
@@ -87,6 +101,17 @@ export default function DashboardSponsorAILN({
   const orgSubline = orgStats
     ? `${orgStats.member_count.toLocaleString("id-ID")} staff aktif · ${orgStats.group_count.toLocaleString("id-ID")} departemen · ${AILENE_PROGRAM_NAME}`
     : AILENE_PROGRAM_NAME;
+
+  // Program week derived from the configured start date (env). No start = week 1.
+  const programWeek = AILENE_PROGRAM_START
+    ? Math.min(
+        Math.max(dayjs().diff(dayjs(AILENE_PROGRAM_START), "week") + 1, 1),
+        AILENE_PROGRAM_TOTAL_WEEKS
+      )
+    : 1;
+  const headlineUpdated = headlineQ.dataUpdatedAt
+    ? dayjs(headlineQ.dataUpdatedAt).locale("id").fromNow()
+    : "baru saja";
 
   const kpiCards: {
     title: string;
@@ -131,7 +156,7 @@ export default function DashboardSponsorAILN({
         icon: "text-emerald-600 dark:text-emerald-300",
       },
       value: roi.value,
-      unit: roi.unit,
+      unit: roiUnit,
       footer: `dari ${metrics.hours_saved_total.toLocaleString("id-ID")} jam dihemat`,
     },
     {
@@ -240,30 +265,36 @@ export default function DashboardSponsorAILN({
   return (
     <PageContainerAILN>
       <div className="flex w-full flex-col gap-6">
-        {/* Header */}
-        <div className="flex flex-wrap items-start justify-between gap-4">
-          <div className="min-w-0">
-            <div className="text-[11px] font-semibold tracking-widest text-muted-foreground">
-              SPONSOR · EXECUTIVE VIEW
-            </div>
-            <h1 className="mt-1 text-3xl font-bold leading-tight text-foreground">
-              {orgName}
-            </h1>
-            <p className="mt-1 text-sm text-muted-foreground">{orgSubline}</p>
-          </div>
+        <PageHeaderAILN title={orgName} desc={orgSubline}>
+          <ButtonAILN
+            variant="light"
+            size="medium"
+            onClick={() => pdf.generate(report, "ringkasan-eksekutif.pdf")}
+            disabled={pdf.exporting}
+          >
+            <Download className="size-4" />
+            {pdf.exporting ? "Menyiapkan…" : "Export PDF"}
+          </ButtonAILN>
+        </PageHeaderAILN>
 
-          <div className="flex flex-wrap items-center gap-2">
-            <ButtonAILN
-              variant="light"
-              size="medium"
-              onClick={() => pdf.generate(report, "ringkasan-eksekutif.pdf")}
-              disabled={pdf.exporting}
-            >
-              <Download className="size-4" />
-              {pdf.exporting ? "Menyiapkan…" : "Export PDF"}
-            </ButtonAILN>
-          </div>
-        </div>
+        {/* Program journey */}
+        <TransformationJourneyAILN
+          currentWeek={programWeek}
+          totalWeeks={AILENE_PROGRAM_TOTAL_WEEKS}
+        />
+
+        {/* Headline · bulan ini */}
+        {headlineQ.data ? (
+          <HeadlineAILN
+            productivePercent={headlineQ.data.productive_percent}
+            hoursSavedLastWeek={headlineQ.data.hours_saved_last_week}
+            roiAnnualized={headlineQ.data.roi_annualized}
+            trend={headlineQ.data.trend}
+            updatedLabel={headlineUpdated}
+          />
+        ) : (
+          <SkeletonBlockAILN className="h-44" />
+        )}
 
         {/* KPI strip — standardized ScorecardAILN cards */}
         <div className="grid grid-cols-1 gap-4 md:grid-cols-2 xl:grid-cols-4">
@@ -312,7 +343,7 @@ export default function DashboardSponsorAILN({
               ) : (
                 <ul className="grid grid-cols-2 gap-6 lg:grid-cols-4">
                   {healthMetrics.map((h) => (
-                    <HealthMetric
+                    <HealthMetricAILN
                       key={h.key}
                       label={h.label}
                       name={h.name}
@@ -348,7 +379,7 @@ export default function DashboardSponsorAILN({
                     <li key={i} className="flex items-start gap-3">
                       <span
                         className="mt-1.5 inline-block size-1.5 shrink-0 rounded-full"
-                        style={{ backgroundColor: AILN_ACCENT }}
+                        style={{ backgroundColor: "var(--destructive)" }}
                       />
                       <div className="min-w-0 flex-1">
                         <div className="text-sm text-foreground">
@@ -378,119 +409,3 @@ export default function DashboardSponsorAILN({
   );
 }
 
-// ---------- Sub-components ----------
-
-function formatCompactIdr(value: number): { value: string; unit: string } {
-  if (value >= 1_000_000_000) {
-    return {
-      value: (value / 1_000_000_000).toLocaleString("id-ID", {
-        maximumFractionDigits: 2,
-      }),
-      unit: "M Rp",
-    };
-  }
-  if (value >= 1_000_000) {
-    return {
-      value: (value / 1_000_000).toLocaleString("id-ID", {
-        maximumFractionDigits: 1,
-      }),
-      unit: "jt Rp",
-    };
-  }
-  return { value: value.toLocaleString("id-ID"), unit: "Rp" };
-}
-
-function DashboardSponsorSkeleton() {
-  return (
-    <div className="flex w-full flex-col gap-6 animate-pulse">
-      <div className="flex flex-wrap items-start justify-between gap-4">
-        <div className="space-y-2">
-          <div className="h-3 w-48 rounded bg-muted" />
-          <div className="h-8 w-56 rounded bg-muted" />
-          <div className="h-4 w-96 rounded bg-muted" />
-        </div>
-        <div className="h-9 w-72 rounded-md bg-muted" />
-      </div>
-
-      <div className="grid grid-cols-1 gap-4 md:grid-cols-2 xl:grid-cols-4">
-        {[0, 1, 2, 3].map((i) => (
-          <div key={i} className="ailn-card min-h-40 p-4">
-            <div className="h-3 w-36 rounded bg-muted" />
-            <div className="mt-4 h-10 w-24 rounded bg-muted" />
-            <div className="mt-8 h-11 w-full rounded bg-muted/60" />
-          </div>
-        ))}
-      </div>
-
-      <div className="grid grid-cols-1 gap-4 lg:grid-cols-[minmax(0,1.7fr)_minmax(0,1fr)]">
-        <div className="ailn-card h-96" />
-        <div className="flex flex-col gap-4">
-          <div className="ailn-card h-48" />
-          <div className="ailn-card h-48" />
-        </div>
-      </div>
-    </div>
-  );
-}
-
-// Semantic color by attainment so the program-health row reads at a glance:
-// green = healthy, amber = forming, rose = needs attention.
-function healthTone(percent: number): {
-  text: string;
-  bar: string;
-  track: string;
-} {
-  if (percent >= 70) {
-    return {
-      text: "text-emerald-600 dark:text-emerald-300",
-      bar: "bg-emerald-500",
-      track: "bg-emerald-100 dark:bg-emerald-500/15",
-    };
-  }
-  if (percent >= 25) {
-    return {
-      text: "text-amber-600 dark:text-amber-300",
-      bar: "bg-amber-500",
-      track: "bg-amber-100 dark:bg-amber-500/15",
-    };
-  }
-  return {
-    text: "text-rose-600 dark:text-rose-300",
-    bar: "bg-rose-500",
-    track: "bg-rose-100 dark:bg-rose-500/15",
-  };
-}
-
-// One metric, Core-Web-Vitals layout: label, sub-label, big percent value, a
-// semantic-colored progress bar, and a real "X dari Y" detail.
-function HealthMetric({
-  label,
-  name,
-  percent,
-  detail,
-}: {
-  label: string;
-  name: string;
-  percent: number;
-  detail: string;
-}) {
-  const tone = healthTone(percent);
-  return (
-    <li className="flex flex-col gap-1">
-      <p className="text-sm font-medium text-foreground">{label}</p>
-      <p className="text-xs text-muted-foreground">{name}</p>
-      <p
-        className={` text-2xl font-bold tabular-nums ${tone.text}`}
-      >
-        {percent.toLocaleString("id-ID")}%
-      </p>
-      <div className={`mt-1 h-1.5 w-full overflow-hidden rounded-full ${tone.track}`}>
-        <div
-          className={`h-full rounded-full ${tone.bar}`}
-          style={{ width: `${Math.min(Math.max(percent, 0), 100)}%` }}
-        />
-      </div>
-      <p className="mt-0.5 text-xs text-muted-foreground">{detail}</p>
-    </li>
-  );
-}

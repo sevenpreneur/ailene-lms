@@ -45,6 +45,15 @@
   --sb-text: #595b68;
   --sb-text-strong: #1a2236;
 
+  /* Ailene sponsor chart palette — level maturity ramp (L0 → L4).
+     Theme-independent brand hues; consumed by the org level-distribution charts,
+     legends, and department rows via var(--ailn-level-N). */
+  --ailn-level-1: #94a3b8; /* L0 Assessment — slate */
+  --ailn-level-2: #38bdf8; /* L1 AI Foundation — sky */
+  --ailn-level-3: #8b5cf6; /* L2 AI Operator — violet */
+  --ailn-level-4: #10b981; /* L3 AI Intermediate — emerald */
+  --ailn-level-5: #f59e0b; /* L4 AI Advanced — amber */
+
   /* --- Default Shadcn --- */
 
   --radius: 0.625rem;

@@ -1,0 +1,205 @@
+"use client";
+
+import ButtonAILN from "@/components/buttons/ButtonAILN";
+import SectionContainerAILN from "@/components/cards/SectionContainerAILN";
+import { trpc } from "@/trpc/client";
+import dayjs from "dayjs";
+import { CalendarDays, Megaphone, Save } from "lucide-react";
+import { FormEvent, useMemo, useState } from "react";
+import { toast } from "sonner";
+
+const MAX_MESSAGE_LENGTH = 500;
+
+export type Announcement = {
+  title: string;
+  callout: string | null;
+  status: string;
+  start_date: string | Date | null;
+  end_date: string | Date | null;
+  updated_at?: string | Date;
+};
+
+/**
+ * Sponsor announcement editor: message + date range form on the left, live
+ * "Hari Ini" banner preview + note on the right.
+ */
+export default function AnnouncementFormAILN({
+  announcement,
+  invalidateAnnouncement,
+}: {
+  announcement: Announcement | null;
+  invalidateAnnouncement: () => Promise<unknown>;
+}) {
+  const updateAnnouncement = trpc.update.announcement.useMutation({
+    onSuccess: async () => {
+      await invalidateAnnouncement();
+      toast.success("Pengumuman berhasil diperbarui.");
+    },
+    onError: (error) => {
+      toast.error(error.message || "Gagal memperbarui pengumuman.");
+    },
+  });
+
+  const [message, setMessage] = useState(announcement?.title ?? "");
+  const [startDate, setStartDate] = useState(
+    announcement ? dayjs(announcement.start_date).format("YYYY-MM-DD") : ""
+  );
+  const [endDate, setEndDate] = useState(
+    announcement ? dayjs(announcement.end_date).format("YYYY-MM-DD") : ""
+  );
+
+  const isActive = useMemo(() => {
+    if (!announcement) return false;
+    const now = dayjs();
+    return (
+      announcement.status === "ACTIVE" &&
+      now.isAfter(dayjs(startDate).startOf("day")) &&
+      now.isBefore(dayjs(endDate).endOf("day"))
+    );
+  }, [announcement, startDate, endDate]);
+
+  const dateRangeLabel = useMemo(() => {
+    if (!startDate || !endDate) return "Tanggal belum lengkap";
+    return `${dayjs(startDate).format("DD MMM YYYY")} - ${dayjs(endDate).format("DD MMM YYYY")}`;
+  }, [startDate, endDate]);
+
+  const handleSubmit = (event: FormEvent<HTMLFormElement>) => {
+    event.preventDefault();
+    updateAnnouncement.mutate({
+      message,
+      start_date: startDate,
+      end_date: endDate,
+    });
+  };
+
+  return (
+    <div className="grid grid-cols-1 gap-5 xl:grid-cols-[minmax(0,1.25fr)_minmax(360px,0.75fr)]">
+      <form
+        onSubmit={handleSubmit}
+        className="rounded-lg border border-dashboard-border bg-white p-5 shadow-sm dark:bg-card-1 dark:shadow-[0_0_16px_rgba(0,53,157,0.06)]"
+      >
+        <div className="flex items-center gap-2 text-base font-bold text-gray-900 dark:text-white">
+          <Megaphone className="size-4" />
+          Update pengumuman
+        </div>
+
+        <div className="mt-5 flex flex-col gap-5">
+          <label className="flex flex-col gap-2">
+            <span className="text-[11px] font-semibold uppercase tracking-wider text-gray-500 dark:text-gray-400">
+              Isi pesan
+            </span>
+            <textarea
+              value={message}
+              onChange={(event) => setMessage(event.target.value)}
+              maxLength={MAX_MESSAGE_LENGTH}
+              rows={7}
+              required
+              className="min-h-40 resize-none rounded-md border border-dashboard-border bg-white px-3 py-3 text-sm leading-6 text-gray-900 outline-none transition focus:border-black dark:bg-dashboard-bg dark:text-white dark:focus:border-blue-400"
+              placeholder="Tulis pengumuman untuk peserta..."
+            />
+            <span className="text-right text-xs text-gray-400">
+              {message.length} / {MAX_MESSAGE_LENGTH}
+            </span>
+          </label>
+
+          <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
+            <label className="flex flex-col gap-2">
+              <span className="text-[11px] font-semibold uppercase tracking-wider text-gray-500 dark:text-gray-400">
+                Start date
+              </span>
+              <div className="flex items-center gap-2 rounded-md border border-dashboard-border bg-white px-3 dark:bg-dashboard-bg">
+                <CalendarDays className="size-4 shrink-0 text-gray-400" />
+                <input
+                  type="date"
+                  value={startDate}
+                  onChange={(event) => setStartDate(event.target.value)}
+                  required
+                  className="h-11 w-full bg-transparent text-sm text-gray-900 outline-none dark:text-white"
+                />
+              </div>
+            </label>
+
+            <label className="flex flex-col gap-2">
+              <span className="text-[11px] font-semibold uppercase tracking-wider text-gray-500 dark:text-gray-400">
+                End date
+              </span>
+              <div className="flex items-center gap-2 rounded-md border border-dashboard-border bg-white px-3 dark:bg-dashboard-bg">
+                <CalendarDays className="size-4 shrink-0 text-gray-400" />
+                <input
+                  type="date"
+                  value={endDate}
+                  onChange={(event) => setEndDate(event.target.value)}
+                  required
+                  className="h-11 w-full bg-transparent text-sm text-gray-900 outline-none dark:text-white"
+                />
+              </div>
+            </label>
+          </div>
+        </div>
+
+        <div className="mt-6 flex justify-end">
+          <ButtonAILN
+            type="submit"
+            variant="primary"
+            size="medium"
+            disabled={updateAnnouncement.isPending}
+          >
+            <Save className="size-4" />
+            {updateAnnouncement.isPending ? "Menyimpan..." : "Simpan"}
+          </ButtonAILN>
+        </div>
+      </form>
+
+      <aside className="flex flex-col gap-4">
+        <SectionContainerAILN
+          title="Pratinjau di halaman Hari Ini"
+          className="dark:shadow-[0_0_16px_rgba(0,53,157,0.06)]"
+        >
+          <div className="overflow-hidden rounded-md border border-dashboard-border bg-gray-50 dark:bg-dashboard-bg">
+            <div className="flex w-full items-stretch overflow-hidden bg-black">
+              <div className="flex shrink-0 items-center gap-2 bg-black px-4 py-3">
+                <Megaphone className="h-4 w-4 text-white" />
+                <span className="text-[11px] font-semibold uppercase tracking-wider text-white">
+                  {announcement?.callout ?? "PENGUMUMAN"}
+                </span>
+                <span className="ml-1 h-4 w-px bg-white/15" />
+              </div>
+              <div className="flex min-h-11 flex-1 items-center overflow-hidden px-4">
+                <span className="line-clamp-2 text-sm leading-5 text-white">
+                  {message.trim() || "Pesan pengumuman akan tampil di sini."}
+                </span>
+              </div>
+            </div>
+            <div className="p-4">
+              <div className="h-2 w-28 rounded bg-gray-200 dark:bg-dashboard-border" />
+              <div className="mt-4 h-20 rounded-md border border-dashboard-border bg-white dark:bg-card-1" />
+            </div>
+          </div>
+
+          <div className="mt-4 flex flex-wrap items-center gap-2 text-xs text-gray-500 dark:text-gray-400">
+            <span
+              className={`rounded-full px-2 py-1 font-semibold ${
+                isActive
+                  ? "bg-emerald-50 text-emerald-700 dark:bg-emerald-500/10 dark:text-emerald-300"
+                  : "bg-gray-100 text-gray-600 dark:bg-white/10 dark:text-gray-300"
+              }`}
+            >
+              {isActive ? "Aktif" : "Tidak aktif saat ini"}
+            </span>
+            <span>{dateRangeLabel}</span>
+          </div>
+        </SectionContainerAILN>
+
+        <SectionContainerAILN
+          title="Catatan"
+          className="dark:shadow-[0_0_16px_rgba(0,53,157,0.06)]"
+        >
+          <p className="text-sm leading-6 text-gray-600 dark:text-gray-300">
+            Form ini hanya mengubah isi pesan, start date, dan end date. Status
+            dan label pengumuman tetap mengikuti data yang sudah ada.
+          </p>
+        </SectionContainerAILN>
+      </aside>
+    </div>
+  );
+}

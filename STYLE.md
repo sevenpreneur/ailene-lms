@@ -88,8 +88,10 @@ Gunakan helper **`.ailn-card`** (didefinisikan di `globals.css`) untuk semua car
 
 ## 5. Pola Card-with-Icon (statistics-02)
 
-Standar kartu KPI / metrik (lihat `ScorecardStripAILN`): konten di kiri, **icon
-bulat ber-border** di kanan.
+Standar kartu KPI / metrik (lihat `ScorecardAILN`): konten di kiri, **icon
+bulat ber-border** di kanan. Untuk satu baris berisi beberapa kartu, render
+`ScorecardAILN` di dalam grid responsif (`grid grid-cols-1 md:grid-cols-2
+xl:grid-cols-4 gap-4`).
 
 ```tsx
 <div className="ailn-card">

@@ -16,8 +16,12 @@ import {
   XAxis,
   YAxis,
 } from "recharts";
-import { BAR_DEEP, BAR_SOFT, LINE_ADOPTION } from "./sponsor-palette";
 import { SAMPLE_PROFICIENCY } from "./sample-proficiency-data";
+
+// Bars: soft (context) vs deep (highlighted/latest). Line: emerald adoption %.
+const BAR_SOFT = "var(--chart-1)";
+const BAR_DEEP = "var(--chart-3)";
+const LINE_ADOPTION = "#10b981";
 
 // Avg level is the hero series (emerald line); % Level 1+ is the supporting
 // bar series. Two y-axes so the 0..4 level scale and 0..100 % scale coexist.

@@ -15,3 +15,18 @@ export const AILENE_ORG_NAME =
 
 export const AILENE_PROGRAM_NAME =
   process.env.NEXT_PUBLIC_AILN_PROGRAM_NAME?.trim() || "Program AI Adoption";
+
+// Program timeline — also deployment-level config (one program per deployment).
+// The transformation-journey stepper derives the current week from these.
+//
+//   NEXT_PUBLIC_AILN_PROGRAM_START="2026-03-10"   (ISO date the program began)
+//   NEXT_PUBLIC_AILN_PROGRAM_WEEKS="24"           (total program length)
+//
+// Start empty = unknown → stepper falls back to week 1.
+export const AILENE_PROGRAM_START =
+  process.env.NEXT_PUBLIC_AILN_PROGRAM_START?.trim() || "";
+
+export const AILENE_PROGRAM_TOTAL_WEEKS = (() => {
+  const raw = Number(process.env.NEXT_PUBLIC_AILN_PROGRAM_WEEKS);
+  return Number.isFinite(raw) && raw > 0 ? Math.floor(raw) : 24;
+})();

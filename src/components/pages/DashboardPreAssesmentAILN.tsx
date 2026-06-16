@@ -3,58 +3,31 @@ import { AILENE_ORG_NAME, AILENE_PROGRAM_NAME } from "@/lib/ailene-config";
 import {
   usePdfReport,
   type ReportProps,
-} from "@/components/reports/AileneReportPDF";
+} from "@/components/pdf/AileneReportPDF";
 import ButtonAILN from "@/components/buttons/ButtonAILN";
-import ScorecardStripAILN from "@/components/cards/ScorecardStripAILN";
+import ScorecardAILN from "@/components/cards/ScorecardAILN";
 import SectionContainerAILN from "@/components/cards/SectionContainerAILN";
+import PillarRadarAILN from "@/components/charts/PillarRadarAILN";
+import SectionNoteAILN from "@/components/elements/SectionNoteAILN";
+import DepartmentFilterAILN from "@/components/fields/DepartmentFilterAILN";
+import ShareBarRowAILN from "@/components/items/ShareBarRowAILN";
+import GeneralLabelAILN from "@/components/labels/GeneralLabelAILN";
+import KpiCaptionAILN from "@/components/labels/KpiCaptionAILN";
+import VoiceChipAILN from "@/components/labels/VoiceChipAILN";
 import PageContainerAILN from "@/components/pages/PageContainerAILN";
 import {
-  ShareBarList,
-  ShareBarListContent,
-  ShareBarListFill,
-  ShareBarListItem,
-  ShareBarListLabel,
-  ShareBarListValue,
-} from "@/components/share-bar-list";
+  EmptyHintAILN,
+  SkeletonBlockAILN,
+  SkeletonRowsAILN,
+} from "@/components/states/DataStatesAILN";
+import { ShareBarList } from "@/components/share-bar-list";
+import PageHeaderAILN from "@/components/titles/PageHeaderAILN";
+import { formatScore } from "@/lib/ailene-format";
 import { setSessionToken, trpc } from "@/trpc/client";
-import {
-  Chart as ChartJS,
-  Filler,
-  Legend,
-  LineElement,
-  PointElement,
-  RadialLinearScale,
-  Tooltip,
-} from "chart.js";
 import dayjs from "dayjs";
 import "dayjs/locale/id";
-import {
-  BookOpen,
-  Building2,
-  ChevronDown,
-  ClipboardCheck,
-  Download,
-  Gauge,
-  Zap,
-} from "lucide-react";
-import { useTheme } from "next-themes";
-import { useEffect, useMemo, useState } from "react";
-import { Radar } from "react-chartjs-2";
-
-ChartJS.register(
-  RadialLinearScale,
-  PointElement,
-  LineElement,
-  Filler,
-  Tooltip,
-  Legend
-);
-
-const formatScore = (n: number) =>
-  n.toLocaleString("id-ID", {
-    minimumFractionDigits: 1,
-    maximumFractionDigits: 1,
-  });
+import { BookOpen, ClipboardCheck, Download, Gauge, Zap } from "lucide-react";
+import { useEffect, useState } from "react";
 
 // ---------- Page ----------
 
@@ -188,42 +161,31 @@ export default function DashboardPreAssesmentAILN({
   return (
     <PageContainerAILN>
       <div className="flex w-full flex-col gap-6">
-        {/* Header */}
-        <div className="flex flex-wrap items-start justify-between gap-4">
-          <div className="min-w-0">
-            <div className="text-[11px] font-semibold tracking-widest text-gray-500 dark:text-gray-400">
-              SPONSOR · BASELINE T0 · SEBELUM PROGRAM
-            </div>
-            <h1 className="mt-1 text-3xl font-bold leading-tight text-gray-900 dark:text-white">
-              Baseline AI State Organisasi
-            </h1>
-            <p className="mt-1 text-sm text-gray-500 dark:text-gray-400">
-              Snapshot kondisi awal · diukur {measuredLabel} ·{" "}
-              {overview
-                ? `${overview.completed_count} dari ${overview.total_members} karyawan menyelesaikan pre-assessment`
-                : "— dari — karyawan menyelesaikan pre-assessment"}
-            </p>
-          </div>
-
-          <div className="flex flex-wrap items-center gap-2">
-            <ButtonAILN
-              variant="light"
-              size="medium"
-              onClick={() =>
-                pdf.generate(buildReport(), "pre-assessment-report.pdf")
-              }
-              disabled={pdf.exporting || !overview}
-            >
-              <Download className="size-4" />
-              {pdf.exporting ? "Menyiapkan…" : "Export PDF"}
-            </ButtonAILN>
-          </div>
-        </div>
+        <PageHeaderAILN
+          title="Baseline AI State Organisasi"
+          desc={`Snapshot kondisi awal · diukur ${measuredLabel} · ${
+            overview
+              ? `${overview.completed_count} dari ${overview.total_members} karyawan menyelesaikan pre-assessment`
+              : "— dari — karyawan menyelesaikan pre-assessment"
+          }`}
+        >
+          <ButtonAILN
+            variant="light"
+            size="medium"
+            onClick={() =>
+              pdf.generate(buildReport(), "pre-assessment-report.pdf")
+            }
+            disabled={pdf.exporting || !overview}
+          >
+            <Download className="size-4" />
+            {pdf.exporting ? "Menyiapkan…" : "Export PDF"}
+          </ButtonAILN>
+        </PageHeaderAILN>
 
         {/* Filter row */}
         <div className="flex flex-wrap items-center justify-between gap-3 rounded-lg border border-dashboard-border bg-white px-4 py-3 dark:bg-card-1">
           <div className="flex flex-wrap items-center gap-3">
-            <DepartmentFilter
+            <DepartmentFilterAILN
               departments={departmentsQ.data?.departments ?? []}
               totalMembers={departmentsQ.data?.total_members ?? 0}
               groupId={groupId}
@@ -236,19 +198,19 @@ export default function DashboardPreAssesmentAILN({
         </div>
 
         {/* KPI tiles — statistics-02 style with icons (same as executive view) */}
-        <ScorecardStripAILN
-          items={[
+        <div className="grid grid-cols-1 gap-4 md:grid-cols-2 xl:grid-cols-4">
+          {[
             {
               title: "Partisipasi Pre-assessment",
               icon: ClipboardCheck,
               value: overview ? `${overview.participation_percent}` : "—",
               unit: "%",
               footer: (
-                <KpiCaption>
+                <KpiCaptionAILN>
                   {overview
                     ? `${overview.completed_count} dari ${overview.total_members} karyawan`
                     : "—"}
-                </KpiCaption>
+                </KpiCaptionAILN>
               ),
             },
             {
@@ -256,24 +218,36 @@ export default function DashboardPreAssesmentAILN({
               icon: Zap,
               value: overview ? `${overview.routine_users_percent}` : "—",
               unit: "%",
-              footer: <KpiCaption>harian atau lebih sering (q1)</KpiCaption>,
+              footer: <KpiCaptionAILN>harian atau lebih sering (q1)</KpiCaptionAILN>,
             },
             {
               title: "Literasi Dasar Memadai",
               icon: BookOpen,
               value: overview ? `${overview.basic_literacy_percent}` : "—",
               unit: "%",
-              footer: <KpiCaption>paham konsep dasar ke atas (q4)</KpiCaption>,
+              footer: (
+                <KpiCaptionAILN>paham konsep dasar ke atas (q4)</KpiCaptionAILN>
+              ),
             },
             {
               title: "Kesiapan Rata-rata Pillar",
               icon: Gauge,
               value: pillarsQ.data ? formatScore(pillarsQ.data.org_avg) : "—",
               unit: "/ 5",
-              footer: <KpiCaption>self-rating 6 pillar</KpiCaption>,
+              footer: <KpiCaptionAILN>self-rating 6 pillar</KpiCaptionAILN>,
             },
-          ]}
-        />
+          ].map((kpi, i) => (
+            <ScorecardAILN
+              key={i}
+              title={kpi.title}
+              value={kpi.value}
+              unit={kpi.unit}
+              icon={kpi.icon}
+            >
+              {kpi.footer}
+            </ScorecardAILN>
+          ))}
+        </div>
 
         {/* Pillars radar + usage frequency */}
         <div className="grid grid-cols-1 gap-4 lg:grid-cols-2">
@@ -281,13 +255,13 @@ export default function DashboardPreAssesmentAILN({
             title="Kesiapan 6 pillar — rata-rata organisasi"
             desc="Titik nol yang akan diukur lagi di akhir program"
             className="dark:shadow-[0_0_16px_rgba(0,53,157,0.06)]"
-            headerRight={<SectionBadge>T0</SectionBadge>}
+            headerRight={<GeneralLabelAILN variant="white">T0</GeneralLabelAILN>}
           >
             {pillarsQ.isLoading || !pillarsQ.data ? (
-              <Skeleton className="h-[300px]" />
+              <SkeletonBlockAILN className="h-[300px]" />
             ) : (
               <div className="flex flex-col items-center gap-3">
-                <PillarRadar
+                <PillarRadarAILN
                   labels={pillarsQ.data.pillars.map((p) => p.name)}
                   values={pillarsQ.data.pillars.map((p) => p.score)}
                 />
@@ -310,11 +284,11 @@ export default function DashboardPreAssesmentAILN({
             className="dark:shadow-[0_0_16px_rgba(0,53,157,0.06)]"
           >
             {frequencyQ.isLoading || !frequencyQ.data ? (
-              <SkeletonRows />
+              <SkeletonRowsAILN rowClassName="h-12" className="gap-0.5" />
             ) : (
               <ShareBarList>
                 {frequencyQ.data.buckets.map((b) => (
-                  <BarRow
+                  <ShareBarRowAILN
                     key={b.key}
                     label={b.label}
                     percent={b.percent}
@@ -323,10 +297,10 @@ export default function DashboardPreAssesmentAILN({
                 ))}
               </ShareBarList>
             )}
-            <SectionNote>
+            <SectionNoteAILN>
               Tersorot = pemakai rutin (harian+). Mayoritas masih sporadis — ruang
               besar untuk peningkatan adopsi.
-            </SectionNote>
+            </SectionNoteAILN>
           </SectionContainerAILN>
         </div>
 
@@ -339,13 +313,13 @@ export default function DashboardPreAssesmentAILN({
             className="dark:shadow-[0_0_16px_rgba(0,53,157,0.06)]"
           >
             {toolsQ.isLoading || !toolsQ.data ? (
-              <SkeletonRows />
+              <SkeletonRowsAILN rowClassName="h-12" className="gap-0.5" />
             ) : toolsQ.data.tools.length === 0 ? (
-              <EmptyHint />
+              <EmptyHintAILN className="h-24">Belum ada data responden.</EmptyHintAILN>
             ) : (
               <ShareBarList>
                 {toolsQ.data.tools.map((t) => (
-                  <BarRow
+                  <ShareBarRowAILN
                     key={t.label}
                     label={t.label}
                     percent={t.percent}
@@ -362,11 +336,11 @@ export default function DashboardPreAssesmentAILN({
             className="dark:shadow-[0_0_16px_rgba(0,53,157,0.06)]"
           >
             {maturityQ.isLoading || !maturityQ.data ? (
-              <SkeletonRows />
+              <SkeletonRowsAILN rowClassName="h-12" className="gap-0.5" />
             ) : (
               <ShareBarList>
                 {maturityQ.data.buckets.map((b) => (
-                  <BarRow
+                  <ShareBarRowAILN
                     key={b.key}
                     label={b.label}
                     percent={b.percent}
@@ -376,10 +350,10 @@ export default function DashboardPreAssesmentAILN({
               </ShareBarList>
             )}
             {maturityQ.data && (
-              <SectionNote>
+              <SectionNoteAILN>
                 Hanya {maturityQ.data.formal_percent}% tim punya
                 kebijakan/integrasi resmi — sisanya belum terstruktur.
-              </SectionNote>
+              </SectionNoteAILN>
             )}
           </SectionContainerAILN>
 
@@ -387,14 +361,16 @@ export default function DashboardPreAssesmentAILN({
             title="Kesadaran keamanan — gap"
             desc="% karyawan yang BELUM menyadari praktik aman (q11)"
             className="dark:shadow-[0_0_16px_rgba(0,53,157,0.06)]"
-            headerRight={<SectionBadge tone="warn">Lensa risiko</SectionBadge>}
+            headerRight={
+              <GeneralLabelAILN variant="yellow">Lensa risiko</GeneralLabelAILN>
+            }
           >
             {safetyQ.isLoading || !safetyQ.data ? (
-              <SkeletonRows />
+              <SkeletonRowsAILN rowClassName="h-12" className="gap-0.5" />
             ) : (
               <ShareBarList>
                 {safetyQ.data.gaps.map((g) => (
-                  <BarRow
+                  <ShareBarRowAILN
                     key={g.label}
                     label={g.label}
                     percent={g.gap_percent}
@@ -403,10 +379,10 @@ export default function DashboardPreAssesmentAILN({
                 ))}
               </ShareBarList>
             )}
-            <SectionNote>
+            <SectionNoteAILN>
               Prioritas compliance: hak cipta & transparansi adalah celah
               terbesar. Modul Ethics & Safety perlu diutamakan.
-            </SectionNote>
+            </SectionNoteAILN>
           </SectionContainerAILN>
 
           <SectionContainerAILN
@@ -415,13 +391,13 @@ export default function DashboardPreAssesmentAILN({
             className="dark:shadow-[0_0_16px_rgba(0,53,157,0.06)]"
           >
             {useCasesQ.isLoading || !useCasesQ.data ? (
-              <SkeletonRows />
+              <SkeletonRowsAILN rowClassName="h-12" className="gap-0.5" />
             ) : useCasesQ.data.useCases.length === 0 ? (
-              <EmptyHint />
+              <EmptyHintAILN className="h-24">Belum ada data responden.</EmptyHintAILN>
             ) : (
               <ShareBarList>
                 {useCasesQ.data.useCases.map((u) => (
-                  <BarRow
+                  <ShareBarRowAILN
                     key={u.label}
                     leading={
                       <span className="w-4 shrink-0 text-right text-xs tabular-nums text-gray-400 dark:text-gray-500">
@@ -435,10 +411,10 @@ export default function DashboardPreAssesmentAILN({
                 ))}
               </ShareBarList>
             )}
-            <SectionNote>
+            <SectionNoteAILN>
               Sinyal untuk Champion: prioritaskan konten menulis & meringkas —
               kebutuhan terbesar lintas departemen.
-            </SectionNote>
+            </SectionNoteAILN>
           </SectionContainerAILN>
         </div>
 
@@ -449,7 +425,7 @@ export default function DashboardPreAssesmentAILN({
           className="dark:shadow-[0_0_16px_rgba(0,53,157,0.06)]"
         >
           {voiceQ.isLoading || !voiceQ.data ? (
-            <Skeleton className="h-32" />
+            <SkeletonBlockAILN className="h-32" />
           ) : (
             <div className="flex flex-col gap-5">
               <div className="grid grid-cols-1 gap-6 lg:grid-cols-2">
@@ -459,7 +435,7 @@ export default function DashboardPreAssesmentAILN({
                   </div>
                   <div className="flex flex-wrap gap-2">
                     {voiceQ.data.challenges.map((c) => (
-                      <VoiceChip
+                      <VoiceChipAILN
                         key={c.label}
                         label={c.label}
                         count={c.count}
@@ -473,7 +449,7 @@ export default function DashboardPreAssesmentAILN({
                   </div>
                   <div className="flex flex-wrap gap-2">
                     {voiceQ.data.expectations.map((e) => (
-                      <VoiceChip
+                      <VoiceChipAILN
                         key={e.label}
                         label={e.label}
                         count={e.count}
@@ -503,332 +479,5 @@ export default function DashboardPreAssesmentAILN({
         </SectionContainerAILN>
       </div>
     </PageContainerAILN>
-  );
-}
-
-// ---------- Department filter ----------
-
-function DepartmentFilter({
-  departments,
-  totalMembers,
-  groupId,
-  onChange,
-}: {
-  departments: { id: number; name: string; member_count: number }[];
-  totalMembers: number;
-  groupId: number | undefined;
-  onChange: (id: number | undefined) => void;
-}) {
-  const [open, setOpen] = useState(false);
-  const selected = groupId ? departments.find((d) => d.id === groupId) : null;
-  const label = selected ? selected.name : `Semua (${departments.length})`;
-
-  return (
-    <div className="relative">
-      <button
-        type="button"
-        onClick={() => setOpen((o) => !o)}
-        className="inline-flex h-9 items-center gap-2 rounded-md border border-dashboard-border bg-white px-3 text-sm font-medium text-gray-700 transition-colors hover:bg-gray-50 dark:bg-card-1 dark:text-gray-200 dark:hover:bg-card-2"
-      >
-        <Building2 className="size-4 text-gray-400" />
-        Departemen: {label}
-        <ChevronDown className="size-4 text-gray-400" />
-      </button>
-
-      {open && (
-        <>
-          <button
-            type="button"
-            aria-hidden
-            tabIndex={-1}
-            onClick={() => setOpen(false)}
-            className="fixed inset-0 z-10 cursor-default"
-          />
-          <div className="absolute left-0 z-20 mt-1 max-h-72 w-64 overflow-auto rounded-md border border-dashboard-border bg-white py-1 shadow-lg dark:bg-card-1">
-            <DeptItem
-              active={!groupId}
-              onClick={() => {
-                onChange(undefined);
-                setOpen(false);
-              }}
-            >
-              Semua departemen ({totalMembers})
-            </DeptItem>
-            {departments.map((d) => (
-              <DeptItem
-                key={d.id}
-                active={groupId === d.id}
-                onClick={() => {
-                  onChange(d.id);
-                  setOpen(false);
-                }}
-              >
-                {d.name} ({d.member_count})
-              </DeptItem>
-            ))}
-          </div>
-        </>
-      )}
-    </div>
-  );
-}
-
-function DeptItem({
-  active,
-  onClick,
-  children,
-}: {
-  active: boolean;
-  onClick: () => void;
-  children: React.ReactNode;
-}) {
-  return (
-    <button
-      type="button"
-      onClick={onClick}
-      className={`flex w-full items-center px-3 py-2 text-left text-sm transition-colors hover:bg-gray-50 dark:hover:bg-card-2 ${
-        active
-          ? "font-semibold text-gray-900 dark:text-white"
-          : "text-gray-600 dark:text-gray-300"
-      }`}
-    >
-      {children}
-    </button>
-  );
-}
-
-// ---------- KPI caption ----------
-
-// Footer caption inside ScorecardAILN's divided zone (matches executive view).
-function KpiCaption({ children }: { children: React.ReactNode }) {
-  return (
-    <span className="text-xs font-medium text-muted-foreground">
-      {children}
-    </span>
-  );
-}
-
-// ---------- Section header badge ----------
-
-function SectionBadge({
-  tone = "neutral",
-  children,
-}: {
-  tone?: "neutral" | "warn";
-  children: React.ReactNode;
-}) {
-  return (
-    <span
-      className={`shrink-0 rounded-full border px-2.5 py-0.5 text-[11px] font-semibold ${
-        tone === "warn"
-          ? "border-amber-300 bg-amber-50 text-amber-700 dark:border-amber-500/40 dark:bg-amber-500/10 dark:text-amber-300"
-          : "border-dashboard-border bg-gray-50 text-gray-500 dark:bg-card-2 dark:text-gray-400"
-      }`}
-    >
-      {children}
-    </span>
-  );
-}
-
-// ---------- Section footer note ----------
-
-function SectionNote({ children }: { children: React.ReactNode }) {
-  return (
-    <p className="mt-4 border-t border-dashboard-border pt-3 text-xs text-gray-500 dark:text-gray-400">
-      {children}
-    </p>
-  );
-}
-
-// ---------- Bar row (Efferd ShareBarList style: label overlaid on a
-// length-proportional bar, value pinned right, single color per tone) ----------
-
-const BAR_TONE: Record<"highlight" | "neutral" | "warn", string> = {
-  highlight: "#1f5f4e", // brand deep green — routine/positive rows
-  neutral: "#64748b", // slate — default
-  warn: "#f59e0b", // amber — risk lens
-};
-
-function BarRow({
-  leading,
-  label,
-  percent,
-  tone = "neutral",
-}: {
-  leading?: React.ReactNode;
-  label: string;
-  percent: number;
-  tone?: "highlight" | "neutral" | "warn";
-}) {
-  return (
-    <ShareBarListItem
-      value={percent}
-      title={label}
-      style={{ "--share-bar-color": BAR_TONE[tone] } as React.CSSProperties}
-    >
-      <ShareBarListContent>
-        <span className="flex min-w-0 items-center gap-2">
-          {leading}
-          <ShareBarListLabel className="truncate text-gray-700 dark:text-gray-200">
-            {label}
-          </ShareBarListLabel>
-        </span>
-        <ShareBarListValue className="shrink-0 text-gray-900 dark:text-white">
-          {percent}%
-        </ShareBarListValue>
-      </ShareBarListContent>
-      <ShareBarListFill />
-    </ShareBarListItem>
-  );
-}
-
-// ---------- Voice chip ----------
-
-function VoiceChip({
-  label,
-  count,
-  tone = "neutral",
-}: {
-  label: string;
-  count: number;
-  tone?: "neutral" | "green";
-}) {
-  const toneCls =
-    tone === "green"
-      ? "border-emerald-300 bg-emerald-50 text-emerald-800 dark:border-emerald-500/40 dark:bg-emerald-500/10 dark:text-emerald-200"
-      : "border-dashboard-border bg-gray-50 text-gray-700 dark:bg-card-2 dark:text-gray-300";
-  const countCls =
-    tone === "green"
-      ? "bg-white/70 text-emerald-700 dark:bg-emerald-500/20 dark:text-emerald-200"
-      : "bg-white text-gray-600 dark:bg-card-1 dark:text-gray-300";
-  return (
-    <span
-      className={`inline-flex items-center gap-2 rounded-full border px-3 py-1.5 text-sm ${toneCls}`}
-    >
-      {label}
-      <span
-        className={`min-w-5 rounded-full px-1.5 text-center text-xs font-semibold tabular-nums ${countCls}`}
-      >
-        {count}
-      </span>
-    </span>
-  );
-}
-
-// ---------- Radar ----------
-
-function PillarRadar({
-  labels,
-  values,
-}: {
-  labels: string[];
-  values: number[];
-}) {
-  const { resolvedTheme } = useTheme();
-  const isDark = resolvedTheme === "dark";
-
-  const { data, options } = useMemo(() => {
-    const gridColor = isDark
-      ? "rgba(148, 163, 184, 0.18)"
-      : "rgba(148, 163, 184, 0.28)";
-    const angleColor = isDark
-      ? "rgba(148, 163, 184, 0.16)"
-      : "rgba(148, 163, 184, 0.22)";
-    const labelColor = isDark
-      ? "rgba(226, 232, 240, 0.85)"
-      : "rgba(71, 85, 105, 0.95)";
-    const valueColor = isDark
-      ? "rgba(148, 163, 184, 0.75)"
-      : "rgba(100, 116, 139, 0.9)";
-
-    return {
-      data: {
-        labels,
-        datasets: [
-          {
-            label: "Kesiapan",
-            data: values,
-            backgroundColor: "rgba(15, 122, 82, 0.14)",
-            borderColor: "rgba(17, 24, 39, 0.85)",
-            borderWidth: 2,
-            pointBackgroundColor: "rgba(17, 24, 39, 1)",
-            pointBorderColor: isDark ? "#0F172A" : "#FFFFFF",
-            pointBorderWidth: 2,
-            pointRadius: 3.5,
-            pointHoverRadius: 5,
-          },
-        ],
-      },
-      options: {
-        responsive: true,
-        maintainAspectRatio: false,
-        plugins: {
-          legend: { display: false },
-          tooltip: {
-            callbacks: {
-              label: (ctx: { parsed: { r: number } }) =>
-                ` ${formatScore(ctx.parsed.r)} / 5`,
-            },
-          },
-        },
-        scales: {
-          r: {
-            min: 0,
-            max: 5,
-            angleLines: { color: angleColor, lineWidth: 1 },
-            grid: { color: gridColor, lineWidth: 1 },
-            ticks: {
-              display: true,
-              stepSize: 1,
-              color: valueColor,
-              backdropColor: "transparent",
-              font: { size: 10 },
-            },
-            pointLabels: {
-              color: labelColor,
-              font: { size: 12, weight: 500 as const },
-              callback: (label: string, index: number) => [
-                label,
-                formatScore(values[index] ?? 0),
-              ],
-            },
-          },
-        },
-      } as const,
-    };
-  }, [labels, values, isDark]);
-
-  return (
-    <div className="h-[300px] w-full">
-      <Radar data={data} options={options} />
-    </div>
-  );
-}
-
-// ---------- States ----------
-
-function Skeleton({ className }: { className?: string }) {
-  return (
-    <div
-      className={`animate-pulse rounded-md bg-gray-100 dark:bg-dashboard-border ${className ?? ""}`}
-    />
-  );
-}
-
-function SkeletonRows() {
-  return (
-    <div className="flex flex-col gap-0.5">
-      {Array.from({ length: 5 }).map((_, i) => (
-        <Skeleton key={i} className="h-12 w-full" />
-      ))}
-    </div>
-  );
-}
-
-function EmptyHint() {
-  return (
-    <div className="flex h-24 items-center justify-center text-sm text-gray-400 dark:text-gray-500">
-      Belum ada data responden.
-    </div>
   );
 }

@@ -3,81 +3,35 @@ import { AILENE_ORG_NAME, AILENE_PROGRAM_NAME } from "@/lib/ailene-config";
 import {
   usePdfReport,
   type ReportProps,
-} from "@/components/reports/AileneReportPDF";
+} from "@/components/pdf/AileneReportPDF";
 import ButtonAILN from "@/components/buttons/ButtonAILN";
-import ScorecardStripAILN from "@/components/cards/ScorecardStripAILN";
+import ScorecardAILN from "@/components/cards/ScorecardAILN";
 import SectionContainerAILN from "@/components/cards/SectionContainerAILN";
+import {
+  TARGET_LEVEL,
+  targetLevelName,
+} from "@/components/charts/outcome-target";
+import ProcessAreaAILN from "@/components/charts/ProcessAreaAILN";
+import ResultDonutAILN from "@/components/charts/ResultDonutAILN";
+import TopPerformersTableAILN from "@/components/indexes/TopPerformersTableAILN";
+import GeneralLabelAILN from "@/components/labels/GeneralLabelAILN";
+import KpiCaptionAILN from "@/components/labels/KpiCaptionAILN";
 import PageContainerAILN from "@/components/pages/PageContainerAILN";
 import {
-  ChartContainer,
-  ChartTooltip,
-  ChartTooltipContent,
-  type ChartConfig,
-} from "@/components/ui/chart";
+  EmptyHintAILN,
+  SkeletonBlockAILN,
+} from "@/components/states/DataStatesAILN";
+import PageHeaderAILN from "@/components/titles/PageHeaderAILN";
+import {
+  formatCompactIdr,
+  formatDecimal,
+  formatInt,
+  formatScore,
+} from "@/lib/ailene-format";
 import { setSessionToken, trpc } from "@/trpc/client";
 import dayjs from "dayjs";
 import { BadgeCheck, Clock, Coins, Download, Gauge } from "lucide-react";
 import { useEffect } from "react";
-import {
-  Area,
-  AreaChart,
-  CartesianGrid,
-  Cell,
-  Pie,
-  PieChart,
-  XAxis,
-  YAxis,
-} from "recharts";
-
-// Level the program wants employees to reach (≥). Adjust to the real goal.
-const TARGET_LEVEL = 2;
-const OUTCOME_GREEN = "#1f5f4e";
-const OUTCOME_GRAY = "#e2e8f0";
-// Deterministic sample shape for the "process" line (rising), 30 points 0..1.
-// Used only for the illustrative trend until a real time-series endpoint exists.
-const PROCESS_CURVE = [
-  0.16, 0.2, 0.18, 0.24, 0.27, 0.25, 0.31, 0.34, 0.32, 0.37, 0.41, 0.39, 0.44,
-  0.48, 0.46, 0.51, 0.55, 0.53, 0.58, 0.62, 0.6, 0.66, 0.7, 0.68, 0.74, 0.79,
-  0.82, 0.87, 0.93, 1,
-];
-const processConfig = {
-  value: { label: "% capai target", color: OUTCOME_GREEN },
-} satisfies ChartConfig;
-const donutConfig = {
-  reached: { label: "Sudah", color: OUTCOME_GREEN },
-  below: { label: "Belum", color: OUTCOME_GRAY },
-} satisfies ChartConfig;
-
-const formatInt = (n: number) => n.toLocaleString("id-ID");
-const formatScore = (n: number) =>
-  n.toLocaleString("id-ID", {
-    minimumFractionDigits: 1,
-    maximumFractionDigits: 1,
-  });
-const formatHours = (n: number) =>
-  n.toLocaleString("id-ID", { maximumFractionDigits: 1 });
-
-function formatCompactIdr(value: number): { value: string; unit: string } {
-  if (value >= 1_000_000_000) {
-    return {
-      value: (value / 1_000_000_000).toLocaleString("id-ID", {
-        maximumFractionDigits: 2,
-      }),
-      unit: "M",
-    };
-  }
-  if (value >= 1_000_000) {
-    return {
-      value: (value / 1_000_000).toLocaleString("id-ID", {
-        maximumFractionDigits: 1,
-      }),
-      unit: "jt",
-    };
-  }
-  return { value: value.toLocaleString("id-ID"), unit: "" };
-}
-
-// ---------- Page ----------
 
 export default function DashboardOutcomeAILN({
   sessionToken,
@@ -105,14 +59,14 @@ export default function DashboardOutcomeAILN({
         items: [
           {
             label: "Jam Dihemat Kumulatif",
-            value: formatHours(overview.hours_saved_total),
+            value: formatDecimal(overview.hours_saved_total),
             unit: "jam",
             footer: `≈ ${formatScore(overview.fte_equivalent)} FTE setahun`,
           },
           {
             label: "ROI Estimasi",
             value: `Rp ${roi.value}`,
-            unit: roi.unit,
+            unit: roi.suffix,
             footer: `basis Rp${formatInt(overview.roi_rate_per_hour)}/jam`,
           },
           {
@@ -209,63 +163,52 @@ export default function DashboardOutcomeAILN({
   return (
     <PageContainerAILN>
       <div className="flex w-full flex-col gap-6">
-        {/* Header */}
-        <div className="flex flex-wrap items-start justify-between gap-4">
-          <div className="min-w-0">
-            <div className="text-[11px] font-semibold tracking-widest text-muted-foreground">
-              SPONSOR · LAPORAN AKHIR PROGRAM
-            </div>
-            <h1 className="mt-1 text-3xl font-bold leading-tight text-foreground">
-              Outcome Report
-            </h1>
-            <p className="mt-1 text-sm text-muted-foreground">
-              {AILENE_PROGRAM_NAME} ·{" "}
-              {overview
-                ? `${formatInt(overview.member_count)} karyawan · ${overview.department_count} departemen`
-                : "— karyawan · — departemen"}
-            </p>
-          </div>
-
-          <div className="flex flex-wrap items-center gap-2">
-            <ButtonAILN
-              variant="light"
-              size="medium"
-              onClick={() => pdf.generate(buildReport(), "outcome-report.pdf")}
-              disabled={pdf.exporting || !overview}
-            >
-              <Download className="size-4" />
-              {pdf.exporting ? "Menyiapkan…" : "Export PDF"}
-            </ButtonAILN>
-          </div>
-        </div>
+        <PageHeaderAILN
+          title="Outcome Report"
+          desc={`${AILENE_PROGRAM_NAME} · ${
+            overview
+              ? `${formatInt(overview.member_count)} karyawan · ${overview.department_count} departemen`
+              : "— karyawan · — departemen"
+          }`}
+        >
+          <ButtonAILN
+            variant="light"
+            size="medium"
+            onClick={() => pdf.generate(buildReport(), "outcome-report.pdf")}
+            disabled={pdf.exporting || !overview}
+          >
+            <Download className="size-4" />
+            {pdf.exporting ? "Menyiapkan…" : "Export PDF"}
+          </ButtonAILN>
+        </PageHeaderAILN>
 
         {/* KPI cards — statistics-02 style with icons (same as executive view) */}
-        <ScorecardStripAILN
-          items={[
+        <div className="grid grid-cols-1 gap-4 md:grid-cols-2 xl:grid-cols-4">
+          {[
             {
               title: "Jam Dihemat Kumulatif",
               icon: Clock,
-              value: overview ? formatHours(overview.hours_saved_total) : "—",
+              value: overview ? formatDecimal(overview.hours_saved_total) : "—",
               unit: "jam",
               footer: (
-                <KpiCaption>
+                <KpiCaptionAILN>
                   {overview
                     ? `≈ ${formatScore(overview.fte_equivalent)} FTE setahun`
                     : "—"}
-                </KpiCaption>
+                </KpiCaptionAILN>
               ),
             },
             {
               title: "ROI Estimasi",
               icon: Coins,
               value: overview ? `Rp ${roi.value}` : "—",
-              unit: roi.unit,
+              unit: roi.suffix,
               footer: (
-                <KpiCaption>
+                <KpiCaptionAILN>
                   {overview
                     ? `basis Rp${formatInt(overview.roi_rate_per_hour)}/jam dihemat`
                     : "—"}
-                </KpiCaption>
+                </KpiCaptionAILN>
               ),
             },
             {
@@ -274,9 +217,9 @@ export default function DashboardOutcomeAILN({
               value: overview ? formatScore(overview.avg_level) : "—",
               unit: overview ? `/ ${overview.max_level_number}` : "/ —",
               footer: (
-                <KpiCaption>
+                <KpiCaptionAILN>
                   {overview ? `skala L0–L${overview.max_level_number}` : "—"}
-                </KpiCaption>
+                </KpiCaptionAILN>
               ),
             },
             {
@@ -285,15 +228,25 @@ export default function DashboardOutcomeAILN({
               value: overview ? formatInt(overview.certified_count) : "—",
               unit: overview ? `/ ${overview.member_count}` : "/ —",
               footer: (
-                <KpiCaption>
+                <KpiCaptionAILN>
                   {overview
                     ? `${overview.certified_percent}% selesai ≥ L1`
                     : "—"}
-                </KpiCaption>
+                </KpiCaptionAILN>
               ),
             },
-          ]}
-        />
+          ].map((kpi, i) => (
+            <ScorecardAILN
+              key={i}
+              title={kpi.title}
+              value={kpi.value}
+              unit={kpi.unit}
+              icon={kpi.icon}
+            >
+              {kpi.footer}
+            </ScorecardAILN>
+          ))}
+        </div>
 
         {/* Progres menuju level target — proses (kiri) + hasil akhir (kanan) */}
         <div className="grid grid-cols-1 gap-4 lg:grid-cols-[1.7fr_1fr]">
@@ -301,17 +254,15 @@ export default function DashboardOutcomeAILN({
             title={`Proses · % capai ≥ L${TARGET_LEVEL}`}
             desc={`Karyawan yang mencapai ${targetLevelName(levelQ.data)} dari waktu ke waktu`}
             headerRight={
-              <span className="shrink-0 rounded-full border border-dashboard-border bg-muted px-2.5 py-0.5 text-[11px] font-semibold text-muted-foreground dark:bg-card-2 dark:text-muted-foreground">
-                data contoh
-              </span>
+              <GeneralLabelAILN variant="white">data contoh</GeneralLabelAILN>
             }
           >
             {levelQ.isLoading || !levelQ.data ? (
-              <Skeleton className="h-56" />
+              <SkeletonBlockAILN className="h-56" />
             ) : levelQ.data.total === 0 ? (
-              <EmptyHint />
+              <EmptyHintAILN />
             ) : (
-              <ProcessArea distribution={levelQ.data.distribution} />
+              <ProcessAreaAILN distribution={levelQ.data.distribution} />
             )}
           </SectionContainerAILN>
 
@@ -320,11 +271,11 @@ export default function DashboardOutcomeAILN({
             desc="Sudah vs belum mencapai level target"
           >
             {levelQ.isLoading || !levelQ.data ? (
-              <Skeleton className="h-56" />
+              <SkeletonBlockAILN className="h-56" />
             ) : levelQ.data.total === 0 ? (
-              <EmptyHint />
+              <EmptyHintAILN />
             ) : (
-              <ResultDonut distribution={levelQ.data.distribution} />
+              <ResultDonutAILN distribution={levelQ.data.distribution} />
             )}
           </SectionContainerAILN>
         </div>
@@ -335,307 +286,21 @@ export default function DashboardOutcomeAILN({
           desc="Bintang individual seluruh organisasi · composite score"
           headerRight={
             performersQ.data ? (
-              <span className="shrink-0 rounded-full border border-dashboard-border bg-muted px-2.5 py-0.5 text-[11px] font-semibold text-muted-foreground dark:bg-card-2 dark:text-muted-foreground">
+              <GeneralLabelAILN variant="white">
                 {`${formatInt(performersQ.data.total)} karyawan`}
-              </span>
+              </GeneralLabelAILN>
             ) : undefined
           }
         >
           {performersQ.isLoading || !performersQ.data ? (
-            <Skeleton className="h-72" />
+            <SkeletonBlockAILN className="h-72" />
           ) : performersQ.data.total === 0 ? (
-            <EmptyHint />
+            <EmptyHintAILN />
           ) : (
-            <TopPerformersTable list={performersQ.data.list} />
+            <TopPerformersTableAILN list={performersQ.data.list} />
           )}
         </SectionContainerAILN>
       </div>
     </PageContainerAILN>
-  );
-}
-
-// ---------- KPI caption ----------
-
-// Footer caption inside ScorecardAILN's divided zone (matches executive view).
-function KpiCaption({ children }: { children: React.ReactNode }) {
-  return (
-    <span className="text-xs font-medium text-muted-foreground">
-      {children}
-    </span>
-  );
-}
-
-// ---------- Progres menuju level target ----------
-
-type LevelDist = {
-  level_number: number;
-  code: string;
-  name: string;
-  count: number;
-  percent: number;
-}[];
-
-function targetLevelName(data?: { distribution: LevelDist }) {
-  const name = data?.distribution.find(
-    (d) => d.level_number === TARGET_LEVEL
-  )?.name;
-  return name ? `≥ L${TARGET_LEVEL} ${name}` : `≥ L${TARGET_LEVEL}`;
-}
-
-function deriveTarget(distribution: LevelDist) {
-  const total = distribution.reduce((sum, d) => sum + d.count, 0) || 1;
-  const reached = distribution
-    .filter((d) => d.level_number >= TARGET_LEVEL)
-    .reduce((sum, d) => sum + d.count, 0);
-  const below = Math.max(total - reached, 0);
-  const currentPct = Math.round((reached / total) * 100);
-  return { total, reached, below, currentPct };
-}
-
-// Proses: tren % karyawan capai ≥ target dari waktu ke waktu (sample sampai
-// ada endpoint time-series asli; berakhir di angka capaian sekarang).
-function ProcessArea({ distribution }: { distribution: LevelDist }) {
-  const { currentPct } = deriveTarget(distribution);
-  const days = PROCESS_CURVE.length;
-  const processData = PROCESS_CURVE.map((f, i) => ({
-    date: dayjs()
-      .subtract(days - 1 - i, "day")
-      .format("D MMM"),
-    value: Math.round(f * currentPct),
-  }));
-
-  return (
-    <div className="flex flex-1 flex-col">
-      <ChartContainer
-        config={processConfig}
-        className="aspect-auto h-56 w-full flex-1"
-      >
-        <AreaChart
-          data={processData}
-          margin={{ top: 8, right: 12, left: 0, bottom: 0 }}
-        >
-          <defs>
-            <linearGradient id="proc-fill" x1="0" y1="0" x2="0" y2="1">
-              <stop offset="0%" stopColor={OUTCOME_GREEN} stopOpacity={0.25} />
-              <stop offset="100%" stopColor={OUTCOME_GREEN} stopOpacity={0} />
-            </linearGradient>
-          </defs>
-          <CartesianGrid vertical={false} strokeDasharray="3 3" />
-          <XAxis
-            dataKey="date"
-            tickLine={false}
-            axisLine={false}
-            tickMargin={8}
-            minTickGap={32}
-            fontSize={11}
-          />
-          <YAxis
-            width={40}
-            tickLine={false}
-            axisLine={false}
-            fontSize={11}
-            domain={[0, (max: number) => Math.max(Math.ceil(max * 1.3), 10)]}
-            tickFormatter={(v) => `${v}%`}
-          />
-          <ChartTooltip
-            cursor={{ stroke: "var(--color-dashboard-border)" }}
-            content={
-              <ChartTooltipContent
-                className="border border-dashboard-border bg-popover text-popover-foreground shadow-md"
-                labelFormatter={(label) => String(label)}
-                formatter={(value) => (
-                  <span className=" font-medium tabular-nums text-foreground">
-                    {Number(value)}% capai ≥ L{TARGET_LEVEL}
-                  </span>
-                )}
-              />
-            }
-          />
-          <Area
-            dataKey="value"
-            type="monotone"
-            stroke={OUTCOME_GREEN}
-            strokeWidth={2}
-            fill="url(#proc-fill)"
-          />
-        </AreaChart>
-      </ChartContainer>
-      <p className="mt-2 text-xs text-muted-foreground">
-        Sumbu Y = % capai ≥ L{TARGET_LEVEL} · 30 hari terakhir · tren ilustratif
-      </p>
-    </div>
-  );
-}
-
-// Hasil akhir: donut sudah vs belum capai target, % di tengah.
-function ResultDonut({ distribution }: { distribution: LevelDist }) {
-  const { reached, below, currentPct } = deriveTarget(distribution);
-  const donutData = [
-    {
-      key: "reached",
-      label: `≥ L${TARGET_LEVEL}`,
-      value: reached,
-      fill: OUTCOME_GREEN,
-    },
-    { key: "below", label: "Belum", value: below, fill: OUTCOME_GRAY },
-  ];
-
-  return (
-    <div className="flex flex-1 flex-col items-center justify-center gap-4">
-      <div className="relative">
-        <ChartContainer config={donutConfig} className="aspect-square h-40">
-          <PieChart>
-            <Pie
-              data={donutData}
-              dataKey="value"
-              nameKey="label"
-              innerRadius={50}
-              outerRadius={68}
-              paddingAngle={2}
-              cornerRadius={4}
-              strokeWidth={0}
-            >
-              {donutData.map((d) => (
-                <Cell key={d.key} fill={d.fill} />
-              ))}
-            </Pie>
-          </PieChart>
-        </ChartContainer>
-        <div className="pointer-events-none absolute inset-0 flex flex-col items-center justify-center">
-          <span className=" text-2xl font-bold leading-none text-foreground">
-            {currentPct}%
-          </span>
-          <span className="mt-0.5 text-[10px] text-muted-foreground">
-            ≥ L{TARGET_LEVEL}
-          </span>
-        </div>
-      </div>
-      <div className="flex w-44 flex-col gap-2 text-sm">
-        <LegendStat
-          color={OUTCOME_GREEN}
-          label={`Sudah ≥ L${TARGET_LEVEL}`}
-          value={reached}
-        />
-        <LegendStat color={OUTCOME_GRAY} label="Belum" value={below} />
-      </div>
-    </div>
-  );
-}
-
-function LegendStat({
-  color,
-  label,
-  value,
-}: {
-  color: string;
-  label: string;
-  value: number;
-}) {
-  return (
-    <div className="flex items-center gap-2">
-      <span
-        className="size-2.5 shrink-0 rounded-sm"
-        style={{ backgroundColor: color }}
-      />
-      <span className="text-muted-foreground dark:text-gray-200">{label}</span>
-      <span className="ml-auto  font-bold text-foreground">
-        {formatInt(value)}
-      </span>
-    </div>
-  );
-}
-
-// ---------- Top performers table ----------
-
-function TopPerformersTable({
-  list,
-}: {
-  list: {
-    rank: number;
-    member_id: number;
-    full_name: string;
-    department: string;
-    level_code: string;
-    composite: number;
-    use_case_count: number;
-    hours: number;
-  }[];
-}) {
-  return (
-    <div className="max-h-[640px] overflow-auto">
-      <table className="w-full text-sm">
-        <thead className="sticky top-0 z-10 bg-white dark:bg-card-1">
-          <tr className="border-b border-dashboard-border text-left text-[11px] uppercase tracking-wider text-muted-foreground">
-            <th className="pb-2 pr-3 font-semibold">#</th>
-            <th className="pb-2 pr-3 font-semibold">Karyawan</th>
-            <th className="pb-2 pr-3 font-semibold">Departemen</th>
-            <th className="pb-2 pr-3 font-semibold">Level</th>
-            <th className="pb-2 pr-3 font-semibold">Composite</th>
-            <th className="pb-2 pr-3 text-right font-semibold">Use case</th>
-            <th className="pb-2 text-right font-semibold">Jam</th>
-          </tr>
-        </thead>
-        <tbody>
-          {list.map((p) => (
-            <tr
-              key={p.member_id}
-              className="border-b border-dashboard-border/60 last:border-0"
-            >
-              <td className="py-2.5 pr-3 tabular-nums text-muted-foreground">
-                {p.rank}
-              </td>
-              <td className="py-2.5 pr-3 font-medium text-foreground">
-                {p.full_name}
-              </td>
-              <td className="py-2.5 pr-3 text-muted-foreground">
-                {p.department}
-              </td>
-              <td className="py-2.5 pr-3">
-                <span className="inline-flex items-center rounded-full border border-dashboard-border bg-muted px-2 py-0.5 text-[11px] font-semibold text-muted-foreground dark:bg-card-2 ">
-                  {p.level_code}
-                </span>
-              </td>
-              <td className="py-2.5 pr-3">
-                <div className="flex items-center gap-2">
-                  <div className="h-1.5 w-24 overflow-hidden rounded-full bg-muted">
-                    <div
-                      className="h-full rounded-full bg-emerald-600 dark:bg-emerald-500"
-                      style={{
-                        width: `${Math.min(100, Math.max(0, p.composite))}%`,
-                      }}
-                    />
-                  </div>
-                  <span className="w-7 text-right tabular-nums font-semibold text-foreground">
-                    {p.composite}
-                  </span>
-                </div>
-              </td>
-              <td className="py-2.5 pr-3 text-right tabular-nums text-muted-foreground">
-                {p.use_case_count}
-              </td>
-              <td className="py-2.5 text-right tabular-nums text-muted-foreground">
-                {formatHours(p.hours)}j
-              </td>
-            </tr>
-          ))}
-        </tbody>
-      </table>
-    </div>
-  );
-}
-
-// ---------- States ----------
-
-function Skeleton({ className }: { className?: string }) {
-  return (
-    <div className={`animate-pulse rounded-md bg-muted ${className ?? ""}`} />
-  );
-}
-
-function EmptyHint() {
-  return (
-    <div className="flex h-32 items-center justify-center text-sm text-muted-foreground">
-      Belum ada data.
-    </div>
   );
 }

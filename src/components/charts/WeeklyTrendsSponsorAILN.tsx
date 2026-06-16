@@ -16,8 +16,12 @@ import {
   XAxis,
   YAxis,
 } from "recharts";
-import { BAR_DEEP, BAR_SOFT, LINE_ADOPTION } from "./sponsor-palette";
 import { SAMPLE_TREND } from "./sample-trend-data";
+
+// Bars: soft (context) vs deep (highlighted/latest). Line: emerald adoption %.
+const BAR_SOFT = "var(--chart-1)";
+const BAR_DEEP = "var(--chart-3)";
+const LINE_ADOPTION = "#10b981";
 
 const chartConfig = {
   hours_saved: { label: "Jam dihemat", color: BAR_DEEP },

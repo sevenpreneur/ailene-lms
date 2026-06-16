@@ -1064,6 +1064,87 @@ export const readRouter = createTRPCRouter({
     };
   }),
 
+  // Headline KPI for the sponsor dashboard hero: % productive staff (≥ L1),
+  // hours saved in the trailing week, annualized ROI run-rate, and a 12-week
+  // hours-saved series for the sparkline. All from real submission data.
+  headline: sponsorProcedure.query(async (opts) => {
+    const now = dayjs();
+    const roiValuePerHour = 250000; // kept in sync with executiveView
+    const lastWeekThreshold = now.subtract(7, "day");
+    const trendWeeks = 12;
+
+    const [members, submissions] = await Promise.all([
+      opts.ctx.prisma.ailMember.findMany({
+        select: { id: true, current_level: { select: { level_number: true } } },
+      }),
+      opts.ctx.prisma.ailUseCaseSubmission.findMany({
+        where: { submitted_at: { not: null } },
+        select: {
+          hours_saved: true,
+          hours_without_ai: true,
+          submitted_at: true,
+        },
+      }),
+    ]);
+
+    const memberCount = members.length;
+    // "Produktif" = sudah mencapai Level 1+.
+    const productiveCount = members.filter(
+      (m) => (m.current_level?.level_number ?? 0) >= 1
+    ).length;
+    const productivePercent =
+      memberCount === 0
+        ? 0
+        : Math.round((productiveCount / memberCount) * 100);
+
+    // Weekly buckets (oldest → newest) for the sparkline.
+    const buckets = Array.from({ length: trendWeeks }, (_, i) => {
+      const start = now.startOf("week").subtract(trendWeeks - 1 - i, "week");
+      return {
+        start,
+        end: start.add(1, "week"),
+        label: start.format("D MMM"),
+        hours: 0,
+      };
+    });
+
+    let hoursSavedLastWeek = 0;
+    for (const row of submissions) {
+      if (
+        row.hours_saved === null ||
+        row.hours_without_ai === null ||
+        !row.submitted_at
+      )
+        continue;
+      const saved = Number(row.hours_without_ai) - Number(row.hours_saved);
+      if (saved <= 0) continue;
+      const at = dayjs(row.submitted_at);
+      if (at.isAfter(lastWeekThreshold)) hoursSavedLastWeek += saved;
+      for (const b of buckets) {
+        if (!at.isBefore(b.start) && at.isBefore(b.end)) {
+          b.hours += saved;
+          break;
+        }
+      }
+    }
+
+    const roiAnnualized = Math.round(hoursSavedLastWeek * 52 * roiValuePerHour);
+
+    return {
+      code: STATUS_OK,
+      message: "Success",
+      productive_percent: productivePercent,
+      productive_count: productiveCount,
+      member_count: memberCount,
+      hours_saved_last_week: Math.round(hoursSavedLastWeek * 10) / 10,
+      roi_annualized: roiAnnualized,
+      trend: buckets.map((b) => ({
+        label: b.label,
+        hours: Math.round(b.hours * 10) / 10,
+      })),
+    };
+  }),
+
   // Program-health metrics for the sponsor dashboard, all derived from real
   // data (no targets/deltas — we have no historical baseline yet). Each metric
   // is a percentage plus a human-readable "X dari Y" detail.
