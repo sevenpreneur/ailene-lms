@@ -161,8 +161,8 @@ const VARIANT_CONFIG: Record<SidebarAILNVariant, VariantConfig> = {
         icon: ClipboardCheck,
       },
       {
-        name: "Distribusi Level",
-        url: "/sponsor/level-distribution",
+        name: "Workforce",
+        url: "/sponsor/workforce",
         icon: BarChart3,
       },
       { name: "Outcome", url: "/sponsor/outcome", icon: Target },

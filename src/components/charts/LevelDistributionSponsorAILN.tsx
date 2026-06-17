@@ -39,7 +39,7 @@ const SEGMENTS = [
   },
 ] as const;
 
-const DETAIL_HREF = "/sponsor/level-distribution";
+const DETAIL_HREF = "/sponsor/workforce";
 
 export default function LevelDistributionSponsorAILN() {
   const q = trpc.read.levelDistribution.useQuery();

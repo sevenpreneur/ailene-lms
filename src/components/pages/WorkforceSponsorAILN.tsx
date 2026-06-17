@@ -1,9 +1,9 @@
 "use client";
 import ButtonAILN from "@/components/buttons/ButtonAILN";
 import SectionContainerAILN from "@/components/cards/SectionContainerAILN";
-import DepartmentDistributionRowAILN from "@/components/items/DepartmentDistributionRowAILN";
+import LevelCompositionAILN from "@/components/charts/LevelCompositionAILN";
+import WorkforceLevelByDeptAILN from "@/components/charts/WorkforceLevelByDeptAILN";
 import LegendStatAILN from "@/components/items/LegendStatAILN";
-import LevelLegendAILN from "@/components/items/LevelLegendAILN";
 import PageContainerAILN from "@/components/pages/PageContainerAILN";
 import AppErrorComponents from "@/components/states/AppErrorComponents";
 import { EmptyStateAILN } from "@/components/states/DataStatesAILN";
@@ -24,7 +24,7 @@ import { setSessionToken, trpc } from "@/trpc/client";
 import dayjs from "dayjs";
 import { Download } from "lucide-react";
 import Link from "next/link";
-import { useEffect, useState } from "react";
+import { useEffect } from "react";
 import { Cell, Pie, PieChart } from "recharts";
 
 const BRAND_GREEN = "#1f5f4e"; // active / participating
@@ -36,7 +36,7 @@ const participationConfig = {
   inactive: { label: "Belum aktif", color: SLATE_200 },
 } satisfies ChartConfig;
 
-export default function LevelDistributionSponsorAILN({
+export default function WorkforceSponsorAILN({
   sessionToken,
 }: {
   sessionToken: string;
@@ -46,10 +46,6 @@ export default function LevelDistributionSponsorAILN({
   }, [sessionToken]);
 
   const pdf = usePdfReport();
-  // Client-side filters (snapshot data already arrives whole — no backend roundtrip).
-  const [selectedDept, setSelectedDept] = useState<string>("all");
-  const [highlightUnderperform, setHighlightUnderperform] = useState(false);
-
   const q = trpc.read.levelDistribution.useQuery();
 
   if (q.isLoading) {
@@ -72,21 +68,16 @@ export default function LevelDistributionSponsorAILN({
   const inactive = Math.max(data.total - data.active_weekly, 0);
   const levelNameByCode = new Map(data.levels.map((l) => [l.code, l.name]));
   const participation = [
-    { key: "active", label: "Aktif", value: data.active_weekly, fill: BRAND_GREEN },
+    {
+      key: "active",
+      label: "Aktif",
+      value: data.active_weekly,
+      fill: BRAND_GREEN,
+    },
     { key: "inactive", label: "Belum aktif", value: inactive, fill: SLATE_200 },
   ];
 
-  // Departments flagged as needing intervention (server-computed) — reused to
-  // drive the "Highlight underperform" toggle so the criteria stay consistent.
-  const underperformIds = new Set(
-    data.groups_needing_intervention.map((group) => group.id)
-  );
-  const visibleGroups =
-    selectedDept === "all"
-      ? data.groups
-      : data.groups.filter((group) => String(group.id) === selectedDept);
-
-  // Report always exports the full org snapshot (not the on-screen filter).
+  // Report exports the full org snapshot.
   const buildReport = (): ReportProps => ({
     org: AILENE_ORG_NAME || undefined,
     program: AILENE_PROGRAM_NAME,
@@ -172,80 +163,16 @@ export default function LevelDistributionSponsorAILN({
           </ButtonAILN>
         </PageHeaderAILN>
 
-        <div className="flex flex-wrap items-center justify-between gap-3 rounded-lg border border-dashboard-border bg-white px-4 py-3 shadow-sm dark:bg-card-1">
-          <div className="flex flex-wrap items-center gap-2">
-            <label className="flex items-center gap-1.5 rounded-md border border-dashboard-border bg-white px-3 py-2 text-xs font-semibold text-muted-foreground dark:bg-card-2 dark:text-gray-200">
-              Departemen:
-              <select
-                value={selectedDept}
-                onChange={(e) => setSelectedDept(e.target.value)}
-                className="cursor-pointer bg-transparent font-medium text-muted-foreground outline-none dark:text-gray-200"
-              >
-                <option value="all">Semua</option>
-                {data.groups.map((group) => (
-                  <option key={group.id} value={String(group.id)}>
-                    {group.name}
-                  </option>
-                ))}
-              </select>
-            </label>
-            <label className="flex cursor-pointer items-center gap-2 rounded-md border border-dashboard-border bg-white px-3 py-2 text-xs font-medium text-muted-foreground dark:bg-card-2 ">
-              <input
-                type="checkbox"
-                checked={highlightUnderperform}
-                onChange={(e) => setHighlightUnderperform(e.target.checked)}
-                className="size-3.5 rounded border-gray-300 accent-[#1F2937]"
-              />
-              Highlight underperform
-            </label>
-            {(selectedDept !== "all" || highlightUnderperform) && (
-              <button
-                onClick={() => {
-                  setSelectedDept("all");
-                  setHighlightUnderperform(false);
-                }}
-                className="text-xs font-medium text-muted-foreground underline-offset-2 hover:underline dark:text-muted-foreground"
-              >
-                Reset
-              </button>
-            )}
-          </div>
-          <div className="text-xs text-muted-foreground">
-            Sumber: log enrolment + activity per minggu
-          </div>
+        {/* Distribusi per departemen (kiri, lebih lebar) + Komposisi Level (kanan) */}
+        <div className="grid grid-cols-1 gap-4 lg:grid-cols-[minmax(0,1.7fr)_minmax(0,1fr)]">
+          <WorkforceLevelByDeptAILN
+            groups={data.groups}
+            levels={data.levels}
+            levelNameByCode={levelNameByCode}
+            totalMembers={data.total}
+          />
+          <LevelCompositionAILN levels={data.levels} total={data.total} />
         </div>
-
-        <SectionContainerAILN
-          title="Level distribution x departemen"
-          desc={`${
-            selectedDept === "all"
-              ? `${data.groups.length} departemen · sort by total karyawan`
-              : `Difilter · 1 dari ${data.groups.length} departemen`
-          }${
-            highlightUnderperform
-              ? ` · ${underperformIds.size} ditandai underperform`
-              : ""
-          }`}
-          headerRight={<LevelLegendAILN levels={data.levels} />}
-          contentClassName="flex flex-col gap-3"
-        >
-          {visibleGroups.length === 0 ? (
-            <EmptyStateAILN>
-              Tidak ada departemen yang cocok dengan filter.
-            </EmptyStateAILN>
-          ) : (
-            visibleGroups.map((group) => (
-              <DepartmentDistributionRowAILN
-                key={group.id}
-                group={group}
-                levelNameByCode={levelNameByCode}
-                isUnderperform={underperformIds.has(group.id)}
-                dimmed={highlightUnderperform && !underperformIds.has(group.id)}
-                showFlag={highlightUnderperform}
-              />
-            ))
-          )}
-        </SectionContainerAILN>
 
         <div className="grid grid-cols-1 gap-4 lg:grid-cols-[minmax(0,1fr)_minmax(0,1fr)]">
           <SectionContainerAILN title="Tingkat Partisipasi">
