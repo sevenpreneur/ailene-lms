@@ -7,6 +7,7 @@ import {
   ChartTooltipContent,
   type ChartConfig,
 } from "@/components/ui/chart";
+import { levelColorByNumber } from "@/lib/ailene-level-colors";
 import {
   Bar,
   CartesianGrid,
@@ -18,10 +19,10 @@ import {
 } from "recharts";
 import { SAMPLE_PROFICIENCY } from "./sample-proficiency-data";
 
-// Bars: soft (context) vs deep (highlighted/latest). Line: emerald adoption %.
-const BAR_SOFT = "var(--chart-1)";
-const BAR_DEEP = "var(--chart-3)";
-const LINE_ADOPTION = "#10b981";
+// Bars: soft (context) vs deep (highlighted/latest). Line: mature-level green.
+const BAR_SOFT = "color-mix(in srgb, var(--ailn-level-2) 28%, white)";
+const BAR_DEEP = levelColorByNumber(2);
+const LINE_ADOPTION = levelColorByNumber(3);
 
 // Avg level is the hero series (emerald line); % Level 1+ is the supporting
 // bar series. Two y-axes so the 0..4 level scale and 0..100 % scale coexist.

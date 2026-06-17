@@ -4,12 +4,11 @@ import {
   TooltipProvider,
   TooltipTrigger,
 } from "@/components/ui/tooltip";
+import {
+  levelColorByCode,
+  levelTextColorByCode,
+} from "@/lib/ailene-level-colors";
 import Link from "next/link";
-
-// Level maturity color by index → CSS var defined in globals.css (--ailn-level-N).
-function levelColor(index: number) {
-  return `var(--ailn-level-${Math.min(Math.max(index, 0), 4) + 1})`;
-}
 
 /**
  * One department row in the org level-distribution list: a 100%-stacked level
@@ -63,7 +62,7 @@ export default function DepartmentDistributionRowAILN({
       {/* 100% stacked bar — each segment's width = that level's share of the dept */}
       <TooltipProvider delayDuration={80}>
         <div className="flex h-7 w-full overflow-hidden rounded-sm bg-muted">
-          {group.levels.map((level, index) => {
+          {group.levels.map((level) => {
             const pct = group.total > 0 ? (level.count / group.total) * 100 : 0;
             if (pct <= 0) return null;
             const name = levelNameByCode.get(level.code);
@@ -74,8 +73,8 @@ export default function DepartmentDistributionRowAILN({
                     className="flex cursor-pointer items-center justify-center px-1 text-[11px] font-bold transition-opacity hover:opacity-90"
                     style={{
                       width: `${pct}%`,
-                      backgroundColor: levelColor(index),
-                      color: index <= 1 ? "#1f2937" : "#ffffff",
+                      backgroundColor: levelColorByCode(level.code),
+                      color: levelTextColorByCode(level.code),
                     }}
                   >
                     {pct >= 12 && (

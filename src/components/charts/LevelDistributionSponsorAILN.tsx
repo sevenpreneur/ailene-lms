@@ -1,6 +1,7 @@
 "use client";
 import SectionContainerAILN from "@/components/cards/SectionContainerAILN";
 import { SkeletonBlockAILN } from "@/components/states/DataStatesAILN";
+import { levelColorByNumber } from "@/lib/ailene-level-colors";
 import { formatInt } from "@/lib/ailene-format";
 import { trpc } from "@/trpc/client";
 import { ArrowRight } from "lucide-react";
@@ -12,7 +13,8 @@ const SEGMENTS = [
     label: "Promotor",
     // Level 3+
     test: (level: number) => level >= 3,
-    bar: "bg-emerald-500",
+    color: levelColorByNumber(3),
+    textColor: "#ffffff",
     card: "border-emerald-200 bg-emerald-50 dark:border-emerald-500/30 dark:bg-emerald-500/10",
     labelText: "text-emerald-700 dark:text-emerald-300",
     desc: "Level 3+ · calon next-gen Champion · scale lever",
@@ -22,9 +24,10 @@ const SEGMENTS = [
     label: "Netral",
     // Level 2
     test: (level: number) => level === 2,
-    bar: "bg-indigo-500",
-    card: "border-indigo-200 bg-indigo-50 dark:border-indigo-500/30 dark:bg-indigo-500/10",
-    labelText: "text-indigo-700 dark:text-indigo-300",
+    color: levelColorByNumber(2),
+    textColor: "#ffffff",
+    card: "border-blue-200 bg-blue-50 dark:border-blue-500/30 dark:bg-blue-500/10",
+    labelText: "text-blue-700 dark:text-blue-300",
     desc: "Level 2 · proficient applied · main bulk",
   },
   {
@@ -32,7 +35,8 @@ const SEGMENTS = [
     label: "Resistor",
     // Tertahan di Level 0–1
     test: (level: number) => level <= 1,
-    bar: "bg-amber-500",
+    color: levelColorByNumber(1),
+    textColor: "#1f2937",
     card: "border-amber-200 bg-amber-50 dark:border-amber-500/30 dark:bg-amber-500/10",
     labelText: "text-amber-700 dark:text-amber-300",
     desc: "Tertahan di Level 0–1 · perlu intervensi",
@@ -91,8 +95,12 @@ export default function LevelDistributionSponsorAILN() {
               return (
                 <div
                   key={seg.key}
-                  className={`flex flex-col items-center justify-center px-1 text-white ${seg.bar}`}
-                  style={{ width: `${width}%` }}
+                  className="flex flex-col items-center justify-center px-1"
+                  style={{
+                    width: `${width}%`,
+                    backgroundColor: seg.color,
+                    color: seg.textColor,
+                  }}
                   title={`${seg.label}: ${formatInt(seg.count)} karyawan (${seg.percent}%)`}
                 >
                   {width >= 6 && (

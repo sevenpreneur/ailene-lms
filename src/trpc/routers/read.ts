@@ -1626,6 +1626,219 @@ export const readRouter = createTRPCRouter({
     };
   }),
 
+  workforceMembers: sponsorProcedure.query(async (opts) => {
+    const now = dayjs();
+    const weekAgo = now.subtract(7, "day").toDate();
+
+    const [
+      members,
+      totalMaterials,
+      totalVideos,
+      totalQuizzes,
+      matDone,
+      vidDone,
+      quizDoneRows,
+      submittedUseCases,
+    ] = await Promise.all([
+      opts.ctx.prisma.ailMember.findMany({
+        where: { role: { not: "SPONSOR" } },
+        orderBy: { id: "asc" },
+        select: {
+          id: true,
+          role: true,
+          job_title: true,
+          level_history: true,
+          last_active_at: true,
+          user: {
+            select: {
+              id: true,
+              full_name: true,
+              email: true,
+              avatar: true,
+            },
+          },
+          group: {
+            select: {
+              id: true,
+              name: true,
+            },
+          },
+          current_level: {
+            select: {
+              id: true,
+              level_number: true,
+              name: true,
+              icon: true,
+            },
+          },
+        },
+      }),
+      opts.ctx.prisma.ailMaterial.count(),
+      opts.ctx.prisma.ailVideo.count(),
+      opts.ctx.prisma.ailQuiz.count(),
+      opts.ctx.prisma.ailMaterialCompletion.groupBy({
+        by: ["member_id"],
+        _count: { _all: true },
+      }),
+      opts.ctx.prisma.ailVideoCompletion.groupBy({
+        by: ["member_id"],
+        _count: { _all: true },
+      }),
+      opts.ctx.prisma.ailQuizSubmission.findMany({
+        where: { is_completed: true },
+        select: { member_id: true, quiz_id: true },
+        distinct: ["member_id", "quiz_id"],
+      }),
+      opts.ctx.prisma.ailUseCaseSubmission.findMany({
+        where: { submitted_at: { not: null } },
+        select: {
+          member_id: true,
+          submitted_at: true,
+          hours_saved: true,
+          hours_without_ai: true,
+        },
+      }),
+    ]);
+
+    const totalTasks = totalMaterials + totalVideos + totalQuizzes;
+    const matByMember = new Map(
+      matDone.map((row) => [row.member_id, row._count._all])
+    );
+    const vidByMember = new Map(
+      vidDone.map((row) => [row.member_id, row._count._all])
+    );
+    const quizByMember = new Map<number, number>();
+    for (const row of quizDoneRows) {
+      quizByMember.set(
+        row.member_id,
+        (quizByMember.get(row.member_id) ?? 0) + 1
+      );
+    }
+
+    const hoursWeeklyByMember = new Map<number, number>();
+    for (const row of submittedUseCases) {
+      if (!row.submitted_at || row.submitted_at < weekAgo) continue;
+      if (row.hours_saved === null || row.hours_without_ai === null) continue;
+      const saved = Number(row.hours_without_ai) - Number(row.hours_saved);
+      if (saved <= 0) continue;
+      hoursWeeklyByMember.set(
+        row.member_id,
+        (hoursWeeklyByMember.get(row.member_id) ?? 0) + saved
+      );
+    }
+    const relativeLabel = (date: string): string => {
+      const minutes = Math.max(0, now.diff(dayjs(date), "minute"));
+      if (minutes < 1) return "baru saja";
+      if (minutes < 60) return `${minutes} menit lalu`;
+      const hours = Math.floor(minutes / 60);
+      if (hours < 24) return `${hours} jam lalu`;
+      return `${Math.floor(hours / 24)} hari lalu`;
+    };
+
+    const list = members
+      .map((member) => {
+        const doneTasks =
+          (matByMember.get(member.id) ?? 0) +
+          (vidByMember.get(member.id) ?? 0) +
+          (quizByMember.get(member.id) ?? 0);
+        const progressPercent =
+          totalTasks === 0
+            ? 0
+            : Math.max(
+                0,
+                Math.min(100, Math.round((doneTasks / totalTasks) * 100))
+              );
+        const levelNumber = member.current_level.level_number;
+        const score =
+          Math.round(
+            Math.min(levelNumber + progressPercent / 100, 4.9) * 10
+          ) / 10;
+
+        let latestUnlockAt: string | null = null;
+        if (Array.isArray(member.level_history)) {
+          for (const entry of member.level_history as unknown[]) {
+            if (!entry || typeof entry !== "object") continue;
+            const row = entry as Record<string, unknown>;
+            if (typeof row.unlocked_at !== "string") continue;
+            if (!latestUnlockAt || dayjs(row.unlocked_at).isAfter(latestUnlockAt)) {
+              latestUnlockAt = row.unlocked_at;
+            }
+          }
+        }
+
+        let segment: "Promotor" | "Netral" | "Resistor";
+        if (levelNumber >= 3) segment = "Promotor";
+        else if (levelNumber === 2) segment = "Netral";
+        else segment = "Resistor";
+
+        let status:
+          | { kind: "champion"; label: string }
+          | { kind: "up"; label: string }
+          | { kind: "pass"; label: string }
+          | { kind: "idle"; label: string }
+          | { kind: "stable"; label: string };
+
+        if (member.role === "CHAMPION") {
+          status = { kind: "champion", label: "Champion aktif" };
+        } else if (latestUnlockAt && now.diff(dayjs(latestUnlockAt), "day") <= 14) {
+          status = {
+            kind: "up",
+            label: `Naik L${levelNumber} (${relativeLabel(latestUnlockAt)})`,
+          };
+        } else if (levelNumber >= 3) {
+          status = {
+            kind: "pass",
+            label: `Lulus L${levelNumber} ${member.current_level.name}`,
+          };
+        } else if (!member.last_active_at) {
+          status = { kind: "idle", label: "Belum aktif" };
+        } else {
+          status = { kind: "stable", label: `Stabil di L${levelNumber}` };
+        }
+
+        return {
+          member_id: member.id,
+          user: member.user,
+          department: member.group
+            ? { id: member.group.id, name: member.group.name }
+            : null,
+          job_title: member.job_title,
+          current_level: {
+            id: member.current_level.id,
+            level_number: levelNumber,
+            name: member.current_level.name,
+            icon: member.current_level.icon,
+          },
+          score,
+          progress_percent: progressPercent,
+          segment,
+          hours_saved_weekly:
+            Math.round((hoursWeeklyByMember.get(member.id) ?? 0) * 10) / 10,
+          status,
+        };
+      })
+      .sort((a, b) => b.score - a.score || a.user.full_name.localeCompare(b.user.full_name));
+
+    const departments = Array.from(
+      new Map(
+        list
+          .filter((member) => member.department)
+          .map((member) => [
+            member.department!.id,
+            { id: member.department!.id, name: member.department!.name },
+          ])
+      ).values()
+    ).sort((a, b) => a.name.localeCompare(b.name));
+
+    return {
+      code: STATUS_OK,
+      message: "Success",
+      total: list.length,
+      departments,
+      list,
+    };
+  }),
+
   // Per-department performance for the sponsor "Kinerja per Departemen" table:
   // member count, average competency level, top submitted use case, total
   // submissions (use case + prompt), cumulative hours saved, and a

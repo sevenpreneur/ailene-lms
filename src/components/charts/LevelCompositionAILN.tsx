@@ -6,15 +6,11 @@ import {
   ChartTooltipContent,
   type ChartConfig,
 } from "@/components/ui/chart";
+import { levelColorByCode } from "@/lib/ailene-level-colors";
 import { formatInt, formatScore } from "@/lib/ailene-format";
 import { Cell, Pie, PieChart } from "recharts";
 
 type Level = { code: string; name: string; count: number; percent: number };
-
-// Level maturity color by index → CSS var defined in globals.css (--ailn-level-N).
-function levelColor(index: number) {
-  return `var(--ailn-level-${Math.min(Math.max(index, 0), 4) + 1})`;
-}
 
 /**
  * Org-wide level composition donut: share of employees per competency level,
@@ -35,15 +31,18 @@ export default function LevelCompositionAILN({
           0
         ) / total;
 
-  const data = levels.map((l, i) => ({
+  const data = levels.map((l) => ({
     key: l.code,
     label: `${l.code} ${l.name}`,
     value: l.count,
-    fill: levelColor(i),
+    fill: levelColorByCode(l.code),
   }));
 
   const config = Object.fromEntries(
-    levels.map((l, i) => [l.code, { label: l.name, color: levelColor(i) }])
+    levels.map((l) => [
+      l.code,
+      { label: l.name, color: levelColorByCode(l.code) },
+    ])
   ) as ChartConfig;
 
   return (
@@ -70,9 +69,10 @@ export default function LevelCompositionAILN({
                 nameKey="label"
                 innerRadius={64}
                 outerRadius={92}
-                paddingAngle={2}
-                cornerRadius={5}
-                strokeWidth={0}
+                paddingAngle={3}
+                cornerRadius={6}
+                stroke="var(--card)"
+                strokeWidth={4}
               >
                 {data.map((d) => (
                   <Cell key={d.key} fill={d.fill} />
@@ -96,7 +96,7 @@ export default function LevelCompositionAILN({
             <li key={d.key} className="flex items-center gap-2">
               <span
                 className="size-2.5 shrink-0 rounded-sm"
-                style={{ backgroundColor: levelColor(i) }}
+                style={{ backgroundColor: d.fill }}
               />
               <span className="min-w-0 flex-1 truncate text-muted-foreground">
                 {d.label}

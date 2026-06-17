@@ -3,6 +3,7 @@ import ButtonAILN from "@/components/buttons/ButtonAILN";
 import SectionContainerAILN from "@/components/cards/SectionContainerAILN";
 import LevelCompositionAILN from "@/components/charts/LevelCompositionAILN";
 import WorkforceLevelByDeptAILN from "@/components/charts/WorkforceLevelByDeptAILN";
+import WorkforceMembersAILN from "@/components/indexes/WorkforceMembersAILN";
 import LegendStatAILN from "@/components/items/LegendStatAILN";
 import PageContainerAILN from "@/components/pages/PageContainerAILN";
 import AppErrorComponents from "@/components/states/AppErrorComponents";
@@ -284,6 +285,8 @@ export default function WorkforceSponsorAILN({
             )}
           </SectionContainerAILN>
         </div>
+
+        <WorkforceMembersAILN />
       </div>
     </PageContainerAILN>
   );
