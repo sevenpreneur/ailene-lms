@@ -308,20 +308,18 @@ export default function LearningPathStudentAILN({
 
   const items: Item[] = [];
   let weekIndex = 0;
-  levels.forEach((lvl, lvlIdx) => {
+  levels.forEach((lvl) => {
     const levelUnlocked = lvl.level_number <= currentLevelNumber;
 
-    if (lvlIdx > 0) {
-      items.push({
-        kind: "level",
-        level: lvl,
-        unlocked: levelUnlocked,
-        claimable:
-          !levelUnlocked &&
-          lvl.level_number === currentLevelNumber + 1 &&
-          nextLevelUnlockable,
-      });
-    }
+    items.push({
+      kind: "level",
+      level: lvl,
+      unlocked: levelUnlocked,
+      claimable:
+        !levelUnlocked &&
+        lvl.level_number === currentLevelNumber + 1 &&
+        nextLevelUnlockable,
+    });
 
     const levelChapters = chaptersByLevel.get(lvl.id) ?? [];
     for (const ch of levelChapters) {
