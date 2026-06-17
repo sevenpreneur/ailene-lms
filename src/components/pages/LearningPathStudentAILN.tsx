@@ -326,12 +326,12 @@ export default function LearningPathStudentAILN({
     const levelChapters = chaptersByLevel.get(lvl.id) ?? [];
     for (const ch of levelChapters) {
       weekIndex += 1;
-      const sessionStarted = !dayjs(ch.session_date).isAfter(dayjs());
+      // const sessionStarted = !dayjs(ch.session_date).isAfter(dayjs());
       items.push({
         kind: "chapter",
         chapter: ch,
         index: weekIndex,
-        unlocked: levelUnlocked && sessionStarted,
+        unlocked: levelUnlocked /* && sessionStarted */,
       });
     }
 
