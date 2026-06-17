@@ -18,18 +18,18 @@ import HeadlineAILN from "@/components/heroes/HeadlineAILN";
 import OrganizationLeaderboardAILN from "@/components/indexes/OrganizationLeaderboardAILN";
 import RecentActivityAILN from "@/components/indexes/RecentActivityAILN";
 import HealthMetricAILN from "@/components/items/HealthMetricAILN";
+import SponsorStatLabelAILN from "@/components/labels/SponsorStatLabelAILN";
 import PageContainerAILN from "@/components/pages/PageContainerAILN";
 import AppErrorComponents from "@/components/states/AppErrorComponents";
 import { SkeletonBlockAILN } from "@/components/states/DataStatesAILN";
 import SkeletonExecutiveViewAILN from "@/components/states/SkeletonExecutiveViewAILN";
 import TransformationJourneyAILN from "@/components/steppers/TransformationJourneyAILN";
-import PageHeaderAILN from "@/components/titles/PageHeaderAILN";
 import { formatCompactIdr } from "@/lib/ailene-format";
 import { setSessionToken, trpc } from "@/trpc/client";
 import dayjs from "dayjs";
 import "dayjs/locale/id";
 import relativeTime from "dayjs/plugin/relativeTime";
-import { Clock, Coins, Download, Gauge, Users } from "lucide-react";
+import { Building2, Clock, Coins, Download, Gauge, Users } from "lucide-react";
 import type { LucideIcon } from "lucide-react";
 import { useEffect } from "react";
 
@@ -99,9 +99,10 @@ export default function DashboardSponsorAILN({
   const activity = activityQ.data?.activity ?? [];
   const orgStats = orgStatsQ.data;
   const orgName = AILENE_ORG_NAME || "Ringkasan Organisasi";
-  const orgSubline = orgStats
-    ? `${orgStats.member_count.toLocaleString("id-ID")} staff aktif · ${orgStats.group_count.toLocaleString("id-ID")} departemen · ${AILENE_PROGRAM_NAME}`
-    : AILENE_PROGRAM_NAME;
+  const activeStaffCount = metrics.staff_active_weekly_count.toLocaleString("id-ID");
+  const departmentCount = orgStats
+    ? orgStats.group_count.toLocaleString("id-ID")
+    : "—";
 
   // Program week derived from the configured start date (env). No start = week 1.
   const programWeek = AILENE_PROGRAM_START
@@ -266,17 +267,33 @@ export default function DashboardSponsorAILN({
   return (
     <PageContainerAILN>
       <div className="flex w-full flex-col gap-6">
-        <PageHeaderAILN title={orgName} desc={orgSubline}>
-          <ButtonAILN
-            variant="light"
-            size="medium"
-            onClick={() => pdf.generate(report, "ringkasan-eksekutif.pdf")}
-            disabled={pdf.exporting}
-          >
-            <Download className="size-4" />
-            {pdf.exporting ? "Menyiapkan…" : "Export PDF"}
-          </ButtonAILN>
-        </PageHeaderAILN>
+        <header className="sticky top-0 z-30 -mx-4 -mt-6 flex flex-wrap items-center justify-between gap-3 border-b border-dashboard-border bg-background/80 px-4 py-4 backdrop-blur-md md:-mx-6 md:px-6 xl:-mx-8 xl:px-8">
+          <h1 className="display-font text-xl font-bold tracking-tight text-foreground">
+            {orgName}
+          </h1>
+
+          <div className="flex flex-wrap items-center justify-end gap-3">
+            <SponsorStatLabelAILN
+              icon={Users}
+              value={activeStaffCount}
+              label="staff aktif"
+            />
+            <SponsorStatLabelAILN
+              icon={Building2}
+              value={departmentCount}
+              label="departemen"
+            />
+            <ButtonAILN
+              variant="light"
+              size="medium"
+              onClick={() => pdf.generate(report, "ringkasan-eksekutif.pdf")}
+              disabled={pdf.exporting}
+            >
+              <Download className="size-4" />
+              {pdf.exporting ? "Menyiapkan…" : "Export PDF"}
+            </ButtonAILN>
+          </div>
+        </header>
 
         {/* Program journey */}
         <TransformationJourneyAILN
