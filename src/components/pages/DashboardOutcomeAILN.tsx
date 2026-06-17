@@ -5,14 +5,11 @@ import {
   type ReportProps,
 } from "@/components/pdf/AileneReportPDF";
 import ButtonAILN from "@/components/buttons/ButtonAILN";
+import RoiProductivityBannerAILN from "@/components/banners/RoiProductivityBannerAILN";
 import ScorecardAILN from "@/components/cards/ScorecardAILN";
 import SectionContainerAILN from "@/components/cards/SectionContainerAILN";
-import {
-  TARGET_LEVEL,
-  targetLevelName,
-} from "@/components/charts/outcome-target";
-import ProcessAreaAILN from "@/components/charts/ProcessAreaAILN";
-import ResultDonutAILN from "@/components/charts/ResultDonutAILN";
+import RoiOutcomeChartsAILN from "@/components/charts/RoiOutcomeChartsAILN";
+import RoiDepartmentTableAILN from "@/components/indexes/RoiDepartmentTableAILN";
 import TopPerformersTableAILN from "@/components/indexes/TopPerformersTableAILN";
 import GeneralLabelAILN from "@/components/labels/GeneralLabelAILN";
 import KpiCaptionAILN from "@/components/labels/KpiCaptionAILN";
@@ -33,6 +30,13 @@ import dayjs from "dayjs";
 import { BadgeCheck, Clock, Coins, Download, Gauge } from "lucide-react";
 import { useEffect } from "react";
 
+function idrShort(value: number): string {
+  const compact = formatCompactIdr(value);
+  return compact.suffix
+    ? `Rp ${compact.value} ${compact.suffix}`
+    : `Rp ${compact.value}`;
+}
+
 export default function DashboardOutcomeAILN({
   sessionToken,
 }: {
@@ -44,8 +48,8 @@ export default function DashboardOutcomeAILN({
 
   const pdf = usePdfReport();
   const overviewQ = trpc.read.outcome.overview.useQuery();
-  const levelQ = trpc.read.outcome.levelDistribution.useQuery();
   const performersQ = trpc.read.outcome.topPerformers.useQuery();
+  const departmentRoiQ = trpc.read.outcome.departmentRoi.useQuery();
 
   const overview = overviewQ.data;
   const roi = formatCompactIdr(overview?.roi_total ?? 0);
@@ -55,7 +59,7 @@ export default function DashboardOutcomeAILN({
     if (overview) {
       sections.push({
         type: "kpi",
-        title: "Hasil Akhir Program",
+        title: "ROI & Produktivitas",
         items: [
           {
             label: "Jam Dihemat Kumulatif",
@@ -73,55 +77,35 @@ export default function DashboardOutcomeAILN({
             label: "Avg Level Saat Ini",
             value: formatScore(overview.avg_level),
             unit: `/ ${overview.max_level_number}`,
-            footer: `skala L0–L${overview.max_level_number}`,
+            footer: `skala L0-L${overview.max_level_number}`,
           },
           {
             label: "Karyawan Tersertifikasi",
             value: formatInt(overview.certified_count),
             unit: `/ ${overview.member_count}`,
-            footer: `${overview.certified_percent}% selesai ≥ L1`,
+            footer: `${overview.certified_percent}% selesai >= L1`,
           },
         ],
       });
     }
-    const dist = levelQ.data?.distribution ?? [];
-    const distTotal = dist.reduce((sum, d) => sum + d.count, 0) || 1;
-    if (dist.length > 0) {
-      const achieved = dist
-        .filter((d) => d.level_number >= TARGET_LEVEL)
-        .reduce((sum, d) => sum + d.count, 0);
-      sections.push({
-        type: "donut",
-        title: `Hasil Akhir · Capai ≥ L${TARGET_LEVEL}`,
-        centerValue: `${Math.round((achieved / distTotal) * 100)}%`,
-        centerLabel: `≥ L${TARGET_LEVEL}`,
-        segments: [
-          {
-            label: `Capai ≥ L${TARGET_LEVEL}`,
-            value: achieved,
-            color: "#1f5f4e",
-          },
-          {
-            label: "Belum",
-            value: Math.max(distTotal - achieved, 0),
-            color: "#cbd5e1",
-          },
-        ],
-      });
-    }
-    if (dist.length > 0) {
+
+    const departments = departmentRoiQ.data?.departments ?? [];
+    if (departments.length > 0) {
       sections.push({
         type: "table",
-        title: "Distribusi Level Akhir",
-        columns: ["Level", "Karyawan", "%"],
-        align: ["left", "right", "right"],
-        rows: dist.map((d) => [
-          `L${d.level_number} · ${d.name}`,
-          formatInt(d.count),
-          `${Math.round((d.count / distTotal) * 100)}%`,
+        title: "Rincian ROI per Departemen",
+        columns: ["Departemen", "Jumlah", "Jam/mg", "Rp/tahun", "Kontribusi"],
+        align: ["left", "right", "right", "right", "right"],
+        rows: departments.map((d) => [
+          d.name,
+          formatInt(d.member_count),
+          formatDecimal(d.hours_saved_weekly),
+          idrShort(d.roi_annualized),
+          `${d.contribution_percent}%`,
         ]),
       });
     }
+
     const performers = performersQ.data?.list ?? [];
     if (performers.length > 0) {
       sections.push({
@@ -148,10 +132,11 @@ export default function DashboardOutcomeAILN({
         ]),
       });
     }
+
     return {
       org: AILENE_ORG_NAME || undefined,
       program: AILENE_PROGRAM_NAME,
-      title: "Outcome Report",
+      title: "ROI & Produktivitas",
       subtitle: overview
         ? `${formatInt(overview.member_count)} karyawan · ${overview.department_count} departemen`
         : undefined,
@@ -164,7 +149,7 @@ export default function DashboardOutcomeAILN({
     <PageContainerAILN>
       <div className="flex w-full flex-col gap-6">
         <PageHeaderAILN
-          title="Outcome Report"
+          title="ROI & Produktivitas"
           desc={`${AILENE_PROGRAM_NAME} · ${
             overview
               ? `${formatInt(overview.member_count)} karyawan · ${overview.department_count} departemen`
@@ -174,7 +159,7 @@ export default function DashboardOutcomeAILN({
           <ButtonAILN
             variant="light"
             size="medium"
-            onClick={() => pdf.generate(buildReport(), "outcome-report.pdf")}
+            onClick={() => pdf.generate(buildReport(), "roi-produktivitas.pdf")}
             disabled={pdf.exporting || !overview}
           >
             <Download className="size-4" />
@@ -182,12 +167,17 @@ export default function DashboardOutcomeAILN({
           </ButtonAILN>
         </PageHeaderAILN>
 
-        {/* KPI cards — statistics-02 style with icons (same as executive view) */}
+        <RoiProductivityBannerAILN />
+
         <div className="grid grid-cols-1 gap-4 md:grid-cols-2 xl:grid-cols-4">
           {[
             {
               title: "Jam Dihemat Kumulatif",
               icon: Clock,
+              accent: {
+                tile: "bg-emerald-50 dark:bg-emerald-500/15",
+                icon: "text-emerald-600 dark:text-emerald-300",
+              },
               value: overview ? formatDecimal(overview.hours_saved_total) : "—",
               unit: "jam",
               footer: (
@@ -201,6 +191,10 @@ export default function DashboardOutcomeAILN({
             {
               title: "ROI Estimasi",
               icon: Coins,
+              accent: {
+                tile: "bg-stakeholder-sponsor-soft",
+                icon: "text-stakeholder-sponsor",
+              },
               value: overview ? `Rp ${roi.value}` : "—",
               unit: roi.suffix,
               footer: (
@@ -214,23 +208,31 @@ export default function DashboardOutcomeAILN({
             {
               title: "Avg Level Saat Ini",
               icon: Gauge,
+              accent: {
+                tile: "bg-indigo-50 dark:bg-indigo-500/15",
+                icon: "text-indigo-600 dark:text-indigo-300",
+              },
               value: overview ? formatScore(overview.avg_level) : "—",
               unit: overview ? `/ ${overview.max_level_number}` : "/ —",
               footer: (
                 <KpiCaptionAILN>
-                  {overview ? `skala L0–L${overview.max_level_number}` : "—"}
+                  {overview ? `skala L0-L${overview.max_level_number}` : "—"}
                 </KpiCaptionAILN>
               ),
             },
             {
               title: "Karyawan Tersertifikasi",
               icon: BadgeCheck,
+              accent: {
+                tile: "bg-cyan-50 dark:bg-cyan-500/15",
+                icon: "text-cyan-600 dark:text-cyan-300",
+              },
               value: overview ? formatInt(overview.certified_count) : "—",
               unit: overview ? `/ ${overview.member_count}` : "/ —",
               footer: (
                 <KpiCaptionAILN>
                   {overview
-                    ? `${overview.certified_percent}% selesai ≥ L1`
+                    ? `${overview.certified_percent}% selesai >= L1`
                     : "—"}
                 </KpiCaptionAILN>
               ),
@@ -242,64 +244,16 @@ export default function DashboardOutcomeAILN({
               value={kpi.value}
               unit={kpi.unit}
               icon={kpi.icon}
+              accent={kpi.accent}
             >
               {kpi.footer}
             </ScorecardAILN>
           ))}
         </div>
 
-        {/* Progres menuju level target — proses (kiri) + hasil akhir (kanan) */}
-        <div className="grid grid-cols-1 gap-4 lg:grid-cols-[1.7fr_1fr]">
-          <SectionContainerAILN
-            title={`Proses · % capai ≥ L${TARGET_LEVEL}`}
-            desc={`Karyawan yang mencapai ${targetLevelName(levelQ.data)} dari waktu ke waktu`}
-            headerRight={
-              <GeneralLabelAILN variant="white">data contoh</GeneralLabelAILN>
-            }
-          >
-            {levelQ.isLoading || !levelQ.data ? (
-              <SkeletonBlockAILN className="h-56" />
-            ) : levelQ.data.total === 0 ? (
-              <EmptyHintAILN />
-            ) : (
-              <ProcessAreaAILN distribution={levelQ.data.distribution} />
-            )}
-          </SectionContainerAILN>
+        <RoiOutcomeChartsAILN />
 
-          <SectionContainerAILN
-            title={`Hasil akhir · capai ≥ L${TARGET_LEVEL}`}
-            desc="Sudah vs belum mencapai level target"
-          >
-            {levelQ.isLoading || !levelQ.data ? (
-              <SkeletonBlockAILN className="h-56" />
-            ) : levelQ.data.total === 0 ? (
-              <EmptyHintAILN />
-            ) : (
-              <ResultDonutAILN distribution={levelQ.data.distribution} />
-            )}
-          </SectionContainerAILN>
-        </div>
-
-        {/* Top performers */}
-        <SectionContainerAILN
-          title="Top Performers Org-Wide"
-          desc="Bintang individual seluruh organisasi · composite score"
-          headerRight={
-            performersQ.data ? (
-              <GeneralLabelAILN variant="white">
-                {`${formatInt(performersQ.data.total)} karyawan`}
-              </GeneralLabelAILN>
-            ) : undefined
-          }
-        >
-          {performersQ.isLoading || !performersQ.data ? (
-            <SkeletonBlockAILN className="h-72" />
-          ) : performersQ.data.total === 0 ? (
-            <EmptyHintAILN />
-          ) : (
-            <TopPerformersTableAILN list={performersQ.data.list} />
-          )}
-        </SectionContainerAILN>
+        <RoiDepartmentTableAILN />
       </div>
     </PageContainerAILN>
   );

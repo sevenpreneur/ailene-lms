@@ -4,10 +4,10 @@ import { Metadata } from "next";
 import { cookies } from "next/headers";
 
 export const metadata: Metadata = {
-  title: "Outcome Report",
+  title: "ROI & Produktivitas",
 };
 
-export default async function OutcomePage() {
+export default async function RoiPage() {
   const cookieStore = await cookies();
   const sessionToken = cookieStore.get("session_token")?.value;
 

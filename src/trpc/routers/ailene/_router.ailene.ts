@@ -21,6 +21,8 @@ export const aileneOutcomeRouter = createTRPCRouter({
   // sponsor-scoped end-of-program results (current state)
   overview: readOutcome.overview,
   levelDistribution: readOutcome.levelDistribution,
+  roiTrend: readOutcome.roiTrend,
+  departmentRoi: readOutcome.departmentRoi,
   topPerformers: readOutcome.topPerformers,
 });
 

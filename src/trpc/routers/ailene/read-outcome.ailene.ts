@@ -1,5 +1,6 @@
 import { STATUS_OK } from "@/lib/status_code";
 import { sponsorProcedure } from "@/trpc/init";
+import dayjs from "dayjs";
 
 // ---------------------------------------------------------------------------
 // Sponsor-facing "Outcome Report" — end-of-program results, current state.
@@ -111,6 +112,151 @@ export const readOutcome = {
     });
 
     return { code: STATUS_OK, message: "Success", total, distribution };
+  }),
+
+  roiTrend: sponsorProcedure.query(async (opts) => {
+    const monthCount = 6;
+    const now = dayjs();
+    const monthStarts = Array.from({ length: monthCount }, (_, index) =>
+      now.startOf("month").subtract(monthCount - 1 - index, "month")
+    );
+    const start = monthStarts[0].toDate();
+
+    const rows = await opts.ctx.prisma.ailUseCaseSubmission.findMany({
+      where: {
+        submitted_at: {
+          not: null,
+          gte: start,
+        },
+      },
+      select: {
+        submitted_at: true,
+        hours_saved: true,
+        hours_without_ai: true,
+      },
+    });
+
+    const months = monthStarts.map((month, index) => {
+      const end = month.endOf("month");
+      const hours = rows.reduce((sum, row) => {
+        if (!row.submitted_at) return sum;
+        const submittedAt = dayjs(row.submitted_at);
+        if (submittedAt.isBefore(month) || submittedAt.isAfter(end)) {
+          return sum;
+        }
+        return sum + hoursSaved(row.hours_without_ai, row.hours_saved);
+      }, 0);
+      const value = Math.round(hours * ROI_VALUE_PER_HOUR);
+
+      return {
+        label: `M${index + 1}`,
+        month: month.format("MMM YYYY"),
+        roi_value: value,
+        roi_billion: round1(value / 1_000_000_000),
+        projected: index >= 4,
+      };
+    });
+
+    let lastActualIndex = 0;
+    for (let i = months.length - 1; i >= 0; i--) {
+      if (!months[i].projected) {
+        lastActualIndex = i;
+        break;
+      }
+    }
+    const firstValue = months[0]?.roi_value ?? 0;
+    const lastActualValue = months[lastActualIndex]?.roi_value ?? 0;
+    const growthStep =
+      lastActualIndex <= 0 ? lastActualValue * 0.18 : (lastActualValue - firstValue) / lastActualIndex;
+    for (let i = lastActualIndex + 1; i < months.length; i++) {
+      const projectedValue = Math.max(
+        months[i - 1].roi_value,
+        Math.round(months[i - 1].roi_value + growthStep)
+      );
+      months[i] = {
+        ...months[i],
+        roi_value: projectedValue,
+        roi_billion: round1(projectedValue / 1_000_000_000),
+      };
+    }
+
+    return {
+      code: STATUS_OK,
+      message: "Success",
+      months,
+    };
+  }),
+
+  departmentRoi: sponsorProcedure.query(async (opts) => {
+    const weekAgo = dayjs().subtract(7, "day").toDate();
+    const groups = await opts.ctx.prisma.ailGroup.findMany({
+      orderBy: { name: "asc" },
+      select: {
+        id: true,
+        name: true,
+        members: {
+          select: {
+            id: true,
+            use_case_submissions: {
+              where: { submitted_at: { not: null } },
+              select: {
+                submitted_at: true,
+                hours_saved: true,
+                hours_without_ai: true,
+              },
+            },
+          },
+        },
+      },
+    });
+
+    const rows = groups.map((group) => {
+      let hoursWeekly = 0;
+      let hoursTotal = 0;
+      for (const member of group.members) {
+        for (const submission of member.use_case_submissions) {
+          const saved = hoursSaved(
+            submission.hours_without_ai,
+            submission.hours_saved
+          );
+          hoursTotal += saved;
+          if (submission.submitted_at && submission.submitted_at >= weekAgo) {
+            hoursWeekly += saved;
+          }
+        }
+      }
+
+      const annualizedRoi = Math.round(hoursWeekly * 52 * ROI_VALUE_PER_HOUR);
+
+      return {
+        id: group.id,
+        name: group.name,
+        member_count: group.members.length,
+        hours_saved_weekly: round1(hoursWeekly),
+        hours_saved_total: round1(hoursTotal),
+        roi_annualized: annualizedRoi,
+      };
+    });
+
+    const totalRoi = rows.reduce((sum, row) => sum + row.roi_annualized, 0);
+    const ranked = rows
+      .map((row) => ({
+        ...row,
+        contribution_percent: pct(row.roi_annualized, totalRoi),
+      }))
+      .sort(
+        (a, b) =>
+          b.hours_saved_weekly - a.hours_saved_weekly ||
+          b.roi_annualized - a.roi_annualized ||
+          a.name.localeCompare(b.name)
+      );
+
+    return {
+      code: STATUS_OK,
+      message: "Success",
+      total_roi_annualized: totalRoi,
+      departments: ranked,
+    };
   }),
 
   // Every member ranked org-wide by a composite of XP, hours, use cases & level.
