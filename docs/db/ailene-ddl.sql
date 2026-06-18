@@ -376,6 +376,18 @@ CREATE TABLE ail_pre_assessments (
     created_at            TIMESTAMPTZ            NOT NULL DEFAULT CURRENT_TIMESTAMP
 );
 
+CREATE TABLE ail_pre_assessment_reports (
+    id                SERIAL       PRIMARY KEY,
+    pre_assessment_id INTEGER      NOT NULL UNIQUE,
+    status            VARCHAR      NOT NULL DEFAULT 'pending',
+    recommendations   JSON             NULL,
+    error_message     TEXT             NULL,
+    queued_at         TIMESTAMPTZ  NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    generated_at      TIMESTAMPTZ      NULL,
+    updated_at        TIMESTAMPTZ  NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    CHECK (status IN ('pending', 'processing', 'completed', 'failed'))
+);
+
 -- Announcement
 
 CREATE TABLE ail_announcement (
@@ -439,6 +451,9 @@ ALTER TABLE ail_xp_earnings
 
 ALTER TABLE ail_pre_assessments
   ADD FOREIGN KEY (member_id) REFERENCES ail_members (id);
+
+ALTER TABLE ail_pre_assessment_reports
+  ADD FOREIGN KEY (pre_assessment_id) REFERENCES ail_pre_assessments (id);
 
 ALTER TABLE ail_prompts
   ADD FOREIGN KEY (level_id) REFERENCES ail_levels (id);
@@ -522,6 +537,11 @@ CREATE TRIGGER update_ail_prompt_submissions_updated_at_trigger
 
 CREATE TRIGGER update_ail_use_case_submissions_updated_at_trigger
   BEFORE UPDATE ON ail_use_case_submissions
+  FOR EACH ROW
+    EXECUTE FUNCTION update_updated_at();
+
+CREATE TRIGGER update_ail_pre_assessment_reports_updated_at_trigger
+  BEFORE UPDATE ON ail_pre_assessment_reports
   FOR EACH ROW
     EXECUTE FUNCTION update_updated_at();
 

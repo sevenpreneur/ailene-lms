@@ -7,9 +7,18 @@ import AppErrorComponents from "@/components/states/AppErrorComponents";
 import AppLoadingComponents from "@/components/states/AppLoadingComponents";
 import PageHeaderAILN from "@/components/titles/PageHeaderAILN";
 import { setSessionToken, trpc } from "@/trpc/client";
+import type { PreAssessmentRecommendation } from "@/lib/pre-assessment-report";
 import type { AppRouter } from "@/trpc/routers/_app";
 import type { inferRouterOutputs } from "@trpc/server";
-import { ArrowRight, BookOpen, Clock3, TrendingUp } from "lucide-react";
+import {
+  AlertTriangle,
+  ArrowRight,
+  BookOpen,
+  Clock3,
+  Loader2,
+  RefreshCw,
+  TrendingUp,
+} from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useEffect } from "react";
 
@@ -20,48 +29,6 @@ interface PreAssessmentReportAILNProps {
 type PreAssessmentReportData = NonNullable<
   inferRouterOutputs<AppRouter>["read"]["preAssessmentReport"]["report"]
 >;
-
-const RECOMMENDATIONS = [
-  {
-    no: 1,
-    source: "Membuat laporan atau rekap rutin",
-    title: "Otomasi laporan terjadwal",
-    impact: "Tinggi",
-    speed: "~70% lebih cepat",
-    description:
-      "Delegasikan penyusunan laporan rutin sebagai tugas terjadwal yang tetap kamu review sebelum dikirim.",
-    lessons: [
-      "06 Delegasikan kerja multi-langkah (Cowork)",
-      "03 Riset yang bisa dipercaya",
-    ],
-  },
-  {
-    no: 2,
-    source: "Review / memeriksa dokumen manual",
-    title: "Ekstrak, ringkas, dan tandai poin penting otomatis",
-    impact: "Tinggi",
-    speed: "~60% lebih cepat",
-    description:
-      "Bangun asisten yang membaca dokumen lalu menyaring poin penting dan keputusan yang perlu kamu ambil.",
-    lessons: [
-      "01 Bangun asisten kerja pertamamu",
-      "03 Riset yang bisa dipercaya",
-    ],
-  },
-  {
-    no: 3,
-    source: "Meringkas konten panjang",
-    title: "Ringkasan terstruktur plus poin aksi",
-    impact: "Tinggi",
-    speed: "~65% lebih cepat",
-    description:
-      "Minta ringkasan dengan format poin utama, keputusan, risiko, dan tindak lanjut agar hasilnya siap dipakai.",
-    lessons: [
-      "F2 Prompting & cara pikir kerja sama AI",
-      "03 Riset yang bisa dipercaya",
-    ],
-  },
-] as const;
 
 export default function PreAssessmentReportAILN({
   sessionToken,
@@ -104,8 +71,27 @@ function PreAssessmentReportContent({
   report: PreAssessmentReportData;
 }) {
   const router = useRouter();
+  const utils = trpc.useUtils();
   const userQ = trpc.auth.checkSession.useQuery();
   const firstName = userQ.data?.user?.full_name?.split(" ")[0] ?? "teman";
+
+  // Poll the recommendation endpoint while the worker is still generating.
+  const recQ = trpc.read.preAssessmentRecommendations.useQuery(undefined, {
+    refetchInterval: (query) => {
+      const status = query.state.data?.status;
+      return status === "pending" || status === "processing" ? 4000 : false;
+    },
+  });
+
+  const regenerate = trpc.create.regeneratePreAssessmentReport.useMutation({
+    onSuccess: () => utils.read.preAssessmentRecommendations.invalidate(),
+  });
+
+  // Default to "processing" until the first response lands so the UI shows the
+  // loading skeleton rather than flashing the failed/empty state.
+  const status = recQ.data?.status ?? "processing";
+  const recommendations = recQ.data?.recommendations ?? null;
+  const items = recommendations?.items ?? [];
 
   return (
     <PageContainerAILN className="min-h-screen items-start justify-start">
@@ -180,17 +166,25 @@ function PreAssessmentReportContent({
         <SectionContainerAILN
           title="Diagnosa & rekomendasi"
           headerRight={
-            <GeneralLabelAILN variant="white">3 use case</GeneralLabelAILN>
+            status === "completed" ? (
+              <GeneralLabelAILN variant="white">
+                {items.length} use case
+              </GeneralLabelAILN>
+            ) : undefined
           }
         >
-          <div className="flex items-center gap-3 rounded-lg border border-emerald-200 bg-emerald-50 px-4 py-3 text-emerald-800 dark:border-emerald-500/30 dark:bg-emerald-500/10 dark:text-emerald-200">
-            <TrendingUp className="size-5 shrink-0" />
-            <div className="text-sm">
-              Total potensi hemat{" "}
-              <span className="font-black">~4,9 Jam/minggu</span> dari tugas
-              rutin Anda.
+          {status === "completed" && recommendations?.time_saved_label && (
+            <div className="flex items-center gap-3 rounded-lg border border-emerald-200 bg-emerald-50 px-4 py-3 text-emerald-800 dark:border-emerald-500/30 dark:bg-emerald-500/10 dark:text-emerald-200">
+              <TrendingUp className="size-5 shrink-0" />
+              <div className="text-sm">
+                Total potensi hemat{" "}
+                <span className="font-black">
+                  {recommendations.time_saved_label}
+                </span>{" "}
+                dari tugas rutin Anda.
+              </div>
             </div>
-          </div>
+          )}
 
           <div className="mt-5 border-l-4 border-blue-500 pl-4">
             <div className="text-sm font-semibold text-gray-500 dark:text-gray-400">
@@ -205,10 +199,21 @@ function PreAssessmentReportContent({
             <div className="text-sm font-semibold text-gray-500 dark:text-gray-400">
               Rekomendasi use case paling berdampak untukmu:
             </div>
-            <div className="mt-3 flex flex-col gap-3">
-              {RECOMMENDATIONS.map((item) => (
-                <RecommendationCard key={item.no} item={item} />
-              ))}
+            <div className="mt-3">
+              {status === "completed" && items.length > 0 ? (
+                <div className="flex flex-col gap-3">
+                  {items.map((item, idx) => (
+                    <RecommendationCard key={idx} no={idx + 1} item={item} />
+                  ))}
+                </div>
+              ) : status === "failed" ? (
+                <RecommendationsFailed
+                  onRetry={() => regenerate.mutate()}
+                  isRetrying={regenerate.isPending}
+                />
+              ) : (
+                <RecommendationsLoading />
+              )}
             </div>
           </div>
         </SectionContainerAILN>
@@ -250,16 +255,85 @@ function formatDecimal(value: number) {
     : value.toFixed(1).replace(".", ",");
 }
 
+// Shown while the worker is still generating (status pending/processing).
+// Polling in the parent flips this to the real cards once it's done.
+function RecommendationsLoading() {
+  return (
+    <div className="flex flex-col gap-3">
+      <div className="flex items-center gap-2 text-sm font-medium text-gray-500 dark:text-gray-400">
+        <Loader2 className="size-4 animate-spin text-blue-500" />
+        Sedang menyusun rekomendasi use case untukmu...
+      </div>
+      {[0, 1, 2].map((i) => (
+        <div
+          key={i}
+          className="animate-pulse rounded-lg border border-dashboard-border bg-card-2 p-4"
+        >
+          <div className="flex items-start gap-3">
+            <div className="mt-0.5 size-6 shrink-0 rounded-full bg-gray-200 dark:bg-dashboard-border" />
+            <div className="min-w-0 flex-1">
+              <div className="flex flex-wrap gap-2">
+                <div className="h-5 w-40 rounded-full bg-gray-200 dark:bg-dashboard-border" />
+                <div className="h-5 w-24 rounded-full bg-gray-200 dark:bg-dashboard-border" />
+              </div>
+              <div className="mt-3 h-4 w-2/3 rounded bg-gray-200 dark:bg-dashboard-border" />
+              <div className="mt-2 h-3 w-full rounded bg-gray-200 dark:bg-dashboard-border" />
+              <div className="mt-1.5 h-3 w-4/5 rounded bg-gray-200 dark:bg-dashboard-border" />
+            </div>
+          </div>
+        </div>
+      ))}
+    </div>
+  );
+}
+
+// Shown when generation failed — offers a one-click retry that re-queues the
+// worker (create.regeneratePreAssessmentReport) and resumes polling.
+function RecommendationsFailed({
+  onRetry,
+  isRetrying,
+}: {
+  onRetry: () => void;
+  isRetrying: boolean;
+}) {
+  return (
+    <div className="flex flex-col items-start gap-3 rounded-lg border border-amber-200 bg-amber-50 px-4 py-4 text-amber-800 dark:border-amber-500/30 dark:bg-amber-500/10 dark:text-amber-200">
+      <div className="flex items-center gap-2 text-sm font-semibold">
+        <AlertTriangle className="size-4 shrink-0" />
+        Rekomendasi use case gagal dibuat.
+      </div>
+      <p className="text-sm leading-6">
+        Skill mapping di atas tetap valid. Rekomendasi personalmu belum sempat
+        tersusun — coba buat ulang sebentar lagi.
+      </p>
+      <ButtonAILN
+        variant="neutral"
+        onClick={onRetry}
+        disabled={isRetrying}
+      >
+        {isRetrying ? (
+          <Loader2 className="size-4 animate-spin" />
+        ) : (
+          <RefreshCw className="size-4" />
+        )}
+        {isRetrying ? "Memproses..." : "Coba generate ulang"}
+      </ButtonAILN>
+    </div>
+  );
+}
+
 function RecommendationCard({
+  no,
   item,
 }: {
-  item: (typeof RECOMMENDATIONS)[number];
+  no: number;
+  item: PreAssessmentRecommendation;
 }) {
   return (
     <article className="rounded-lg border border-dashboard-border bg-card-2 p-4">
       <div className="flex items-start gap-3">
         <div className="mt-0.5 flex size-6 shrink-0 items-center justify-center rounded-full bg-blue-600 text-xs font-black text-white">
-          {item.no}
+          {no}
         </div>
         <div className="min-w-0 flex-1">
           <div className="flex flex-wrap items-center gap-2">

@@ -482,16 +482,16 @@ model AilXpEarning {
 }
 
 model AilPreAssessment {
-  id                        Int                @id @default(autoincrement()) @db.Integer
-  member                    AilMember          @relation(fields: [member_id], references: [id])
-  member_id                 Int                @unique @db.Integer
+  id                    Int                     @id @default(autoincrement()) @db.Integer
+  member                AilMember               @relation(fields: [member_id], references: [id])
+  member_id             Int                     @unique @db.Integer
   ai_use_frequency      AilPaAiUseFreq
-  ai_tools_used         String[]            @db.Text
-  ai_limitations        String[]            @db.Text
+  ai_tools_used         String[]                @db.Text
+  ai_limitations        String[]                @db.Text
   output_review         AilPaOutputReview
-  use_cases             String[]            @db.Text
+  use_cases             String[]                @db.Text
   team_adoption         AilPaTeamAdoption
-  concrete_example      String?             @db.VarChar()
+  concrete_example      String?                 @db.VarChar()
   model_selection       AilPaFrequency
   multimodal_use        AilPaFrequency
   workflow_reuse        AilPaFrequency
@@ -501,12 +501,27 @@ model AilPreAssessment {
   professional_attitude AilPaAttitude
   data_safety_check     AilPaFrequency
   publish_unchecked     AilPaFrequency
-  biggest_challenge     String              @db.Text
-  training_expectation  String              @db.Text
+  biggest_challenge     String                  @db.Text
+  training_expectation  String                  @db.Text
   motivation            AilPaMotivation
-  created_at            DateTime            @default(now()) @db.Timestamptz()
+  created_at            DateTime                @default(now()) @db.Timestamptz()
+  report                AilPreAssessmentReport?
 
   @@map("ail_pre_assessments")
+}
+
+model AilPreAssessmentReport {
+  id                Int              @id @default(autoincrement()) @db.Integer
+  pre_assessment    AilPreAssessment @relation(fields: [pre_assessment_id], references: [id])
+  pre_assessment_id Int              @unique @db.Integer
+  status            String           @default("pending") @db.VarChar()
+  recommendations   Json?            @db.Json
+  error_message     String?          @db.Text
+  queued_at         DateTime         @default(now()) @db.Timestamptz()
+  generated_at      DateTime?        @db.Timestamptz()
+  updated_at        DateTime         @default(now()) @updatedAt @db.Timestamptz()
+
+  @@map("ail_pre_assessment_reports")
 }
 
 model AilPromptSubmission {

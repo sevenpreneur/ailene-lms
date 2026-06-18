@@ -9,7 +9,8 @@ import {
   championProcedure,
   createTRPCRouter,
 } from "@/trpc/init";
-import { PrismaClient } from "@prisma/client";
+import { schedulePreAssessmentReport } from "@/trpc/routers/ailene/utils.ailene";
+import { Prisma, PrismaClient } from "@prisma/client";
 import { TRPCError } from "@trpc/server";
 import { z } from "zod";
 
@@ -203,30 +204,44 @@ export const createRouter = createTRPCRouter({
       }
 
       const data = opts.input;
-      const created = await opts.ctx.prisma.ailPreAssessment.create({
-        data: {
-          member_id: memberId,
-          ai_use_frequency: data.ai_use_frequency,
-          ai_tools_used: data.ai_tools_used,
-          ai_limitations: data.ai_limitations,
-          output_review: data.output_review,
-          use_cases: data.use_cases,
-          team_adoption: data.team_adoption,
-          concrete_example: data.concrete_example ?? null,
-          model_selection: data.model_selection,
-          multimodal_use: data.multimodal_use,
-          workflow_reuse: data.workflow_reuse,
-          prompt_comfort: data.prompt_comfort,
-          prompt_iteration: data.prompt_iteration,
-          refine_scenario: data.refine_scenario,
-          professional_attitude: data.professional_attitude,
-          data_safety_check: data.data_safety_check,
-          publish_unchecked: data.publish_unchecked,
-          biggest_challenge: data.biggest_challenge,
-          training_expectation: data.training_expectation,
-          motivation: data.motivation,
-        },
+      // Persist the raw answers and seed the report row (status="pending")
+      // atomically — the report must never be missing for a submitted
+      // assessment, otherwise the worker has nothing to update.
+      const created = await opts.ctx.prisma.$transaction(async (tx) => {
+        const preAssessment = await tx.ailPreAssessment.create({
+          data: {
+            member_id: memberId,
+            ai_use_frequency: data.ai_use_frequency,
+            ai_tools_used: data.ai_tools_used,
+            ai_limitations: data.ai_limitations,
+            output_review: data.output_review,
+            use_cases: data.use_cases,
+            team_adoption: data.team_adoption,
+            concrete_example: data.concrete_example ?? null,
+            model_selection: data.model_selection,
+            multimodal_use: data.multimodal_use,
+            workflow_reuse: data.workflow_reuse,
+            prompt_comfort: data.prompt_comfort,
+            prompt_iteration: data.prompt_iteration,
+            refine_scenario: data.refine_scenario,
+            professional_attitude: data.professional_attitude,
+            data_safety_check: data.data_safety_check,
+            publish_unchecked: data.publish_unchecked,
+            biggest_challenge: data.biggest_challenge,
+            training_expectation: data.training_expectation,
+            motivation: data.motivation,
+            report: {
+              create: { status: "pending" },
+            },
+          },
+        });
+        return preAssessment;
       });
+
+      // DB committed — kick off the background recommendation generation.
+      // Best-effort: a publish failure leaves the report "pending" for the
+      // user to retry from the report page, so we don't fail the submission.
+      await schedulePreAssessmentReport(created.id).catch(() => {});
 
       return {
         code: STATUS_OK,
@@ -234,6 +249,39 @@ export const createRouter = createTRPCRouter({
         id: created.id,
       };
     }),
+
+  // Retry the AI recommendation generation when it previously failed (or got
+  // stuck). Resets the report to "pending" and re-queues the worker.
+  regeneratePreAssessmentReport: ailMemberProcedure.mutation(async (opts) => {
+    const memberId = opts.ctx.ail_member.id;
+
+    const preAssessment = await opts.ctx.prisma.ailPreAssessment.findUnique({
+      where: { member_id: memberId },
+      select: { id: true, report: { select: { status: true } } },
+    });
+    if (!preAssessment) {
+      throw new TRPCError({
+        code: STATUS_NOT_FOUND,
+        message: "Pre-assessment not found.",
+      });
+    }
+
+    // Upsert: heals legacy rows that have no report yet, and resets existing
+    // ones back to pending so the worker overwrites them cleanly.
+    await opts.ctx.prisma.ailPreAssessmentReport.upsert({
+      where: { pre_assessment_id: preAssessment.id },
+      create: { pre_assessment_id: preAssessment.id, status: "pending" },
+      update: {
+        status: "pending",
+        error_message: null,
+        recommendations: Prisma.DbNull,
+      },
+    });
+
+    await schedulePreAssessmentReport(preAssessment.id).catch(() => {});
+
+    return { code: STATUS_OK, message: "Report regeneration queued" };
+  }),
 
   completeMaterial: ailMemberProcedure
     .input(z.object({ material_id: z.string().min(1) }))

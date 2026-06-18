@@ -3,7 +3,11 @@ import {
   STATUS_NOT_FOUND,
   STATUS_OK,
 } from "@/lib/status_code";
-import { buildPreAssessmentReport } from "@/lib/pre-assessment-report";
+import {
+  buildPreAssessmentReport,
+  type PreAssessmentRecommendations,
+  type PreAssessmentReportStatus,
+} from "@/lib/pre-assessment-report";
 import {
   ailMemberProcedure,
   championProcedure,
@@ -532,6 +536,40 @@ export const readRouter = createTRPCRouter({
       message: "Success",
       pre_assessment: preAssessment,
       report: buildPreAssessmentReport(preAssessment),
+    };
+  }),
+
+  // AI recommendation section — separate concern from the deterministic report
+  // above so the report page can fetch the pillars once and poll only this
+  // (small) endpoint while the background worker generates the use cases.
+  preAssessmentRecommendations: ailMemberProcedure.query(async (opts) => {
+    const memberId = opts.ctx.ail_member.id;
+    const pa = await opts.ctx.prisma.ailPreAssessment.findUnique({
+      where: { member_id: memberId },
+      select: {
+        report: {
+          select: {
+            status: true,
+            recommendations: true,
+            error_message: true,
+            generated_at: true,
+          },
+        },
+      },
+    });
+
+    const generation = pa?.report;
+    return {
+      code: STATUS_OK,
+      message: "Success",
+      // Legacy rows submitted before the report table existed default to
+      // "pending" so the UI shows the loading state and a retry is offered.
+      status: (generation?.status ?? "pending") as PreAssessmentReportStatus,
+      recommendations:
+        (generation?.recommendations as PreAssessmentRecommendations | null) ??
+        null,
+      error_message: generation?.error_message ?? null,
+      generated_at: generation?.generated_at ?? null,
     };
   }),
 
