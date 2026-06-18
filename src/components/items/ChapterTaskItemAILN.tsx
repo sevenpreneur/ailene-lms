@@ -216,7 +216,7 @@ export default function ChapterTaskItemAILN(props: ChapterTaskItemAILNProps) {
         locked
           ? "border-dashboard-border bg-card-2 opacity-60"
           : isNext
-            ? "border-red-500 bg-card-2 ring-1 ring-red-500 dark:border-red-400 dark:ring-red-400/60"
+            ? "ailn-ring-pulse border-red-500/50 bg-red-50 ring-2 ring-red-500/30 dark:border-red-400/30 dark:bg-red-500/10 dark:ring-red-400/60"
             : "border-dashboard-border bg-card-2"
       }`}
     >

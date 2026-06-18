@@ -108,7 +108,7 @@ export default function LevelDividerAILN(props: LevelDividerAILNProps) {
   return (
     <>
       <div className="relative pl-12">
-        <div className="rounded-xl bg-white p-4 dark:border dark:border-red-500/15 dark:bg-red-500/[0.03]">
+        <div className="rounded-xl bg-white p-4 border dark:border-red-500/15 dark:bg-red-500/[0.03]">
           <div className="flex items-center justify-between gap-4">
             <div className="flex items-center gap-4">
               <Image
@@ -164,7 +164,7 @@ export default function LevelDividerAILN(props: LevelDividerAILNProps) {
                 </div>
                 <FontAwesomeIcon
                   icon={faLock}
-                  className="h-6 w-6 text-gray-700 dark:text-red-500/40"
+                  className="h-6 w-6 text-gray-700 dark:text-white"
                 />
               </div>
             )}
