@@ -137,30 +137,73 @@ export const readRouter = createTRPCRouter({
       opts.ctx.ail_member.current_level?.level_number ?? 0;
     const targetLevelNumber = Math.min(currentLevelNumber + 1, 4);
 
-    const [quizSubs, prSubs, ucSubs] = await Promise.all([
-      opts.ctx.prisma.ailQuizSubmission.findMany({
-        where: { member_id: memberId, is_completed: true },
-        select: { quiz_id: true, score: true },
-      }),
-      opts.ctx.prisma.ailPromptSubmission.findMany({
-        where: { member_id: memberId, submitted_at: { not: null } },
-        select: { is_accepted: true },
-      }),
-      opts.ctx.prisma.ailUseCaseSubmission.findMany({
-        where: { member_id: memberId, submitted_at: { not: null } },
-        select: {
-          ai_tool: true,
-          frequency: true,
-          type: true,
-        },
-      }),
-    ]);
+    // Recency window shared by Prompting Quality (fallback) & AI Habit
+    // consistency. 90 days mirrors the streak panel default.
+    const now = dayjs();
+    const windowDays = 90;
+    const windowStartDate = now
+      .subtract(windowDays - 1, "day")
+      .startOf("day")
+      .toDate();
+
+    const [quizSubs, prSubs, ucSubs, quizDays, videoDays, materialDays] =
+      await Promise.all([
+        opts.ctx.prisma.ailQuizSubmission.findMany({
+          where: { member_id: memberId, is_completed: true },
+          select: { quiz_id: true, score: true },
+        }),
+        opts.ctx.prisma.ailPromptSubmission.findMany({
+          where: { member_id: memberId, submitted_at: { not: null } },
+          select: {
+            reviewed_at: true,
+            rubric_specificity: true,
+            rubric_context: true,
+            rubric_constraints: true,
+            rubric_examples: true,
+            rubric_iteration: true,
+          },
+        }),
+        opts.ctx.prisma.ailUseCaseSubmission.findMany({
+          where: { member_id: memberId, submitted_at: { not: null } },
+          select: {
+            ai_tool: true,
+            outcome_proof: true,
+            type: true,
+            is_accepted: true,
+            hours_with_ai: true,
+            hours_without_ai: true,
+          },
+        }),
+        // Active-day sources for the AI Habit consistency component (last 90d).
+        opts.ctx.prisma.ailQuizSubmission.findMany({
+          where: {
+            member_id: memberId,
+            is_completed: true,
+            submitted_at: { gte: windowStartDate },
+          },
+          select: { submitted_at: true },
+        }),
+        opts.ctx.prisma.ailVideoCompletion.findMany({
+          where: {
+            member_id: memberId,
+            completed_at: { gte: windowStartDate },
+          },
+          select: { completed_at: true },
+        }),
+        opts.ctx.prisma.ailMaterialCompletion.findMany({
+          where: {
+            member_id: memberId,
+            completed_at: { gte: windowStartDate },
+          },
+          select: { completed_at: true },
+        }),
+      ]);
 
     const round1 = (n: number) => Math.round(n * 10) / 10;
     const clamp = (n: number, min: number, max: number) =>
       Math.max(min, Math.min(max, n));
 
-    // 1. AI Foundation — best quiz score per quiz, averaged, normalized 0-100 → 0-5
+    // 1. AI Foundation — best quiz score per quiz, averaged, 0-100 → 0-5.
     const bestPerQuiz = new Map<string, number>();
     for (const q of quizSubs) {
       const prev = bestPerQuiz.get(q.quiz_id);
@@ -175,14 +218,49 @@ export const readRouter = createTRPCRouter({
           bestPerQuiz.size;
     const aiFoundation = clamp(avgQuiz / 20, 0, 5);
 
-    // 2. Prompting Quality — acceptance rate across submitted prompts
-    const prAcceptedCount = prSubs.filter((p) => p.is_accepted).length;
+    // 2. Prompting Quality — mean of the 5-dimension review rubric over recent
+    // rubric-scored prompts. Use everything reviewed in the last 90 days; if
+    // that window has fewer than 3, fall back to the 3 most recent overall —
+    // keeps the signal current without being whipsawed by a single prompt.
+    const scoredPrompts = prSubs
+      .filter(
+        (p) =>
+          p.rubric_specificity !== null &&
+          p.rubric_context !== null &&
+          p.rubric_constraints !== null &&
+          p.rubric_examples !== null &&
+          p.rubric_iteration !== null
+      )
+      .map((p) => ({
+        reviewed_at: p.reviewed_at,
+        mean:
+          ((p.rubric_specificity ?? 0) +
+            (p.rubric_context ?? 0) +
+            (p.rubric_constraints ?? 0) +
+            (p.rubric_examples ?? 0) +
+            (p.rubric_iteration ?? 0)) /
+          5,
+      }))
+      .sort(
+        (a, b) =>
+          (b.reviewed_at?.getTime() ?? 0) - (a.reviewed_at?.getTime() ?? 0)
+      );
+    const promptsInWindow = scoredPrompts.filter(
+      (p) => p.reviewed_at !== null && p.reviewed_at >= windowStartDate
+    );
+    const relevantPrompts =
+      promptsInWindow.length >= 3 ? promptsInWindow : scoredPrompts.slice(0, 3);
     const promptingQuality =
-      prSubs.length === 0
+      relevantPrompts.length === 0
         ? 0
-        : clamp((prAcceptedCount / prSubs.length) * 5, 0, 5);
+        : clamp(
+            relevantPrompts.reduce((a, p) => a + p.mean, 0) /
+              relevantPrompts.length,
+            0,
+            5
+          );
 
-    // 3. Tool Fluency — unique AI tools used across all use case submissions
+    // 3. Tool Fluency — tool breadth + artifact evidence + multi-model use.
     const tools = new Set<string>();
     for (const uc of ucSubs) {
       if (!uc.ai_tool) continue;
@@ -191,31 +269,57 @@ export const readRouter = createTRPCRouter({
         if (t) tools.add(t);
       }
     }
-    const toolFluency = Math.min(tools.size, 5);
-
-    // 4. Use Case Diversity — total submitted use cases, capped at 5
-    const useCaseDiversity = Math.min(ucSubs.length, 5);
-
-    // 5. AI Habit — frequency weighted average across use case submissions
-    const freqScore: Record<string, number> = {
-      DAILY: 5,
-      WEEKLY: 3.5,
-      MONTHLY: 2,
-      OCCASIONALLY: 1,
-    };
-    const freqValues = ucSubs
-      .map((uc) => (uc.frequency ? (freqScore[uc.frequency] ?? 0) : 0))
-      .filter((v) => v > 0);
-    const aiHabit =
-      freqValues.length === 0
-        ? 0
-        : freqValues.reduce((a, b) => a + b, 0) / freqValues.length;
-
-    // 6. Agentic Capabilities — count of WORKFLOW_AUTOMATION use cases
-    const agenticCount = ucSubs.filter(
-      (uc) => uc.type === "WORKFLOW_AUTOMATION"
+    const distinctTools = tools.size;
+    const toolBreadth = clamp(distinctTools, 0, 5);
+    const ucWithProof = ucSubs.filter(
+      (uc) => uc.outcome_proof && uc.outcome_proof.trim().length > 0
     ).length;
-    const agenticCapabilities = Math.min(agenticCount, 5);
+    const artifact =
+      ucSubs.length === 0 ? 0 : clamp((ucWithProof / ucSubs.length) * 5, 0, 5);
+    const multiModel = distinctTools >= 3 ? 5 : distinctTools === 2 ? 3 : 0;
+    const toolFluency = clamp(
+      0.4 * toolBreadth + 0.4 * artifact + 0.2 * multiModel,
+      0,
+      5
+    );
+
+    // 4. Use Case Diversity — distinct use case categories + accepted bonus.
+    const distinctTypes = new Set(
+      ucSubs.map((uc) => uc.type).filter((t): t is NonNullable<typeof t> => !!t)
+    ).size;
+    const diversityBase = Math.min(5, distinctTypes * 0.7);
+    const acceptedUcCount = ucSubs.filter((uc) => uc.is_accepted).length;
+    const outcomeBonus = Math.min(1, acceptedUcCount * 0.25);
+    const useCaseDiversity = clamp(diversityBase + outcomeBonus, 0, 5);
+
+    // 5. AI Habit — real hours saved + activity consistency over the window.
+    let totalHoursSaved = 0;
+    for (const uc of ucSubs) {
+      if (uc.hours_with_ai === null || uc.hours_without_ai === null) continue;
+      const saved = Number(uc.hours_without_ai) - Number(uc.hours_with_ai);
+      if (saved > 0) totalHoursSaved += saved;
+    }
+    const hoursScore = clamp(totalHoursSaved / 8, 0, 5);
+    const activeDays = new Set<string>();
+    for (const s of quizDays) {
+      if (s.submitted_at)
+        activeDays.add(dayjs(s.submitted_at).format("YYYY-MM-DD"));
+    }
+    for (const v of videoDays) {
+      if (v.completed_at)
+        activeDays.add(dayjs(v.completed_at).format("YYYY-MM-DD"));
+    }
+    for (const m of materialDays) {
+      if (m.completed_at)
+        activeDays.add(dayjs(m.completed_at).format("YYYY-MM-DD"));
+    }
+    const consistency = clamp((activeDays.size / windowDays) * 5, 0, 5);
+    const aiHabit = clamp(0.6 * hoursScore + 0.4 * consistency, 0, 5);
+
+    // 6. Agentic Capabilities — demonstrated via L4 portfolio components, which
+    // don't exist in the product yet. Per decision (keep 0, not n/a) this stays
+    // 0 until L4 features ship; only L4+ members could ever score here.
+    const agenticCapabilities = 0;
 
     const dimensions = [
       {
@@ -291,8 +395,7 @@ export const readRouter = createTRPCRouter({
     };
   }),
 
-  // Rekomendasi use case mandiri dari katalog. Hanya ambil use case yang
-  // belum pernah dibuatkan submission oleh member ini.
+  // Hanya ambil use case yang belum pernah dibuatkan submission oleh member ini.
   recommendations: ailMemberProcedure.query(async (opts) => {
     const memberId = opts.ctx.ail_member.id;
 
@@ -1093,9 +1196,7 @@ export const readRouter = createTRPCRouter({
       (m) => (m.current_level?.level_number ?? 0) >= 1
     ).length;
     const productivePercent =
-      memberCount === 0
-        ? 0
-        : Math.round((productiveCount / memberCount) * 100);
+      memberCount === 0 ? 0 : Math.round((productiveCount / memberCount) * 100);
 
     // Weekly buckets (oldest → newest) for the sparkline.
     const buckets = Array.from({ length: trendWeeks }, (_, i) => {
@@ -1437,9 +1538,7 @@ export const readRouter = createTRPCRouter({
       }),
     ]);
 
-    const levelNumberById = new Map(
-      levels.map((l) => [l.id, l.level_number])
-    );
+    const levelNumberById = new Map(levels.map((l) => [l.id, l.level_number]));
 
     // Per member: creation time, current level, and dated unlock events.
     const timelines = members.map((m) => {
@@ -1451,7 +1550,7 @@ export const readRouter = createTRPCRouter({
           if (typeof row.unlocked_at !== "string") continue;
           const level =
             typeof row.level_id === "number"
-              ? levelNumberById.get(row.level_id) ?? 0
+              ? (levelNumberById.get(row.level_id) ?? 0)
               : 0;
           unlocks.push({ at: dayjs(row.unlocked_at).valueOf(), level });
         }
@@ -1491,7 +1590,8 @@ export const readRouter = createTRPCRouter({
 
       return {
         label: weekStart.format("D MMM"),
-        avg_level: existing === 0 ? 0 : Math.round((sumLevel / existing) * 100) / 100,
+        avg_level:
+          existing === 0 ? 0 : Math.round((sumLevel / existing) * 100) / 100,
         level1_plus_percent:
           existing === 0 ? 0 : Math.round((atLeastL1 / existing) * 100),
         highlight: index === weekCount - 1,
@@ -1527,7 +1627,9 @@ export const readRouter = createTRPCRouter({
         },
       }),
     ]);
-    const levelByNumber = new Map(levels.map((level) => [level.level_number, level]));
+    const levelByNumber = new Map(
+      levels.map((level) => [level.level_number, level])
+    );
     const displayLevels = levelNumbers.map((levelNumber) => {
       const level = levelByNumber.get(levelNumber);
       return {
@@ -1750,9 +1852,8 @@ export const readRouter = createTRPCRouter({
               );
         const levelNumber = member.current_level.level_number;
         const score =
-          Math.round(
-            Math.min(levelNumber + progressPercent / 100, 4.9) * 10
-          ) / 10;
+          Math.round(Math.min(levelNumber + progressPercent / 100, 4.9) * 10) /
+          10;
 
         let latestUnlockAt: string | null = null;
         if (Array.isArray(member.level_history)) {
@@ -1760,7 +1861,10 @@ export const readRouter = createTRPCRouter({
             if (!entry || typeof entry !== "object") continue;
             const row = entry as Record<string, unknown>;
             if (typeof row.unlocked_at !== "string") continue;
-            if (!latestUnlockAt || dayjs(row.unlocked_at).isAfter(latestUnlockAt)) {
+            if (
+              !latestUnlockAt ||
+              dayjs(row.unlocked_at).isAfter(latestUnlockAt)
+            ) {
               latestUnlockAt = row.unlocked_at;
             }
           }
@@ -1780,7 +1884,10 @@ export const readRouter = createTRPCRouter({
 
         if (member.role === "CHAMPION") {
           status = { kind: "champion", label: "Champion aktif" };
-        } else if (latestUnlockAt && now.diff(dayjs(latestUnlockAt), "day") <= 14) {
+        } else if (
+          latestUnlockAt &&
+          now.diff(dayjs(latestUnlockAt), "day") <= 14
+        ) {
           status = {
             kind: "up",
             label: `Naik L${levelNumber} (${relativeLabel(latestUnlockAt)})`,
@@ -1817,7 +1924,10 @@ export const readRouter = createTRPCRouter({
           status,
         };
       })
-      .sort((a, b) => b.score - a.score || a.user.full_name.localeCompare(b.user.full_name));
+      .sort(
+        (a, b) =>
+          b.score - a.score || a.user.full_name.localeCompare(b.user.full_name)
+      );
 
     const departments = Array.from(
       new Map(
@@ -1952,7 +2062,9 @@ export const readRouter = createTRPCRouter({
         const hoursPrevWeek = a?.hoursPrevWeek ?? 0;
         const trendPercent =
           hoursPrevWeek > 0
-            ? Math.round(((hoursThisWeek - hoursPrevWeek) / hoursPrevWeek) * 100)
+            ? Math.round(
+                ((hoursThisWeek - hoursPrevWeek) / hoursPrevWeek) * 100
+              )
             : null;
 
         return {
@@ -2084,7 +2196,9 @@ export const readRouter = createTRPCRouter({
       const currentRequiredMaterialIds = currentLevelChapters.flatMap(
         (chapter) => chapter.materials.map((material) => material.id)
       );
-      const completedQuizIds = new Set(quizSubs.map((submission) => submission.quiz_id));
+      const completedQuizIds = new Set(
+        quizSubs.map((submission) => submission.quiz_id)
+      );
       const completedMaterialIds = new Set(
         materialComps.map((completion) => completion.material_id)
       );
@@ -2094,7 +2208,8 @@ export const readRouter = createTRPCRouter({
           .length;
       const gateTotal =
         currentRequiredQuizIds.length + currentRequiredMaterialIds.length;
-      const gatePercent = gateTotal === 0 ? 100 : Math.round((gateDone / gateTotal) * 100);
+      const gatePercent =
+        gateTotal === 0 ? 100 : Math.round((gateDone / gateTotal) * 100);
 
       const bestQuizByQuiz = new Map<string, number>();
       for (const submission of quizSubs) {
@@ -2127,10 +2242,18 @@ export const readRouter = createTRPCRouter({
         cursor = cursor.subtract(1, "day");
       }
 
-      const promptAccepted = promptSubs.filter((submission) => submission.is_accepted).length;
-      const useCaseAccepted = useCaseSubs.filter((submission) => submission.is_accepted).length;
-      const submittedPrompts = promptSubs.filter((submission) => submission.submitted_at);
-      const submittedUseCases = useCaseSubs.filter((submission) => submission.submitted_at);
+      const promptAccepted = promptSubs.filter(
+        (submission) => submission.is_accepted
+      ).length;
+      const useCaseAccepted = useCaseSubs.filter(
+        (submission) => submission.is_accepted
+      ).length;
+      const submittedPrompts = promptSubs.filter(
+        (submission) => submission.submitted_at
+      );
+      const submittedUseCases = useCaseSubs.filter(
+        (submission) => submission.submitted_at
+      );
       const uniqueTools = new Set<string>();
       for (const submission of submittedUseCases) {
         if (!submission.ai_tool) continue;
@@ -2199,7 +2322,10 @@ export const readRouter = createTRPCRouter({
             : submission.submitted_at
               ? "submitted"
               : "assigned",
-          occurred_at: submission.reviewed_at ?? submission.submitted_at ?? submission.created_at,
+          occurred_at:
+            submission.reviewed_at ??
+            submission.submitted_at ??
+            submission.created_at,
         })),
         ...promptSubs.map((submission) => ({
           id: `prompt-${submission.id}`,
@@ -2215,7 +2341,10 @@ export const readRouter = createTRPCRouter({
             : submission.submitted_at
               ? "submitted"
               : "assigned",
-          occurred_at: submission.reviewed_at ?? submission.submitted_at ?? submission.created_at,
+          occurred_at:
+            submission.reviewed_at ??
+            submission.submitted_at ??
+            submission.created_at,
         })),
         ...quizSubs.slice(0, 8).map((submission) => ({
           id: `quiz-${submission.id}`,
@@ -2236,7 +2365,9 @@ export const readRouter = createTRPCRouter({
         where: { member_id },
         orderBy: { created_at: "desc" },
         take: 20,
-        include: { champion: { select: { user: { select: { full_name: true } } } } },
+        include: {
+          champion: { select: { user: { select: { full_name: true } } } },
+        },
       });
       const notes = coachingNotes.map((n) => ({
         id: n.id,
@@ -2254,7 +2385,9 @@ export const readRouter = createTRPCRouter({
           email: member.user.email,
           avatar: member.user.avatar,
           job_title: member.job_title,
-          group: member.group ? { id: member.group.id, name: member.group.name } : null,
+          group: member.group
+            ? { id: member.group.id, name: member.group.name }
+            : null,
           current_level: {
             id: member.current_level.id,
             level_number: member.current_level.level_number,
@@ -2288,7 +2421,8 @@ export const readRouter = createTRPCRouter({
               completed: gateTotal > 0 && gateDone >= gateTotal,
             },
             {
-              label: avgQuiz > 0 ? `Avg quiz ${avgQuiz}/100` : "Avg quiz belum ada",
+              label:
+                avgQuiz > 0 ? `Avg quiz ${avgQuiz}/100` : "Avg quiz belum ada",
               completed: avgQuiz >= 80,
             },
             {
