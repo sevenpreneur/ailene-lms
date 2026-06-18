@@ -35,11 +35,9 @@ export const aileneReportRouter = createTRPCRouter({
 export const ailenePreAssessmentOrg = {
   departments: readPreAssessment.departments,
   overview: readPreAssessment.overview,
-  pillars: readPreAssessment.pillars,
   usageFrequency: readPreAssessment.usageFrequency,
   tools: readPreAssessment.tools,
   teamMaturity: readPreAssessment.teamMaturity,
-  safetyGaps: readPreAssessment.safetyGaps,
   topUseCases: readPreAssessment.topUseCases,
   voice: readPreAssessment.voice,
 };

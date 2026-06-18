@@ -45,12 +45,19 @@ CREATE TYPE ail_pa_ai_use_freq AS ENUM (
   'intensive'
 );
 
-CREATE TYPE ail_pa_understanding AS ENUM (
-  'none',
-  'aware',
-  'basic',
-  'explain',
-  'expert'
+CREATE TYPE ail_pa_frequency AS ENUM (
+  'never',
+  'rarely',
+  'sometimes',
+  'often',
+  'always'
+);
+
+CREATE TYPE ail_pa_refine_scenario AS ENUM (
+  'targeted',
+  'switch_tool',
+  'manual',
+  'restart'
 );
 
 CREATE TYPE ail_pa_output_review AS ENUM (
@@ -343,22 +350,26 @@ CREATE TABLE ail_xp_earnings (
 CREATE TABLE ail_pre_assessments (
     id                        SERIAL                 PRIMARY KEY,
     member_id                 INTEGER                NOT NULL UNIQUE,
-    q1_ai_use_frequency       ail_pa_ai_use_freq     NOT NULL,
-    q2_ai_tools_used          TEXT[]                 NOT NULL DEFAULT '{}',
-    q3_job_role               VARCHAR                NOT NULL,
-    q4_ai_understanding       ail_pa_understanding   NOT NULL,
-    q5_ai_limitations         TEXT[]                 NOT NULL DEFAULT '{}',
-    q6_output_review          ail_pa_output_review   NOT NULL,
-    q7_use_cases              TEXT[]                 NOT NULL DEFAULT '{}',
-    q8_team_adoption          ail_pa_team_adoption   NOT NULL,
-    q9_concrete_example       VARCHAR                    NULL,
-    q10_prompt_comfort        ail_pa_prompt_skill    NOT NULL,
-    q11_safety_practices      TEXT[]                 NOT NULL DEFAULT '{}',
-    q12_professional_attitude ail_pa_attitude        NOT NULL,
-    q13_biggest_challenge     TEXT                   NOT NULL,
-    q14_training_expectation  TEXT                   NOT NULL,
-    q15_motivation            ail_pa_motivation      NOT NULL,
-    created_at                TIMESTAMPTZ            NOT NULL DEFAULT CURRENT_TIMESTAMP
+    ai_use_frequency      ail_pa_ai_use_freq     NOT NULL,
+    ai_tools_used         TEXT[]                 NOT NULL DEFAULT '{}',
+    ai_limitations        TEXT[]                 NOT NULL DEFAULT '{}',
+    output_review         ail_pa_output_review   NOT NULL,
+    use_cases             TEXT[]                 NOT NULL DEFAULT '{}',
+    team_adoption         ail_pa_team_adoption   NOT NULL,
+    concrete_example      VARCHAR                    NULL,
+    model_selection       ail_pa_frequency       NOT NULL,
+    multimodal_use        ail_pa_frequency       NOT NULL,
+    workflow_reuse        ail_pa_frequency       NOT NULL,
+    prompt_comfort        ail_pa_prompt_skill    NOT NULL,
+    prompt_iteration      ail_pa_frequency       NOT NULL,
+    refine_scenario       ail_pa_refine_scenario NOT NULL,
+    professional_attitude ail_pa_attitude        NOT NULL,
+    data_safety_check     ail_pa_frequency       NOT NULL,
+    publish_unchecked     ail_pa_frequency       NOT NULL,
+    biggest_challenge     TEXT                   NOT NULL,
+    training_expectation  TEXT                   NOT NULL,
+    motivation            ail_pa_motivation      NOT NULL,
+    created_at            TIMESTAMPTZ            NOT NULL DEFAULT CURRENT_TIMESTAMP
 );
 
 -- Announcement

@@ -12,53 +12,13 @@ const groupInput = z
   .object({ group_id: z.number().int().positive().optional() })
   .optional();
 
-const round1 = (n: number) => Math.round(n * 10) / 10;
 const pct = (n: number, total: number) =>
   total === 0 ? 0 : Math.round((n / total) * 100);
-const mean = (values: number[]) =>
-  values.length === 0 ? 0 : values.reduce((a, b) => a + b, 0) / values.length;
 
 // Scope helpers — pre-assessment rows are filtered through their member's group.
 const paWhere = (groupId?: number) =>
   groupId ? { member: { group_id: groupId } } : {};
 const memberWhere = (groupId?: number) => (groupId ? { group_id: groupId } : {});
-
-// Ordinal 1–5 score maps for the single-choice enums used by the radar pillars.
-const UNDERSTANDING_SCORE: Record<string, number> = {
-  NONE: 1,
-  AWARE: 2,
-  BASIC: 3,
-  EXPLAIN: 4,
-  EXPERT: 5,
-};
-const PROMPT_SCORE: Record<string, number> = {
-  NONE: 1,
-  BASIC: 2,
-  DECENT: 3,
-  STRUCTURED: 4,
-  EXPERT: 5,
-};
-const ADOPTION_SCORE: Record<string, number> = {
-  NONE: 1,
-  PERSONAL: 2,
-  PILOT: 3,
-  POLICY: 4,
-  INTEGRATED: 5,
-};
-const ATTITUDE_SCORE: Record<string, number> = {
-  TOO_RISKY: 1,
-  CAUTIOUS: 2,
-  NEUTRAL: 3,
-  SUPPORTIVE: 4,
-  ESSENTIAL: 5,
-};
-const MOTIVATION_SCORE: Record<string, number> = {
-  MANDATORY: 1,
-  CURIOUS: 2,
-  TENTATIVE: 3,
-  READY: 4,
-  EAGER: 5,
-};
 
 // q1 — usage frequency. `highlight` marks the "rutin" (daily+) buckets.
 const FREQUENCY_BUCKETS: { key: string; label: string; highlight: boolean }[] =
@@ -104,32 +64,6 @@ const USE_CASE_LABELS: Record<string, string> = {
   "Layanan pelanggan / customer support": "Customer support",
   "Pemasaran dan pembuatan konten": "Pemasaran & konten",
 };
-
-// q11 — the five "positive" safety practices. The dashboard reports the GAP:
-// % of respondents who did NOT select each one (i.e. are not yet aware).
-const SAFETY_PRACTICES: { canonical: string; label: string }[] = [
-  {
-    canonical: "Jangan memasukkan data rahasia perusahaan ke AI publik",
-    label: "Jangan unggah data rahasia ke AI publik",
-  },
-  {
-    canonical: "Selalu review output AI sebelum digunakan secara resmi",
-    label: "Selalu review output sebelum dipakai resmi",
-  },
-  {
-    canonical: "Perhatikan hak cipta konten yang dihasilkan AI",
-    label: "Perhatikan hak cipta konten AI",
-  },
-  {
-    canonical:
-      "Transparan kepada klien/kolega jika konten dibuat dengan bantuan AI",
-    label: "Transparan ke klien/kolega",
-  },
-  {
-    canonical: "Pahami kebijakan penggunaan AI perusahaan",
-    label: "Pahami kebijakan AI perusahaan",
-  },
-];
 
 // Free-text clustering for q13/q14. A respondent is counted in a cluster when
 // their answer contains any of the cluster's keywords (matched once per
@@ -225,8 +159,7 @@ export const readPreAssessment = {
       opts.ctx.prisma.ailPreAssessment.findMany({
         where: paWhere(groupId),
         select: {
-          q1_ai_use_frequency: true,
-          q4_ai_understanding: true,
+          ai_use_frequency: true,
           created_at: true,
         },
       }),
@@ -235,11 +168,8 @@ export const readPreAssessment = {
     const respondents = rows.length;
     const routineUsers = rows.filter(
       (r) =>
-        r.q1_ai_use_frequency === "DAILY" ||
-        r.q1_ai_use_frequency === "INTENSIVE"
-    ).length;
-    const literate = rows.filter((r) =>
-      ["BASIC", "EXPLAIN", "EXPERT"].includes(r.q4_ai_understanding)
+        r.ai_use_frequency === "DAILY" ||
+        r.ai_use_frequency === "INTENSIVE"
     ).length;
     const measuredAt = rows.reduce<Date | null>(
       (acc, r) => (!acc || r.created_at > acc ? r.created_at : acc),
@@ -253,78 +183,7 @@ export const readPreAssessment = {
       completed_count: respondents,
       participation_percent: pct(respondents, totalMembers),
       routine_users_percent: pct(routineUsers, respondents),
-      basic_literacy_percent: pct(literate, respondents),
       measured_at: measuredAt,
-    };
-  }),
-
-  // 6-pillar readiness radar + org average (the "Kesiapan rata-rata pillar" KPI).
-  pillars: sponsorProcedure.input(groupInput).query(async (opts) => {
-    const groupId = opts.input?.group_id;
-    const rows = await opts.ctx.prisma.ailPreAssessment.findMany({
-      where: paWhere(groupId),
-      select: {
-        q4_ai_understanding: true,
-        q10_prompt_comfort: true,
-        q8_team_adoption: true,
-        q2_ai_tools_used: true,
-        q11_safety_practices: true,
-        q12_professional_attitude: true,
-        q15_motivation: true,
-      },
-    });
-
-    const positiveSafety = new Set(SAFETY_PRACTICES.map((p) => p.canonical));
-
-    const foundations: number[] = [];
-    const prompting: number[] = [];
-    const workplace: number[] = [];
-    const tooling: number[] = [];
-    const ethicsSafety: number[] = [];
-    const mindset: number[] = [];
-
-    for (const r of rows) {
-      foundations.push(UNDERSTANDING_SCORE[r.q4_ai_understanding] ?? 0);
-      prompting.push(PROMPT_SCORE[r.q10_prompt_comfort] ?? 0);
-      workplace.push(ADOPTION_SCORE[r.q8_team_adoption] ?? 0);
-      tooling.push(
-        Math.min(
-          r.q2_ai_tools_used.filter((t) => t !== TOOL_NONE).length,
-          5
-        )
-      );
-      ethicsSafety.push(
-        Math.min(
-          r.q11_safety_practices.filter((s) => positiveSafety.has(s)).length,
-          5
-        )
-      );
-      mindset.push(
-        ((ATTITUDE_SCORE[r.q12_professional_attitude] ?? 0) +
-          (MOTIVATION_SCORE[r.q15_motivation] ?? 0)) /
-          2
-      );
-    }
-
-    const pillars = [
-      { key: "foundations", name: "Foundations", score: round1(mean(foundations)) },
-      { key: "prompting", name: "Prompting", score: round1(mean(prompting)) },
-      { key: "workplace", name: "Workplace", score: round1(mean(workplace)) },
-      { key: "tooling", name: "Tooling", score: round1(mean(tooling)) },
-      {
-        key: "ethics_safety",
-        name: "Ethics & Safety",
-        score: round1(mean(ethicsSafety)),
-      },
-      { key: "mindset", name: "Mindset", score: round1(mean(mindset)) },
-    ];
-
-    return {
-      code: STATUS_OK,
-      message: "Success",
-      respondents: rows.length,
-      pillars,
-      org_avg: round1(mean(pillars.map((p) => p.score))),
     };
   }),
 
@@ -333,14 +192,14 @@ export const readPreAssessment = {
     const groupId = opts.input?.group_id;
     const rows = await opts.ctx.prisma.ailPreAssessment.findMany({
       where: paWhere(groupId),
-      select: { q1_ai_use_frequency: true },
+      select: { ai_use_frequency: true },
     });
     const respondents = rows.length;
     const counts = new Map<string, number>();
     for (const r of rows) {
       counts.set(
-        r.q1_ai_use_frequency,
-        (counts.get(r.q1_ai_use_frequency) ?? 0) + 1
+        r.ai_use_frequency,
+        (counts.get(r.ai_use_frequency) ?? 0) + 1
       );
     }
 
@@ -375,12 +234,12 @@ export const readPreAssessment = {
     const groupId = opts.input?.group_id;
     const rows = await opts.ctx.prisma.ailPreAssessment.findMany({
       where: paWhere(groupId),
-      select: { q2_ai_tools_used: true },
+      select: { ai_tools_used: true },
     });
     const respondents = rows.length;
     const counts = new Map<string, number>();
     for (const r of rows) {
-      for (const tool of r.q2_ai_tools_used) {
+      for (const tool of r.ai_tools_used) {
         if (tool === TOOL_NONE) continue;
         counts.set(tool, (counts.get(tool) ?? 0) + 1);
       }
@@ -402,12 +261,12 @@ export const readPreAssessment = {
     const groupId = opts.input?.group_id;
     const rows = await opts.ctx.prisma.ailPreAssessment.findMany({
       where: paWhere(groupId),
-      select: { q8_team_adoption: true },
+      select: { team_adoption: true },
     });
     const respondents = rows.length;
     const counts = new Map<string, number>();
     for (const r of rows) {
-      counts.set(r.q8_team_adoption, (counts.get(r.q8_team_adoption) ?? 0) + 1);
+      counts.set(r.team_adoption, (counts.get(r.team_adoption) ?? 0) + 1);
     }
 
     const buckets = ADOPTION_BUCKETS.map((b) => {
@@ -434,41 +293,17 @@ export const readPreAssessment = {
     };
   }),
 
-  // q11 — safety awareness GAP: % of respondents NOT aware of each practice.
-  safetyGaps: sponsorProcedure.input(groupInput).query(async (opts) => {
-    const groupId = opts.input?.group_id;
-    const rows = await opts.ctx.prisma.ailPreAssessment.findMany({
-      where: paWhere(groupId),
-      select: { q11_safety_practices: true },
-    });
-    const respondents = rows.length;
-
-    const gaps = SAFETY_PRACTICES.map((p) => {
-      const aware = rows.filter((r) =>
-        r.q11_safety_practices.includes(p.canonical)
-      ).length;
-      const gap = respondents - aware;
-      return {
-        label: p.label,
-        gap_count: gap,
-        gap_percent: pct(gap, respondents),
-      };
-    });
-
-    return { code: STATUS_OK, message: "Success", respondents, gaps };
-  }),
-
   // q7 — most-wanted use cases (multi-select), ranked, top 6.
   topUseCases: sponsorProcedure.input(groupInput).query(async (opts) => {
     const groupId = opts.input?.group_id;
     const rows = await opts.ctx.prisma.ailPreAssessment.findMany({
       where: paWhere(groupId),
-      select: { q7_use_cases: true },
+      select: { use_cases: true },
     });
     const respondents = rows.length;
     const counts = new Map<string, number>();
     for (const r of rows) {
-      for (const uc of r.q7_use_cases) {
+      for (const uc of r.use_cases) {
         counts.set(uc, (counts.get(uc) ?? 0) + 1);
       }
     }
@@ -492,28 +327,28 @@ export const readPreAssessment = {
     const rows = await opts.ctx.prisma.ailPreAssessment.findMany({
       where: paWhere(groupId),
       select: {
-        q13_biggest_challenge: true,
-        q14_training_expectation: true,
-        q12_professional_attitude: true,
-        q15_motivation: true,
+        biggest_challenge: true,
+        training_expectation: true,
+        professional_attitude: true,
+        motivation: true,
       },
     });
     const respondents = rows.length;
 
     const challenges = clusterText(
-      rows.map((r) => r.q13_biggest_challenge),
+      rows.map((r) => r.biggest_challenge),
       CHALLENGE_CLUSTERS
     );
     const expectations = clusterText(
-      rows.map((r) => r.q14_training_expectation),
+      rows.map((r) => r.training_expectation),
       EXPECTATION_CLUSTERS
     );
 
     const motivated = rows.filter((r) =>
-      ["READY", "EAGER"].includes(r.q15_motivation)
+      ["READY", "EAGER"].includes(r.motivation)
     ).length;
     const supportive = rows.filter((r) =>
-      ["SUPPORTIVE", "ESSENTIAL"].includes(r.q12_professional_attitude)
+      ["SUPPORTIVE", "ESSENTIAL"].includes(r.professional_attitude)
     ).length;
 
     return {

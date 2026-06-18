@@ -63,14 +63,23 @@ enum AilPaAiUseFreq {
   @@map("ail_pa_ai_use_freq")
 }
 
-enum AilPaUnderstanding {
-  NONE    @map("none")
-  AWARE   @map("aware")
-  BASIC   @map("basic")
-  EXPLAIN @map("explain")
-  EXPERT  @map("expert")
+enum AilPaFrequency {
+  NEVER     @map("never")
+  RARELY    @map("rarely")
+  SOMETIMES @map("sometimes")
+  OFTEN     @map("often")
+  ALWAYS    @map("always")
 
-  @@map("ail_pa_understanding")
+  @@map("ail_pa_frequency")
+}
+
+enum AilPaRefineScenario {
+  TARGETED    @map("targeted")
+  SWITCH_TOOL @map("switch_tool")
+  MANUAL      @map("manual")
+  RESTART     @map("restart")
+
+  @@map("ail_pa_refine_scenario")
 }
 
 enum AilPaOutputReview {
@@ -472,22 +481,26 @@ model AilPreAssessment {
   id                        Int                @id @default(autoincrement()) @db.Integer
   member                    AilMember          @relation(fields: [member_id], references: [id])
   member_id                 Int                @unique @db.Integer
-  q1_ai_use_frequency       AilPaAiUseFreq
-  q2_ai_tools_used          String[]           @db.Text
-  q3_job_role               String             @db.VarChar()
-  q4_ai_understanding       AilPaUnderstanding
-  q5_ai_limitations         String[]           @db.Text
-  q6_output_review          AilPaOutputReview
-  q7_use_cases              String[]           @db.Text
-  q8_team_adoption          AilPaTeamAdoption
-  q9_concrete_example       String?            @db.VarChar()
-  q10_prompt_comfort        AilPaPromptSkill
-  q11_safety_practices      String[]           @db.Text
-  q12_professional_attitude AilPaAttitude
-  q13_biggest_challenge     String             @db.Text
-  q14_training_expectation  String             @db.Text
-  q15_motivation            AilPaMotivation
-  created_at                DateTime           @default(now()) @db.Timestamptz()
+  ai_use_frequency      AilPaAiUseFreq
+  ai_tools_used         String[]            @db.Text
+  ai_limitations        String[]            @db.Text
+  output_review         AilPaOutputReview
+  use_cases             String[]            @db.Text
+  team_adoption         AilPaTeamAdoption
+  concrete_example      String?             @db.VarChar()
+  model_selection       AilPaFrequency
+  multimodal_use        AilPaFrequency
+  workflow_reuse        AilPaFrequency
+  prompt_comfort        AilPaPromptSkill
+  prompt_iteration      AilPaFrequency
+  refine_scenario       AilPaRefineScenario
+  professional_attitude AilPaAttitude
+  data_safety_check     AilPaFrequency
+  publish_unchecked     AilPaFrequency
+  biggest_challenge     String              @db.Text
+  training_expectation  String              @db.Text
+  motivation            AilPaMotivation
+  created_at            DateTime            @default(now()) @db.Timestamptz()
 
   @@map("ail_pre_assessments")
 }

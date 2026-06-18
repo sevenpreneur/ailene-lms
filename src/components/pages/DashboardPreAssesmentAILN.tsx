@@ -7,11 +7,9 @@ import {
 import ButtonAILN from "@/components/buttons/ButtonAILN";
 import ScorecardAILN from "@/components/cards/ScorecardAILN";
 import SectionContainerAILN from "@/components/cards/SectionContainerAILN";
-import PillarRadarAILN from "@/components/charts/PillarRadarAILN";
 import SectionNoteAILN from "@/components/elements/SectionNoteAILN";
 import DepartmentFilterAILN from "@/components/fields/DepartmentFilterAILN";
 import ShareBarRowAILN from "@/components/items/ShareBarRowAILN";
-import GeneralLabelAILN from "@/components/labels/GeneralLabelAILN";
 import KpiCaptionAILN from "@/components/labels/KpiCaptionAILN";
 import VoiceChipAILN from "@/components/labels/VoiceChipAILN";
 import PageContainerAILN from "@/components/pages/PageContainerAILN";
@@ -22,11 +20,10 @@ import {
 } from "@/components/states/DataStatesAILN";
 import { ShareBarList } from "@/components/share-bar-list";
 import PageHeaderAILN from "@/components/titles/PageHeaderAILN";
-import { formatScore } from "@/lib/ailene-format";
 import { setSessionToken, trpc } from "@/trpc/client";
 import dayjs from "dayjs";
 import "dayjs/locale/id";
-import { BookOpen, ClipboardCheck, Download, Gauge, Zap } from "lucide-react";
+import { ClipboardCheck, Download, Zap } from "lucide-react";
 import { useEffect, useState } from "react";
 
 // ---------- Page ----------
@@ -46,13 +43,11 @@ export default function DashboardPreAssesmentAILN({
 
   const departmentsQ = trpc.read.preAssessment.departments.useQuery();
   const overviewQ = trpc.read.preAssessment.overview.useQuery(filter);
-  const pillarsQ = trpc.read.preAssessment.pillars.useQuery(filter);
   const frequencyQ =
     trpc.read.preAssessment.usageFrequency.useQuery(filter);
   const toolsQ = trpc.read.preAssessment.tools.useQuery(filter);
   const maturityQ =
     trpc.read.preAssessment.teamMaturity.useQuery(filter);
-  const safetyQ = trpc.read.preAssessment.safetyGaps.useQuery(filter);
   const useCasesQ = trpc.read.preAssessment.topUseCases.useQuery(filter);
   const voiceQ = trpc.read.preAssessment.voice.useQuery(filter);
 
@@ -78,27 +73,7 @@ export default function DashboardPreAssesmentAILN({
             value: `${overview.routine_users_percent}%`,
             footer: "pakai AI rutin (q1)",
           },
-          {
-            label: "Literasi Dasar",
-            value: `${overview.basic_literacy_percent}%`,
-            footer: "paham dasar AI",
-          },
-          {
-            label: "Skor Pilar (rata-rata)",
-            value: pillarsQ.data ? formatScore(pillarsQ.data.org_avg) : "—",
-            unit: "/ 5",
-            footer: "6 pilar kompetensi",
-          },
         ],
-      });
-    }
-    if (pillarsQ.data) {
-      sections.push({
-        type: "table",
-        title: "Skor 6 Pilar Kompetensi",
-        columns: ["Pilar", "Skor / 5"],
-        align: ["left", "right"],
-        rows: pillarsQ.data.pillars.map((p) => [p.name, formatScore(p.score)]),
       });
     }
     if (frequencyQ.data) {
@@ -126,15 +101,6 @@ export default function DashboardPreAssesmentAILN({
         columns: ["Kategori", "%"],
         align: ["left", "right"],
         rows: maturityQ.data.buckets.map((b) => [b.label, `${b.percent}%`]),
-      });
-    }
-    if (safetyQ.data && safetyQ.data.gaps.length > 0) {
-      sections.push({
-        type: "table",
-        title: "Gap Praktik Keamanan",
-        columns: ["Praktik", "Gap %"],
-        align: ["left", "right"],
-        rows: safetyQ.data.gaps.map((g) => [g.label, `${g.gap_percent}%`]),
       });
     }
     if (useCasesQ.data && useCasesQ.data.useCases.length > 0) {
@@ -198,7 +164,7 @@ export default function DashboardPreAssesmentAILN({
         </div>
 
         {/* KPI tiles — statistics-02 style with icons (same as executive view) */}
-        <div className="grid grid-cols-1 gap-4 md:grid-cols-2 xl:grid-cols-4">
+        <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
           {[
             {
               title: "Partisipasi Pre-assessment",
@@ -220,22 +186,6 @@ export default function DashboardPreAssesmentAILN({
               unit: "%",
               footer: <KpiCaptionAILN>harian atau lebih sering (q1)</KpiCaptionAILN>,
             },
-            {
-              title: "Literasi Dasar Memadai",
-              icon: BookOpen,
-              value: overview ? `${overview.basic_literacy_percent}` : "—",
-              unit: "%",
-              footer: (
-                <KpiCaptionAILN>paham konsep dasar ke atas (q4)</KpiCaptionAILN>
-              ),
-            },
-            {
-              title: "Kesiapan Rata-rata Pillar",
-              icon: Gauge,
-              value: pillarsQ.data ? formatScore(pillarsQ.data.org_avg) : "—",
-              unit: "/ 5",
-              footer: <KpiCaptionAILN>self-rating 6 pillar</KpiCaptionAILN>,
-            },
           ].map((kpi, i) => (
             <ScorecardAILN
               key={i}
@@ -249,35 +199,8 @@ export default function DashboardPreAssesmentAILN({
           ))}
         </div>
 
-        {/* Pillars radar + usage frequency */}
-        <div className="grid grid-cols-1 gap-4 lg:grid-cols-2">
-          <SectionContainerAILN
-            title="Kesiapan 6 pillar — rata-rata organisasi"
-            desc="Titik nol yang akan diukur lagi di akhir program"
-            className="dark:shadow-[0_0_16px_rgba(0,53,157,0.06)]"
-            headerRight={<GeneralLabelAILN variant="white">T0</GeneralLabelAILN>}
-          >
-            {pillarsQ.isLoading || !pillarsQ.data ? (
-              <SkeletonBlockAILN className="h-[300px]" />
-            ) : (
-              <div className="flex flex-col items-center gap-3">
-                <PillarRadarAILN
-                  labels={pillarsQ.data.pillars.map((p) => p.name)}
-                  values={pillarsQ.data.pillars.map((p) => p.score)}
-                />
-                <div className="inline-flex items-center gap-2 rounded-full border border-dashboard-border bg-card-2 px-4 py-1.5 text-sm dark:bg-card-2/60">
-                  <span className="text-gray-500 dark:text-gray-400">
-                    Rata-rata org
-                  </span>
-                  <span className="font-bold text-gray-900 dark:text-white">
-                    {formatScore(pillarsQ.data.org_avg)}
-                  </span>
-                  <span className="text-gray-400 dark:text-gray-500">/ 5</span>
-                </div>
-              </div>
-            )}
-          </SectionContainerAILN>
-
+        {/* Usage frequency */}
+        <div className="grid grid-cols-1 gap-4">
           <SectionContainerAILN
             title="Frekuensi pemakaian AI"
             desc={`Sebelum program · % dari ${frequencyQ.data?.respondents ?? "—"} responden (q1)`}
@@ -304,9 +227,9 @@ export default function DashboardPreAssesmentAILN({
           </SectionContainerAILN>
         </div>
 
-        {/* Penetrasi tools · Kematangan adopsi · Kesadaran keamanan · Use case
-            — 1 kolom (HP) → 2+2 (tablet) → 4 sejajar (desktop) */}
-        <div className="grid grid-cols-1 gap-4 md:grid-cols-2 xl:grid-cols-4">
+        {/* Penetrasi tools · Kematangan adopsi · Use case
+            — 1 kolom (HP) → 2 (tablet) → 3 sejajar (desktop) */}
+        <div className="grid grid-cols-1 gap-4 md:grid-cols-2 xl:grid-cols-3">
           <SectionContainerAILN
             title="Penetrasi tools AI"
             desc={`Pernah dipakai · multi-pilih · % responden (q2)`}
@@ -355,34 +278,6 @@ export default function DashboardPreAssesmentAILN({
                 kebijakan/integrasi resmi — sisanya belum terstruktur.
               </SectionNoteAILN>
             )}
-          </SectionContainerAILN>
-
-          <SectionContainerAILN
-            title="Kesadaran keamanan — gap"
-            desc="% karyawan yang BELUM menyadari praktik aman (q11)"
-            className="dark:shadow-[0_0_16px_rgba(0,53,157,0.06)]"
-            headerRight={
-              <GeneralLabelAILN variant="yellow">Lensa risiko</GeneralLabelAILN>
-            }
-          >
-            {safetyQ.isLoading || !safetyQ.data ? (
-              <SkeletonRowsAILN rowClassName="h-12" className="gap-0.5" />
-            ) : (
-              <ShareBarList>
-                {safetyQ.data.gaps.map((g) => (
-                  <ShareBarRowAILN
-                    key={g.label}
-                    label={g.label}
-                    percent={g.gap_percent}
-                    tone="warn"
-                  />
-                ))}
-              </ShareBarList>
-            )}
-            <SectionNoteAILN>
-              Prioritas compliance: hak cipta & transparansi adalah celah
-              terbesar. Modul Ethics & Safety perlu diutamakan.
-            </SectionNoteAILN>
           </SectionContainerAILN>
 
           <SectionContainerAILN

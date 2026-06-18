@@ -49,10 +49,14 @@ export type PreAssessmentQuestion =
   | ShortTextQuestion
   | LongTextQuestion;
 
+// Reusable 5-point frequency scale (single-choice).
+const FREQ_OPTIONS = ["Tidak pernah", "Jarang", "Kadang", "Sering", "Selalu"];
+const FREQ_CODES = ["NEVER", "RARELY", "SOMETIMES", "OFTEN", "ALWAYS"];
+
 export const PRE_ASSESSMENT_QUESTIONS: PreAssessmentQuestion[] = [
   {
     id: 1,
-    field: "q1_ai_use_frequency",
+    field: "ai_use_frequency",
     type: "single",
     category: "Profil Dasar",
     required: true,
@@ -69,7 +73,7 @@ export const PRE_ASSESSMENT_QUESTIONS: PreAssessmentQuestion[] = [
   },
   {
     id: 2,
-    field: "q2_ai_tools_used",
+    field: "ai_tools_used",
     type: "multi",
     category: "Profil Dasar",
     required: true,
@@ -88,34 +92,7 @@ export const PRE_ASSESSMENT_QUESTIONS: PreAssessmentQuestion[] = [
   },
   {
     id: 3,
-    field: "q3_job_role",
-    type: "short",
-    category: "Profil Dasar",
-    required: true,
-    question: "Apa jabatan / peran kamu saat ini di perusahaan?",
-    placeholder:
-      "Contoh: Marketing Manager, Software Engineer, HRD Specialist…",
-  },
-  {
-    id: 4,
-    field: "q4_ai_understanding",
-    type: "single",
-    category: "Literasi AI",
-    required: true,
-    question:
-      "Bagaimana kamu menggambarkan tingkat pemahaman kamu tentang cara kerja AI saat ini?",
-    options: [
-      "Tidak tahu sama sekali cara kerjanya",
-      "Tahu sedikit — pernah baca atau dengar, tapi belum dalam",
-      "Cukup paham konsep dasarnya",
-      "Paham cara kerja dan mulai bisa menjelaskan ke orang lain",
-      "Sangat paham, termasuk limitasi dan risikonya",
-    ],
-    valueCodes: ["NONE", "AWARE", "BASIC", "EXPLAIN", "EXPERT"],
-  },
-  {
-    id: 5,
-    field: "q5_ai_limitations",
+    field: "ai_limitations",
     type: "multi",
     category: "Literasi AI",
     required: true,
@@ -132,8 +109,8 @@ export const PRE_ASSESSMENT_QUESTIONS: PreAssessmentQuestion[] = [
     ],
   },
   {
-    id: 6,
-    field: "q6_output_review",
+    id: 4,
+    field: "output_review",
     type: "single",
     category: "Literasi AI",
     required: true,
@@ -149,8 +126,8 @@ export const PRE_ASSESSMENT_QUESTIONS: PreAssessmentQuestion[] = [
     valueCodes: ["NO_CHECK", "SOMETIMES", "ALWAYS", "CROSS_CHECK", "NO_USE"],
   },
   {
-    id: 7,
-    field: "q7_use_cases",
+    id: 5,
+    field: "use_cases",
     type: "multi",
     category: "Penggunaan di Pekerjaan",
     required: true,
@@ -169,8 +146,8 @@ export const PRE_ASSESSMENT_QUESTIONS: PreAssessmentQuestion[] = [
     ],
   },
   {
-    id: 8,
-    field: "q8_team_adoption",
+    id: 6,
+    field: "team_adoption",
     type: "single",
     category: "Penggunaan di Pekerjaan",
     required: true,
@@ -185,8 +162,8 @@ export const PRE_ASSESSMENT_QUESTIONS: PreAssessmentQuestion[] = [
     valueCodes: ["NONE", "PERSONAL", "PILOT", "POLICY", "INTEGRATED"],
   },
   {
-    id: 9,
-    field: "q9_concrete_example",
+    id: 7,
+    field: "concrete_example",
     type: "short",
     category: "Penggunaan di Pekerjaan",
     required: false,
@@ -196,8 +173,41 @@ export const PRE_ASSESSMENT_QUESTIONS: PreAssessmentQuestion[] = [
       "Contoh: Saya pakai ChatGPT untuk draft proposal klien dalam 10 menit…",
   },
   {
+    id: 8,
+    field: "model_selection",
+    type: "single",
+    category: "Penggunaan di Pekerjaan",
+    required: true,
+    question:
+      "Seberapa sering kamu memilih model/tool AI tertentu secara sadar sesuai tugasnya (mis. model reasoning untuk analisis, model cepat untuk draft)?",
+    options: FREQ_OPTIONS,
+    valueCodes: FREQ_CODES,
+  },
+  {
+    id: 9,
+    field: "multimodal_use",
+    type: "single",
+    category: "Penggunaan di Pekerjaan",
+    required: true,
+    question:
+      "Seberapa sering kamu pakai AI di luar teks/chat — misalnya untuk gambar, suara, video, atau code?",
+    options: FREQ_OPTIONS,
+    valueCodes: FREQ_CODES,
+  },
+  {
     id: 10,
-    field: "q10_prompt_comfort",
+    field: "workflow_reuse",
+    type: "single",
+    category: "Penggunaan di Pekerjaan",
+    required: true,
+    question:
+      "Seberapa sering kamu membuat & menyimpan workflow/template/automation AI yang kamu pakai ulang lintas tugas?",
+    options: FREQ_OPTIONS,
+    valueCodes: FREQ_CODES,
+  },
+  {
+    id: 11,
+    field: "prompt_comfort",
     type: "single",
     category: "Kemampuan Prompting",
     required: true,
@@ -213,25 +223,35 @@ export const PRE_ASSESSMENT_QUESTIONS: PreAssessmentQuestion[] = [
     valueCodes: ["NONE", "BASIC", "DECENT", "STRUCTURED", "EXPERT"],
   },
   {
-    id: 11,
-    field: "q11_safety_practices",
-    type: "multi",
-    category: "Keamanan & Etika",
+    id: 12,
+    field: "prompt_iteration",
+    type: "single",
+    category: "Kemampuan Prompting",
     required: true,
     question:
-      "Tindakan mana yang kamu tahu perlu dilakukan saat menggunakan AI di lingkungan kerja? (Pilih semua yang kamu sadari)",
-    options: [
-      "Jangan memasukkan data rahasia perusahaan ke AI publik",
-      "Selalu review output AI sebelum digunakan secara resmi",
-      "Perhatikan hak cipta konten yang dihasilkan AI",
-      "Transparan kepada klien/kolega jika konten dibuat dengan bantuan AI",
-      "Pahami kebijakan penggunaan AI perusahaan",
-      "Saya belum memikirkan aspek keamanan ini",
-    ],
+      "Seberapa sering kamu mengiterasi/memperbaiki prompt beberapa kali demi hasil lebih baik, bukan menerima jawaban pertama?",
+    options: FREQ_OPTIONS,
+    valueCodes: FREQ_CODES,
   },
   {
-    id: 12,
-    field: "q12_professional_attitude",
+    id: 13,
+    field: "refine_scenario",
+    type: "single",
+    category: "Kemampuan Prompting",
+    required: true,
+    question:
+      "Hasil AI sudah 80% bagus, strukturnya oke, tapi satu paragraf nadanya terlalu formal dan kaku. Apa yang kamu lakukan?",
+    options: [
+      "Tunjuk paragraf itu, minta AI tulis ulang bagian itu saja dengan nada lebih natural, di thread yang sama.",
+      "Pindah ke tool AI lain yang katanya lebih kuat di tulisan kreatif, lalu tempel ulang seluruh konteks dan instruksinya supaya bisa mulai mengerjakan dari sana.",
+      "Buka paragrafnya, baca ulang kalimat per kalimat, lalu rapikan sendiri frasa yang kaku itu secara manual sampai nadanya pas — tanpa repot menjelaskan ke AI.",
+      "Buang hasil yang ada, lalu minta AI menyusun ulang seluruh dokumen dari nol pakai brief nada yang lebih panjang dan rinci supaya hasilnya lebih konsisten dari awal sampai akhir.",
+    ],
+    valueCodes: ["TARGETED", "SWITCH_TOOL", "MANUAL", "RESTART"],
+  },
+  {
+    id: 14,
+    field: "professional_attitude",
     type: "single",
     category: "Keamanan & Etika",
     required: true,
@@ -244,17 +264,33 @@ export const PRE_ASSESSMENT_QUESTIONS: PreAssessmentQuestion[] = [
       "Sangat mendukung, asal ada panduan yang jelas",
       "AI adalah keharusan — yang tidak pakai akan tertinggal",
     ],
-    valueCodes: [
-      "TOO_RISKY",
-      "CAUTIOUS",
-      "NEUTRAL",
-      "SUPPORTIVE",
-      "ESSENTIAL",
-    ],
+    valueCodes: ["TOO_RISKY", "CAUTIOUS", "NEUTRAL", "SUPPORTIVE", "ESSENTIAL"],
   },
   {
-    id: 13,
-    field: "q13_biggest_challenge",
+    id: 15,
+    field: "data_safety_check",
+    type: "single",
+    category: "Keamanan & Etika",
+    required: true,
+    question:
+      "Seberapa sering kamu mengecek dulu data apa yang aman dimasukkan ke AI (info klien, data pribadi, rahasia perusahaan)?",
+    options: FREQ_OPTIONS,
+    valueCodes: FREQ_CODES,
+  },
+  {
+    id: 16,
+    field: "publish_unchecked",
+    type: "single",
+    category: "Keamanan & Etika",
+    required: true,
+    question:
+      "Seberapa sering kamu mempublikasikan karya hasil AI tanpa cek hak cipta atau tanpa menyebut bantuan AI?",
+    options: FREQ_OPTIONS,
+    valueCodes: FREQ_CODES,
+  },
+  {
+    id: 17,
+    field: "biggest_challenge",
     type: "long",
     category: "Refleksi",
     required: true,
@@ -264,8 +300,8 @@ export const PRE_ASSESSMENT_QUESTIONS: PreAssessmentQuestion[] = [
       "Tuliskan dengan bebas. Contoh: Tidak tahu dari mana harus mulai, takut salah, hasil AI kurang akurat untuk kebutuhan saya, tidak ada tools yang approved, dll…",
   },
   {
-    id: 14,
-    field: "q14_training_expectation",
+    id: 18,
+    field: "training_expectation",
     type: "long",
     category: "Ekspektasi Pelatihan",
     required: true,
@@ -275,8 +311,8 @@ export const PRE_ASSESSMENT_QUESTIONS: PreAssessmentQuestion[] = [
       "Contoh: Saya ingin bisa menggunakan AI untuk menghemat waktu dalam membuat laporan bulanan, atau saya ingin memahami cara memilih tools AI yang tepat untuk tim saya…",
   },
   {
-    id: 15,
-    field: "q15_motivation",
+    id: 19,
+    field: "motivation",
     type: "single",
     category: "Ekspektasi Pelatihan",
     required: true,

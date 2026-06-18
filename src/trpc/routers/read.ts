@@ -1377,9 +1377,9 @@ export const readRouter = createTRPCRouter({
         take,
         select: {
           created_at: true,
-          q3_job_role: true,
           member: {
             select: {
+              job_title: true,
               user: { select: { full_name: true } },
               group: { select: { name: true } },
             },
@@ -1428,7 +1428,7 @@ export const readRouter = createTRPCRouter({
         type: "assessment",
         actor: row.member.user?.full_name ?? "Staff",
         action: "selesai pre-assessment",
-        meta: [row.member.group?.name, row.q3_job_role]
+        meta: [row.member.group?.name, row.member.job_title]
           .filter(Boolean)
           .join(" · "),
       });
