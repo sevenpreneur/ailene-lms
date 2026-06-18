@@ -622,7 +622,7 @@ export const updateRouter = createTRPCRouter({
       z.object({
         use_case_id: z.number().int().positive(),
         outcome_proof: z.string().min(1).max(500),
-        hours_saved: z.number().min(0).max(9999.99),
+        hours_with_ai: z.number().min(0).max(9999.99),
         hours_without_ai: z.number().min(0).max(9999.99),
         description: z.string().min(1).max(5000),
         ai_tool: z.string().min(1).max(255),
@@ -644,7 +644,7 @@ export const updateRouter = createTRPCRouter({
       const {
         use_case_id,
         outcome_proof,
-        hours_saved,
+        hours_with_ai,
         hours_without_ai,
         description,
         ai_tool,
@@ -676,7 +676,7 @@ export const updateRouter = createTRPCRouter({
         where: { id: existing.id },
         data: {
           outcome_proof,
-          hours_saved,
+          hours_with_ai,
           hours_without_ai,
           description,
           ai_tool,

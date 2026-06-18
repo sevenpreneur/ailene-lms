@@ -76,7 +76,7 @@ export const readGroupAilene = {
         },
         select: {
           is_accepted: true,
-          hours_saved: true,
+          hours_with_ai: true,
           hours_without_ai: true,
           submitted_at: true,
         },
@@ -104,14 +104,14 @@ export const readGroupAilene = {
     );
     const hoursSaved = acceptedUseCases.reduce((sum, submission) => {
       if (
-        submission.hours_saved === null ||
+        submission.hours_with_ai === null ||
         submission.hours_without_ai === null
       ) {
         return sum;
       }
 
       const saved =
-        Number(submission.hours_without_ai) - Number(submission.hours_saved);
+        Number(submission.hours_without_ai) - Number(submission.hours_with_ai);
       return saved > 0 ? sum + saved : sum;
     }, 0);
     const monthStart = dayjs().startOf("month");

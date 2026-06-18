@@ -104,14 +104,14 @@ export const readReportAilene = {
     const acceptedPrompts = periodPromptSubs.filter((submission) => submission.is_accepted);
     const hoursSaved = acceptedUseCases.reduce((sum, submission) => {
       if (
-        submission.hours_saved === null ||
+        submission.hours_with_ai === null ||
         submission.hours_without_ai === null
       ) {
         return sum;
       }
 
       const saved =
-        Number(submission.hours_without_ai) - Number(submission.hours_saved);
+        Number(submission.hours_without_ai) - Number(submission.hours_with_ai);
       return saved > 0 ? sum + saved : sum;
     }, 0);
 

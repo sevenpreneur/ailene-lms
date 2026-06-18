@@ -421,7 +421,7 @@ export const readRouter = createTRPCRouter({
         first_win: {
           kind: "use_case" as const,
           name: earliestUc.use_case.name,
-          hours_saved: earliestUc.hours_saved,
+          hours_with_ai: earliestUc.hours_with_ai,
           hours_without_ai: earliestUc.hours_without_ai,
           submitted_at: earliestUc.submitted_at,
         },
@@ -1017,7 +1017,7 @@ export const readRouter = createTRPCRouter({
       opts.ctx.prisma.ailUseCaseSubmission.findMany({
         where: { submitted_at: { not: null } },
         select: {
-          hours_saved: true,
+          hours_with_ai: true,
           hours_without_ai: true,
         },
       }),
@@ -1040,8 +1040,8 @@ export const readRouter = createTRPCRouter({
 
     let hoursSavedTotal = 0;
     for (const row of useCaseSubmissions) {
-      if (row.hours_saved === null || row.hours_without_ai === null) continue;
-      const saved = Number(row.hours_without_ai) - Number(row.hours_saved);
+      if (row.hours_with_ai === null || row.hours_without_ai === null) continue;
+      const saved = Number(row.hours_without_ai) - Number(row.hours_with_ai);
       if (saved > 0) hoursSavedTotal += saved;
     }
 
@@ -1080,7 +1080,7 @@ export const readRouter = createTRPCRouter({
       opts.ctx.prisma.ailUseCaseSubmission.findMany({
         where: { submitted_at: { not: null } },
         select: {
-          hours_saved: true,
+          hours_with_ai: true,
           hours_without_ai: true,
           submitted_at: true,
         },
@@ -1111,12 +1111,12 @@ export const readRouter = createTRPCRouter({
     let hoursSavedLastWeek = 0;
     for (const row of submissions) {
       if (
-        row.hours_saved === null ||
+        row.hours_with_ai === null ||
         row.hours_without_ai === null ||
         !row.submitted_at
       )
         continue;
-      const saved = Number(row.hours_without_ai) - Number(row.hours_saved);
+      const saved = Number(row.hours_without_ai) - Number(row.hours_with_ai);
       if (saved <= 0) continue;
       const at = dayjs(row.submitted_at);
       if (at.isAfter(lastWeekThreshold)) hoursSavedLastWeek += saved;
@@ -1377,7 +1377,7 @@ export const readRouter = createTRPCRouter({
       select: {
         member_id: true,
         submitted_at: true,
-        hours_saved: true,
+        hours_with_ai: true,
         hours_without_ai: true,
       },
     });
@@ -1394,10 +1394,10 @@ export const readRouter = createTRPCRouter({
       });
       const activeMembers = new Set(weekRows.map((row) => row.member_id)).size;
       const hoursSaved = weekRows.reduce((sum, row) => {
-        if (row.hours_saved === null || row.hours_without_ai === null) {
+        if (row.hours_with_ai === null || row.hours_without_ai === null) {
           return sum;
         }
-        const saved = Number(row.hours_without_ai) - Number(row.hours_saved);
+        const saved = Number(row.hours_without_ai) - Number(row.hours_with_ai);
         return saved > 0 ? sum + saved : sum;
       }, 0);
 
@@ -1694,7 +1694,7 @@ export const readRouter = createTRPCRouter({
         select: {
           member_id: true,
           submitted_at: true,
-          hours_saved: true,
+          hours_with_ai: true,
           hours_without_ai: true,
         },
       }),
@@ -1718,8 +1718,8 @@ export const readRouter = createTRPCRouter({
     const hoursWeeklyByMember = new Map<number, number>();
     for (const row of submittedUseCases) {
       if (!row.submitted_at || row.submitted_at < weekAgo) continue;
-      if (row.hours_saved === null || row.hours_without_ai === null) continue;
-      const saved = Number(row.hours_without_ai) - Number(row.hours_saved);
+      if (row.hours_with_ai === null || row.hours_without_ai === null) continue;
+      const saved = Number(row.hours_without_ai) - Number(row.hours_with_ai);
       if (saved <= 0) continue;
       hoursWeeklyByMember.set(
         row.member_id,
@@ -1866,7 +1866,7 @@ export const readRouter = createTRPCRouter({
       opts.ctx.prisma.ailUseCaseSubmission.findMany({
         where: { submitted_at: { not: null } },
         select: {
-          hours_saved: true,
+          hours_with_ai: true,
           hours_without_ai: true,
           submitted_at: true,
           use_case: { select: { name: true } },
@@ -1911,8 +1911,8 @@ export const readRouter = createTRPCRouter({
       a.submissionCount += 1;
       const name = sub.use_case?.name;
       if (name) a.useCaseCounts.set(name, (a.useCaseCounts.get(name) ?? 0) + 1);
-      if (sub.hours_saved === null || sub.hours_without_ai === null) continue;
-      const saved = Number(sub.hours_without_ai) - Number(sub.hours_saved);
+      if (sub.hours_with_ai === null || sub.hours_without_ai === null) continue;
+      const saved = Number(sub.hours_without_ai) - Number(sub.hours_with_ai);
       if (saved <= 0) continue;
       a.hoursTotal += saved;
       const at = dayjs(sub.submitted_at);
@@ -2313,7 +2313,7 @@ export const readRouter = createTRPCRouter({
       opts.ctx.prisma.ailUseCaseSubmission.findMany({
         where: { member_id: memberId, submitted_at: { not: null } },
         select: {
-          hours_saved: true,
+          hours_with_ai: true,
           hours_without_ai: true,
           ai_tool: true,
         },
@@ -2325,8 +2325,8 @@ export const readRouter = createTRPCRouter({
 
     let hours_saved_total = 0;
     for (const uc of ucAllTime) {
-      if (uc.hours_saved !== null && uc.hours_without_ai !== null) {
-        const saved = Number(uc.hours_without_ai) - Number(uc.hours_saved);
+      if (uc.hours_with_ai !== null && uc.hours_without_ai !== null) {
+        const saved = Number(uc.hours_without_ai) - Number(uc.hours_with_ai);
         if (saved > 0) hours_saved_total += saved;
       }
     }
@@ -2682,7 +2682,7 @@ export const readRouter = createTRPCRouter({
           deadline: row.deadline,
           message: row.message,
           outcome_proof: row.outcome_proof,
-          hours_saved: row.hours_saved,
+          hours_with_ai: row.hours_with_ai,
           hours_without_ai: row.hours_without_ai,
           description: row.description,
           ai_tool: row.ai_tool,
@@ -2849,7 +2849,7 @@ export const readRouter = createTRPCRouter({
           deadline: row.deadline,
           message: row.message,
           outcome_proof: row.outcome_proof,
-          hours_saved: row.hours_saved,
+          hours_with_ai: row.hours_with_ai,
           hours_without_ai: row.hours_without_ai,
           description: row.description,
           ai_tool: row.ai_tool,

@@ -38,7 +38,7 @@ export const readOutcome = {
       }),
       opts.ctx.prisma.ailUseCaseSubmission.findMany({
         where: { submitted_at: { not: null } },
-        select: { hours_saved: true, hours_without_ai: true },
+        select: { hours_with_ai: true, hours_without_ai: true },
       }),
       opts.ctx.prisma.ailGroup.count(),
     ]);
@@ -56,7 +56,7 @@ export const readOutcome = {
     ).length;
 
     const hoursSavedTotal = useCaseSubmissions.reduce(
-      (sum, row) => sum + hoursSaved(row.hours_without_ai, row.hours_saved),
+      (sum, row) => sum + hoursSaved(row.hours_without_ai, row.hours_with_ai),
       0
     );
     const maxLevelNumber = levels.reduce(
@@ -131,7 +131,7 @@ export const readOutcome = {
       },
       select: {
         submitted_at: true,
-        hours_saved: true,
+        hours_with_ai: true,
         hours_without_ai: true,
       },
     });
@@ -144,7 +144,7 @@ export const readOutcome = {
         if (submittedAt.isBefore(month) || submittedAt.isAfter(end)) {
           return sum;
         }
-        return sum + hoursSaved(row.hours_without_ai, row.hours_saved);
+        return sum + hoursSaved(row.hours_without_ai, row.hours_with_ai);
       }, 0);
       const value = Math.round(hours * ROI_VALUE_PER_HOUR);
 
@@ -201,7 +201,7 @@ export const readOutcome = {
               where: { submitted_at: { not: null } },
               select: {
                 submitted_at: true,
-                hours_saved: true,
+                hours_with_ai: true,
                 hours_without_ai: true,
               },
             },
@@ -217,7 +217,7 @@ export const readOutcome = {
         for (const submission of member.use_case_submissions) {
           const saved = hoursSaved(
             submission.hours_without_ai,
-            submission.hours_saved
+            submission.hours_with_ai
           );
           hoursTotal += saved;
           if (submission.submitted_at && submission.submitted_at >= weekAgo) {
@@ -283,7 +283,7 @@ export const readOutcome = {
         where: { submitted_at: { not: null } },
         select: {
           member_id: true,
-          hours_saved: true,
+          hours_with_ai: true,
           hours_without_ai: true,
         },
       }),
@@ -302,7 +302,7 @@ export const readOutcome = {
       hoursByMember.set(
         row.member_id,
         (hoursByMember.get(row.member_id) ?? 0) +
-          hoursSaved(row.hours_without_ai, row.hours_saved)
+          hoursSaved(row.hours_without_ai, row.hours_with_ai)
       );
     }
 

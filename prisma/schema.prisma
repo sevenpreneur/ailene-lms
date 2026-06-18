@@ -533,7 +533,7 @@ model AilUseCaseSubmission {
   deadline         DateTime?            @db.Timestamptz()
   message          String?              @db.Text
   outcome_proof    String?              @db.VarChar()
-  hours_saved      Decimal?             @db.Decimal(6, 2)
+  hours_with_ai    Decimal?             @db.Decimal(6, 2)
   hours_without_ai Decimal?             @db.Decimal(6, 2)
   description      String?              @db.Text
   ai_tool          String?              @db.VarChar()

@@ -29,8 +29,8 @@ export default function FirstWinCardAILN() {
 
   if (fw.kind === "use_case") {
     const hoursSaved =
-      fw.hours_saved !== null && fw.hours_saved !== undefined
-        ? Number(fw.hours_saved)
+      fw.hours_with_ai !== null && fw.hours_with_ai !== undefined
+        ? Number(fw.hours_with_ai)
         : null;
     const hoursWithoutAi =
       fw.hours_without_ai !== null && fw.hours_without_ai !== undefined

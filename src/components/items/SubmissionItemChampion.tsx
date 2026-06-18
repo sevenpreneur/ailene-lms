@@ -28,7 +28,7 @@ export interface SubmissionRow {
   submitted_at: string | null;
   reviewed_at: string | null;
   is_accepted: boolean;
-  hours_saved: number | null;
+  hours_with_ai: number | null;
   ai_tool: string | null;
 }
 
@@ -129,11 +129,11 @@ export default function SubmissionItemChampion({ row }: { row: SubmissionRow }) 
       </div>
 
       {/* Outcome chips (use case only) */}
-      {(row.hours_saved != null || row.ai_tool) && (
+      {(row.hours_with_ai != null || row.ai_tool) && (
         <div className="flex flex-wrap gap-1.5">
-          {row.hours_saved != null && (
+          {row.hours_with_ai != null && (
             <GeneralLabelAILN variant="green">
-              +{row.hours_saved.toLocaleString("id-ID")} jam dihemat
+              +{row.hours_with_ai.toLocaleString("id-ID")} jam dihemat
             </GeneralLabelAILN>
           )}
           {row.ai_tool && (

@@ -47,7 +47,7 @@ export default function SubmissionsChampionAILN({
         submitted_at: r.submitted_at as unknown as string | null,
         reviewed_at: r.reviewed_at as unknown as string | null,
         is_accepted: r.is_accepted,
-        hours_saved: null,
+        hours_with_ai: null,
         ai_tool: null,
       })
     ),
@@ -65,7 +65,7 @@ export default function SubmissionsChampionAILN({
         submitted_at: r.submitted_at as unknown as string | null,
         reviewed_at: r.reviewed_at as unknown as string | null,
         is_accepted: r.is_accepted,
-        hours_saved: r.hours_saved,
+        hours_with_ai: r.hours_with_ai,
         ai_tool: r.ai_tool,
       })
     ),

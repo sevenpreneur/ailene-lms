@@ -384,7 +384,7 @@ export const listRouter = createTRPCRouter({
           where: { member_id: { in: memberIds }, submitted_at: { not: null } },
           select: {
             member_id: true,
-            hours_saved: true,
+            hours_with_ai: true,
             hours_without_ai: true,
           },
         }),
@@ -417,7 +417,7 @@ export const listRouter = createTRPCRouter({
       const submitterIds = new Set<number>();
       for (const s of submittedUseCases) {
         submitterIds.add(s.member_id);
-        const withAi = s.hours_saved == null ? null : Number(s.hours_saved);
+        const withAi = s.hours_with_ai == null ? null : Number(s.hours_with_ai);
         const without =
           s.hours_without_ai == null ? null : Number(s.hours_without_ai);
         if (withAi != null && without != null && without > withAi) {
@@ -952,7 +952,7 @@ export const listRouter = createTRPCRouter({
       submitted_at: r.submitted_at,
       reviewed_at: r.reviewed_at,
       is_accepted: r.is_accepted,
-      hours_saved: r.hours_saved ? Number(r.hours_saved) : null,
+      hours_with_ai: r.hours_with_ai ? Number(r.hours_with_ai) : null,
       ai_tool: r.ai_tool,
     }));
 

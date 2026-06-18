@@ -331,7 +331,7 @@ export default function CreateSelfPracticeAILN({
         name: name.trim(),
         category_ids: selectedCategoryIds,
         outcome_proof: outcomeProof.trim(),
-        hours_saved: withNum,
+        hours_with_ai: withNum,
         hours_without_ai: withoutNum,
         description: description.trim(),
         ai_tool: aiToolCsv,

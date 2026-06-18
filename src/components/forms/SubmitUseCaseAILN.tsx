@@ -218,8 +218,8 @@ export default function SubmitUseCaseAILN({
         : null,
       outcomeLinkInput: isUploaded ? "" : existing,
       hoursSaved:
-        a.hours_saved !== null && a.hours_saved !== undefined
-          ? String(a.hours_saved)
+        a.hours_with_ai !== null && a.hours_with_ai !== undefined
+          ? String(a.hours_with_ai)
           : "",
       hoursWithoutAi:
         a.hours_without_ai !== null && a.hours_without_ai !== undefined
@@ -405,7 +405,7 @@ export default function SubmitUseCaseAILN({
       {
         use_case_id: useCaseId,
         outcome_proof: formData.outcomeProof.trim(),
-        hours_saved: hoursWithAiNum,
+        hours_with_ai: hoursWithAiNum,
         hours_without_ai: hoursWithoutAiNum,
         description: formData.description.trim(),
         ai_tool: aiToolCsv,

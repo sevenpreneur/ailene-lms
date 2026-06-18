@@ -273,7 +273,7 @@ CREATE TABLE ail_use_case_submissions (
     deadline       TIMESTAMPTZ                NULL,
     message        TEXT                       NULL,
     outcome_proof    VARCHAR                    NULL,
-    hours_saved      DECIMAL(6, 2)              NULL,
+    hours_with_ai    DECIMAL(6, 2)              NULL,
     hours_without_ai DECIMAL(6, 2)              NULL,
     description      TEXT                       NULL,
     ai_tool          VARCHAR                    NULL,

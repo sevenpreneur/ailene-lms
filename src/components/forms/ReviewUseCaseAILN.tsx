@@ -265,8 +265,8 @@ export default function ReviewUseCaseAILN({
                     <Metric
                       label="Hours saved"
                       value={
-                        s.hours_saved !== null && s.hours_saved !== undefined
-                          ? `${s.hours_saved} jam`
+                        s.hours_with_ai !== null && s.hours_with_ai !== undefined
+                          ? `${s.hours_with_ai} jam`
                           : "—"
                       }
                     />
