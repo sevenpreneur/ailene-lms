@@ -32,7 +32,9 @@ CREATE TYPE ail_use_case_type AS ENUM (
 CREATE TYPE ail_learning_type AS ENUM (
   'quiz',
   'video',
-  'material'
+  'material',
+  'use_case',
+  'prompt'
 );
 
 -- Pre-assessment single-choice enums (one per question)
@@ -229,6 +231,7 @@ CREATE TABLE ail_prompts (
     name            VARCHAR      NOT NULL,
     scenario        TEXT         NOT NULL,
     expected_output TEXT         NOT NULL,
+    xp_reward       SMALLINT     NOT NULL DEFAULT 70,
     status          status_enum  NOT NULL DEFAULT 'active',
     is_self_created BOOLEAN      NOT NULL DEFAULT FALSE,
     created_at      TIMESTAMPTZ  NOT NULL DEFAULT CURRENT_TIMESTAMP,
@@ -266,6 +269,7 @@ CREATE TABLE ail_use_cases (
     level_id    INTEGER      NOT NULL,
     name        VARCHAR      NOT NULL,
     description TEXT         NOT NULL,
+    xp_reward   SMALLINT     NOT NULL DEFAULT 70,
     status      status_enum  NOT NULL DEFAULT 'active',
     is_self_created BOOLEAN  NOT NULL DEFAULT FALSE,
     created_at  TIMESTAMPTZ  NOT NULL DEFAULT CURRENT_TIMESTAMP,

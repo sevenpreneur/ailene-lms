@@ -73,8 +73,13 @@ export default function TeamScoreBannerAILN({
                 <Tooltip
                   cursor={{ stroke: "#10b981", strokeWidth: 1, strokeDasharray: "3 3" }}
                   contentStyle={{ borderRadius: 8, border: "1px solid #a7f3d0", fontSize: 12, padding: "2px 8px" }}
-                  labelFormatter={(label: any) => `Minggu ${Number(label) + 1}`}
-                  formatter={(value: any) => [fmt(Number(value)), "Skor tim"]}
+                  labelFormatter={(label: unknown) =>
+                    `Minggu ${Number(label) + 1}`
+                  }
+                  formatter={(value: unknown) => [
+                    fmt(Number(value)),
+                    "Skor tim",
+                  ]}
                 />
                 <Line
                   type="monotone"

@@ -816,6 +816,7 @@ export const listRouter = createTRPCRouter({
             name: true,
             scenario: true,
             expected_output: true,
+            xp_reward: true,
             level: { select: { id: true, level_number: true, name: true } },
             categories: {
               include: { category: { select: { id: true, name: true } } },
@@ -838,6 +839,7 @@ export const listRouter = createTRPCRouter({
         name: r.prompt.name,
         scenario: r.prompt.scenario,
         expected_output: r.prompt.expected_output,
+        xp_reward: r.prompt.xp_reward,
         level: r.prompt.level,
         categories: r.prompt.categories.map((c) => c.category),
       },
@@ -974,6 +976,7 @@ export const listRouter = createTRPCRouter({
             id: true,
             name: true,
             description: true,
+            xp_reward: true,
             level: { select: { id: true, level_number: true, name: true } },
             categories: {
               include: { category: { select: { id: true, name: true } } },
@@ -995,6 +998,7 @@ export const listRouter = createTRPCRouter({
         id: r.use_case.id,
         name: r.use_case.name,
         description: r.use_case.description,
+        xp_reward: r.use_case.xp_reward,
         level: r.use_case.level,
         categories: r.use_case.categories.map((c) => c.category),
       },

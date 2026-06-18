@@ -511,9 +511,12 @@ export const updateRouter = createTRPCRouter({
       const existing = await opts.ctx.prisma.ailPromptSubmission.findUnique({
         where: { id: submission_id },
         select: {
+          member_id: true,
+          prompt_id: true,
           assigned_by_id: true,
           submitted_at: true,
           is_accepted: true,
+          prompt: { select: { xp_reward: true } },
         },
       });
       if (!existing || existing.assigned_by_id !== championId) {
@@ -541,22 +544,48 @@ export const updateRouter = createTRPCRouter({
         });
       }
 
-      await opts.ctx.prisma.ailPromptSubmission.update({
-        where: { id: submission_id },
-        data: {
-          reviewed_by_id: championId,
-          reviewed_at: new Date(),
-          comment: comment?.trim() ?? null,
-          is_accepted,
-          rubric_specificity,
-          rubric_context,
-          rubric_constraints,
-          rubric_examples,
-          rubric_iteration,
-        },
+      let xpAwarded = 0;
+
+      await opts.ctx.prisma.$transaction(async (tx) => {
+        await tx.ailPromptSubmission.update({
+          where: { id: submission_id },
+          data: {
+            reviewed_by_id: championId,
+            reviewed_at: new Date(),
+            comment: comment?.trim() ?? null,
+            is_accepted,
+            rubric_specificity,
+            rubric_context,
+            rubric_constraints,
+            rubric_examples,
+            rubric_iteration,
+          },
+        });
+
+        // Award XP once when accepted (idempotent via the unique constraint
+        // on member_id + learning_type + learning_id).
+        if (is_accepted) {
+          await tx.ailXpEarning.upsert({
+            where: {
+              member_id_learning_type_learning_id: {
+                member_id: existing.member_id,
+                learning_type: "PROMPT",
+                learning_id: String(existing.prompt_id),
+              },
+            },
+            create: {
+              member_id: existing.member_id,
+              learning_type: "PROMPT",
+              learning_id: String(existing.prompt_id),
+              xp_earned: existing.prompt.xp_reward,
+            },
+            update: {},
+          });
+          xpAwarded = existing.prompt.xp_reward;
+        }
       });
 
-      return { code: STATUS_OK, message: "Review saved" };
+      return { code: STATUS_OK, message: "Review saved", xp_awarded: xpAwarded };
     }),
 
   reviewUseCaseSubmission: championProcedure
@@ -574,9 +603,12 @@ export const updateRouter = createTRPCRouter({
       const existing = await opts.ctx.prisma.ailUseCaseSubmission.findUnique({
         where: { id: submission_id },
         select: {
+          member_id: true,
+          use_case_id: true,
           assigned_by_id: true,
           submitted_at: true,
           is_accepted: true,
+          use_case: { select: { xp_reward: true } },
         },
       });
       if (!existing || existing.assigned_by_id !== championId) {
@@ -604,17 +636,43 @@ export const updateRouter = createTRPCRouter({
         });
       }
 
-      await opts.ctx.prisma.ailUseCaseSubmission.update({
-        where: { id: submission_id },
-        data: {
-          reviewed_by_id: championId,
-          reviewed_at: new Date(),
-          comment: comment?.trim() ?? null,
-          is_accepted,
-        },
+      let xpAwarded = 0;
+
+      await opts.ctx.prisma.$transaction(async (tx) => {
+        await tx.ailUseCaseSubmission.update({
+          where: { id: submission_id },
+          data: {
+            reviewed_by_id: championId,
+            reviewed_at: new Date(),
+            comment: comment?.trim() ?? null,
+            is_accepted,
+          },
+        });
+
+        // Award XP once when accepted (idempotent via the unique constraint
+        // on member_id + learning_type + learning_id).
+        if (is_accepted) {
+          await tx.ailXpEarning.upsert({
+            where: {
+              member_id_learning_type_learning_id: {
+                member_id: existing.member_id,
+                learning_type: "USE_CASE",
+                learning_id: String(existing.use_case_id),
+              },
+            },
+            create: {
+              member_id: existing.member_id,
+              learning_type: "USE_CASE",
+              learning_id: String(existing.use_case_id),
+              xp_earned: existing.use_case.xp_reward,
+            },
+            update: {},
+          });
+          xpAwarded = existing.use_case.xp_reward;
+        }
       });
 
-      return { code: STATUS_OK, message: "Review saved" };
+      return { code: STATUS_OK, message: "Review saved", xp_awarded: xpAwarded };
     }),
 
   submitUseCaseAssignment: ailMemberProcedure

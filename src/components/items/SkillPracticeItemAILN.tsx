@@ -16,6 +16,7 @@ import {
   CheckCircle2,
   Clock,
   MessageSquare,
+  Star,
   XCircle,
 } from "lucide-react";
 import Image from "next/image";
@@ -29,6 +30,7 @@ export interface SkillPracticeItem {
   level: { id: number; level_number: number; name: string };
   name: string;
   body: string;
+  xp_reward: number;
   categories: { id: number; name: string }[];
   assigned_by: { id: number; full_name: string; avatar: string | null } | null;
   deadline: string | null;
@@ -168,6 +170,17 @@ export default function SkillPracticeItemAILN(
           {item.name}
         </div>
         <div className="mt-1.5 flex flex-wrap items-center gap-2">
+          <GeneralLabelAILN
+            variant="white"
+            icon={
+              <Star
+                className="size-3 text-warning dark:text-amber-400"
+                fill="currentColor"
+              />
+            }
+          >
+            {item.xp_reward} XP
+          </GeneralLabelAILN>
           <GeneralLabelAILN variant={sMeta.variant} icon={sMeta.icon}>
             {sMeta.label}
           </GeneralLabelAILN>

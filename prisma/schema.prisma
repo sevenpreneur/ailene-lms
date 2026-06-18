@@ -49,6 +49,8 @@ enum AilLearningType {
   QUIZ     @map("quiz")
   VIDEO    @map("video")
   MATERIAL @map("material")
+  USE_CASE @map("use_case")
+  PROMPT   @map("prompt")
 
   @@map("ail_learning_type")
 }
@@ -370,6 +372,7 @@ model AilPrompt {
   name            String                @db.VarChar()
   scenario        String                @db.Text
   expected_output String                @db.Text
+  xp_reward       Int                   @default(70) @db.SmallInt
   status          StatusEnum            @default(ACTIVE)
   is_self_created Boolean               @default(false) @db.Boolean
   created_at      DateTime              @default(now()) @db.Timestamptz()
@@ -386,6 +389,7 @@ model AilUseCase {
   level_id        Int                    @db.Integer
   name            String                 @db.VarChar()
   description     String                 @db.Text
+  xp_reward       Int                    @default(70) @db.SmallInt
   status          StatusEnum             @default(ACTIVE)
   is_self_created Boolean                @default(false) @db.Boolean
   created_at      DateTime               @default(now()) @db.Timestamptz()
