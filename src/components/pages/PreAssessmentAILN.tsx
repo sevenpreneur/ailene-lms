@@ -23,7 +23,7 @@ import { useEffect, useMemo, useRef, useState } from "react";
 import { toast } from "sonner";
 import AlertConfirmDialogAILN from "../modals/AlertConfirmDialogAILN";
 
-const PRE_ASSESSMENT_REPORT_PATH = "/student/my-progress/pre-assesment-report";
+const PRE_ASSESSMENT_REPORT_PATH = "/student/my-progress/pre-assessment-report";
 
 type AnswerValue = string | string[] | null;
 type AnswerMap = Record<string, AnswerValue>;
@@ -168,7 +168,9 @@ export default function PreAssessmentAILN({
         `Masih ada ${missingRequired.length} pertanyaan wajib yang belum dijawab.`
       );
       setCurrentIdx(
-        PRE_ASSESSMENT_QUESTIONS.findIndex((q) => q.id === missingRequired[0].id)
+        PRE_ASSESSMENT_QUESTIONS.findIndex(
+          (q) => q.id === missingRequired[0].id
+        )
       );
       return;
     }
@@ -535,7 +537,11 @@ function PreAssessmentWelcomeAILN({ onStart }: { onStart: () => void }) {
             setelahnya
           </div>
 
-          <ButtonAILN variant="primary" onClick={onStart} className="mt-6 w-full">
+          <ButtonAILN
+            variant="primary"
+            onClick={onStart}
+            className="mt-6 w-full"
+          >
             Mulai Assessment
             <ArrowRight className="size-4" />
           </ButtonAILN>

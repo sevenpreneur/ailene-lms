@@ -3,6 +3,7 @@ import {
   STATUS_NOT_FOUND,
   STATUS_OK,
 } from "@/lib/status_code";
+import { buildPreAssessmentReport } from "@/lib/pre-assessment-report";
 import {
   ailMemberProcedure,
   championProcedure,
@@ -484,6 +485,53 @@ export const readRouter = createTRPCRouter({
       role,
       department,
       items,
+    };
+  }),
+
+  preAssessmentReport: ailMemberProcedure.query(async (opts) => {
+    const memberId = opts.ctx.ail_member.id;
+    const preAssessment = await opts.ctx.prisma.ailPreAssessment.findUnique({
+      where: { member_id: memberId },
+      select: {
+        id: true,
+        member_id: true,
+        ai_use_frequency: true,
+        ai_tools_used: true,
+        ai_limitations: true,
+        output_review: true,
+        use_cases: true,
+        team_adoption: true,
+        concrete_example: true,
+        model_selection: true,
+        multimodal_use: true,
+        workflow_reuse: true,
+        prompt_comfort: true,
+        prompt_iteration: true,
+        refine_scenario: true,
+        professional_attitude: true,
+        data_safety_check: true,
+        publish_unchecked: true,
+        biggest_challenge: true,
+        training_expectation: true,
+        motivation: true,
+        created_at: true,
+      },
+    });
+
+    if (!preAssessment) {
+      return {
+        code: STATUS_OK,
+        message: "Success",
+        pre_assessment: null,
+        report: null,
+      };
+    }
+
+    return {
+      code: STATUS_OK,
+      message: "Success",
+      pre_assessment: preAssessment,
+      report: buildPreAssessmentReport(preAssessment),
     };
   }),
 
