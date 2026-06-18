@@ -1,29 +1,29 @@
 "use client";
 import ButtonAILN from "@/components/buttons/ButtonAILN";
+import SectionContainerAILN from "@/components/cards/SectionContainerAILN";
+import GeneralLabelAILN from "@/components/labels/GeneralLabelAILN";
 import PageContainerAILN from "@/components/pages/PageContainerAILN";
 import AppErrorComponents from "@/components/states/AppErrorComponents";
 import AppLoadingComponents from "@/components/states/AppLoadingComponents";
+import PageHeaderAILN from "@/components/titles/PageHeaderAILN";
 import { setSessionToken, trpc } from "@/trpc/client";
 import {
   faArrowUpRightFromSquare,
   faCalendarDay,
+  faChevronLeft,
+  faChevronRight,
   faCircleCheck,
   faClock,
   faFilePdf,
-  faLayerGroup,
-  faListUl,
-  faLock,
-  faPenRuler,
   faStar,
-  faTag,
 } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import dayjs from "dayjs";
 import "dayjs/locale/id";
 import { marked } from "marked";
 import Link from "next/link";
-import { useEffect, useMemo, useRef, useState } from "react";
-import styles from "../css/ailene-prose.module.css";
+import { useEffect, useMemo, useRef } from "react";
+import styles from "../css/MaterialDetails.module.css";
 
 dayjs.locale("id");
 marked.setOptions({ gfm: true, breaks: false });
@@ -111,19 +111,23 @@ export default function MaterialDetailsAILN({
   }, [sessionToken]);
 
   const utils = trpc.useUtils();
-  const { data, isLoading, isError } = trpc.read.materialDetail.useQuery(
-    {
-      material_id: materialId,
-    }
-  );
+  const { data, isLoading, isError } = trpc.read.materialDetail.useQuery({
+    material_id: materialId,
+  });
 
   const levelMaterialsQ = trpc.read.levelMaterials.useQuery({
     material_id: materialId,
   });
   const levelNumber = levelMaterialsQ.data?.level_number ?? 0;
-  const otherMaterials = (levelMaterialsQ.data?.materials ?? []).filter(
-    (m) => !m.is_current
-  );
+  const allMaterials = levelMaterialsQ.data?.materials ?? [];
+  const otherMaterials = allMaterials.filter((m) => !m.is_current);
+
+  const currentIdx = allMaterials.findIndex((m) => m.is_current);
+  const prevMaterial = currentIdx > 0 ? allMaterials[currentIdx - 1] : null;
+  const nextMaterial =
+    currentIdx >= 0 && currentIdx < allMaterials.length - 1
+      ? allMaterials[currentIdx + 1]
+      : null;
 
   const markMutation = trpc.create.completeMaterial.useMutation({
     onSuccess: () => {
@@ -161,27 +165,6 @@ export default function MaterialDetailsAILN({
     [material?.content]
   );
 
-  const [activeId, setActiveId] = useState<string | null>(null);
-  useEffect(() => {
-    if (toc.length === 0) return;
-    const headingEls = toc
-      .map((entry) => document.getElementById(entry.id))
-      .filter((el): el is HTMLElement => !!el);
-    if (headingEls.length === 0) return;
-
-    const observer = new IntersectionObserver(
-      (entries) => {
-        const visible = entries
-          .filter((e) => e.isIntersecting)
-          .sort((a, b) => a.boundingClientRect.top - b.boundingClientRect.top);
-        if (visible[0]) setActiveId(visible[0].target.id);
-      },
-      { rootMargin: "-20% 0px -60% 0px", threshold: [0, 1] }
-    );
-    headingEls.forEach((el) => observer.observe(el));
-    return () => observer.disconnect();
-  }, [toc, renderedContent]);
-
   if (isLoading) {
     return (
       <PageContainerAILN>
@@ -209,69 +192,60 @@ export default function MaterialDetailsAILN({
       <div className="flex w-full flex-col gap-6 py-4">
         {/* Header */}
         <div className="flex flex-col gap-3">
-          <h1 className="text-3xl font-bold leading-tight text-sevenpreneur-coal dark:text-white">
-            {material.title}
-          </h1>
-          {material.description && (
-            <p className="text-base text-gray-600 dark:text-gray-400">
-              {material.description}
-            </p>
-          )}
+          <PageHeaderAILN
+            title={material.title}
+            desc={material.description ?? undefined}
+          />
 
-          <div className="mt-1 flex flex-wrap items-center gap-2 text-sm">
-            <span className="inline-flex items-center gap-1.5 rounded-md border border-dashboard-border bg-white px-2 py-1 dark:bg-card-1 dark:text-gray-300">
-              <FontAwesomeIcon
-                icon={faPenRuler}
-                className="h-3 w-3 text-red-500"
-              />
-              <span className="font-medium">Materi</span>
-            </span>
-
+          <div className="mt-1 flex flex-wrap items-center gap-2">
             {readTime && (
-              <span className="inline-flex items-center gap-1.5 rounded-md border border-dashboard-border bg-white px-2 py-1 dark:bg-card-1 dark:text-gray-300">
-                <FontAwesomeIcon
-                  icon={faClock}
-                  className="h-3 w-3 text-gray-500 dark:text-gray-400"
-                />
-                <span className="font-medium">
-                  {readTime.min}–{readTime.max} menit baca
-                </span>
-              </span>
+              <GeneralLabelAILN
+                variant="white"
+                icon={
+                  <FontAwesomeIcon
+                    icon={faClock}
+                    className="h-3 w-3 text-gray-500 dark:text-gray-400"
+                  />
+                }
+              >
+                {readTime.min}–{readTime.max} menit baca
+              </GeneralLabelAILN>
             )}
 
             {publishedAt && (
-              <span className="inline-flex items-center gap-1.5 rounded-md border border-dashboard-border bg-white px-2 py-1 dark:bg-card-1 dark:text-gray-300">
-                <FontAwesomeIcon
-                  icon={faCalendarDay}
-                  className="h-3 w-3 text-gray-500 dark:text-gray-400"
-                />
-                <span className="font-medium">Terbit: {publishedAt}</span>
-              </span>
+              <GeneralLabelAILN
+                variant="white"
+                icon={
+                  <FontAwesomeIcon
+                    icon={faCalendarDay}
+                    className="h-3 w-3 text-gray-500 dark:text-gray-400"
+                  />
+                }
+              >
+                Terbit: {publishedAt}
+              </GeneralLabelAILN>
             )}
-
-            {material.chapter?.name && (
-              <span className="inline-flex items-center gap-1.5 rounded-md border border-dashboard-border bg-white px-2 py-1 dark:bg-card-1 dark:text-gray-300">
+            <GeneralLabelAILN
+              variant="white"
+              icon={
                 <FontAwesomeIcon
-                  icon={faTag}
-                  className="h-3 w-3 text-gray-500 dark:text-gray-400"
+                  icon={faStar}
+                  className="h-3 w-3 text-yellow-500"
                 />
-                <span className="font-medium">{material.chapter.name}</span>
-              </span>
-            )}
-
-            <span className="inline-flex items-center gap-1.5 rounded-md border border-dashboard-border bg-white px-2 py-1 dark:bg-card-1 dark:text-gray-300">
-              <FontAwesomeIcon
-                icon={faStar}
-                className="h-3 w-3 text-yellow-500"
-              />
-              <span className="font-semibold">+{material.xp_reward} XP</span>
-            </span>
+              }
+            >
+              +{material.xp_reward} XP
+            </GeneralLabelAILN>
 
             {completed && (
-              <span className="inline-flex items-center gap-1.5 rounded-md border border-green-300 bg-green-50 px-2 py-1 text-green-700 dark:border-green-500/30 dark:bg-green-500/10 dark:text-green-400">
-                <FontAwesomeIcon icon={faCircleCheck} className="h-3 w-3" />
-                <span className="font-semibold">Selesai</span>
-              </span>
+              <GeneralLabelAILN
+                variant="green"
+                icon={
+                  <FontAwesomeIcon icon={faCircleCheck} className="h-3 w-3" />
+                }
+              >
+                Selesai
+              </GeneralLabelAILN>
             )}
           </div>
         </div>
@@ -349,108 +323,69 @@ export default function MaterialDetailsAILN({
           <aside className="hidden lg:block">
             <div className="sticky top-6 flex flex-col gap-4">
               {toc.length > 0 && (
-                <div className="rounded-xl border border-dashboard-border bg-white p-4 dark:bg-card-1 dark:shadow-[0_0_18px_rgba(239,68,68,0.08)]">
-                  <div className="mb-3 flex items-center gap-2 text-sm font-semibold text-sevenpreneur-coal dark:text-white">
-                    <FontAwesomeIcon
-                      icon={faListUl}
-                      className="h-3.5 w-3.5 text-red-500"
-                    />
-                    <span>Daftar Isi</span>
-                  </div>
+                <SectionContainerAILN
+                  title="Daftar Isi"
+                  contentClassName="mt-3"
+                >
                   <nav className="flex flex-col gap-1">
-                    {toc.map((entry) => {
-                      const isActive = activeId === entry.id;
-                      return (
-                        <a
-                          key={entry.id}
-                          href={`#${entry.id}`}
-                          className={[
-                            "block rounded-md px-2.5 py-1.5 text-sm leading-relaxed transition-colors",
-                            entry.level === 1
-                              ? "font-semibold"
-                              : entry.level === 2
-                                ? "font-medium"
-                                : "font-normal",
-                            entry.level === 3 ? "pl-5" : "pl-2.5",
-                            isActive
-                              ? "bg-red-500/10 text-red-500 dark:bg-red-500/15 dark:text-red-400"
-                              : "text-gray-600 hover:bg-gray-50 hover:text-sevenpreneur-coal dark:text-gray-400 dark:hover:bg-card-2 dark:hover:text-white",
-                          ].join(" ")}
-                        >
-                          {entry.text}
-                        </a>
-                      );
-                    })}
+                    {toc.map((entry) => (
+                      <a
+                        key={entry.id}
+                        href={`#${entry.id}`}
+                        className={[
+                          "block rounded-md px-2.5 py-1.5 text-sm leading-relaxed transition-colors",
+                          entry.level === 1
+                            ? "font-semibold"
+                            : entry.level === 2
+                              ? "font-medium"
+                              : "font-normal",
+                          entry.level === 3 ? "pl-5" : "pl-2.5",
+                          "text-gray-600 hover:bg-black/5 hover:text-sevenpreneur-coal dark:text-gray-400 dark:hover:bg-card-2 dark:hover:text-white",
+                        ].join(" ")}
+                      >
+                        {entry.text}
+                      </a>
+                    ))}
                   </nav>
-                </div>
+                </SectionContainerAILN>
               )}
 
               {otherMaterials.length > 0 && (
-                <div className="rounded-xl border border-dashboard-border bg-white p-4 dark:bg-card-1 dark:shadow-[0_0_18px_rgba(239,68,68,0.08)]">
-                  <div className="mb-3 flex items-center gap-2 text-xs font-semibold uppercase tracking-wide text-gray-500 dark:text-gray-400">
-                    <FontAwesomeIcon
-                      icon={faLayerGroup}
-                      className="h-3.5 w-3.5 text-red-500"
-                    />
-                    <span>Modul lain di Level {levelNumber}</span>
-                  </div>
+                <SectionContainerAILN
+                  title="Materi Lain"
+                  contentClassName="mt-3"
+                >
                   <div className="flex flex-col gap-0.5">
-                    {otherMaterials.map((m) => {
-                      const row = (
-                        <>
-                          <span className="w-7 shrink-0  text-xs text-gray-400 dark:text-gray-500">
-                            {levelNumber}.{m.index}
-                          </span>
-                          <span
-                            className={`line-clamp-2 flex-1 text-sm leading-snug ${
-                              m.locked
-                                ? "text-gray-400 dark:text-gray-500"
-                                : "text-sevenpreneur-coal dark:text-gray-200"
-                            }`}
+                    {otherMaterials.map((m) => (
+                      <Link
+                        key={m.id}
+                        href={`/student/materials/${m.id}`}
+                        className="flex items-start gap-2 rounded-md px-2 py-2 transition-colors hover:bg-gray-50 dark:hover:bg-card-2"
+                      >
+                        <span className="w-7 shrink-0 text-xs text-gray-400 dark:text-gray-500">
+                          {levelNumber}.{m.index}
+                        </span>
+                        <span className="line-clamp-2 flex-1 text-sm leading-snug text-sevenpreneur-coal dark:text-gray-200">
+                          {m.title}
+                        </span>
+                        {m.completed ? (
+                          <FontAwesomeIcon
+                            icon={faCircleCheck}
+                            className="mt-0.5 h-3.5 w-3.5 shrink-0 text-green-500"
+                            title="Selesai"
+                          />
+                        ) : (
+                          <GeneralLabelAILN
+                            variant="blue"
+                            className="mt-0.5 shrink-0"
                           >
-                            {m.title}
-                          </span>
-                          {m.completed ? (
-                            <FontAwesomeIcon
-                              icon={faCircleCheck}
-                              className="mt-0.5 h-3.5 w-3.5 shrink-0 text-green-500"
-                              title="Selesai"
-                            />
-                          ) : m.locked ? (
-                            <span className="mt-0.5 inline-flex shrink-0 items-center gap-1 rounded-full border border-dashboard-border px-2 py-0.5 text-[10px] font-medium text-gray-500 dark:text-gray-400">
-                              <FontAwesomeIcon
-                                icon={faLock}
-                                className="h-2.5 w-2.5"
-                              />
-                              Terkunci
-                            </span>
-                          ) : (
-                            <span className="mt-0.5 inline-flex shrink-0 items-center rounded-full border border-blue-300 bg-blue-50 px-2 py-0.5 text-[10px] font-medium text-blue-600 dark:border-blue-500/30 dark:bg-blue-500/10 dark:text-blue-400">
-                              Baru
-                            </span>
-                          )}
-                        </>
-                      );
-
-                      return m.locked ? (
-                        <div
-                          key={m.id}
-                          className="flex cursor-not-allowed items-start gap-2 rounded-md px-2 py-2"
-                        >
-                          {row}
-                        </div>
-                      ) : (
-                        <Link
-                          key={m.id}
-                          href={`/student/materials/${m.id}`}
-                          className="flex items-start gap-2 rounded-md px-2 py-2 transition-colors hover:bg-gray-50 dark:hover:bg-card-2"
-                        >
-                          {row}
-                        </Link>
-                      );
-                    })}
+                            Baru
+                          </GeneralLabelAILN>
+                        )}
+                      </Link>
+                    ))}
                   </div>
-                </div>
+                </SectionContainerAILN>
               )}
 
               {updatedAt && (
@@ -470,6 +405,54 @@ export default function MaterialDetailsAILN({
             </div>
           </aside>
         </div>
+
+        {/* Footer nav — move between materials without leaving the page */}
+        {(prevMaterial || nextMaterial) && (
+          <nav className="flex items-stretch justify-between gap-3 border-t border-dashboard-border pt-6">
+            {prevMaterial ? (
+              <Link
+                href={`/student/materials/${prevMaterial.id}`}
+                className="group flex w-[35%] items-center gap-3 rounded-xl border border-dashboard-border bg-white p-3 transition-colors hover:border-black/30 hover:bg-black/[0.02] dark:bg-card-1 dark:hover:border-white/30 dark:hover:bg-white/10"
+              >
+                <FontAwesomeIcon
+                  icon={faChevronLeft}
+                  className="h-3.5 w-3.5 shrink-0"
+                />
+                <span className="flex min-w-0 flex-col">
+                  <span className="text-[11px] uppercase tracking-wide text-gray-400 dark:text-gray-500">
+                    Materi Sebelumnya
+                  </span>
+                  <span className="line-clamp-1 text-sm font-semibold text-sevenpreneur-coal dark:text-white">
+                    {prevMaterial.title}
+                  </span>
+                </span>
+              </Link>
+            ) : (
+              <span />
+            )}
+            {nextMaterial ? (
+              <Link
+                href={`/student/materials/${nextMaterial.id}`}
+                className="group flex w-[35%] items-center justify-end gap-3 rounded-xl border border-dashboard-border bg-white p-3 text-right transition-colors hover:border-black/30 hover:bg-black/[0.02] dark:bg-card-1 dark:hover:border-white/30 dark:hover:bg-white/10"
+              >
+                <span className="flex min-w-0 flex-col items-end">
+                  <span className="text-[11px] uppercase tracking-wide text-gray-400 dark:text-gray-500">
+                    Materi Selanjutnya
+                  </span>
+                  <span className="line-clamp-1 text-sm font-semibold text-sevenpreneur-coal dark:text-white">
+                    {nextMaterial.title}
+                  </span>
+                </span>
+                <FontAwesomeIcon
+                  icon={faChevronRight}
+                  className="h-3.5 w-3.5 shrink-0"
+                />
+              </Link>
+            ) : (
+              <span />
+            )}
+          </nav>
+        )}
       </div>
     </PageContainerAILN>
   );

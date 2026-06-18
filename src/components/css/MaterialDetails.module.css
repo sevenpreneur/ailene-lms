@@ -17,6 +17,7 @@
   color: var(--color-sevenpreneur-coal);
   line-height: 1.25;
   letter-spacing: -0.02em;
+  scroll-margin-top: 1.5rem;
 }
 
 .prose h1 {
