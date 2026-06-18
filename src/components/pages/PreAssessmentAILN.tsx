@@ -18,6 +18,7 @@ import {
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { ArrowRight, BookOpen, Check, Sparkles } from "lucide-react";
 import { useTheme } from "next-themes";
+import Image from "next/image";
 import { useRouter } from "next/navigation";
 import { useEffect, useMemo, useRef, useState } from "react";
 import { toast } from "sonner";
@@ -56,8 +57,7 @@ export default function PreAssessmentAILN({
     if (sessionToken) setSessionToken(sessionToken);
   }, [sessionToken]);
 
-  const { data, isLoading, isError } =
-    trpc.read.preAssessment.mine.useQuery();
+  const { data, isLoading, isError } = trpc.read.preAssessment.mine.useQuery();
 
   const submittedRef = useRef(false);
 
@@ -70,6 +70,7 @@ export default function PreAssessmentAILN({
   });
   const [currentIdx, setCurrentIdx] = useState(0);
   const [isSubmitDialogOpen, setIsSubmitDialogOpen] = useState(false);
+  const [started, setStarted] = useState(false);
 
   const totalQuestions = PRE_ASSESSMENT_QUESTIONS.length;
   const currentQ = PRE_ASSESSMENT_QUESTIONS[currentIdx];
@@ -117,6 +118,10 @@ export default function PreAssessmentAILN({
 
   if (data.pre_assessment) {
     return <PreAssessmentCompletedAILN preAssessment={data.pre_assessment} />;
+  }
+
+  if (!started) {
+    return <PreAssessmentWelcomeAILN onStart={() => setStarted(true)} />;
   }
 
   const handleSelectSingle = (code: string) => {
@@ -430,6 +435,108 @@ export default function PreAssessmentAILN({
   );
 }
 
+function PreAssessmentWelcomeAILN({ onStart }: { onStart: () => void }) {
+  const userQ = trpc.auth.checkSession.useQuery();
+  const firstName = userQ.data?.user?.full_name?.split(" ")[0] ?? "teman";
+  const totalQuestions = PRE_ASSESSMENT_QUESTIONS.length;
+
+  const points = [
+    {
+      icon: <BookOpen className="size-4" />,
+      title: `${totalQuestions} pertanyaan singkat`,
+      desc: "Pilihan ganda, isian singkat, dan beberapa cerita pengalamanmu.",
+    },
+    {
+      icon: <Sparkles className="size-4" />,
+      title: "6 pillar AI Readiness",
+      desc: "Hasilnya kami pakai untuk menyusun fokus belajar yang pas buatmu.",
+    },
+  ];
+
+  return (
+    <PageContainerSVP className="relative flex min-h-screen items-center justify-center overflow-hidden">
+      {/* Full-page background image */}
+      <Image
+        src="https://www.hutamakarya.com/storage/whatsapp-image-2024-06-20-at-45600-pm-1.jpeg"
+        alt=""
+        fill
+        priority
+        aria-hidden
+        className="pointer-events-none z-0 object-cover"
+      />
+      {/* Dark overlay for contrast */}
+      <div
+        aria-hidden
+        className="pointer-events-none absolute inset-0 z-0 bg-black/50"
+      />
+
+      <div className="relative z-10 mx-auto flex w-full max-w-2xl flex-col py-12">
+        <div className="rounded-2xl border bg-white p-8 shadow-xl dark:border-dashboard-border dark:bg-card-1 dark:shadow-[0_0_18px_rgba(239,68,68,0.08)]">
+          <div className="mb-7 flex justify-center">
+            <Image
+              src="https://tskubmriuclmbcfmaiur.supabase.co/storage/v1/object/public/sevenpreneur/logo-hk-danantara.webp"
+              alt="Hutama Karya × Danantara"
+              width={400}
+              height={120}
+              className="h-12 w-auto object-contain dark:hidden"
+            />
+            <Image
+              src="https://tskubmriuclmbcfmaiur.supabase.co/storage/v1/object/public/sevenpreneur/logo-hk-danantara-white.webp"
+              alt="Hutama Karya × Danantara"
+              width={400}
+              height={120}
+              className="hidden h-12 w-auto object-contain dark:block"
+            />
+          </div>
+          <h1 className="text-center text-3xl font-bold leading-tight text-gray-900 dark:text-white">
+            Halo {firstName}, selamat datang 👋
+          </h1>
+          <p className="mt-3 text-center text-base leading-7 text-gray-600 dark:text-gray-300">
+            Sebelum mulai belajar, isi dulu <b>AI Readiness Pre-Assessment</b>{" "}
+            ini supaya kami paham titik berangkatmu dan bisa menyiapkan jalur
+            belajar yang paling relevan.
+          </p>
+
+          <div className="mt-6 flex flex-col gap-3">
+            {points.map((point) => (
+              <div
+                key={point.title}
+                className="flex items-start gap-3 rounded-xl border border-dashboard-border bg-gray-50/60 p-4 dark:bg-card-2"
+              >
+                <div className="flex size-9 shrink-0 items-center justify-center rounded-lg bg-red-100 text-red-500 dark:bg-red-500/15 dark:text-red-400">
+                  {point.icon}
+                </div>
+                <div className="min-w-0">
+                  <div className="text-sm font-semibold text-gray-900 dark:text-white">
+                    {point.title}
+                  </div>
+                  <p className="mt-0.5 text-sm leading-6 text-gray-500 dark:text-gray-400">
+                    {point.desc}
+                  </p>
+                </div>
+              </div>
+            ))}
+          </div>
+
+          <div className="mt-6 rounded-xl border border-amber-200 bg-amber-50 px-4 py-3 text-sm text-amber-800 dark:border-amber-500/40 dark:bg-amber-500/10 dark:text-amber-300">
+            Jawaban hanya bisa dikirim <b>satu kali</b> dan tidak bisa diubah
+            setelahnya
+          </div>
+
+          <ButtonAILN
+            variant="primary"
+            onClick={onStart}
+            className="mt-6 w-full"
+          >
+            Mulai Assessment
+            <ArrowRight className="size-4" />
+          </ButtonAILN>
+        </div>
+      </div>
+    </PageContainerSVP>
+  );
+}
+
 function QuestionBody({
   question,
   value,
@@ -724,11 +831,7 @@ function PreAssessmentCompletedAILN({
   );
 }
 
-function PreAssessmentRadar({
-  dimensions,
-}: {
-  dimensions: ResultDimension[];
-}) {
+function PreAssessmentRadar({ dimensions }: { dimensions: ResultDimension[] }) {
   const center = 150;
   const radius = 100;
   const points = dimensions.map((dimension, index) => {
@@ -798,7 +901,13 @@ function PreAssessmentRadar({
             <text
               x={point.labelX}
               y={point.labelY}
-              textAnchor={point.labelX < center - 10 ? "end" : point.labelX > center + 10 ? "start" : "middle"}
+              textAnchor={
+                point.labelX < center - 10
+                  ? "end"
+                  : point.labelX > center + 10
+                    ? "start"
+                    : "middle"
+              }
               className="fill-gray-700 text-[11px] font-semibold dark:fill-gray-200"
             >
               {point.shortLabel}
@@ -806,7 +915,13 @@ function PreAssessmentRadar({
             <text
               x={point.labelX}
               y={point.labelY + 15}
-              textAnchor={point.labelX < center - 10 ? "end" : point.labelX > center + 10 ? "start" : "middle"}
+              textAnchor={
+                point.labelX < center - 10
+                  ? "end"
+                  : point.labelX > center + 10
+                    ? "start"
+                    : "middle"
+              }
               className="fill-gray-400 text-[10px] dark:fill-gray-500"
             >
               {formatScore(point.score)}
@@ -950,13 +1065,43 @@ type RecommendationItem = {
 
 function buildPreAssessmentResult(preAssessment: PreAssessmentResultData) {
   const scoreMap = {
-    frequency: { NEVER: 0.6, TRIED: 1.5, WEEKLY: 2.6, DAILY: 3.8, INTENSIVE: 4.6 },
+    frequency: {
+      NEVER: 0.6,
+      TRIED: 1.5,
+      WEEKLY: 2.6,
+      DAILY: 3.8,
+      INTENSIVE: 4.6,
+    },
     understanding: { NONE: 0.5, AWARE: 1.5, BASIC: 3, EXPLAIN: 4, EXPERT: 5 },
-    review: { NO_CHECK: 0.6, SOMETIMES: 2, ALWAYS: 3.6, CROSS_CHECK: 4.6, NO_USE: 1 },
-    adoption: { NONE: 0.6, PERSONAL: 1.7, PILOT: 2.8, POLICY: 4, INTEGRATED: 5 },
+    review: {
+      NO_CHECK: 0.6,
+      SOMETIMES: 2,
+      ALWAYS: 3.6,
+      CROSS_CHECK: 4.6,
+      NO_USE: 1,
+    },
+    adoption: {
+      NONE: 0.6,
+      PERSONAL: 1.7,
+      PILOT: 2.8,
+      POLICY: 4,
+      INTEGRATED: 5,
+    },
     prompt: { NONE: 0.7, BASIC: 1.8, DECENT: 3, STRUCTURED: 4.2, EXPERT: 5 },
-    attitude: { TOO_RISKY: 1, CAUTIOUS: 2.4, NEUTRAL: 3, SUPPORTIVE: 4.2, ESSENTIAL: 5 },
-    motivation: { MANDATORY: 1, CURIOUS: 2.2, TENTATIVE: 3, READY: 4.2, EAGER: 5 },
+    attitude: {
+      TOO_RISKY: 1,
+      CAUTIOUS: 2.4,
+      NEUTRAL: 3,
+      SUPPORTIVE: 4.2,
+      ESSENTIAL: 5,
+    },
+    motivation: {
+      MANDATORY: 1,
+      CURIOUS: 2.2,
+      TENTATIVE: 3,
+      READY: 4.2,
+      EAGER: 5,
+    },
   } as const;
 
   const toolCount = preAssessment.q2_ai_tools_used.filter(
@@ -1086,7 +1231,8 @@ function buildRecommendations(
       code: "AF-1",
       title: "Dasar cara kerja AI tanpa jargon",
       pillar: "AI Foundations",
-      description: "Mulai dari konsep dasar, limitasi, dan cara memakai output.",
+      description:
+        "Mulai dari konsep dasar, limitasi, dan cara memakai output.",
       duration: "16 mnt",
       href: "/student/learning-path",
     },
@@ -1115,11 +1261,13 @@ function buildRecommendations(
     : map.prompting;
   const ordered = [map[focus.key], byUseCase, map.ethics, map.foundations];
   const seen = new Set<string>();
-  return ordered.filter((item) => {
-    if (seen.has(item.code)) return false;
-    seen.add(item.code);
-    return true;
-  }).slice(0, 3);
+  return ordered
+    .filter((item) => {
+      if (seen.has(item.code)) return false;
+      seen.add(item.code);
+      return true;
+    })
+    .slice(0, 3);
 }
 
 function avg(values: number[]) {
