@@ -145,6 +145,7 @@ function PreAssessmentReportContent({
             <div className="text-sm font-black text-gray-950 dark:text-white">
               {formatDecimal(report.avg)}
             </div>
+            <div />
             {report.pillars.map((pillar) => (
               <div key={`highlight-${pillar.key}`}>
                 {pillar.key === report.strongest.key && (
@@ -306,11 +307,7 @@ function RecommendationsFailed({
         Skill mapping di atas tetap valid. Rekomendasi personalmu belum sempat
         tersusun — coba buat ulang sebentar lagi.
       </p>
-      <ButtonAILN
-        variant="neutral"
-        onClick={onRetry}
-        disabled={isRetrying}
-      >
+      <ButtonAILN variant="neutral" onClick={onRetry} disabled={isRetrying}>
         {isRetrying ? (
           <Loader2 className="size-4 animate-spin" />
         ) : (

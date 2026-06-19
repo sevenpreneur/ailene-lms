@@ -217,6 +217,7 @@ CREATE TABLE ail_materials (
     description TEXT                   NULL,
     content     TEXT                   NULL,
     file_url    TEXT                   NULL,
+    image_url   TEXT                   NULL,
     xp_reward   SMALLINT           NOT NULL DEFAULT 0,
     order_index SMALLINT           NOT NULL DEFAULT 0,
     status      status_enum        NOT NULL DEFAULT 'active',

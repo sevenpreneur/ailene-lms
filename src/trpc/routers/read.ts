@@ -705,6 +705,7 @@ export const readRouter = createTRPCRouter({
           description: material.description,
           content: material.content,
           file_url: material.file_url,
+          image_url: material.image_url,
           xp_reward: material.xp_reward,
           chapter: material.chapter,
           created_at: material.created_at,

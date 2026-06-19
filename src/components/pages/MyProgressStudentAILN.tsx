@@ -9,10 +9,11 @@ import PageHeaderAILN from "@/components/titles/PageHeaderAILN";
 import { setSessionToken, trpc } from "@/trpc/client";
 import dayjs from "dayjs";
 import "dayjs/locale/id";
+import { ArrowRight, ClipboardCheck } from "lucide-react";
+import Link from "next/link";
 import { useEffect } from "react";
 
 dayjs.locale("id");
-
 
 export default function MyProgressStudentAILN({
   sessionToken,
@@ -61,6 +62,7 @@ export default function MyProgressStudentAILN({
 
         {/* Level journey — full width */}
         <LevelProgressCardAILN />
+        <PreAssessmentReportGateway />
 
         {/* Profil Kompetensi 60% sejajar Capaian Kamu / streak 40% (tinggi sama) */}
         <div className="grid grid-cols-1 gap-5 xl:grid-cols-[minmax(0,3fr)_minmax(0,2fr)]">
@@ -79,6 +81,31 @@ export default function MyProgressStudentAILN({
   );
 }
 
+function PreAssessmentReportGateway() {
+  return (
+    <Link
+      href="/student/my-progress/pre-assessment-report"
+      className="ailn-card group flex items-center justify-between gap-4 border border-red-100 bg-gradient-to-br from-red-50 via-white to-rose-50/60 p-5 transition dark:border-red-500/25 dark:from-red-500/10 dark:via-card-1 dark:to-rose-500/10"
+    >
+      <span className="flex min-w-0 items-center gap-4">
+        <span className="flex size-11 shrink-0 items-center justify-center rounded-md bg-red-50 text-red-500 dark:bg-red-500/10 dark:text-red-400">
+          <ClipboardCheck className="size-5" />
+        </span>
+        <span className="min-w-0">
+          <span className="block text-base font-bold text-foreground">
+            Laporan Pre-Assessment
+          </span>
+          <span className="mt-1 block text-sm text-muted-foreground">
+            Lihat ringkasan kompetensi dan rekomendasi use case AI kamu.
+          </span>
+        </span>
+      </span>
+      <span className="flex size-9 shrink-0 items-center justify-center rounded-md border border-red-100 bg-white/70 text-red-500 transition group-hover:translate-x-0.5 dark:border-red-500/20 dark:bg-card-1/60 dark:text-red-400">
+        <ArrowRight className="size-4" />
+      </span>
+    </Link>
+  );
+}
 
 function ProgressSkeleton() {
   return (
@@ -104,4 +131,3 @@ function ProgressSkeleton() {
     </div>
   );
 }
-

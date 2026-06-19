@@ -1,5 +1,6 @@
 import { Optional } from "@/lib/optional-type";
 import GetPrismaClient from "@/lib/prisma";
+import { canAccessSponsor } from "@/lib/sponsor-access";
 import { initTRPC, TRPCError } from "@trpc/server";
 import dayjs from "dayjs";
 import { headers } from "next/headers";
@@ -197,7 +198,7 @@ export const championProcedure = ailMemberProcedure.use(async (opts) => {
 });
 
 export const sponsorProcedure = ailMemberProcedure.use(async (opts) => {
-  if (opts.ctx.ail_member.role !== "SPONSOR") {
+  if (!canAccessSponsor(opts.ctx.ail_member)) {
     throw new TRPCError({ code: "FORBIDDEN", message: "Sponsor access only." });
   }
   return opts.next(opts);

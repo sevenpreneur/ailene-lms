@@ -355,6 +355,7 @@ model AilMaterial {
   description String?                 @db.Text
   content     String?                 @db.Text
   file_url    String?                 @db.Text
+  image_url   String?                 @db.Text
   xp_reward   Int                     @default(0) @db.SmallInt
   order_index Int                     @default(0) @db.SmallInt
   status      StatusEnum              @default(ACTIVE)

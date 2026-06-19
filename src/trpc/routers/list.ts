@@ -210,6 +210,7 @@ export const listRouter = createTRPCRouter({
           description: m.description,
           content: m.content,
           file_url: m.file_url,
+          image_url: m.image_url,
           xp_reward: m.xp_reward,
           order_index: m.order_index,
           xp_earned: xpByKey.get(`material:${m.id}`) ?? 0,

@@ -1,6 +1,7 @@
 import SidebarAILN from "@/components/navigations/SidebarAILN";
 import AppPageState from "@/components/states/AppPageState";
 import { getAilGate } from "@/lib/ail-gate";
+import { canAccessSponsor } from "@/lib/sponsor-access";
 import { redirect } from "next/navigation";
 import { ReactNode } from "react";
 
@@ -13,7 +14,7 @@ export default async function SponsorLayout({
 
   if (!sessionToken) redirect("/auth/login");
 
-  if (!ailMember || ailMember.role !== "SPONSOR") {
+  if (!ailMember || !canAccessSponsor(ailMember)) {
     return <AppPageState variant="FORBIDDEN" />;
   }
 
