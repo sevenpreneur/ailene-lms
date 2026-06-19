@@ -25,7 +25,7 @@ export default function LevelLabelStudentAILN({
   if (variant === "summary") {
     return (
       <div
-        className={`flex items-center gap-2 rounded-lg border bg-white p-3 dark:border-red-500/30 dark:bg-red-500/5 ${className ?? ""}`}
+        className={`flex h-[60px] items-center gap-2 rounded-lg border bg-white px-3 dark:border-red-500/30 dark:bg-red-500/5 ${className ?? ""}`}
       >
         {icon && (
           <Image

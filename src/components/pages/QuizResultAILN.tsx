@@ -89,8 +89,6 @@ export default function QuizResultAILN({ quizId }: QuizResultAILNProps) {
       wrongCount += 1;
     }
   }
-  const accuracy =
-    totalQuestions > 0 ? Math.round((correctCount / totalQuestions) * 100) : 0;
 
   return (
     <PageContainerAILN>
@@ -101,7 +99,6 @@ export default function QuizResultAILN({ quizId }: QuizResultAILNProps) {
         />
 
         <QuizSummaryBannerAILN
-          accuracy={accuracy}
           correctCount={correctCount}
           score={score}
           totalQuestions={totalQuestions}

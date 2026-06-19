@@ -21,7 +21,7 @@ export default function RewardLabelStudentAILN({
   if (variant === "summary") {
     return (
       <div
-        className={`flex items-center gap-2 rounded-lg border bg-white p-3 dark:border-red-500/30 dark:bg-red-500/5 ${className ?? ""}`}
+        className={`flex h-[60px] items-center gap-2 rounded-lg border bg-white px-3 dark:border-red-500/30 dark:bg-red-500/5 ${className ?? ""}`}
       >
         <Star
           className="size-4 text-amber-500 dark:text-amber-400"

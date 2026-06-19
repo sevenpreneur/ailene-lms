@@ -58,22 +58,21 @@ export default function LearningPathStudentAILN({
   const promptsQ = trpc.list.assignedPrompts.useQuery();
   const useCasesQ = trpc.list.assignedUseCases.useQuery();
 
-  // Auto-expand: URL param wins (?chapter=<id> from "Lihat detail" deep links),
-  // else earliest in-progress chapter, else earliest accessible not-started
-  // chapter (so fresh members still see their first chapter opened). Runs once
-  // after data loads.
+  // Pick the first useful timeline item to open.
   const searchParams = useSearchParams();
   const chapterParam = searchParams.get("chapter");
   const practiceParam = searchParams.get("practice");
   const autoExpandedRef = useRef(false);
+  const chapterProgressRef = useRef<Map<number, Chapter["progress"]>>(
+    new Map()
+  );
   useEffect(() => {
     if (autoExpandedRef.current) return;
     const chapters = chaptersQ.data?.list;
     const member = memberQ.data?.ail_member;
     const levels = levelsQ.data?.list;
     if (!chapters || !member || !levels) return;
-    // This effect also runs during the loading phase; the practice queries
-    // decide the practice tier, so wait until both have settled before deciding.
+    // Wait for practice queries before choosing a fallback.
     if (promptsQ.isLoading || useCasesQ.isLoading) return;
     autoExpandedRef.current = true;
 
@@ -92,7 +91,7 @@ export default function LearningPathStudentAILN({
       }
     }
 
-    // chapters are sorted asc by session_date upstream — find() = earliest
+    // Chapters are already sorted by date.
     const earliestInProgress = chapters.find(
       (c) => c.progress === "in_progress"
     );
@@ -102,10 +101,21 @@ export default function LearningPathStudentAILN({
     }
 
     const currentLevelNumber = member.current_level?.level_number ?? 0;
+    const levelNumberByIdForNext = new Map(
+      levels.map((l) => [l.id, l.level_number])
+    );
+    const nextChapterToOpen = chapters.find((c) => {
+      if (c.progress === "completed") return false;
+      const lvlNum = levelNumberByIdForNext.get(c.level_id);
+      if (lvlNum === undefined || lvlNum > currentLevelNumber) return false;
+      return true;
+    });
+    if (nextChapterToOpen) {
+      setExpandedChapters(new Set([nextChapterToOpen.id]));
+      return;
+    }
 
-    // Earliest unlocked practice module that still has at least one item not
-    // yet "accepted" (todo / overdue / rejected / pending review all count as
-    // belum kelar). Picks the lowest level_number.
+    // Fallback to the earliest unfinished practice level.
     const levelsWithUnfinished = new Map<number, number>();
     const consider = (
       row: { reviewed_at: string | null; is_accepted: boolean },
@@ -127,21 +137,6 @@ export default function LearningPathStudentAILN({
       setExpandedModules(new Set([earliestPractice[0]]));
       return;
     }
-
-    // Fallback: earliest chapter the member can actually open right now —
-    // level unlocked, session started, not yet completed.
-    const levelNumberById = new Map(levels.map((l) => [l.id, l.level_number]));
-    const now = dayjs();
-    const nextAccessible = chapters.find((c) => {
-      if (c.progress === "completed") return false;
-      const lvlNum = levelNumberById.get(c.level_id);
-      if (lvlNum === undefined || lvlNum > currentLevelNumber) return false;
-      if (dayjs(c.session_date).isAfter(now)) return false;
-      return true;
-    });
-    if (nextAccessible) {
-      setExpandedChapters(new Set([nextAccessible.id]));
-    }
   }, [
     chaptersQ.data,
     memberQ.data,
@@ -154,10 +149,49 @@ export default function LearningPathStudentAILN({
     practiceParam,
   ]);
 
-  // Gate the full-page skeleton on everything the timeline needs to render in
-  // one shot — including the practice queries — so skill-practice modules don't
-  // pop into the timeline afterward and shift it. levelProgress is intentionally
-  // NOT here: it only feeds the "claimable" badge and degrades to false.
+  useEffect(() => {
+    const chapters = chaptersQ.data?.list;
+    const member = memberQ.data?.ail_member;
+    const levels = levelsQ.data?.list;
+    if (!chapters || !member || !levels) return;
+
+    const previous = chapterProgressRef.current;
+    if (previous.size === 0) {
+      chapterProgressRef.current = new Map(
+        chapters.map((chapter) => [chapter.id, chapter.progress])
+      );
+      return;
+    }
+
+    const completedChapter = chapters.find(
+      (chapter) =>
+        expandedChapters.has(chapter.id) &&
+        previous.get(chapter.id) !== "completed" &&
+        chapter.progress === "completed"
+    );
+    chapterProgressRef.current = new Map(
+      chapters.map((chapter) => [chapter.id, chapter.progress])
+    );
+    if (!completedChapter) return;
+
+    const currentLevelNumber = member.current_level?.level_number ?? 0;
+    const levelNumberById = new Map(levels.map((l) => [l.id, l.level_number]));
+    const completedIndex = chapters.findIndex(
+      (chapter) => chapter.id === completedChapter.id
+    );
+    const nextAccessible = chapters.find((chapter, index) => {
+      if (index <= completedIndex) return false;
+      if (chapter.progress === "completed") return false;
+      const lvlNum = levelNumberById.get(chapter.level_id);
+      if (lvlNum === undefined || lvlNum > currentLevelNumber) return false;
+      return true;
+    });
+    if (nextAccessible) {
+      setExpandedChapters(new Set([nextAccessible.id]));
+    }
+  }, [chaptersQ.data, expandedChapters, levelsQ.data, memberQ.data]);
+
+  // Gate the skeleton on timeline data only.
   if (
     memberQ.isLoading ||
     levelsQ.isLoading ||
@@ -190,8 +224,7 @@ export default function LearningPathStudentAILN({
       </PageContainerAILN>
     );
   }
-  // levelProgress failing only costs the claimable badge (falls back to false),
-  // so it must not take the whole page down.
+  // levelProgress only feeds the claimable badge.
   if (memberQ.error || levelsQ.error || chaptersQ.error) {
     return (
       <PageContainerAILN>
@@ -230,9 +263,7 @@ export default function LearningPathStudentAILN({
       return next;
     });
 
-  // Level-driven timeline: every level shows up as a divider (except the
-  // first), with its chapters + one SkillPractice module (prompts & use cases
-  // gabungan) nested below. Order within a level: chapter → skill practice.
+  // Build the level-driven timeline.
   type Item =
     | {
         kind: "chapter";
@@ -326,7 +357,6 @@ export default function LearningPathStudentAILN({
     const levelChapters = chaptersByLevel.get(lvl.id) ?? [];
     for (const ch of levelChapters) {
       weekIndex += 1;
-      // const sessionStarted = !dayjs(ch.session_date).isAfter(dayjs());
       items.push({
         kind: "chapter",
         chapter: ch,
@@ -361,7 +391,7 @@ export default function LearningPathStudentAILN({
 
         {/* Timeline */}
         <div className="relative">
-          <div className="absolute top-0 bottom-0 left-4 w-0.5 bg-red-200 dark:bg-red-500/40" />
+          <div className="absolute top-0 bottom-0 left-4 w-0.5 bg-gray-200 dark:bg-dashboard-border" />
           <div className="space-y-4">
             {items.map((item, i) => {
               if (item.kind === "level") {

@@ -2,6 +2,7 @@
 import CompetencyProfileAILN from "@/components/charts/CompetencyProfileAILN";
 import LevelProgressCardAILN from "@/components/charts/LevelProgressCardAILN";
 import StreakCardAILN from "@/components/charts/StreakCardAILN";
+import ButtonAILN from "@/components/buttons/ButtonAILN";
 import LeaderboardPanelStudentAILN from "@/components/indexes/LeaderboardPanelStudentAILN";
 import PageContainerAILN from "@/components/pages/PageContainerAILN";
 import AppErrorComponents from "@/components/states/AppErrorComponents";
@@ -61,8 +62,8 @@ export default function MyProgressStudentAILN({
         />
 
         {/* Level journey — full width */}
-        <LevelProgressCardAILN />
         <PreAssessmentReportGateway />
+        <LevelProgressCardAILN />
 
         {/* Profil Kompetensi 60% sejajar Capaian Kamu / streak 40% (tinggi sama) */}
         <div className="grid grid-cols-1 gap-5 xl:grid-cols-[minmax(0,3fr)_minmax(0,2fr)]">
@@ -85,24 +86,23 @@ function PreAssessmentReportGateway() {
   return (
     <Link
       href="/student/my-progress/pre-assessment-report"
-      className="ailn-card group flex items-center justify-between gap-4 border border-red-100 bg-gradient-to-br from-red-50 via-white to-rose-50/60 p-5 transition dark:border-red-500/25 dark:from-red-500/10 dark:via-card-1 dark:to-rose-500/10"
+      className="ailn-card group flex items-center justify-between gap-4 border bg-gray-950 p-5 transition dark:bg-card-1"
     >
       <span className="flex min-w-0 items-center gap-4">
-        <span className="flex size-11 shrink-0 items-center justify-center rounded-md bg-red-50 text-red-500 dark:bg-red-500/10 dark:text-red-400">
-          <ClipboardCheck className="size-5" />
-        </span>
+        <ClipboardCheck className="size-7 shrink-0 text-white" />
         <span className="min-w-0">
-          <span className="block text-base font-bold text-foreground">
+          <span className="block text-base font-bold text-white">
             Laporan Pre-Assessment
           </span>
-          <span className="mt-1 block text-sm text-muted-foreground">
+          <span className="mt-1 block text-sm text-gray-300 dark:text-gray-400">
             Lihat ringkasan kompetensi dan rekomendasi use case AI kamu.
           </span>
         </span>
       </span>
-      <span className="flex size-9 shrink-0 items-center justify-center rounded-md border border-red-100 bg-white/70 text-red-500 transition group-hover:translate-x-0.5 dark:border-red-500/20 dark:bg-card-1/60 dark:text-red-400">
+      <ButtonAILN variant="light" size="medium" className="shrink-0">
+        Lihat Selengkapnya
         <ArrowRight className="size-4" />
-      </span>
+      </ButtonAILN>
     </Link>
   );
 }

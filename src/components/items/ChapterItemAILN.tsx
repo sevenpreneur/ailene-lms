@@ -5,7 +5,7 @@ import GeneralLabelAILN, {
 } from "@/components/labels/GeneralLabelAILN";
 import { trpc } from "@/trpc/client";
 import type { ChapterProgress } from "@/trpc/routers/ailene/utils.ailene";
-import { faLock } from "@fortawesome/free-solid-svg-icons";
+import { faCheck, faLock } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { ChevronDown } from "lucide-react";
 import AppErrorComponents from "../states/AppErrorComponents";
@@ -43,16 +43,20 @@ export default function ChapterItemAILN(props: ChapterItemAILNProps) {
   return (
     <div className="relative pl-12">
       <div
-        className={`absolute top-4 left-0 flex h-8 w-8 items-center justify-center rounded-full border-2 ${
-          props.unlocked
+        className={`absolute left-1 top-5 flex h-6 w-6 items-center justify-center rounded-full border-2 ${
+          props.chapter.progress === "completed"
+            ? "border-emerald-500 bg-white text-emerald-500 dark:bg-black"
+            : props.unlocked
             ? "border-red-500 bg-white text-red-500 dark:bg-black"
             : "border-gray-300 bg-gray-100 text-gray-400 dark:border-red-500/30 dark:bg-black dark:text-red-500/40"
         }`}
       >
-        {props.unlocked ? (
-          <span className="h-2 w-2 rounded-full bg-red-500" />
+        {props.chapter.progress === "completed" ? (
+          <FontAwesomeIcon icon={faCheck} size="xs" />
+        ) : props.unlocked ? (
+          <span className="h-1.5 w-1.5 rounded-full bg-red-500" />
         ) : (
-          <FontAwesomeIcon icon={faLock} className="h-4 w-4" />
+          <FontAwesomeIcon icon={faLock} size="xs" />
         )}
       </div>
 
@@ -64,7 +68,7 @@ export default function ChapterItemAILN(props: ChapterItemAILNProps) {
         <button
           type="button"
           onClick={props.onToggle}
-          className="flex w-full items-center justify-between gap-4 p-4 text-left"
+          className="flex w-full cursor-pointer items-center justify-between gap-4 p-4 text-left"
         >
           <div className="flex-1">
             <div className="text-xs tracking-widest uppercase text-emphasis dark:text-gray-400">

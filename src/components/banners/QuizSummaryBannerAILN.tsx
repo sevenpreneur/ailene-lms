@@ -18,7 +18,6 @@ const TROPHY_URL =
   "https://tskubmriuclmbcfmaiur.supabase.co/storage/v1/object/public/sevenpreneur/piala-ciki.png";
 
 interface QuizSummaryBannerAILNProps {
-  accuracy: number;
   correctCount: number;
   score: number;
   totalQuestions: number;
@@ -27,7 +26,6 @@ interface QuizSummaryBannerAILNProps {
 }
 
 export default function QuizSummaryBannerAILN({
-  accuracy,
   correctCount,
   score,
   totalQuestions,
