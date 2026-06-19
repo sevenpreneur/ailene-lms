@@ -17,7 +17,6 @@ import {
 import {
   aileneGroupRouter,
   aileneOutcomeRouter,
-  ailenePreAssessmentOrg,
   aileneReportRouter,
 } from "./ailene/_router.ailene";
 import { PrismaClient } from "@prisma/client";
@@ -102,8 +101,7 @@ async function resolveMemberChampion(
 }
 
 export const readRouter = createTRPCRouter({
-  // Coaching notes left for the logged-in member by their champion(s), newest
-  // first. Drives the "Catatan dari Champion" section on the student dashboard.
+  // Coaching notes from champion(s), newest first — "Catatan dari Champion" on the student dashboard.
   coachingNotes: ailMemberProcedure.query(async (opts) => {
     const memberId = opts.ctx.ail_member.id;
     const notes = await opts.ctx.prisma.ailCoachingNote.findMany({
@@ -142,8 +140,7 @@ export const readRouter = createTRPCRouter({
       opts.ctx.ail_member.current_level?.level_number ?? 0;
     const targetLevelNumber = Math.min(currentLevelNumber + 1, 4);
 
-    // Recency window shared by Prompting Quality (fallback) & AI Habit
-    // consistency. 90 days mirrors the streak panel default.
+    // Recency window for Prompting Quality (fallback) & AI Habit consistency — 90 days, matching the streak panel.
     const now = dayjs();
     const windowDays = 90;
     const windowStartDate = now
@@ -223,10 +220,7 @@ export const readRouter = createTRPCRouter({
           bestPerQuiz.size;
     const aiFoundation = clamp(avgQuiz / 20, 0, 5);
 
-    // 2. Prompting Quality — mean of the 5-dimension review rubric over recent
-    // rubric-scored prompts. Use everything reviewed in the last 90 days; if
-    // that window has fewer than 3, fall back to the 3 most recent overall —
-    // keeps the signal current without being whipsawed by a single prompt.
+    // 2. Prompting Quality — mean 5-dim rubric over prompts reviewed in last 90d; if <3, fall back to 3 most recent.
     const scoredPrompts = prSubs
       .filter(
         (p) =>
@@ -321,9 +315,7 @@ export const readRouter = createTRPCRouter({
     const consistency = clamp((activeDays.size / windowDays) * 5, 0, 5);
     const aiHabit = clamp(0.6 * hoursScore + 0.4 * consistency, 0, 5);
 
-    // 6. Agentic Capabilities — demonstrated via L4 portfolio components, which
-    // don't exist in the product yet. Per decision (keep 0, not n/a) this stays
-    // 0 until L4 features ship; only L4+ members could ever score here.
+    // 6. Agentic Capabilities — via L4 portfolio components (not built yet); stays 0 (not n/a) until L4 ships.
     const agenticCapabilities = 0;
 
     const dimensions = [
@@ -539,9 +531,7 @@ export const readRouter = createTRPCRouter({
     };
   }),
 
-  // AI recommendation section — separate concern from the deterministic report
-  // above so the report page can fetch the pillars once and poll only this
-  // (small) endpoint while the background worker generates the use cases.
+  // AI recommendations — split from the deterministic report so the page fetches pillars once and polls only this.
   preAssessmentRecommendations: ailMemberProcedure.query(async (opts) => {
     const memberId = opts.ctx.ail_member.id;
     const pa = await opts.ctx.prisma.ailPreAssessment.findUnique({
@@ -562,8 +552,7 @@ export const readRouter = createTRPCRouter({
     return {
       code: STATUS_OK,
       message: "Success",
-      // Legacy rows submitted before the report table existed default to
-      // "pending" so the UI shows the loading state and a retry is offered.
+      // Legacy rows (pre report table) default to "pending" so the UI loads and offers retry.
       status: (generation?.status ?? "pending") as PreAssessmentReportStatus,
       recommendations:
         (generation?.recommendations as PreAssessmentRecommendations | null) ??
@@ -576,8 +565,7 @@ export const readRouter = createTRPCRouter({
   firstWin: ailMemberProcedure.query(async (opts) => {
     const memberId = opts.ctx.ail_member.id;
 
-    // Find the earliest submission across both kinds — this is the user's
-    // true "first win" milestone and the card commemorates it permanently.
+    // Earliest submission across both kinds — the user's permanent "first win" milestone.
     const [earliestUc, earliestPr] = await Promise.all([
       opts.ctx.prisma.ailUseCaseSubmission.findFirst({
         where: { member_id: memberId, submitted_at: { not: null } },
@@ -595,9 +583,7 @@ export const readRouter = createTRPCRouter({
       return { code: STATUS_OK, message: "Success", first_win: null };
     }
 
-    // Each kind has its own "first" milestone. If both exist, surface the
-    // one whose first submission happened most recently — the milestone the
-    // user just unlocked.
+    // Each kind has its own "first" milestone; if both exist, surface the most recently unlocked one.
     const ucWins =
       earliestUc &&
       (!earliestPr ||
@@ -639,21 +625,167 @@ export const readRouter = createTRPCRouter({
     };
   }),
 
-  preAssessment: createTRPCRouter({
-    // member-scoped: the logged-in member's own pre-assessment
-    mine: ailMemberProcedure.query(async (opts) => {
-      const memberId = opts.ctx.ail_member.id;
-      const pa = await opts.ctx.prisma.ailPreAssessment.findUnique({
-        where: { member_id: memberId },
-      });
-      return {
-        code: STATUS_OK,
-        message: "Success",
-        pre_assessment: pa,
-      };
-    }),
-    // sponsor-scoped org aggregations (live in ailene/_router.ailene)
-    ...ailenePreAssessmentOrg,
+  // Gate for the questionnaire page: the logged-in member's own pre-assessment row (null if not yet submitted).
+  preAssessmentMine: ailMemberProcedure.query(async (opts) => {
+    const memberId = opts.ctx.ail_member.id;
+    const pa = await opts.ctx.prisma.ailPreAssessment.findUnique({
+      where: { member_id: memberId },
+    });
+    return {
+      code: STATUS_OK,
+      message: "Success",
+      pre_assessment: pa,
+    };
+  }),
+
+  // Org competency baseline: per-member pillar scores → averaged per department → averaged across departments.
+  preAssessmentOrganization: sponsorProcedure.query(async (opts) => {
+    const round1 = (n: number) => Math.round(n * 10) / 10;
+    const pct = (n: number, total: number) =>
+      total === 0 ? 0 : Math.round((n / total) * 100);
+    // Six competency pillars in display order; keys mirror buildPreAssessmentReport.
+    const PILLAR_ORDER = [
+      "ai_foundation",
+      "prompting",
+      "tool_fluency",
+      "use_case_diversity",
+      "ai_habit",
+      "agentic",
+    ] as const;
+    // Maturity line on the org ranking — the 3.2 "green" threshold from the member report.
+    const PILLAR_TARGET = 3.2;
+
+    const [groups, rows] = await Promise.all([
+      opts.ctx.prisma.ailGroup.findMany({
+        orderBy: { name: "asc" },
+        select: {
+          id: true,
+          name: true,
+          _count: { select: { members: true } },
+        },
+      }),
+      opts.ctx.prisma.ailPreAssessment.findMany({
+        select: {
+          ai_use_frequency: true,
+          ai_tools_used: true,
+          ai_limitations: true,
+          output_review: true,
+          use_cases: true,
+          team_adoption: true,
+          concrete_example: true,
+          model_selection: true,
+          multimodal_use: true,
+          workflow_reuse: true,
+          prompt_comfort: true,
+          prompt_iteration: true,
+          refine_scenario: true,
+          professional_attitude: true,
+          data_safety_check: true,
+          publish_unchecked: true,
+          biggest_challenge: true,
+          created_at: true,
+          member: { select: { group_id: true } },
+        },
+      }),
+    ]);
+
+    // Accumulate per-pillar score sums per department.
+    type Acc = {
+      sums: Record<string, number>;
+      count: number;
+      measuredAt: Date | null;
+    };
+    const byGroup = new Map<number, Acc>();
+    for (const row of rows) {
+      const groupId = row.member.group_id;
+      if (groupId == null) continue;
+      const report = buildPreAssessmentReport(row);
+      let acc = byGroup.get(groupId);
+      if (!acc) {
+        acc = {
+          sums: Object.fromEntries(PILLAR_ORDER.map((k) => [k, 0])),
+          count: 0,
+          measuredAt: null,
+        };
+        byGroup.set(groupId, acc);
+      }
+      for (const pillar of report.pillars) acc.sums[pillar.key] += pillar.score;
+      acc.count += 1;
+      if (!acc.measuredAt || row.created_at > acc.measuredAt)
+        acc.measuredAt = row.created_at;
+    }
+
+    // Departments with at least one submission, with averaged pillar scores.
+    const departments = groups
+      .filter((g) => byGroup.has(g.id))
+      .map((g) => {
+        const acc = byGroup.get(g.id)!;
+        const pillars = PILLAR_ORDER.map((key) => ({
+          key,
+          score: round1(acc.sums[key] / acc.count),
+        }));
+        const avg = round1(
+          pillars.reduce((s, p) => s + p.score, 0) / pillars.length
+        );
+        return {
+          id: g.id,
+          name: g.name,
+          member_count: g._count.members,
+          completed_count: acc.count,
+          completion_percent: pct(acc.count, g._count.members),
+          pillars,
+          avg,
+        };
+      })
+      .sort((a, b) => a.avg - b.avg);
+
+    // Org pillar ranking: mean of department pillar scores, lowest first.
+    const orgPillars = PILLAR_ORDER.map((key) => {
+      const values = departments.map(
+        (d) => d.pillars.find((p) => p.key === key)!.score
+      );
+      const score = values.length
+        ? round1(values.reduce((s, v) => s + v, 0) / values.length)
+        : 0;
+      return { key, score };
+    }).sort((a, b) => a.score - b.score);
+
+    const orgAvg = departments.length
+      ? round1(departments.reduce((s, d) => s + d.avg, 0) / departments.length)
+      : 0;
+
+    // Readiness tiers + headline counts, all keyed off the department average.
+    const readyCount = departments.filter((d) => d.avg >= 2.5).length;
+    const developingCount = departments.filter(
+      (d) => d.avg >= 1.5 && d.avg < 2.5
+    ).length;
+    const basicCount = departments.filter((d) => d.avg < 1.5).length;
+    const gapLargeCount = departments.filter((d) => d.avg < 2.0).length;
+
+    const measuredAt = departments.reduce<Date | null>((acc, d) => {
+      const dm = byGroup.get(d.id)!.measuredAt;
+      return !acc || (dm && dm > acc) ? dm : acc;
+    }, null);
+
+    return {
+      code: STATUS_OK,
+      message: "Success",
+      department_count: departments.length,
+      total_members: departments.reduce((s, d) => s + d.member_count, 0),
+      completed_count: departments.reduce((s, d) => s + d.completed_count, 0),
+      measured_at: measuredAt,
+      target: PILLAR_TARGET,
+      org_avg: orgAvg,
+      ready_count: readyCount,
+      gap_large_count: gapLargeCount,
+      departments,
+      org_pillars: orgPillars,
+      readiness: {
+        ready: readyCount,
+        developing: developingCount,
+        basic: basicCount,
+      },
+    };
   }),
   group: aileneGroupRouter,
   outcome: aileneOutcomeRouter,
@@ -717,9 +849,7 @@ export const readRouter = createTRPCRouter({
       };
     }),
 
-  // Other learning materials within the same level as the given material,
-  // numbered sequentially (e.g. "2.5") with completion + lock status — used by
-  // the "Modul lain di level ini" sidebar on the material detail page.
+  // Other materials in the same level, numbered (e.g. "2.5") with completion + lock — "Modul lain di level ini" sidebar.
   levelMaterials: ailMemberProcedure
     .input(z.object({ material_id: z.string().min(1) }))
     .query(async (opts) => {
@@ -1126,8 +1256,7 @@ export const readRouter = createTRPCRouter({
     const total_xp = xpAgg._sum.xp_earned ?? 0;
     const max_min_xp = levels.reduce((m, l) => Math.max(m, l.min_xp), 0);
 
-    // Task-based unlock gate: quiz + material across all chapters at current
-    // level. Videos don't count.
+    // Task-based unlock gate: quiz + material across all chapters at current level (videos don't count).
     const requiredQuizIds = currentLevelChapters.flatMap((c) =>
       c.quizzes.map((q) => q.id)
     );
@@ -1254,9 +1383,7 @@ export const readRouter = createTRPCRouter({
     };
   }),
 
-  // Headline KPI for the sponsor dashboard hero: % productive staff (≥ L1),
-  // hours saved in the trailing week, annualized ROI run-rate, and a 12-week
-  // hours-saved series for the sparkline. All from real submission data.
+  // Sponsor hero KPIs: % productive (≥ L1), hours saved last week, annualized ROI, and a 12-week sparkline series.
   headline: sponsorProcedure.query(async (opts) => {
     const now = dayjs();
     const roiValuePerHour = 250000; // kept in sync with executiveView
@@ -1333,9 +1460,7 @@ export const readRouter = createTRPCRouter({
     };
   }),
 
-  // Program-health metrics for the sponsor dashboard, all derived from real
-  // data (no targets/deltas — we have no historical baseline yet). Each metric
-  // is a percentage plus a human-readable "X dari Y" detail.
+  // Sponsor program-health metrics: each a percentage plus an "X dari Y" detail (no targets/deltas — no baseline yet).
   programHealth: sponsorProcedure.query(async (opts) => {
     const [
       members,
@@ -1427,8 +1552,7 @@ export const readRouter = createTRPCRouter({
     };
   }),
 
-  // Recent organization activity feed — merges real submission/review/
-  // pre-assessment events across all members, newest first.
+  // Org activity feed — merges submission/review/pre-assessment events across all members, newest first.
   recentActivity: sponsorProcedure.query(async (opts) => {
     const take = 8;
     const [ucSubs, ucReviews, preAssessments] = await Promise.all([
@@ -1603,10 +1727,7 @@ export const readRouter = createTRPCRouter({
     return { code: STATUS_OK, message: "Success", weeks };
   }),
 
-  // Proficiency over time — the executive "are people actually getting better?"
-  // trend. Reconstructed from each member's level_history ({ level_id,
-  // unlocked_at }) so we get the org-average level (0..4) and the cumulative
-  // share at Level 1+ at the end of each of the last 12 weeks. No schema change.
+  // Proficiency trend from each member's level_history: org-average level (0..4) + share at L1+ per week, last 12 weeks.
   proficiencyTrends: sponsorProcedure.query(async (opts) => {
     const weekCount = 12;
     const end = dayjs().endOf("week");
@@ -1660,9 +1781,7 @@ export const readRouter = createTRPCRouter({
       for (const t of timelines) {
         if (t.createdAt > cutoff) continue; // member didn't exist yet
         existing += 1;
-        // Level at cutoff = highest unlock on/before cutoff. When a member has
-        // no recorded history (seeded rows), fall back to their current level
-        // so the latest point stays consistent with the headline KPI.
+        // Level at cutoff = highest unlock on/before cutoff; no history (seeded rows) falls back to current level.
         let level = 0;
         if (t.unlocks.length === 0) {
           level = t.currentLevel;
@@ -2036,10 +2155,7 @@ export const readRouter = createTRPCRouter({
     };
   }),
 
-  // Per-department performance for the sponsor "Kinerja per Departemen" table:
-  // member count, average competency level, top submitted use case, total
-  // submissions (use case + prompt), cumulative hours saved, and a
-  // week-over-week hours-saved trend. All derived from real submission data.
+  // Sponsor "Kinerja per Departemen" table: members, avg level, top use case, total submissions, hours saved + WoW trend.
   organizationLeaderboard: sponsorProcedure.query(async (opts) => {
     const now = dayjs();
     const weekAgo = now.subtract(7, "day");
@@ -2592,8 +2708,7 @@ export const readRouter = createTRPCRouter({
         ? dayjs(opts.input.from).startOf("day")
         : to.subtract(89, "day");
 
-      // We also need a couple extra days back to compute consecutive streak
-      // when the requested range starts after recent activity.
+      // Extra days back to compute consecutive streak when the range starts after recent activity.
       const streakLookback = today.subtract(60, "day");
       const earliestFetch = (
         from.isBefore(streakLookback) ? from : streakLookback

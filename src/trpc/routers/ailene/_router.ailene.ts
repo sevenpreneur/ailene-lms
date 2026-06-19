@@ -1,13 +1,10 @@
 import { createTRPCRouter } from "@/trpc/init";
 import { readGroupAilene } from "./read-group.ailene";
 import { readOutcome } from "./read-outcome.ailene";
-import { readPreAssessment } from "./read-pre-assessment.ailene";
 import { readReportAilene } from "./read-report.ailene";
 
 // Read sub-routers whose procedures live in the ailene folder. The top-level
-// read.ts nests these under read.group / read.outcome / read.report, and
-// spreads the pre-assessment org aggregations into read.preAssessment
-// alongside the member-scoped `mine` procedure it owns.
+// read.ts nests these under read.group / read.outcome / read.report.
 
 export const aileneGroupRouter = createTRPCRouter({
   departments: readGroupAilene.departments,
@@ -29,15 +26,3 @@ export const aileneOutcomeRouter = createTRPCRouter({
 export const aileneReportRouter = createTRPCRouter({
   champion: readReportAilene.championReport,
 });
-
-// sponsor-scoped org aggregations (optional group_id filter) — spread into the
-// read.preAssessment router next to the member's own `mine` query.
-export const ailenePreAssessmentOrg = {
-  departments: readPreAssessment.departments,
-  overview: readPreAssessment.overview,
-  usageFrequency: readPreAssessment.usageFrequency,
-  tools: readPreAssessment.tools,
-  teamMaturity: readPreAssessment.teamMaturity,
-  topUseCases: readPreAssessment.topUseCases,
-  voice: readPreAssessment.voice,
-};

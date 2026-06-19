@@ -1,4 +1,4 @@
-import DashboardPreAssesmentAILN from "@/components/pages/DashboardPreAssesmentAILN";
+import PreAssessmentSponsorAILN from "@/components/pages/PreAssessmentSponsorAILN";
 import { setSessionToken } from "@/trpc/server";
 import { Metadata } from "next";
 import { cookies } from "next/headers";
@@ -14,5 +14,5 @@ export default async function PreAssessmentPage() {
   if (!sessionToken) return null;
   setSessionToken(sessionToken);
 
-  return <DashboardPreAssesmentAILN sessionToken={sessionToken} />;
+  return <PreAssessmentSponsorAILN sessionToken={sessionToken} />;
 }

@@ -57,7 +57,7 @@ export default function PreAssessmentAILN({
     if (sessionToken) setSessionToken(sessionToken);
   }, [sessionToken]);
 
-  const { data, isLoading, isError } = trpc.read.preAssessment.mine.useQuery();
+  const { data, isLoading, isError } = trpc.read.preAssessmentMine.useQuery();
 
   // Sudah pernah mengisi → hasilnya ada di halaman report, bukan di sini.
   useEffect(() => {
@@ -99,7 +99,7 @@ export default function PreAssessmentAILN({
 
   const submitMutation = trpc.create.preAssessment.useMutation({
     onSuccess: () => {
-      utils.read.preAssessment.mine.invalidate();
+      utils.read.preAssessmentMine.invalidate();
       toast.success("Pre-assessment berhasil dikirim.");
       router.push(PRE_ASSESSMENT_REPORT_PATH);
     },

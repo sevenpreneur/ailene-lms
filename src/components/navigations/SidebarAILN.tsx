@@ -432,8 +432,8 @@ function IdentityMeta({
   if (variant === "SPONSOR") {
     return (
       <div className="flex items-center justify-between gap-2">
-        <span className="text-[10px] uppercase tracking-wide text-gray-500 dark:text-gray-400">
-          Theme
+        <span className="text-xs tracking-wide text-gray-500 dark:text-gray-400">
+          Hutama Karya
         </span>
         <ThemeSwitcherAILN />
       </div>
