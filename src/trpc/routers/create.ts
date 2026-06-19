@@ -9,7 +9,7 @@ import {
   championProcedure,
   createTRPCRouter,
 } from "@/trpc/init";
-import { schedulePreAssessmentReport } from "@/trpc/routers/ailene/utils.ailene";
+import { schedulePreAssessmentReport } from "@/trpc/routers/queue";
 import { Prisma, PrismaClient } from "@prisma/client";
 import { TRPCError } from "@trpc/server";
 import { z } from "zod";

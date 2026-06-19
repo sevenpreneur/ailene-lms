@@ -1,7 +1,7 @@
 import GetPrismaClient from "@/lib/prisma";
-import { generatePreAssessmentRecommendations } from "@/lib/pre-assessment-recommendations";
 import { Prisma } from "@prisma/client";
 import { verifySignatureAppRouter } from "@upstash/qstash/dist/nextjs";
+import { generatePreAssessmentRecommendations } from "./utils";
 
 type GeneratePreAssessmentReportPayload = {
   pre_assessment_id?: number;
@@ -84,7 +84,7 @@ export const POST = verifySignatureAppRouter(async (req: Request) => {
 
     return Response.json({ received: true, status: "completed" });
   } catch (err) {
-    console.error("qstash.generate-pre-assessment-report:", err);
+    console.error("qstash.pre-assessment-report:", err);
     await prisma.ailPreAssessmentReport
       .update({
         where: { pre_assessment_id: preAssessmentId },

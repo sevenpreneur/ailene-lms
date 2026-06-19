@@ -16,8 +16,8 @@ import {
   finalizeQuizSubmission,
   getQuizSecondsLeft,
   QUIZ_DURATION_SECONDS,
-  scheduleQuizAutoSubmit,
 } from "./ailene/utils.ailene";
+import { scheduleQuizAutoSubmit } from "./queue";
 
 export const updateRouter = createTRPCRouter({
   announcement: sponsorProcedure

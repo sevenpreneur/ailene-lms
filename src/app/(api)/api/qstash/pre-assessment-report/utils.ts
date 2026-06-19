@@ -1,74 +1,32 @@
-import OpenAI from "openai";
 import {
   buildPreAssessmentReport,
   type PreAssessmentRecommendations,
   type PreAssessmentReportSource,
 } from "@/lib/pre-assessment-report";
+import GetOpenAIClient, { OPENAI_MODELS } from "@/lib/openai";
+import { zodResponseFormat } from "openai/helpers/zod";
+import { z } from "zod";
 
-const MODEL = "gpt-5-mini";
-
-let client: OpenAI | null = null;
-function getOpenAI(): OpenAI {
-  if (!client) {
-    client = new OpenAI({ apiKey: process.env.OPENAI_API_KEY });
-  }
-  return client;
-}
-
-const RESPONSE_SCHEMA = {
-  type: "object",
-  additionalProperties: false,
-  required: ["time_saved_label", "items"],
-  properties: {
-    time_saved_label: {
-      type: "string",
-      description:
-        "Perkiraan total waktu yang bisa dihemat per minggu, format singkat seperti '~4,9 Jam/minggu'.",
-    },
-    items: {
-      type: "array",
-      minItems: 3,
-      maxItems: 5,
-      items: {
-        type: "object",
-        additionalProperties: false,
-        required: ["source", "title", "impact", "speed", "description", "lessons"],
-        properties: {
-          source: {
-            type: "string",
-            description:
-              "Tugas/rutinitas nyata milik user yang jadi dasar rekomendasi ini.",
-          },
-          title: {
-            type: "string",
-            description: "Judul use case AI yang konkret dan actionable.",
-          },
-          impact: {
-            type: "string",
-            enum: ["Tinggi", "Sedang", "Rendah"],
-          },
-          speed: {
-            type: "string",
-            description:
-              "Estimasi percepatan, format '~70% lebih cepat' atau '~2 jam/minggu'.",
-          },
-          description: {
-            type: "string",
-            description: "1-2 kalimat penjelasan cara menerapkannya.",
-          },
-          lessons: {
-            type: "array",
-            minItems: 1,
-            maxItems: 2,
-            items: { type: "string" },
-            description:
-              "Nama chapter kurikulum (persis seperti yang diberikan) yang relevan.",
-          },
-        },
-      },
-    },
-  },
-} as const;
+const recommendationsResponseSchema = z.object({
+  time_saved_label: z
+    .string()
+    .describe("Perkiraan total waktu hemat, contoh '~4,9 Jam/minggu'."),
+  items: z
+    .array(
+      z.object({
+        source: z
+          .string()
+          .describe("Tugas nyata user yang jadi dasar rekomendasi."),
+        title: z.string().describe("Judul use case AI yang actionable."),
+        impact: z.enum(["Tinggi", "Sedang", "Rendah"]),
+        speed: z.string().describe("Estimasi percepatan atau waktu hemat."),
+        description: z.string().describe("1-2 kalimat cara menerapkannya."),
+        lessons: z.array(z.string()).min(1).max(2),
+      })
+    )
+    .min(3)
+    .max(5),
+});
 
 export type PreAssessmentAnswerContext = PreAssessmentReportSource & {
   use_cases: string[];
@@ -117,30 +75,24 @@ export async function generatePreAssessmentRecommendations(
     userContext,
   ].join("\n");
 
-  const completion = await getOpenAI().chat.completions.create({
-    model: MODEL,
+  const completion = await GetOpenAIClient().chat.completions.parse({
+    model: OPENAI_MODELS.GPT_5_MINI,
     messages: [
       { role: "system", content: systemPrompt },
       { role: "user", content: userPrompt },
     ],
-    response_format: {
-      type: "json_schema",
-      json_schema: {
-        name: "pre_assessment_recommendations",
-        strict: true,
-        schema: RESPONSE_SCHEMA,
-      },
-    },
+    response_format: zodResponseFormat(
+      recommendationsResponseSchema,
+      "pre_assessment_recommendations"
+    ),
   });
 
-  const raw = completion.choices[0]?.message?.content;
-  if (!raw) {
+  const parsed = completion.choices[0]?.message?.parsed;
+  if (!parsed) {
     throw new Error("OpenAI returned an empty recommendations response.");
   }
-
-  const parsed = JSON.parse(raw) as PreAssessmentRecommendations;
   if (!Array.isArray(parsed.items) || parsed.items.length === 0) {
     throw new Error("OpenAI returned no recommendation items.");
   }
-  return parsed;
+  return parsed satisfies PreAssessmentRecommendations;
 }

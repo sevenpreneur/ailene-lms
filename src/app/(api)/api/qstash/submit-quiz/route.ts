@@ -27,7 +27,7 @@ export const POST = verifySignatureAppRouter(async (req: Request) => {
       score: result.score,
     });
   } catch (err) {
-    console.error("qstash.auto-submit-quiz:", err);
+    console.error("qstash.submit-quiz:", err);
     return Response.json({ received: true, error: "finalize_failed" });
   }
 });
