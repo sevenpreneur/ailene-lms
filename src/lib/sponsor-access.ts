@@ -1,4 +1,4 @@
-export const SPONSOR_ACCESS_MEMBER_IDS = [5] as const;
+export const SPONSOR_ACCESS_MEMBER_IDS = [1, 5] as const;
 
 export function canAccessSponsor(member: {
   id: number;

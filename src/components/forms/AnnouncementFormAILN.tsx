@@ -2,6 +2,9 @@
 
 import ButtonAILN from "@/components/buttons/ButtonAILN";
 import SectionContainerAILN from "@/components/cards/SectionContainerAILN";
+import InputAILN from "@/components/fields/InputAILN";
+import TextAreaAILN from "@/components/fields/TextAreaAILN";
+import GeneralLabelAILN from "@/components/labels/GeneralLabelAILN";
 import { trpc } from "@/trpc/client";
 import dayjs from "dayjs";
 import { CalendarDays, Megaphone, Save } from "lucide-react";
@@ -74,28 +77,24 @@ export default function AnnouncementFormAILN({
 
   return (
     <div className="grid grid-cols-1 gap-5 xl:grid-cols-[minmax(0,1.25fr)_minmax(360px,0.75fr)]">
-      <form
-        onSubmit={handleSubmit}
-        className="rounded-lg border border-dashboard-border bg-white p-5 shadow-sm dark:bg-card-1 dark:shadow-[0_0_16px_rgba(0,53,157,0.06)]"
+      <SectionContainerAILN
+        title="Update pengumuman"
+        headerRight={<Megaphone className="size-4 text-muted-foreground" />}
+        className="dark:shadow-[0_0_16px_rgba(0,53,157,0.06)]"
       >
-        <div className="flex items-center gap-2 text-base font-bold text-gray-900 dark:text-white">
-          <Megaphone className="size-4" />
-          Update pengumuman
-        </div>
-
-        <div className="mt-5 flex flex-col gap-5">
+        <form onSubmit={handleSubmit} className="flex flex-col gap-5">
           <label className="flex flex-col gap-2">
-            <span className="text-[11px] font-semibold uppercase tracking-wider text-gray-500 dark:text-gray-400">
-              Isi pesan
-            </span>
-            <textarea
+            <TextAreaAILN
+              textAreaId="announcement-message"
+              textAreaName="Isi Pesan"
+              textAreaPlaceholder="Tulis pengumuman untuk peserta..."
+              textAreaHeight="min-h-40"
+              characterLength={MAX_MESSAGE_LENGTH}
               value={message}
-              onChange={(event) => setMessage(event.target.value)}
-              maxLength={MAX_MESSAGE_LENGTH}
+              onTextAreaChange={setMessage}
               rows={7}
               required
-              className="min-h-40 resize-none rounded-md border border-dashboard-border bg-white px-3 py-3 text-sm leading-6 text-gray-900 outline-none transition focus:border-black dark:bg-dashboard-bg dark:text-white dark:focus:border-blue-400"
-              placeholder="Tulis pengumuman untuk peserta..."
+              variant="SPONSOR"
             />
             <span className="text-right text-xs text-gray-400">
               {message.length} / {MAX_MESSAGE_LENGTH}
@@ -104,51 +103,45 @@ export default function AnnouncementFormAILN({
 
           <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
             <label className="flex flex-col gap-2">
-              <span className="text-[11px] font-semibold uppercase tracking-wider text-gray-500 dark:text-gray-400">
-                Start date
-              </span>
-              <div className="flex items-center gap-2 rounded-md border border-dashboard-border bg-white px-3 dark:bg-dashboard-bg">
-                <CalendarDays className="size-4 shrink-0 text-gray-400" />
-                <input
-                  type="date"
-                  value={startDate}
-                  onChange={(event) => setStartDate(event.target.value)}
-                  required
-                  className="h-11 w-full bg-transparent text-sm text-gray-900 outline-none dark:text-white"
-                />
-              </div>
+              <InputAILN
+                inputId="announcement-start-date"
+                inputName="Start date"
+                inputType="date"
+                inputIcon={<CalendarDays className="size-4" />}
+                value={startDate}
+                onInputChange={setStartDate}
+                required
+                variant="SPONSOR"
+              />
             </label>
 
             <label className="flex flex-col gap-2">
-              <span className="text-[11px] font-semibold uppercase tracking-wider text-gray-500 dark:text-gray-400">
-                End date
-              </span>
-              <div className="flex items-center gap-2 rounded-md border border-dashboard-border bg-white px-3 dark:bg-dashboard-bg">
-                <CalendarDays className="size-4 shrink-0 text-gray-400" />
-                <input
-                  type="date"
-                  value={endDate}
-                  onChange={(event) => setEndDate(event.target.value)}
-                  required
-                  className="h-11 w-full bg-transparent text-sm text-gray-900 outline-none dark:text-white"
-                />
-              </div>
+              <InputAILN
+                inputId="announcement-end-date"
+                inputName="End date"
+                inputType="date"
+                inputIcon={<CalendarDays className="size-4" />}
+                value={endDate}
+                onInputChange={setEndDate}
+                required
+                variant="SPONSOR"
+              />
             </label>
           </div>
-        </div>
 
-        <div className="mt-6 flex justify-end">
-          <ButtonAILN
-            type="submit"
-            variant="primary"
-            size="medium"
-            disabled={updateAnnouncement.isPending}
-          >
-            <Save className="size-4" />
-            {updateAnnouncement.isPending ? "Menyimpan..." : "Simpan"}
-          </ButtonAILN>
-        </div>
-      </form>
+          <div className="flex justify-end">
+            <ButtonAILN
+              type="submit"
+              variant="primary"
+              size="medium"
+              disabled={updateAnnouncement.isPending}
+            >
+              <Save className="size-4" />
+              {updateAnnouncement.isPending ? "Menyimpan..." : "Simpan"}
+            </ButtonAILN>
+          </div>
+        </form>
+      </SectionContainerAILN>
 
       <aside className="flex flex-col gap-4">
         <SectionContainerAILN
@@ -159,13 +152,16 @@ export default function AnnouncementFormAILN({
             <div className="flex w-full items-stretch overflow-hidden bg-black">
               <div className="flex shrink-0 items-center gap-2 bg-black px-4 py-3">
                 <Megaphone className="h-4 w-4 text-white" />
-                <span className="text-[11px] font-semibold uppercase tracking-wider text-white">
+                <GeneralLabelAILN
+                  variant="white"
+                  className="border-white/15 bg-white/10 text-white"
+                >
                   {announcement?.callout ?? "PENGUMUMAN"}
-                </span>
+                </GeneralLabelAILN>
                 <span className="ml-1 h-4 w-px bg-white/15" />
               </div>
               <div className="flex min-h-11 flex-1 items-center overflow-hidden px-4">
-                <span className="line-clamp-2 text-sm leading-5 text-white">
+                <span className="line-clamp-1 text-sm leading-5 text-white">
                   {message.trim() || "Pesan pengumuman akan tampil di sini."}
                 </span>
               </div>
@@ -176,17 +172,11 @@ export default function AnnouncementFormAILN({
             </div>
           </div>
 
-          <div className="mt-4 flex flex-wrap items-center gap-2 text-xs text-gray-500 dark:text-gray-400">
-            <span
-              className={`rounded-full px-2 py-1 font-semibold ${
-                isActive
-                  ? "bg-emerald-50 text-emerald-700 dark:bg-emerald-500/10 dark:text-emerald-300"
-                  : "bg-gray-100 text-gray-600 dark:bg-white/10 dark:text-gray-300"
-              }`}
-            >
+          <div className="mt-4 flex flex-wrap items-center gap-2">
+            <GeneralLabelAILN variant={isActive ? "green" : "white"}>
               {isActive ? "Aktif" : "Tidak aktif saat ini"}
-            </span>
-            <span>{dateRangeLabel}</span>
+            </GeneralLabelAILN>
+            <GeneralLabelAILN variant="blue">{dateRangeLabel}</GeneralLabelAILN>
           </div>
         </SectionContainerAILN>
 

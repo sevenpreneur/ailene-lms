@@ -29,8 +29,7 @@ const variantStyles: Record<
   },
 };
 
-interface TextAreaAILNProps
-  extends TextareaHTMLAttributes<HTMLTextAreaElement> {
+interface TextAreaAILNProps extends TextareaHTMLAttributes<HTMLTextAreaElement> {
   textAreaId: string;
   textAreaName?: string;
   textAreaHeight?: string;
@@ -111,7 +110,7 @@ export default function TextAreaAILN({
           id={textAreaId}
           placeholder={textAreaPlaceholder}
           {...rest}
-          className={`text-area-placeholder flex w-full p-2 ${textAreaHeight} font-medium text-sm rounded-md resize-none transform transition-all placeholder:text-emphasis/60 placeholder:font-medium placeholder:text-sm focus:outline-4 invalid:border-destructive required:border-destructive ${styles.border} ${
+          className={`text-area-placeholder flex w-full p-2 ${textAreaHeight} text-sm rounded-md resize-none transform transition-all placeholder:text-emphasis/60 placeholder:text-sm focus:outline-4 invalid:border-destructive required:border-destructive ${styles.border} ${
             computedError
               ? "border-destructive focus:outline-semi-destructive"
               : styles.focus

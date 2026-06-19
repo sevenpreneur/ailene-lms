@@ -114,7 +114,7 @@ export default function InputAILN({
           type={inputType}
           placeholder={inputPlaceholder}
           {...rest}
-          className={`input-placeholder flex w-full p-2 font-medium text-sm rounded-md transform transition-all placeholder:text-emphasis/60 placeholder:font-medium placeholder:text-sm focus:outline-4 invalid:border-destructive required:border-destructive ${styles.border} ${
+          className={`input-placeholder flex w-full p-2 text-sm rounded-md transform transition-all placeholder:text-emphasis/60 placeholder:text-sm focus:outline-4 invalid:border-destructive required:border-destructive ${styles.border} ${
             computedError
               ? "border-destructive focus:outline-semi-destructive"
               : styles.focus
