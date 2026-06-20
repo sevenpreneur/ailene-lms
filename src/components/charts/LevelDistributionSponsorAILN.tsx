@@ -1,8 +1,8 @@
 "use client";
 import SectionContainerAILN from "@/components/cards/SectionContainerAILN";
 import { SkeletonBlockAILN } from "@/components/states/DataStatesAILN";
-import { levelColorByNumber } from "@/lib/ailene-level-colors";
-import { formatInt } from "@/lib/ailene-format";
+import { levelColorByNumber } from "@/lib/level-colors";
+import { formatInt } from "@/lib/format";
 import { trpc } from "@/trpc/client";
 import { ArrowRight } from "lucide-react";
 import Link from "next/link";

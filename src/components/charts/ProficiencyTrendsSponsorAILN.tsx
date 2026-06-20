@@ -7,98 +7,48 @@ import {
   ChartTooltipContent,
   type ChartConfig,
 } from "@/components/ui/chart";
-import { levelColorByNumber } from "@/lib/ailene-level-colors";
+import { levelColorByNumber } from "@/lib/level-colors";
 import {
-  Bar,
   CartesianGrid,
-  Cell,
-  ComposedChart,
   Line,
+  LineChart,
   XAxis,
   YAxis,
 } from "recharts";
-import { SAMPLE_PROFICIENCY } from "./sample-proficiency-data";
 
-// Bars: soft (context) vs deep (highlighted/latest). Line: mature-level green.
-const BAR_SOFT = "color-mix(in srgb, var(--ailn-level-2) 28%, white)";
-const BAR_DEEP = levelColorByNumber(2);
-const LINE_ADOPTION = levelColorByNumber(3);
-
-// Avg level is the hero series (emerald line); % Level 1+ is the supporting
-// bar series. Two y-axes so the 0..4 level scale and 0..100 % scale coexist.
-const LEVEL_LINE = LINE_ADOPTION;
-
-// Preview toggle: when true the chart always shows the rising dummy curve
-// (with a "data contoh" badge). Set to false to use real reconstructed data.
-const FORCE_SAMPLE_DATA = true;
+const LEVEL_LINE = levelColorByNumber(3);
+const XP_LINE = "#2563eb";
 
 const chartConfig = {
   avg_level: { label: "Rata-rata Level", color: LEVEL_LINE },
-  level1_plus_percent: { label: "% Level 1+", color: BAR_DEEP },
+  avg_xp: { label: "Rata-rata XP", color: XP_LINE },
 } satisfies ChartConfig;
 
 type ProficiencyWeek = {
   label: string;
   avg_level: number;
-  level1_plus_percent: number;
+  avg_xp: number;
   highlight?: boolean;
 };
-
-// Use real data when there's any proficiency signal; otherwise fall back to
-// local sample data (keeping the real week labels) so the chart isn't barren
-// in empty/seed-less environments.
-function resolveWeeks(realWeeks: ProficiencyWeek[]): {
-  weeks: ProficiencyWeek[];
-  isSample: boolean;
-} {
-  const hasSignal =
-    !FORCE_SAMPLE_DATA &&
-    realWeeks.some((w) => w.avg_level > 0 || w.level1_plus_percent > 0);
-  if (hasSignal) return { weeks: realWeeks, isSample: false };
-
-  const base =
-    realWeeks.length === SAMPLE_PROFICIENCY.length
-      ? realWeeks
-      : SAMPLE_PROFICIENCY;
-  const weeks = base.map((w, i) => ({
-    label: w.label,
-    avg_level: SAMPLE_PROFICIENCY[i].avg_level,
-    level1_plus_percent: SAMPLE_PROFICIENCY[i].level1_plus_percent,
-    highlight: i === base.length - 1,
-  }));
-  return { weeks, isSample: true };
-}
 
 export default function ProficiencyTrendsSponsorAILN() {
   const q = trpc.read.proficiencyTrends.useQuery();
 
   const legend = (
     <div className="flex items-center gap-3 text-xs text-muted-foreground">
-      <span className="inline-flex items-center gap-1.5">
-        <span
-          className="inline-block h-0.5 w-3 rounded-full"
-          style={{ backgroundColor: LEVEL_LINE }}
-        />
-        Rata-rata Level
-      </span>
-      <span className="inline-flex items-center gap-1.5">
-        <span
-          className="inline-block size-2 rounded-full"
-          style={{ backgroundColor: BAR_DEEP }}
-        />
-        % Level 1+
-      </span>
+      <LegendLine color={LEVEL_LINE} label="Rata-rata Level" />
+      <LegendLine color={XP_LINE} label="Rata-rata XP" />
     </div>
   );
 
   if (q.isLoading) {
     return (
       <SectionContainerAILN
-        title="Perkembangan Kemampuan Tim"
-        desc="Rata-rata level tim & porsi yang sudah Level 1+ · 12 minggu terakhir"
+        title="Tren Skor Kompetensi"
+        desc="Periode program · per minggu"
         headerRight={legend}
       >
-        <div className="h-[200px] animate-pulse rounded-md bg-muted" />
+        <div className="h-[220px] animate-pulse rounded-md bg-muted" />
       </SectionContainerAILN>
     );
   }
@@ -106,28 +56,39 @@ export default function ProficiencyTrendsSponsorAILN() {
   if (q.error || !q.data) {
     return (
       <SectionContainerAILN
-        title="Perkembangan Kemampuan Tim"
-        desc="Rata-rata level tim & porsi yang sudah Level 1+ · 12 minggu terakhir"
+        title="Tren Skor Kompetensi"
+        desc="Periode program · per minggu"
         headerRight={legend}
       >
-        <div className="flex h-[200px] items-center justify-center text-sm text-muted-foreground">
+        <div className="flex h-[220px] items-center justify-center text-sm text-muted-foreground">
           Gagal memuat tren penguasaan.
         </div>
       </SectionContainerAILN>
     );
   }
 
-  const { weeks } = resolveWeeks(q.data.weeks);
-
   return (
     <SectionContainerAILN
-      title="Perkembangan Kemampuan Tim"
-      desc="Rata-rata level tim & porsi yang sudah Level 1+ · 12 minggu terakhir"
+      title="Tren Skor Kompetensi"
+      desc="Periode program · per minggu"
+      headerRight={legend}
     >
-      <div className="h-[200px]">
-        <TrendChart data={weeks} />
+      <div className="h-[220px]">
+        <TrendChart data={q.data.weeks} />
       </div>
     </SectionContainerAILN>
+  );
+}
+
+function LegendLine({ color, label }: { color: string; label: string }) {
+  return (
+    <span className="inline-flex items-center gap-1.5">
+      <span
+        className="inline-block h-0.5 w-3 rounded-full"
+        style={{ backgroundColor: color }}
+      />
+      {label}
+    </span>
   );
 }
 
@@ -142,11 +103,7 @@ function TrendChart({ data }: { data: ProficiencyWeek[] }) {
 
   return (
     <ChartContainer config={chartConfig} className="aspect-auto h-full w-full">
-      <ComposedChart
-        data={data}
-        margin={{ top: 8, right: 8, left: 8, bottom: 0 }}
-        barCategoryGap="22%"
-      >
+      <LineChart data={data} margin={{ top: 10, right: 8, left: 8, bottom: 0 }}>
         <CartesianGrid vertical={false} strokeDasharray="3 3" />
         <XAxis
           dataKey="label"
@@ -156,43 +113,39 @@ function TrendChart({ data }: { data: ProficiencyWeek[] }) {
           minTickGap={16}
           fontSize={11}
         />
-        {/* Bars: % Level 1+ (0..100) */}
-        <YAxis yAxisId="pct" domain={[0, 100]} hide />
-        {/* Line: avg level (0..4) */}
         <YAxis yAxisId="level" domain={[0, 4]} hide />
+        <YAxis
+          yAxisId="xp"
+          domain={[0, (max: number) => Math.max(Math.ceil(max * 1.15), 1)]}
+          hide
+        />
         <ChartTooltip
-          cursor={{ fill: "var(--muted)", opacity: 0.6 }}
+          cursor={{ stroke: "var(--border)" }}
           content={
             <ChartTooltipContent
               labelKey="label"
               formatter={(value, name) => {
                 const isLevel = name === "avg_level";
-                const color = isLevel ? LEVEL_LINE : BAR_DEEP;
+                const color = isLevel ? LEVEL_LINE : XP_LINE;
                 const text = isLevel
                   ? `${Number(value).toLocaleString("id-ID", {
                       minimumFractionDigits: 1,
                       maximumFractionDigits: 1,
                     })} / 4`
-                  : `${Number(value).toLocaleString("id-ID")}%`;
+                  : `${Number(value).toLocaleString("id-ID")} XP`;
+
                 return (
                   <div className="flex w-full items-center justify-between gap-4">
                     <span className="flex items-center gap-1.5">
-                      {isLevel ? (
-                        <span
-                          className="inline-block h-[3px] w-3 shrink-0 rounded-full"
-                          style={{ backgroundColor: color }}
-                        />
-                      ) : (
-                        <span
-                          className="size-2 shrink-0 rounded-[2px]"
-                          style={{ backgroundColor: color }}
-                        />
-                      )}
+                      <span
+                        className="inline-block h-[3px] w-3 shrink-0 rounded-full"
+                        style={{ backgroundColor: color }}
+                      />
                       <span className="text-muted-foreground">
-                        {isLevel ? "Rata-rata Level" : "% Level 1+"}
+                        {isLevel ? "Rata-rata Level" : "Rata-rata XP"}
                       </span>
                     </span>
-                    <span className=" font-medium tabular-nums text-foreground">
+                    <span className="font-medium tabular-nums text-foreground">
                       {text}
                     </span>
                   </div>
@@ -201,31 +154,25 @@ function TrendChart({ data }: { data: ProficiencyWeek[] }) {
             />
           }
         />
-        <Bar
-          yAxisId="pct"
-          dataKey="level1_plus_percent"
-          radius={[5, 5, 0, 0]}
-          minPointSize={(value) => ((value ?? 0) > 0 ? 3 : 0)}
-        >
-          {data.map((d, i) => (
-            <Cell
-              key={d.label}
-              fill={
-                (d.highlight ?? i === data.length - 1) ? BAR_DEEP : BAR_SOFT
-              }
-            />
-          ))}
-        </Bar>
         <Line
           yAxisId="level"
           dataKey="avg_level"
           type="monotone"
           stroke={LEVEL_LINE}
           strokeWidth={2.5}
-          dot={false}
-          activeDot={{ r: 4 }}
+          dot={{ r: 3, strokeWidth: 2, fill: "var(--background)" }}
+          activeDot={{ r: 5 }}
         />
-      </ComposedChart>
+        <Line
+          yAxisId="xp"
+          dataKey="avg_xp"
+          type="monotone"
+          stroke={XP_LINE}
+          strokeWidth={2.5}
+          dot={{ r: 3, strokeWidth: 2, fill: "var(--background)" }}
+          activeDot={{ r: 5 }}
+        />
+      </LineChart>
     </ChartContainer>
   );
 }

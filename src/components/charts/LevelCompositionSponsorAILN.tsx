@@ -6,8 +6,8 @@ import {
   ChartTooltipContent,
   type ChartConfig,
 } from "@/components/ui/chart";
-import { levelColorByCode } from "@/lib/ailene-level-colors";
-import { formatInt, formatScore } from "@/lib/ailene-format";
+import { levelColorByCode } from "@/lib/level-colors";
+import { formatInt, formatScore } from "@/lib/format";
 import { Cell, Pie, PieChart } from "recharts";
 
 type Level = { code: string; name: string; count: number; percent: number };

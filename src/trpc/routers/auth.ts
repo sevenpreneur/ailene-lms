@@ -191,7 +191,7 @@ export const authRouter = createTRPCRouter({
   // Returns only what guards need — role + pre-assessment completion — in a
   // single DB round trip. Avoids the heavy payload of checkAilMember
   // (championed_groups + _count, xp aggregate, level/group includes) which is
-  // only needed by client dashboards. See getAilGate() in src/lib/ail-gate.ts
+  // only needed by client dashboards. See getProgramGate() in src/lib/gate.ts
   // which caches this per-request so nested layouts share one query.
   checkAilGate: loggedInProcedure.query(async (opts) => {
     const ailMember = await opts.ctx.prisma.ailMember.findUnique({

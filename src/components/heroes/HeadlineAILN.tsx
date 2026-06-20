@@ -1,5 +1,5 @@
 "use client";
-import { formatCompactIdr, formatInt } from "@/lib/ailene-format";
+import { formatCompactIdr, formatInt } from "@/lib/format";
 import { Sparkles } from "lucide-react";
 import { Area, AreaChart, ResponsiveContainer } from "recharts";
 

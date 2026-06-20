@@ -1,10 +1,10 @@
-import DashboardOutcomeAILN from "@/components/pages/DashboardOutcomeAILN";
+import RoiProductivityAILN from "@/components/pages/RoiProductivityAILN";
 import { setSessionToken } from "@/trpc/server";
 import { Metadata } from "next";
 import { cookies } from "next/headers";
 
 export const metadata: Metadata = {
-  title: "ROI & Produktivitas",
+  title: "ROI Productivity",
 };
 
 export default async function RoiPage() {
@@ -14,5 +14,5 @@ export default async function RoiPage() {
   if (!sessionToken) return null;
   setSessionToken(sessionToken);
 
-  return <DashboardOutcomeAILN sessionToken={sessionToken} />;
+  return <RoiProductivityAILN sessionToken={sessionToken} />;
 }

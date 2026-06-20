@@ -1,6 +1,6 @@
 import QuizDetailsAILN from "@/components/pages/QuizDetailsAILN";
 import AppPageState from "@/components/states/AppPageState";
-import { getAilGate } from "@/lib/ail-gate";
+import { getProgramGate } from "@/lib/gate";
 import { Metadata } from "next";
 
 export const metadata: Metadata = {
@@ -14,7 +14,7 @@ export default async function QuizPage({
 }) {
   const { quiz_id: quizId } = await params;
 
-  const { sessionToken, ailMember } = await getAilGate();
+  const { sessionToken, ailMember } = await getProgramGate();
   if (!sessionToken) return null;
 
   if (!quizId) {

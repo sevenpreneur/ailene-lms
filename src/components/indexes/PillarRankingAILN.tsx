@@ -4,7 +4,7 @@ import {
   EmptyHintAILN,
   SkeletonBlockAILN,
 } from "@/components/states/DataStatesAILN";
-import { formatScore } from "@/lib/ailene-format";
+import { formatScore } from "@/lib/format";
 import { trpc } from "@/trpc/client";
 
 // Pillar keys → ranking (descriptive) labels; keys mirror buildPreAssessmentReport.

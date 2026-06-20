@@ -1,10 +1,10 @@
 "use client";
 import {
-  AILENE_ORG_NAME,
-  AILENE_PROGRAM_NAME,
-  AILENE_PROGRAM_START,
-  AILENE_PROGRAM_TOTAL_WEEKS,
-} from "@/lib/ailene-config";
+  ORG_NAME,
+  PROGRAM_NAME,
+  PROGRAM_START_ISO,
+  PROGRAM_TOTAL_WEEKS,
+} from "@/lib/config";
 import {
   usePdfReport,
   type ReportProps,
@@ -24,7 +24,7 @@ import AppErrorComponents from "@/components/states/AppErrorComponents";
 import { SkeletonBlockAILN } from "@/components/states/DataStatesAILN";
 import SkeletonExecutiveViewAILN from "@/components/states/SkeletonExecutiveViewAILN";
 import TransformationJourneyAILN from "@/components/steppers/TransformationJourneyAILN";
-import { formatCompactIdr } from "@/lib/ailene-format";
+import { formatCompactIdr } from "@/lib/format";
 import { setSessionToken, trpc } from "@/trpc/client";
 import dayjs from "dayjs";
 import "dayjs/locale/id";
@@ -98,17 +98,17 @@ export default function DashboardSponsorAILN({
   const healthMetrics = healthQ.data?.metrics ?? [];
   const activity = activityQ.data?.activity ?? [];
   const orgStats = orgStatsQ.data;
-  const orgName = AILENE_ORG_NAME || "Ringkasan Organisasi";
+  const orgName = ORG_NAME || "Ringkasan Organisasi";
   const activeStaffCount = metrics.staff_active_weekly_count.toLocaleString("id-ID");
   const departmentCount = orgStats
     ? orgStats.group_count.toLocaleString("id-ID")
     : "—";
 
   // Program week derived from the configured start date (env). No start = week 1.
-  const programWeek = AILENE_PROGRAM_START
+  const programWeek = PROGRAM_START_ISO
     ? Math.min(
-        Math.max(dayjs().diff(dayjs(AILENE_PROGRAM_START), "week") + 1, 1),
-        AILENE_PROGRAM_TOTAL_WEEKS
+        Math.max(dayjs().diff(dayjs(PROGRAM_START_ISO), "week") + 1, 1),
+        PROGRAM_TOTAL_WEEKS
       )
     : 1;
   const headlineUpdated = headlineQ.dataUpdatedAt
@@ -175,8 +175,8 @@ export default function DashboardSponsorAILN({
   ];
 
   const report: ReportProps = {
-    org: AILENE_ORG_NAME || undefined,
-    program: AILENE_PROGRAM_NAME,
+    org: ORG_NAME || undefined,
+    program: PROGRAM_NAME,
     title: "Ringkasan Eksekutif",
     subtitle: orgStats
       ? `${orgStats.member_count.toLocaleString("id-ID")} staff · ${orgStats.group_count.toLocaleString("id-ID")} departemen`
@@ -219,13 +219,13 @@ export default function DashboardSponsorAILN({
         ? [
             {
               type: "trend" as const,
-              title: "Tren Penguasaan AI (12 minggu)",
-              barName: "% Level 1+",
-              lineName: "Rata-rata Level",
+              title: "Tren Skor Kompetensi",
+              firstLineName: "Rata-rata XP",
+              secondLineName: "Rata-rata Level",
               points: proficiencyQ.data.weeks.map((w) => ({
                 label: w.label,
-                bar: w.level1_plus_percent,
-                line: w.avg_level,
+                firstLine: w.avg_xp,
+                secondLine: w.avg_level,
               })),
             },
           ]
@@ -298,7 +298,7 @@ export default function DashboardSponsorAILN({
         {/* Program journey */}
         <TransformationJourneyAILN
           currentWeek={programWeek}
-          totalWeeks={AILENE_PROGRAM_TOTAL_WEEKS}
+          totalWeeks={PROGRAM_TOTAL_WEEKS}
         />
 
         {/* Headline · bulan ini */}

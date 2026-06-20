@@ -1,4 +1,4 @@
-import { formatInt } from "@/lib/ailene-format";
+import { formatInt } from "@/lib/format";
 
 /**
  * One colored-square + label + right-aligned count row used in the Sponsor

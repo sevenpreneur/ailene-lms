@@ -1,5 +1,5 @@
 "use client";
-import { formatScore } from "@/lib/ailene-format";
+import { formatScore } from "@/lib/format";
 import {
   Chart as ChartJS,
   Filler,

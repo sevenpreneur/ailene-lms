@@ -1,5 +1,5 @@
 "use client";
-import { formatCompactIdr, formatDecimal, formatInt } from "@/lib/ailene-format";
+import { formatCompactIdr, formatDecimal, formatInt } from "@/lib/format";
 import { trpc } from "@/trpc/client";
 
 function idrText(value: number): string {

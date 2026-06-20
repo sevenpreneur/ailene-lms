@@ -11,13 +11,13 @@ import {
   type ReportProps,
 } from "@/components/pdf/AileneReportPDF";
 import PageHeaderAILN from "@/components/titles/PageHeaderAILN";
-import { AILENE_ORG_NAME, AILENE_PROGRAM_NAME } from "@/lib/ailene-config";
+import { ORG_NAME, PROGRAM_NAME } from "@/lib/config";
 import {
   formatCompactIdr,
   formatDecimal,
   formatInt,
   formatScore,
-} from "@/lib/ailene-format";
+} from "@/lib/format";
 import { setSessionToken, trpc } from "@/trpc/client";
 import dayjs from "dayjs";
 import { BadgeCheck, Clock, Coins, Download, Gauge } from "lucide-react";
@@ -30,7 +30,7 @@ function idrShort(value: number): string {
     : `Rp ${compact.value}`;
 }
 
-export default function DashboardOutcomeAILN({
+export default function RoiProductivityAILN({
   sessionToken,
 }: {
   sessionToken: string;
@@ -52,7 +52,7 @@ export default function DashboardOutcomeAILN({
     if (overview) {
       sections.push({
         type: "kpi",
-        title: "ROI & Produktivitas",
+        title: "ROI Productivity",
         items: [
           {
             label: "Jam Dihemat Kumulatif",
@@ -127,9 +127,9 @@ export default function DashboardOutcomeAILN({
     }
 
     return {
-      org: AILENE_ORG_NAME || undefined,
-      program: AILENE_PROGRAM_NAME,
-      title: "ROI & Produktivitas",
+      org: ORG_NAME || undefined,
+      program: PROGRAM_NAME,
+      title: "ROI Productivity",
       subtitle: overview
         ? `${formatInt(overview.member_count)} karyawan · ${overview.department_count} departemen`
         : undefined,
@@ -142,8 +142,8 @@ export default function DashboardOutcomeAILN({
     <PageContainerAILN>
       <div className="flex w-full flex-col gap-6">
         <PageHeaderAILN
-          title="ROI & Produktivitas"
-          desc={`${AILENE_PROGRAM_NAME} · ${
+          title="ROI Productivity"
+          desc={`${PROGRAM_NAME} · ${
             overview
               ? `${formatInt(overview.member_count)} karyawan · ${overview.department_count} departemen`
               : "— karyawan · — departemen"
@@ -152,7 +152,7 @@ export default function DashboardOutcomeAILN({
           <ButtonAILN
             variant="light"
             size="medium"
-            onClick={() => pdf.generate(buildReport(), "roi-produktivitas.pdf")}
+            onClick={() => pdf.generate(buildReport(), "roi-productivity.pdf")}
             disabled={pdf.exporting || !overview}
           >
             <Download className="size-4" />

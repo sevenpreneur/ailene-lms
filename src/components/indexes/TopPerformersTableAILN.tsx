@@ -1,4 +1,4 @@
-import { formatDecimal } from "@/lib/ailene-format";
+import { formatDecimal } from "@/lib/format";
 
 type Performer = {
   rank: number;

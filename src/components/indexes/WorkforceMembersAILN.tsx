@@ -4,7 +4,7 @@ import GeneralLabelAILN, {
   type GeneralLabelVariantAILN,
 } from "@/components/labels/GeneralLabelAILN";
 import { SkeletonBlockAILN } from "@/components/states/DataStatesAILN";
-import { formatInt } from "@/lib/ailene-format";
+import { formatInt } from "@/lib/format";
 import type { AppRouter } from "@/trpc/routers/_app";
 import { trpc } from "@/trpc/client";
 import type { inferRouterOutputs } from "@trpc/server";

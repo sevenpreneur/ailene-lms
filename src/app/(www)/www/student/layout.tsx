@@ -1,5 +1,5 @@
 import AppPageState from "@/components/states/AppPageState";
-import { getAilGate } from "@/lib/ail-gate";
+import { getProgramGate } from "@/lib/gate";
 import { redirect } from "next/navigation";
 import { ReactNode } from "react";
 
@@ -8,7 +8,7 @@ export default async function StudentLayout({
 }: {
   children: ReactNode;
 }) {
-  const { sessionToken, ailMember } = await getAilGate();
+  const { sessionToken, ailMember } = await getProgramGate();
 
   if (!sessionToken) redirect("/auth/login");
 

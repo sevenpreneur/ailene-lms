@@ -59,9 +59,9 @@ export type ReportSection =
   | {
       type: "trend";
       title?: string;
-      points: { label: string; bar: number; line: number }[];
-      barName: string;
-      lineName: string;
+      points: { label: string; firstLine: number; secondLine: number }[];
+      firstLineName: string;
+      secondLineName: string;
     }
   | {
       type: "donut";
@@ -371,8 +371,8 @@ export function AileneReportPDF({
                 ) : null}
                 <TrendChartPDF
                   points={s.points}
-                  barName={s.barName}
-                  lineName={s.lineName}
+                  firstLineName={s.firstLineName}
+                  secondLineName={s.secondLineName}
                 />
               </View>
             );

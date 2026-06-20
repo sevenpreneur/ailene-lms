@@ -1,6 +1,6 @@
 import MaterialDetailsAILN from "@/components/pages/MaterialDetailsAILN";
 import AppPageState from "@/components/states/AppPageState";
-import { getAilGate } from "@/lib/ail-gate";
+import { getProgramGate } from "@/lib/gate";
 import { Metadata } from "next";
 
 export const metadata: Metadata = {
@@ -14,7 +14,7 @@ export default async function MaterialPage({
 }) {
   const { material_id: materialId } = await params;
 
-  const { sessionToken, ailMember } = await getAilGate();
+  const { sessionToken, ailMember } = await getProgramGate();
   if (!sessionToken) return null;
 
   if (!materialId) {

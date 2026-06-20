@@ -7,7 +7,7 @@ import {
   ChartTooltipContent,
   type ChartConfig,
 } from "@/components/ui/chart";
-import { formatCompactIdr, formatDecimal } from "@/lib/ailene-format";
+import { formatCompactIdr, formatDecimal } from "@/lib/format";
 import { trpc } from "@/trpc/client";
 import {
   Bar,

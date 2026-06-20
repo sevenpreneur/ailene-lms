@@ -1,4 +1,4 @@
-// Number formatting helpers shared across the Ailene Sponsor dashboards.
+// Number formatting helpers shared across the program dashboards.
 // Centralized here so the id-ID locale + fraction rules stay consistent across
 // the executive view, pre-assessment, group detail, level distribution, and
 // outcome reports (previously each page redefined its own copy).

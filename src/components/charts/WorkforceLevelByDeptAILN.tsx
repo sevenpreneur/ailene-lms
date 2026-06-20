@@ -3,7 +3,7 @@ import SectionContainerAILN from "@/components/cards/SectionContainerAILN";
 import DepartmentDistributionRowAILN from "@/components/items/DepartmentDistributionRowAILN";
 import LevelLegendAILN from "@/components/items/LevelLegendAILN";
 import { EmptyStateAILN } from "@/components/states/DataStatesAILN";
-import { formatInt } from "@/lib/ailene-format";
+import { formatInt } from "@/lib/format";
 
 type DeptGroup = {
   id: number;

@@ -3,6 +3,7 @@ import {
   STATUS_NOT_FOUND,
   STATUS_OK,
 } from "@/lib/status_code";
+import { PROGRAM_END_ISO, PROGRAM_START_ISO } from "@/lib/config";
 import {
   buildPreAssessmentReport,
   type PreAssessmentRecommendations,
@@ -1383,7 +1384,8 @@ export const readRouter = createTRPCRouter({
     };
   }),
 
-  // Sponsor hero KPIs: % productive (≥ L1), hours saved last week, annualized ROI, and a 12-week sparkline series.
+  // Sponsor hero KPIs: validated productive members, hours saved last week,
+  // annualized ROI, and a 12-week sparkline series.
   headline: sponsorProcedure.query(async (opts) => {
     const now = dayjs();
     const roiValuePerHour = 250000; // kept in sync with executiveView
@@ -1392,11 +1394,13 @@ export const readRouter = createTRPCRouter({
 
     const [members, submissions] = await Promise.all([
       opts.ctx.prisma.ailMember.findMany({
-        select: { id: true, current_level: { select: { level_number: true } } },
+        where: { role: { not: "SPONSOR" } },
+        select: { id: true },
       }),
       opts.ctx.prisma.ailUseCaseSubmission.findMany({
-        where: { submitted_at: { not: null } },
+        where: { submitted_at: { not: null }, is_accepted: true },
         select: {
+          member_id: true,
           hours_with_ai: true,
           hours_without_ai: true,
           submitted_at: true,
@@ -1405,12 +1409,8 @@ export const readRouter = createTRPCRouter({
     ]);
 
     const memberCount = members.length;
-    // "Produktif" = sudah mencapai Level 1+.
-    const productiveCount = members.filter(
-      (m) => (m.current_level?.level_number ?? 0) >= 1
-    ).length;
-    const productivePercent =
-      memberCount === 0 ? 0 : Math.round((productiveCount / memberCount) * 100);
+    const memberIds = new Set(members.map((member) => member.id));
+    const productiveMemberIds = new Set<number>();
 
     // Weekly buckets (oldest → newest) for the sparkline.
     const buckets = Array.from({ length: trendWeeks }, (_, i) => {
@@ -1431,8 +1431,10 @@ export const readRouter = createTRPCRouter({
         !row.submitted_at
       )
         continue;
+      if (!memberIds.has(row.member_id)) continue;
       const saved = Number(row.hours_without_ai) - Number(row.hours_with_ai);
       if (saved <= 0) continue;
+      productiveMemberIds.add(row.member_id);
       const at = dayjs(row.submitted_at);
       if (at.isAfter(lastWeekThreshold)) hoursSavedLastWeek += saved;
       for (const b of buckets) {
@@ -1443,6 +1445,9 @@ export const readRouter = createTRPCRouter({
       }
     }
 
+    const productiveCount = productiveMemberIds.size;
+    const productivePercent =
+      memberCount === 0 ? 0 : Math.round((productiveCount / memberCount) * 100);
     const roiAnnualized = Math.round(hoursSavedLastWeek * 52 * roiValuePerHour);
 
     return {
@@ -1727,26 +1732,51 @@ export const readRouter = createTRPCRouter({
     return { code: STATUS_OK, message: "Success", weeks };
   }),
 
-  // Proficiency trend from each member's level_history: org-average level (0..4) + share at L1+ per week, last 12 weeks.
+  // Proficiency trend from each member's level_history + XP earnings:
+  // org-average level (0..4) and average cumulative XP per program week.
   proficiencyTrends: sponsorProcedure.query(async (opts) => {
-    const weekCount = 12;
-    const end = dayjs().endOf("week");
-    const start = end.subtract(weekCount - 1, "week").startOf("week");
+    const start = dayjs(PROGRAM_START_ISO).startOf("day");
+    const end = dayjs(PROGRAM_END_ISO).endOf("day");
+    const weekCount = Math.max(1, Math.ceil(end.diff(start, "day", true) / 7));
 
-    const [levels, members] = await Promise.all([
+    const [levels, members, xpRows] = await Promise.all([
       opts.ctx.prisma.ailLevel.findMany({
         select: { id: true, level_number: true },
       }),
       opts.ctx.prisma.ailMember.findMany({
+        where: { role: { not: "SPONSOR" } },
         select: {
+          id: true,
           created_at: true,
           current_level: { select: { level_number: true } },
           level_history: true,
         },
       }),
+      opts.ctx.prisma.ailXpEarning.findMany({
+        where: {
+          earned_at: {
+            gte: start.toDate(),
+            lte: end.toDate(),
+          },
+        },
+        select: {
+          member_id: true,
+          xp_earned: true,
+          earned_at: true,
+        },
+      }),
     ]);
 
     const levelNumberById = new Map(levels.map((l) => [l.id, l.level_number]));
+    const xpByMember = new Map<number, { at: number; xp: number }[]>();
+    for (const row of xpRows) {
+      const list = xpByMember.get(row.member_id) ?? [];
+      list.push({
+        at: dayjs(row.earned_at).valueOf(),
+        xp: row.xp_earned,
+      });
+      xpByMember.set(row.member_id, list);
+    }
 
     // Per member: creation time, current level, and dated unlock events.
     const timelines = members.map((m) => {
@@ -1764,19 +1794,23 @@ export const readRouter = createTRPCRouter({
         }
       }
       return {
+        id: m.id,
         createdAt: dayjs(m.created_at).valueOf(),
         currentLevel: m.current_level?.level_number ?? 0,
         unlocks,
+        xp: xpByMember.get(m.id) ?? [],
       };
     });
 
     const weeks = Array.from({ length: weekCount }).map((_, index) => {
       const weekStart = start.add(index, "week");
-      const cutoff = weekStart.endOf("week").valueOf();
+      const weekEnd = weekStart.add(1, "week").subtract(1, "millisecond");
+      const cutoffDate = weekEnd.isAfter(end) ? end : weekEnd;
+      const cutoff = cutoffDate.valueOf();
 
       let sumLevel = 0;
+      let sumXp = 0;
       let existing = 0;
-      let atLeastL1 = 0;
 
       for (const t of timelines) {
         if (t.createdAt > cutoff) continue; // member didn't exist yet
@@ -1791,15 +1825,17 @@ export const readRouter = createTRPCRouter({
           }
         }
         sumLevel += level;
-        if (level >= 1) atLeastL1 += 1;
+        sumXp += t.xp.reduce(
+          (sum, earning) => (earning.at <= cutoff ? sum + earning.xp : sum),
+          0
+        );
       }
 
       return {
-        label: weekStart.format("D MMM"),
+        label: `M${index + 1}`,
         avg_level:
           existing === 0 ? 0 : Math.round((sumLevel / existing) * 100) / 100,
-        level1_plus_percent:
-          existing === 0 ? 0 : Math.round((atLeastL1 / existing) * 100),
+        avg_xp: existing === 0 ? 0 : Math.round(sumXp / existing),
         highlight: index === weekCount - 1,
       };
     });

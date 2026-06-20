@@ -88,16 +88,16 @@ function SvgValue({ text }: { text: string }) {
   );
 }
 
-// ---------- Combo trend chart (bars = primary, line = secondary %) ----------
+// ---------- Two-line trend chart ----------
 
 export function TrendChartPDF({
   points,
-  barName,
-  lineName,
+  firstLineName,
+  secondLineName,
 }: {
-  points: { label: string; bar: number; line: number }[];
-  barName: string;
-  lineName: string;
+  points: { label: string; firstLine: number; secondLine: number }[];
+  firstLineName: string;
+  secondLineName: string;
 }) {
   const W = 740;
   const H = 150;
@@ -109,16 +109,22 @@ export function TrendChartPDF({
   const plotH = H - padT - padB;
   const n = Math.max(points.length, 1);
   const step = plotW / n;
-  const barW = step * 0.5;
 
-  const barMax = Math.max(...points.map((p) => p.bar), 1);
-  const lineMax = Math.max(...points.map((p) => p.line), 100);
+  const firstMax = Math.max(...points.map((p) => p.firstLine), 1);
+  const secondMax = Math.max(...points.map((p) => p.secondLine), 100);
 
   const baseY = padT + plotH;
+  const firstLinePts = points
+    .map((p, i) => {
+      const x = padL + i * step + step / 2;
+      const y = baseY - (p.firstLine / firstMax) * plotH;
+      return `${x.toFixed(1)},${y.toFixed(1)}`;
+    })
+    .join(" ");
   const linePts = points
     .map((p, i) => {
       const x = padL + i * step + step / 2;
-      const y = baseY - (p.line / lineMax) * plotH;
+      const y = baseY - (p.secondLine / secondMax) * plotH;
       return `${x.toFixed(1)},${y.toFixed(1)}`;
     })
     .join(" ");
@@ -127,8 +133,8 @@ export function TrendChartPDF({
   return (
     <View>
       <View style={{ flexDirection: "row", gap: 14, marginBottom: 4 }}>
-        <Legend color={BRAND_GREEN} text={barName} square />
-        <Legend color={ACCENT} text={lineName} />
+        <Legend color={BRAND_GREEN} text={firstLineName} />
+        <Legend color={ACCENT} text={secondLineName} />
       </View>
       <Svg width={W} height={H} viewBox={`0 0 ${W} ${H}`}>
         {/* baseline */}
@@ -137,24 +143,19 @@ export function TrendChartPDF({
           stroke={AXIS}
           strokeWidth={0.75}
         />
-        {/* bars */}
+        {/* first line */}
+        <Polyline
+          points={firstLinePts}
+          fill="none"
+          stroke={BRAND_GREEN}
+          strokeWidth={1.5}
+        />
         {points.map((p, i) => {
-          const h = (p.bar / barMax) * plotH;
-          const x = padL + i * step + (step - barW) / 2;
-          const y = baseY - h;
-          return (
-            <Rect
-              key={i}
-              x={x}
-              y={y}
-              width={barW}
-              height={Math.max(h, 0.5)}
-              fill={BRAND_GREEN}
-              opacity={0.85}
-            />
-          );
+          const x = padL + i * step + step / 2;
+          const y = baseY - (p.firstLine / firstMax) * plotH;
+          return <Circle key={i} cx={x} cy={y} r={1.8} fill={BRAND_GREEN} />;
         })}
-        {/* line */}
+        {/* second line */}
         <Polyline
           points={linePts}
           fill="none"
@@ -163,7 +164,7 @@ export function TrendChartPDF({
         />
         {points.map((p, i) => {
           const x = padL + i * step + step / 2;
-          const y = baseY - (p.line / lineMax) * plotH;
+          const y = baseY - (p.secondLine / secondMax) * plotH;
           return <Circle key={i} cx={x} cy={y} r={1.8} fill={ACCENT} />;
         })}
         {/* x labels */}

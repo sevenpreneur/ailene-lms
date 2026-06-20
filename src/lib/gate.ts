@@ -5,7 +5,7 @@ import { cookies } from "next/headers";
 import { cache } from "react";
 
 /**
- * Per-request memoized Ailene gating check for server components.
+ * Per-request memoized program gating check for server components.
  *
  * Reads the session token cookie, primes the tRPC server caller, and resolves
  * the lightweight `auth.checkAilGate` payload (role + pre-assessment status).
@@ -17,7 +17,7 @@ import { cache } from "react";
  * Callers decide what to do when `ailMember`/`sessionToken` is absent
  * (redirect to login vs. render a forbidden state).
  */
-export const getAilGate = cache(async () => {
+export const getProgramGate = cache(async () => {
   const cookieStore = await cookies();
   const sessionToken = cookieStore.get("session_token")?.value;
 

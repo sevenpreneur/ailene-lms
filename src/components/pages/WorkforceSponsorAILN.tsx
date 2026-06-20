@@ -8,7 +8,7 @@ import PageContainerAILN from "@/components/pages/PageContainerAILN";
 import AppErrorComponents from "@/components/states/AppErrorComponents";
 import SkeletonLevelDistributionAILN from "@/components/states/SkeletonLevelDistributionAILN";
 import PageHeaderAILN from "@/components/titles/PageHeaderAILN";
-import { AILENE_ORG_NAME, AILENE_PROGRAM_NAME } from "@/lib/ailene-config";
+import { ORG_NAME, PROGRAM_NAME } from "@/lib/config";
 import {
   usePdfReport,
   type ReportProps,
@@ -53,8 +53,8 @@ export default function WorkforceSponsorAILN({
 
   // Report exports the full org snapshot.
   const buildReport = (): ReportProps => ({
-    org: AILENE_ORG_NAME || undefined,
-    program: AILENE_PROGRAM_NAME,
+    org: ORG_NAME || undefined,
+    program: PROGRAM_NAME,
     title: "Distribusi Level Organisasi",
     subtitle: `${data.total.toLocaleString("id-ID")} karyawan · ${data.groups.length} departemen · partisipasi ${data.participation_percent}%`,
     generatedAt: dayjs().format("D MMMM YYYY"),

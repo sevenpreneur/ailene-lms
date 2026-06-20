@@ -1,4 +1,4 @@
-import { levelColorByCode } from "@/lib/ailene-level-colors";
+import { levelColorByCode } from "@/lib/level-colors";
 
 /**
  * Compact horizontal legend mapping each level to its maturity-ramp color. Used

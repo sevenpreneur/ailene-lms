@@ -165,7 +165,7 @@ const VARIANT_CONFIG: Record<SidebarAILNVariant, VariantConfig> = {
         url: "/sponsor/workforce",
         icon: BarChart3,
       },
-      { name: "ROI & Produktivitas", url: "/sponsor/roi", icon: Target },
+      { name: "ROI Productivity", url: "/sponsor/roi", icon: Target },
       { name: "Pengumuman", url: "/sponsor/announcement", icon: Megaphone },
     ],
     classes: {

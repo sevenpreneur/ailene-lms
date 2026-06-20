@@ -1,7 +1,7 @@
 "use client";
 import SectionContainerAILN from "@/components/cards/SectionContainerAILN";
 import { SkeletonBlockAILN } from "@/components/states/DataStatesAILN";
-import { formatCompactIdr, formatDecimal, formatInt } from "@/lib/ailene-format";
+import { formatCompactIdr, formatDecimal, formatInt } from "@/lib/format";
 import { trpc } from "@/trpc/client";
 
 const COLORS = [

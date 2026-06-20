@@ -7,7 +7,7 @@ import {
 import {
   levelColorByCode,
   levelTextColorByCode,
-} from "@/lib/ailene-level-colors";
+} from "@/lib/level-colors";
 import Link from "next/link";
 
 /**

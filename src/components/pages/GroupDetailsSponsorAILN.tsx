@@ -1,6 +1,6 @@
 "use client";
 
-import { AILENE_ORG_NAME, AILENE_PROGRAM_NAME } from "@/lib/ailene-config";
+import { ORG_NAME, PROGRAM_NAME } from "@/lib/config";
 import {
   usePdfReport,
   type ReportProps,
@@ -22,7 +22,7 @@ import {
 } from "@/components/states/DataStatesAILN";
 import SkeletonGroupDetailAILN from "@/components/states/SkeletonGroupDetailAILN";
 import PageHeaderAILN from "@/components/titles/PageHeaderAILN";
-import { formatDecimal, formatScore } from "@/lib/ailene-format";
+import { formatDecimal, formatScore } from "@/lib/format";
 import { setSessionToken, trpc } from "@/trpc/client";
 import { ChevronDown, Download } from "lucide-react";
 import { useRouter } from "next/navigation";
@@ -179,8 +179,8 @@ export default function GroupDetailsSponsorAILN({
       });
     }
     return {
-      org: AILENE_ORG_NAME || undefined,
-      program: AILENE_PROGRAM_NAME,
+      org: ORG_NAME || undefined,
+      program: PROGRAM_NAME,
       title: `Departemen ${group.name}`,
       subtitle: `${metrics.total_members} karyawan · Champion ${group.champion.full_name} · ${metrics.beginner_percent}% pemula`,
       generatedAt: dayjs().format("D MMMM YYYY"),

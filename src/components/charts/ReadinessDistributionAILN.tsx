@@ -6,7 +6,7 @@ import {
   SkeletonBlockAILN,
 } from "@/components/states/DataStatesAILN";
 import { ChartContainer, type ChartConfig } from "@/components/ui/chart";
-import { formatInt, formatScore } from "@/lib/ailene-format";
+import { formatInt, formatScore } from "@/lib/format";
 import { trpc } from "@/trpc/client";
 import { Cell, Pie, PieChart } from "recharts";
 
