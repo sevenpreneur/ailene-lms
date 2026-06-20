@@ -45,12 +45,16 @@ const SEGMENTS = [
 
 const DETAIL_HREF = "/sponsor/workforce";
 
-export default function LevelDistributionSponsorAILN() {
+export default function LevelDistributionSponsorAILN({
+  showDetailLink = true,
+}: {
+  showDetailLink?: boolean;
+}) {
   const q = trpc.read.levelDistribution.useQuery();
 
   if (q.isLoading) {
     return (
-      <Section>
+      <Section showDetailLink={showDetailLink}>
         <SkeletonBlockAILN className="h-40" />
       </Section>
     );
@@ -58,7 +62,7 @@ export default function LevelDistributionSponsorAILN() {
 
   if (q.error || !q.data) {
     return (
-      <Section>
+      <Section showDetailLink={showDetailLink}>
         <div className="flex h-40 items-center justify-center text-sm text-muted-foreground">
           Gagal memuat distribusi karyawan.
         </div>
@@ -80,7 +84,7 @@ export default function LevelDistributionSponsorAILN() {
   });
 
   return (
-    <Section>
+    <Section showDetailLink={showDetailLink}>
       {total === 0 ? (
         <div className="flex h-40 items-center justify-center text-sm text-muted-foreground">
           Belum ada karyawan terdaftar.
@@ -142,19 +146,27 @@ export default function LevelDistributionSponsorAILN() {
   );
 }
 
-function Section({ children }: { children: React.ReactNode }) {
+function Section({
+  children,
+  showDetailLink = true,
+}: {
+  children: React.ReactNode;
+  showDetailLink?: boolean;
+}) {
   return (
     <SectionContainerAILN
       title="Distribusi Karyawan"
       desc="Promotor / Netral / Resistor · klik untuk drill-down per nama"
       headerRight={
-        <Link
-          href={DETAIL_HREF}
-          className="inline-flex items-center gap-1 text-sm font-semibold text-violet-600 transition-colors hover:text-violet-700 dark:text-violet-400 dark:hover:text-violet-300"
-        >
-          Lihat Detail
-          <ArrowRight className="size-4" />
-        </Link>
+        showDetailLink ? (
+          <Link
+            href={DETAIL_HREF}
+            className="inline-flex items-center gap-1 text-sm font-semibold text-violet-600 transition-colors hover:text-violet-700 dark:text-violet-400 dark:hover:text-violet-300"
+          >
+            Lihat Detail
+            <ArrowRight className="size-4" />
+          </Link>
+        ) : undefined
       }
     >
       {children}

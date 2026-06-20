@@ -176,7 +176,9 @@ function FilterLabel({
 function sortMembers(members: WorkforceMember[], sort: SortKey) {
   return [...members].sort((a, b) => {
     if (sort === "score") {
-      return b.score - a.score || a.user.full_name.localeCompare(b.user.full_name);
+      return (
+        b.score - a.score || a.user.full_name.localeCompare(b.user.full_name)
+      );
     }
     if (sort === "hours") {
       return (
@@ -212,7 +214,10 @@ export default function WorkforceMembersAILN() {
     const counts = new Map<number, number>();
     for (const member of q.data?.list ?? []) {
       if (!member.department) continue;
-      counts.set(member.department.id, (counts.get(member.department.id) ?? 0) + 1);
+      counts.set(
+        member.department.id,
+        (counts.get(member.department.id) ?? 0) + 1
+      );
     }
     return counts;
   }, [q.data?.list]);
@@ -296,7 +301,7 @@ export default function WorkforceMembersAILN() {
       <div className="overflow-x-auto">
         <table className="w-full min-w-[960px] border-collapse text-[13px]">
           <thead>
-            <tr className="border-y border-dashboard-border bg-muted/60 text-left text-[10px] font-bold uppercase tracking-wider text-muted-foreground">
+            <tr className="border-y border-dashboard-border bg-muted/60 text-left text-xs font-bold uppercase tracking-wider text-muted-foreground">
               <th className="px-8 py-4">Nama</th>
               <th className="px-5 py-4">Departemen</th>
               <th className="px-5 py-4">Level</th>
@@ -326,20 +331,20 @@ export default function WorkforceMembersAILN() {
                     <div className="flex items-center gap-3">
                       <MemberAvatar member={member} />
                       <div className="min-w-0">
-                        <div className="truncate text-[15px] font-bold text-foreground">
+                        <div className="truncate text-sm font-medium text-foreground">
                           {member.user.full_name}
                         </div>
                       </div>
                     </div>
                   </td>
-                  <td className="px-5 py-5 text-[15px] text-foreground">
+                  <td className="px-5 py-5 text-sm text-foreground">
                     {member.department?.name ?? "-"}
                   </td>
                   <td className="px-5 py-5">
                     <GeneralLabelAILN
                       variant={levelVariant(member.current_level.level_number)}
                     >
-                      L{member.current_level.level_number}
+                      Level {member.current_level.level_number}
                     </GeneralLabelAILN>
                   </td>
                   <td className="px-5 py-5 text-[15px] font-bold tabular-nums text-foreground">

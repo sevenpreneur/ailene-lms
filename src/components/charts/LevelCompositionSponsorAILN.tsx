@@ -12,34 +12,39 @@ import { Cell, Pie, PieChart } from "recharts";
 
 type Level = { code: string; name: string; count: number; percent: number };
 
+// Level 0 is excluded from the composition; shares rebase to L1+.
+const HIDDEN_LEVEL_CODE = "L0";
+
 /**
  * Org-wide level composition donut: share of employees per competency level,
  * with the average score in the center. Same ramp as the per-department bars.
  */
-export default function LevelCompositionAILN({
+export default function LevelCompositionSponsorAILN({
   levels,
-  total,
 }: {
   levels: Level[];
-  total: number;
 }) {
+  const visibleLevels = levels.filter((l) => l.code !== HIDDEN_LEVEL_CODE);
+  const visibleTotal = visibleLevels.reduce((sum, l) => sum + l.count, 0);
+
   const avgScore =
-    total === 0
+    visibleTotal === 0
       ? 0
-      : levels.reduce(
+      : visibleLevels.reduce(
           (sum, l) => sum + Number(l.code.slice(1)) * l.count,
           0
-        ) / total;
+        ) / visibleTotal;
 
-  const data = levels.map((l) => ({
+  const data = visibleLevels.map((l) => ({
     key: l.code,
     label: `${l.code} ${l.name}`,
     value: l.count,
+    percent: visibleTotal === 0 ? 0 : Math.round((l.count / visibleTotal) * 100),
     fill: levelColorByCode(l.code),
   }));
 
   const config = Object.fromEntries(
-    levels.map((l) => [
+    visibleLevels.map((l) => [
       l.code,
       { label: l.name, color: levelColorByCode(l.code) },
     ])
@@ -48,7 +53,7 @@ export default function LevelCompositionAILN({
   return (
     <SectionContainerAILN
       title="Komposisi Level"
-      desc={`% dari ${formatInt(total)} karyawan`}
+      desc={`% dari ${formatInt(visibleTotal)} karyawan`}
     >
       <div className="flex flex-col items-center gap-5">
         <div className="relative">
@@ -92,7 +97,7 @@ export default function LevelCompositionAILN({
 
         {/* Compact legend */}
         <ul className="grid w-full grid-cols-1 gap-2 text-sm">
-          {data.map((d, i) => (
+          {data.map((d) => (
             <li key={d.key} className="flex items-center gap-2">
               <span
                 className="size-2.5 shrink-0 rounded-sm"
@@ -102,10 +107,10 @@ export default function LevelCompositionAILN({
                 {d.label}
               </span>
               <span className="shrink-0 tabular-nums font-semibold text-foreground">
-                {formatInt(levels[i].count)}
+                {formatInt(d.value)}
               </span>
               <span className="w-10 shrink-0 text-right tabular-nums text-muted-foreground">
-                {levels[i].percent}%
+                {d.percent}%
               </span>
             </li>
           ))}
