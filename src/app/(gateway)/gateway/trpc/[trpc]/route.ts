@@ -20,15 +20,9 @@ const isOriginAllowed = (origin: string | null) => {
     }
   }
 
-  // Both domains accepted during migration: sevenpreneur.net + ailene.sevenpreneur.com.
   const allowedOrigins = [
-    "https://api.sevenpreneur.net",
-    "https://www.sevenpreneur.net",
-    "https://sevenpreneur.net",
-    "https://api.sevenpreneur.com",
-    "https://www.sevenpreneur.com",
-    "https://sevenpreneur.com",
     "https://ailene.sevenpreneur.com",
+    "https://gateway.sevenpreneur.com",
   ];
   if (allowedOrigins.includes(origin)) {
     return origin;

@@ -2,7 +2,7 @@
 
 import { STATUS_NO_CONTENT, STATUS_NOT_FOUND } from "@/lib/status_code";
 import { setSecretKey, trpc } from "@/trpc/server";
-import { cookies, headers } from "next/headers";
+import { cookies } from "next/headers";
 
 export async function DeleteSession() {
   const cookieStore = await cookies();
@@ -15,13 +15,10 @@ export async function DeleteSession() {
   setSecretKey(process.env.SECRET_KEY_PUBLIC_API!);
   const loggedOut = await trpc.auth.logout({ token: sessionData.value });
 
-  // Clear the cookie on the same domain it was set with (see google callback).
-  const host = ((await headers()).get("host") ?? "").toLowerCase();
-  let domain = "sevenpreneur.net";
+  // Clear the cookie on the domain the login repo set it (shared sevenpreneur.com).
+  let domain = "sevenpreneur.com";
   if (process.env.DOMAIN_MODE === "local") {
     domain = "example.com";
-  } else if (host.endsWith("sevenpreneur.com")) {
-    domain = "sevenpreneur.com";
   }
 
   cookieStore.set("session_token", "", {

@@ -33,25 +33,13 @@ export function TRPCProvider(
   }>
 ) {
   const queryClient = getQueryClient();
-  const [trpcClient] = useState(() => {
-    // In the browser, resolve the tRPC endpoint from the current host so the
-    // app works on both the legacy (sevenpreneur.net → api.sevenpreneur.net)
-    // and new (ailene.sevenpreneur.com → api.sevenpreneur.com) domains, keeping
-    // the request same-site so the session cookie is sent. Falls back to the
-    // server-provided baseURL (SSR, previews, local dev).
-    let url = props.baseURL;
-    if (typeof window !== "undefined") {
-      const host = window.location.host.toLowerCase();
-      if (host.endsWith("sevenpreneur.com")) {
-        url = "https://api.sevenpreneur.com/trpc";
-      } else if (host.endsWith("sevenpreneur.net")) {
-        url = "https://api.sevenpreneur.net/trpc";
-      }
-    }
-    return trpc.createClient({
+  const [trpcClient] = useState(() =>
+    trpc.createClient({
       links: [
         httpBatchLink({
-          url,
+          // gateway.sevenpreneur.com in prod, gateway.example.com:3000 in local
+          // dev — resolved server-side from DOMAIN_MODE in app/layout.tsx.
+          url: props.baseURL,
           headers() {
             if (sessionToken.trim().length > 0) {
               return {
@@ -62,8 +50,8 @@ export function TRPCProvider(
           },
         }),
       ],
-    });
-  });
+    })
+  );
   return (
     <trpc.Provider client={trpcClient} queryClient={queryClient}>
       <QueryClientProvider client={queryClient}>

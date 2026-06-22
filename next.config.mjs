@@ -28,7 +28,7 @@ const nextConfig = {
           {
             type: "header",
             key: "host",
-            value: "(www.|ailene.)?(sevenpreneur.(net|com)|example.com).*",
+            value: "(ailene.sevenpreneur.com|(www.|ailene.)?example.com).*",
           },
         ],
         headers: [
@@ -57,7 +57,7 @@ const nextConfig = {
     return {
       beforeFiles: [
         {
-          source: "/(api|ailene)",
+          source: "/(gateway|ailene)",
           destination: "/_not-found/page",
         },
       ],
@@ -69,7 +69,7 @@ const nextConfig = {
             {
               type: "header",
               key: "host",
-              value: "(www.|ailene.)?(sevenpreneur.(net|com)|example.com).*",
+              value: "(ailene.sevenpreneur.com|(www.|ailene.)?example.com).*",
             },
           ],
           destination: "/ailene/:path*",
@@ -86,19 +86,20 @@ const nextConfig = {
           ],
           destination: "/ailene/:path*",
         },
-        // tRPC lives under the api subdomain.
+        // tRPC + webhooks live under the gateway subdomain.
         {
           source: "/:path*",
           has: [
             {
               type: "header",
               key: "host",
-              value: "api.(sevenpreneur.(net|com)|example.com).*",
+              value:
+                "(gateway.sevenpreneur.com|gateway.example.com).*",
             },
           ],
-          destination: "/api/:path*",
+          destination: "/gateway/:path*",
         },
-        // ngrok tunnel (local dev) → api.
+        // ngrok tunnel (local dev) → gateway.
         {
           source: "/:path*",
           has: [
@@ -108,7 +109,7 @@ const nextConfig = {
               value: ngrokDomain + ".*",
             },
           ],
-          destination: "/api/:path*",
+          destination: "/gateway/:path*",
         },
       ],
     };
@@ -117,8 +118,6 @@ const nextConfig = {
   experimental: {
     serverActions: {
       allowedOrigins: [
-        "sevenpreneur.net",
-        "*.sevenpreneur.net",
         "sevenpreneur.com",
         "*.sevenpreneur.com",
         "example.com",

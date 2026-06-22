@@ -54,9 +54,9 @@ export const metadata: Metadata = {
   },
 };
 
-let baseURL = "https://api.sevenpreneur.net/trpc";
+let baseURL = "https://gateway.sevenpreneur.com/trpc";
 if (process.env.DOMAIN_MODE === "local")
-  baseURL = "https://api.example.com:3000/trpc";
+  baseURL = "https://gateway.example.com:3000/trpc";
 
 export default function RootLayout(
   props: Readonly<{ children: React.ReactNode }>
