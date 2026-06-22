@@ -14,6 +14,7 @@ import {
   ClipboardCheck,
   ClipboardList,
   FileText,
+  Gauge,
   LayoutDashboard,
   LineChart,
   LogOut,
@@ -119,6 +120,11 @@ const VARIANT_CONFIG: Record<SidebarAILNVariant, VariantConfig> = {
         url: "/champion",
         icon: LayoutDashboard,
         exact: true,
+      },
+      {
+        name: "Pre Assessment",
+        url: "/champion/pre-assessment",
+        icon: Gauge,
       },
       { name: "Assignment", url: "/champion/assignment", icon: BookMarked },
       {

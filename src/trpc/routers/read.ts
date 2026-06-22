@@ -788,6 +788,209 @@ export const readRouter = createTRPCRouter({
       },
     };
   }),
+
+  // Team competency baseline for a Champion: per-member pillar scores within the
+  // departments this champion owns, bucketed per department. Same shape language
+  // as preAssessmentOrganization, but member-grained — a champion coaches people,
+  // not departments, so the unit of detail drops one level.
+  preAssessmentTeam: championProcedure.query(async (opts) => {
+    const champion = opts.ctx.ail_member;
+    const round1 = (n: number) => Math.round(n * 10) / 10;
+    const pct = (n: number, total: number) =>
+      total === 0 ? 0 : Math.round((n / total) * 100);
+    // Six competency pillars in display order; keys mirror buildPreAssessmentReport.
+    const PILLAR_ORDER = [
+      "ai_foundation",
+      "prompting",
+      "tool_fluency",
+      "use_case_diversity",
+      "ai_habit",
+      "agentic",
+    ] as const;
+    // Maturity line on the ranking — the 3.2 "green" threshold from the member report.
+    const PILLAR_TARGET = 3.2;
+
+    const emptyResult = {
+      code: STATUS_OK,
+      message: "Success",
+      department_count: 0,
+      total_members: 0,
+      completed_count: 0,
+      measured_at: null as Date | null,
+      target: PILLAR_TARGET,
+      team_avg: 0,
+      ready_count: 0,
+      gap_large_count: 0,
+      departments: [] as DepartmentBaseline[],
+      team_pillars: PILLAR_ORDER.map((key) => ({ key, score: 0 })),
+      readiness: { ready: 0, developing: 0, basic: 0 },
+    };
+
+    type MemberBaseline = {
+      member_id: number;
+      name: string;
+      avatar: string | null;
+      avg: number;
+      pillars: { key: string; score: number }[];
+      weakest_key: string;
+    };
+    type DepartmentBaseline = {
+      id: number;
+      name: string;
+      member_count: number;
+      completed_count: number;
+      completion_percent: number;
+      avg: number;
+      pillars: { key: string; score: number }[];
+      members: MemberBaseline[];
+    };
+
+    // Departments this champion owns (all of them, even with zero submissions —
+    // total_members should reflect the full team).
+    const groups = await opts.ctx.prisma.ailGroup.findMany({
+      where: { champion_id: champion.id },
+      orderBy: { name: "asc" },
+      select: {
+        id: true,
+        name: true,
+        _count: { select: { members: true } },
+      },
+    });
+    if (groups.length === 0) return emptyResult;
+
+    const groupIds = groups.map((g) => g.id);
+    const rows = await opts.ctx.prisma.ailPreAssessment.findMany({
+      where: { member: { group_id: { in: groupIds } } },
+      select: {
+        ai_use_frequency: true,
+        ai_tools_used: true,
+        ai_limitations: true,
+        output_review: true,
+        use_cases: true,
+        team_adoption: true,
+        concrete_example: true,
+        model_selection: true,
+        multimodal_use: true,
+        workflow_reuse: true,
+        prompt_comfort: true,
+        prompt_iteration: true,
+        refine_scenario: true,
+        professional_attitude: true,
+        data_safety_check: true,
+        publish_unchecked: true,
+        biggest_challenge: true,
+        created_at: true,
+        member: {
+          select: {
+            id: true,
+            group_id: true,
+            user: { select: { full_name: true, avatar: true } },
+          },
+        },
+      },
+    });
+
+    // Build a per-member baseline, bucketed by department.
+    const membersByGroup = new Map<number, MemberBaseline[]>();
+    let measuredAt: Date | null = null;
+    for (const row of rows) {
+      const groupId = row.member.group_id;
+      if (groupId == null) continue;
+      const report = buildPreAssessmentReport(row);
+      const entry: MemberBaseline = {
+        member_id: row.member.id,
+        name: row.member.user.full_name,
+        avatar: row.member.user.avatar,
+        avg: report.avg,
+        pillars: report.pillars.map((p) => ({ key: p.key, score: p.score })),
+        weakest_key: report.weakest.key,
+      };
+      const arr = membersByGroup.get(groupId) ?? [];
+      arr.push(entry);
+      membersByGroup.set(groupId, arr);
+      if (!measuredAt || row.created_at > measuredAt)
+        measuredAt = row.created_at;
+    }
+
+    // Departments with at least one submission; member rows sorted weakest first
+    // (the ones a champion should look at), department pillar = mean of members.
+    const departments: DepartmentBaseline[] = groups
+      .filter((g) => (membersByGroup.get(g.id)?.length ?? 0) > 0)
+      .map((g) => {
+        const mem = (membersByGroup.get(g.id) ?? [])
+          .slice()
+          .sort((a, b) => a.avg - b.avg);
+        const pillars = PILLAR_ORDER.map((key) => ({
+          key,
+          score: round1(
+            mem.reduce(
+              (s, m) => s + (m.pillars.find((p) => p.key === key)?.score ?? 0),
+              0
+            ) / mem.length
+          ),
+        }));
+        const avg = round1(mem.reduce((s, m) => s + m.avg, 0) / mem.length);
+        return {
+          id: g.id,
+          name: g.name,
+          member_count: g._count.members,
+          completed_count: mem.length,
+          completion_percent: pct(mem.length, g._count.members),
+          avg,
+          pillars,
+          members: mem,
+        };
+      })
+      .sort((a, b) => a.avg - b.avg);
+
+    // Team-level aggregates over every completed member (not over departments —
+    // member granularity keeps small/large departments fairly weighted).
+    const allMembers = departments.flatMap((d) => d.members);
+    if (allMembers.length === 0) {
+      return {
+        ...emptyResult,
+        total_members: groups.reduce((s, g) => s + g._count.members, 0),
+      };
+    }
+
+    const teamPillars = PILLAR_ORDER.map((key) => ({
+      key,
+      score: round1(
+        allMembers.reduce(
+          (s, m) => s + (m.pillars.find((p) => p.key === key)?.score ?? 0),
+          0
+        ) / allMembers.length
+      ),
+    })).sort((a, b) => a.score - b.score);
+
+    const teamAvg = round1(
+      allMembers.reduce((s, m) => s + m.avg, 0) / allMembers.length
+    );
+
+    // Readiness tiers + headline counts, keyed off each member's average.
+    const ready = allMembers.filter((m) => m.avg >= 2.5).length;
+    const developing = allMembers.filter(
+      (m) => m.avg >= 1.5 && m.avg < 2.5
+    ).length;
+    const basic = allMembers.filter((m) => m.avg < 1.5).length;
+    const gapLargeCount = allMembers.filter((m) => m.avg < 2.0).length;
+
+    return {
+      code: STATUS_OK,
+      message: "Success",
+      department_count: departments.length,
+      total_members: groups.reduce((s, g) => s + g._count.members, 0),
+      completed_count: allMembers.length,
+      measured_at: measuredAt,
+      target: PILLAR_TARGET,
+      team_avg: teamAvg,
+      ready_count: ready,
+      gap_large_count: gapLargeCount,
+      departments,
+      team_pillars: teamPillars,
+      readiness: { ready, developing, basic },
+    };
+  }),
   group: aileneGroupRouter,
   outcome: aileneOutcomeRouter,
   report: aileneReportRouter,
