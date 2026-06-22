@@ -8,16 +8,27 @@ const isOriginAllowed = (origin: string | null) => {
     return false;
   }
 
-  const domainMode = process.env.DOMAIN_MODE;
-  let baseURL = "sevenpreneur.net";
-  if (domainMode === "local") {
-    baseURL = "example.com:3000";
+  if (process.env.DOMAIN_MODE === "local") {
+    // Accept example.com:3000 and any of its subdomains (www., ailene., api.).
+    try {
+      const host = new URL(origin).host;
+      return host === "example.com:3000" || host.endsWith(".example.com:3000")
+        ? origin
+        : false;
+    } catch {
+      return false;
+    }
   }
 
+  // Both domains accepted during migration: sevenpreneur.net + ailene.sevenpreneur.com.
   const allowedOrigins = [
-    `https://api.${baseURL}`,
-    `https://www.${baseURL}`,
-    `https://${baseURL}`,
+    "https://api.sevenpreneur.net",
+    "https://www.sevenpreneur.net",
+    "https://sevenpreneur.net",
+    "https://api.sevenpreneur.com",
+    "https://www.sevenpreneur.com",
+    "https://sevenpreneur.com",
+    "https://ailene.sevenpreneur.com",
   ];
   if (allowedOrigins.includes(origin)) {
     return origin;

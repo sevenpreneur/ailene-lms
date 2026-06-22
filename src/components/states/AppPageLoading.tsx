@@ -1,6 +1,6 @@
 "use client";
 import { DotLottieReact } from "@lottiefiles/dotlottie-react";
-import PageContainerCMS from "@/components/pages/PageContainerCMS";
+import PageContainerAILN from "@/components/pages/PageContainerAILN";
 import PageContainerSVP from "@/components/pages/PageContainerSVP";
 
 export type PageLoadingType = "CMS" | "LMS" | "SVP";
@@ -8,7 +8,7 @@ export type PageLoadingType = "CMS" | "LMS" | "SVP";
 export default function AppPageLoading({ type }: { type: PageLoadingType }) {
   if (type === "CMS") {
     return (
-      <PageContainerCMS className="min-h-screen">
+      <PageContainerAILN className="min-h-screen">
         <div className="flex w-full items-center justify-center">
           <DotLottieReact
             src="/animation/flying-list.lottie"
@@ -18,7 +18,7 @@ export default function AppPageLoading({ type }: { type: PageLoadingType }) {
             style={{ width: 900 }}
           />
         </div>
-      </PageContainerCMS>
+      </PageContainerAILN>
     );
   }
 

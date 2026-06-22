@@ -8,6 +8,7 @@ import { formatInt, formatScore } from "@/lib/format";
 import { trpc } from "@/trpc/client";
 import type { AppRouter } from "@/trpc/routers/_app";
 import type { inferRouterOutputs } from "@trpc/server";
+import Image from "next/image";
 
 // Pillar keys → table header (short) labels; keys mirror buildPreAssessmentReport.
 const PILLAR_SHORT: Record<string, string> = {
@@ -203,11 +204,13 @@ function DepartmentRows({
 
 function MemberAvatar({ name, src }: { name: string; src: string | null }) {
   if (src) {
-    // eslint-disable-next-line @next/next/no-img-element
     return (
-      <img
+      <Image
         src={src}
         alt={name}
+        width={28}
+        height={28}
+        unoptimized
         className="size-7 shrink-0 rounded-full object-cover"
       />
     );

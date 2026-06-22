@@ -33,7 +33,7 @@ export const metadata: Metadata = {
     default: "AI LMS Sevenpreneur",
   },
   description: "Platform pelatihan AI Sevenpreneur",
-  metadataBase: "https://sevenpreneur.net",
+  metadataBase: new URL("https://ailene.sevenpreneur.com"),
   alternates: { canonical: "/" },
   openGraph: {
     images: [

@@ -1,14 +1,14 @@
 import { NextResponse } from "next/server";
 
 export function GET() {
-  let domain = "sevenpreneur.net";
+  let domain = "ailene.sevenpreneur.com";
   if (process.env.DOMAIN_MODE === "local") {
     domain = "example.com:3000";
   }
 
   const sitemaps = [
     {
-      url: `https://www.${domain}/cohorts/sevenpreneur-business-blueprint-program`,
+      url: `https://${domain}/cohorts/sevenpreneur-business-blueprint-program`,
       lastModified: new Date(),
       changeFrequency: "yearly",
       priority: 1.0,

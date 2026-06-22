@@ -50,11 +50,6 @@ interface AppPageStateProps {
 export default function AppPageState(props: AppPageStateProps) {
   const { title, message, image } = variantStyles[props.variant];
 
-  let domain = "sevenpreneur.net";
-  if (process.env.NEXT_PUBLIC_DOMAIN_MODE === "local") {
-    domain = "example.com:3000";
-  }
-
   return (
     <div className="state-root flex flex-col w-full min-h-screen pt-24 px-6 items-center sm:pt-32 lg:px-0 lg:pt-0 lg:justify-center">
       <div className="state-attributes flex flex-col gap-4 max-w-md text-center items-center">
@@ -75,7 +70,7 @@ export default function AppPageState(props: AppPageStateProps) {
             {message}
           </p>
         </div>
-        <Link href={`https://www.${domain}`}>
+        <Link href="/">
           <ButtonAILN>Back to Home</ButtonAILN>
         </Link>
       </div>

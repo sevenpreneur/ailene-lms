@@ -7,7 +7,7 @@ interface SitemapItem {
 }
 
 export async function GET() {
-  let domain = "sevenpreneur.net";
+  let domain = "ailene.sevenpreneur.com";
   if (process.env.DOMAIN_MODE === "local") {
     domain = "example.com:3000";
   }
@@ -15,11 +15,11 @@ export async function GET() {
   try {
     const sitemaps = [
       {
-        url: `https://www.${domain}/basic/sitemap.xml`,
+        url: `https://${domain}/basic/sitemap.xml`,
         lastModified: new Date(),
       },
       {
-        url: `https://www.${domain}/cohorts/sitemap.xml`,
+        url: `https://${domain}/cohorts/sitemap.xml`,
         lastModified: new Date(),
       },
     ];

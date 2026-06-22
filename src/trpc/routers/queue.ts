@@ -8,7 +8,7 @@ function qstashTargetDomain(): string {
       ""
     );
   }
-  return "api.sevenpreneur.net";
+  return "api.sevenpreneur.com";
 }
 
 export async function scheduleQuizAutoSubmit(

@@ -28,7 +28,7 @@ const nextConfig = {
           {
             type: "header",
             key: "host",
-            value: "www.(sevenpreneur.(com|net)|example.com).*",
+            value: "(www.|ailene.)?(sevenpreneur.(net|com)|example.com).*",
           },
         ],
         headers: [
@@ -41,28 +41,10 @@ const nextConfig = {
     ];
   },
   async redirects() {
-    return [
-      // Unauthenticated visitors are bounced to /auth/login by the gated
-      // dashboard layout: src/app/(www)/www/(dashboard)/layout.tsx.
-      // Logged-in users who land on an auth page are sent to the dashboard.
-      {
-        source: "/auth(.*)",
-        has: [
-          {
-            type: "header",
-            key: "host",
-            value: "(www.)?(sevenpreneur.net|example.com).*",
-          },
-          {
-            type: "cookie",
-            key: "session_token",
-            value: undefined,
-          },
-        ],
-        destination: "/",
-        permanent: false,
-      },
-    ];
+    // Auth (login) is handled by a separate repo, so there are no /auth pages
+    // to guard here anymore. Gating redirects to the external LOGIN_URL from the
+    // section layouts (src/lib/config.ts).
+    return [];
   },
   async rewrites() {
     let ngrokDomain = "ngrok-no-domain.ngrok-free.app";
@@ -75,22 +57,22 @@ const nextConfig = {
     return {
       beforeFiles: [
         {
-          source: "/(api|www)",
+          source: "/(api|ailene)",
           destination: "/_not-found/page",
         },
       ],
       afterFiles: [
-        // Apex domain + www subdomain → the app (served from the www group).
+        // Apex domain + www/ailene subdomain → the app (served from the ailene group).
         {
           source: "/:path*",
           has: [
             {
               type: "header",
               key: "host",
-              value: "(www.)?(sevenpreneur.net|example.com).*",
+              value: "(www.|ailene.)?(sevenpreneur.(net|com)|example.com).*",
             },
           ],
-          destination: "/www/:path*",
+          destination: "/ailene/:path*",
         },
         // Vercel preview deployments → the app.
         {
@@ -102,7 +84,7 @@ const nextConfig = {
               value: "sevenpreneur(-[^.]+).vercel.app.*",
             },
           ],
-          destination: "/www/:path*",
+          destination: "/ailene/:path*",
         },
         // tRPC lives under the api subdomain.
         {
@@ -111,7 +93,7 @@ const nextConfig = {
             {
               type: "header",
               key: "host",
-              value: "api.(sevenpreneur.net|example.com).*",
+              value: "api.(sevenpreneur.(net|com)|example.com).*",
             },
           ],
           destination: "/api/:path*",
@@ -137,6 +119,8 @@ const nextConfig = {
       allowedOrigins: [
         "sevenpreneur.net",
         "*.sevenpreneur.net",
+        "sevenpreneur.com",
+        "*.sevenpreneur.com",
         "example.com",
         "*.example.com",
         process.env.NGROK_DOMAIN,

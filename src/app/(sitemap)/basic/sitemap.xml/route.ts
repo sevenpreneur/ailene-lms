@@ -1,32 +1,32 @@
 import { NextResponse } from "next/server";
 
 export function GET() {
-  let domain = "sevenpreneur.net";
+  let domain = "ailene.sevenpreneur.com";
   if (process.env.DOMAIN_MODE === "local") {
     domain = "example.com:3000";
   }
 
   const sitemaps = [
     {
-      url: `https://www.${domain}`,
+      url: `https://${domain}`,
       lastModified: new Date(),
       changeFrequency: "yearly",
       priority: 1.0,
     },
     {
-      url: `https://www.${domain}/privacy-policy`,
+      url: `https://${domain}/privacy-policy`,
       lastModified: new Date(),
       changeFrequency: "yearly",
       priority: 1.0,
     },
     {
-      url: `https://www.${domain}/terms-conditions`,
+      url: `https://${domain}/terms-conditions`,
       lastModified: new Date(),
       changeFrequency: "yearly",
       priority: 1.0,
     },
     {
-      url: `https://www.${domain}/company`,
+      url: `https://${domain}/company`,
       lastModified: new Date(),
       changeFrequency: "yearly",
       priority: 1.0,

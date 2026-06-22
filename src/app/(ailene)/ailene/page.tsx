@@ -1,11 +1,12 @@
 import AppPageState from "@/components/states/AppPageState";
+import { LOGIN_URL } from "@/lib/config";
 import { getProgramGate } from "@/lib/gate";
 import { redirect } from "next/navigation";
 
 export default async function AILNRootPage() {
   const { sessionToken, ailMember } = await getProgramGate();
 
-  if (!sessionToken) redirect("/auth/login");
+  if (!sessionToken) redirect(LOGIN_URL);
 
   if (!ailMember) return <AppPageState variant="FORBIDDEN" />;
 

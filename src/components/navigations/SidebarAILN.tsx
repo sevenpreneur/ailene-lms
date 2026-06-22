@@ -4,6 +4,7 @@ import ButtonAILN, { type VariantType } from "@/components/buttons/ButtonAILN";
 import ThemeSwitcherAILN from "@/components/buttons/ThemeSwitcherAILN";
 import { useSidebar } from "@/contexts/SidebarContext";
 import { DeleteSession } from "@/lib/actions";
+import { LOGIN_URL } from "@/lib/config";
 import { setSessionToken, trpc } from "@/trpc/client";
 import {
   BarChart3,
@@ -226,18 +227,15 @@ export default function SidebarAILN({
       ? HUTAMA_KARYA_LOGO_DARK
       : HUTAMA_KARYA_LOGO;
 
-  let loginDomain = "sevenpreneur.net";
-  if (process.env.NEXT_PUBLIC_DOMAIN_MODE === "local") {
-    loginDomain = "example.com:3000";
-  }
-
   const handleLogout = async () => {
     if (isLoggingOut) return;
     setIsLoggingOut(true);
     try {
       const res = await DeleteSession();
       if (res.code === "NO_CONTENT") {
-        router.push(`https://www.${loginDomain}/auth/login`);
+        // Login lives in a separate repo; LOGIN_URL is external so this is a
+        // full-page navigation.
+        router.push(LOGIN_URL);
       } else {
         toast.error("Gagal logout. Coba lagi.");
         setIsLoggingOut(false);
