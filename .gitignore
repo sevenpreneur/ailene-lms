@@ -42,3 +42,6 @@ next-env.d.ts
 
 # self-signed certificates
 certificates
+
+# MCP Config
+.mcp.json
