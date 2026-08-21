@@ -1,5 +1,6 @@
 import "server-only";
 
+import { SESSION_COOKIE_NAME } from "@/lib/constants";
 import { setSessionToken, trpc } from "@/trpc/server";
 import { cookies } from "next/headers";
 import { cache } from "react";
@@ -19,7 +20,7 @@ import { cache } from "react";
  */
 export const getProgramGate = cache(async () => {
   const cookieStore = await cookies();
-  const sessionToken = cookieStore.get("session_token")?.value;
+  const sessionToken = cookieStore.get(SESSION_COOKIE_NAME)?.value;
 
   if (!sessionToken) {
     return { sessionToken: undefined, ailMember: null };
