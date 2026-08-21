@@ -15,8 +15,8 @@ export async function DeleteSession() {
   setSecretKey(process.env.SECRET_KEY_PUBLIC_API!);
   const loggedOut = await trpc.auth.logout({ token: sessionData.value });
 
-  // Clear the cookie on the domain the login repo set it (shared sevenpreneur.com).
-  let domain = "sevenpreneur.com";
+  // Clear the cookie on the domain the login repo set it (shared ailene.id).
+  let domain = "ailene.id";
   if (process.env.DOMAIN_MODE === "local") {
     domain = "example.com";
   }

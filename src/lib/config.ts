@@ -3,7 +3,7 @@
 // in deployment-level config instead of row-level database state.
 
 // Auth lives in a separate repo; unauthenticated visitors are bounced here.
-export const LOGIN_URL = "https://www.sevenpreneur.com/auth/login";
+export const LOGIN_URL = "https://biz.ailene.id/auth/login";
 
 export const PROGRAM_START_ISO = "2026-06-26T00:00:00.000Z";
 export const PROGRAM_END_ISO = "2026-08-26T00:00:00.000Z";

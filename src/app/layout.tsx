@@ -33,7 +33,7 @@ export const metadata: Metadata = {
     default: "AI LMS Sevenpreneur",
   },
   description: "Platform pelatihan AI Sevenpreneur",
-  metadataBase: new URL("https://ailene.sevenpreneur.com"),
+  metadataBase: new URL("https://lms.ailene.id"),
   alternates: { canonical: "/" },
   openGraph: {
     images: [
@@ -54,7 +54,7 @@ export const metadata: Metadata = {
   },
 };
 
-let baseURL = "https://gateway.sevenpreneur.com/trpc";
+let baseURL = "https://gateway.ailene.id/trpc";
 if (process.env.DOMAIN_MODE === "local")
   baseURL = "https://gateway.example.com:3000/trpc";
 

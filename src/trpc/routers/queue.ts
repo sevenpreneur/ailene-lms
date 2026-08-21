@@ -8,7 +8,7 @@ function qstashTargetDomain(): string {
       ""
     );
   }
-  return "gateway.sevenpreneur.com";
+  return "gateway.ailene.id";
 }
 
 export async function scheduleQuizAutoSubmit(

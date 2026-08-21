@@ -37,7 +37,7 @@ export function TRPCProvider(
     trpc.createClient({
       links: [
         httpBatchLink({
-          // gateway.sevenpreneur.com in prod, gateway.example.com:3000 in local
+          // gateway.ailene.id in prod, gateway.example.com:3000 in local
           // dev — resolved server-side from DOMAIN_MODE in app/layout.tsx.
           url: props.baseURL,
           headers() {

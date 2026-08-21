@@ -28,7 +28,7 @@ const nextConfig = {
           {
             type: "header",
             key: "host",
-            value: "(ailene.sevenpreneur.com|(www.|ailene.)?example.com).*",
+            value: "(lms.ailene.id|(www.|ailene.)?example.com).*",
           },
         ],
         headers: [
@@ -69,7 +69,7 @@ const nextConfig = {
             {
               type: "header",
               key: "host",
-              value: "(ailene.sevenpreneur.com|(www.|ailene.)?example.com).*",
+              value: "(lms.ailene.id|(www.|ailene.)?example.com).*",
             },
           ],
           destination: "/ailene/:path*",
@@ -94,7 +94,7 @@ const nextConfig = {
               type: "header",
               key: "host",
               value:
-                "(gateway.sevenpreneur.com|gateway.example.com).*",
+                "(gateway.ailene.id|gateway.example.com).*",
             },
           ],
           destination: "/gateway/:path*",
@@ -118,8 +118,8 @@ const nextConfig = {
   experimental: {
     serverActions: {
       allowedOrigins: [
-        "sevenpreneur.com",
-        "*.sevenpreneur.com",
+        "ailene.id",
+        "*.ailene.id",
         "example.com",
         "*.example.com",
         process.env.NGROK_DOMAIN,

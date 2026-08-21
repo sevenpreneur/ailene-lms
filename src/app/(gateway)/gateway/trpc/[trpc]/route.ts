@@ -21,8 +21,8 @@ const isOriginAllowed = (origin: string | null) => {
   }
 
   const allowedOrigins = [
-    "https://ailene.sevenpreneur.com",
-    "https://gateway.sevenpreneur.com",
+    "https://lms.ailene.id",
+    "https://gateway.ailene.id",
   ];
   if (allowedOrigins.includes(origin)) {
     return origin;
