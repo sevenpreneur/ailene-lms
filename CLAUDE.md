@@ -9,7 +9,7 @@ Sevenpreneur adalah multi-platform SaaS untuk AI adoption dan entrepreneurship e
 | `www`     | `(www)`     | `SVP`       | Public website — marketing, auth, events, cohorts, articles     |
 | `admin`   | `(admin)`   | `CMS`       | Internal CMS untuk manage semua konten dan user                 |
 | `agora`   | `(agora)`   | `LMS`       | Logged-in learning platform — cohorts, playlists, AI tools      |
-| `ailene`  | `(ailene)`  | `AILN`      | AI Learn — lesson journeys, quizzes, live sessions, leaderboard |
+| `ailene`  | `(lms)`     | `AILN`      | AI Learn — lesson journeys, quizzes, live sessions, leaderboard |
 
 > Platform `lab` sudah dihapus sepenuhnya dari codebase.
 

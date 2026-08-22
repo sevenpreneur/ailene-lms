@@ -57,12 +57,12 @@ const nextConfig = {
     return {
       beforeFiles: [
         {
-          source: "/(gateway|ailene)",
+          source: "/(gateway|lms)",
           destination: "/_not-found/page",
         },
       ],
       afterFiles: [
-        // Apex domain + www/ailene subdomain → the app (served from the ailene group).
+        // Apex domain + www/ailene subdomain → the app (served from the lms group).
         {
           source: "/:path*",
           has: [
@@ -72,7 +72,7 @@ const nextConfig = {
               value: "(lms.ailene.id|(www.|ailene.)?example.com).*",
             },
           ],
-          destination: "/ailene/:path*",
+          destination: "/lms/:path*",
         },
         // Vercel preview deployments → the app.
         {
@@ -84,7 +84,7 @@ const nextConfig = {
               value: "sevenpreneur(-[^.]+).vercel.app.*",
             },
           ],
-          destination: "/ailene/:path*",
+          destination: "/lms/:path*",
         },
         // tRPC + webhooks live under the gateway subdomain.
         {
