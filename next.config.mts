@@ -1,5 +1,11 @@
-/** @type {import('next').NextConfig} */
-const nextConfig = {
+import type { NextConfig } from "next";
+
+const SESSION_COOKIE_NAME = "session_token_ailene_lms";
+
+const nextConfig: NextConfig = {
+  turbopack: {
+    root: process.cwd(),
+  },
   images: {
     unoptimized: true,
     remotePatterns: [
@@ -28,7 +34,8 @@ const nextConfig = {
           {
             type: "header",
             key: "host",
-            value: "(lms.ailene.id|(www.|ailene.)?example.com).*",
+            value:
+              "(lms.ailene.id|(lms.)?example.com|sevenpreneur(-[^.]+).vercel.app).*",
           },
         ],
         headers: [
@@ -41,19 +48,25 @@ const nextConfig = {
     ];
   },
   async redirects() {
-    // Auth (login) is handled by a separate repo, so there are no /auth pages
-    // to guard here anymore. Gating redirects to the external LOGIN_URL from the
-    // section layouts (src/lib/config.ts).
-    return [];
+    return [
+      // Already signed in -> don't show the login page again.
+      {
+        source: "/auth(.*)",
+        has: [
+          {
+            type: "header",
+            key: "host",
+            value:
+              "(lms.ailene.id|(lms.)?example.com|sevenpreneur(-[^.]+).vercel.app).*",
+          },
+          { type: "cookie", key: SESSION_COOKIE_NAME, value: undefined },
+        ],
+        destination: "/",
+        permanent: false,
+      },
+    ];
   },
   async rewrites() {
-    let ngrokDomain = "ngrok-no-domain.ngrok-free.app";
-    if (process.env.DOMAIN_MODE === "local") {
-      const ngrokDomainEnv = process.env.NGROK_DOMAIN;
-      if (ngrokDomainEnv !== undefined && ngrokDomainEnv !== "") {
-        ngrokDomain = ngrokDomainEnv;
-      }
-    }
     return {
       beforeFiles: [
         {
@@ -62,14 +75,14 @@ const nextConfig = {
         },
       ],
       afterFiles: [
-        // Apex domain + www/ailene subdomain → the app (served from the lms group).
+        // Apex domain + lms subdomain → the app (served from the lms group).
         {
           source: "/:path*",
           has: [
             {
               type: "header",
               key: "host",
-              value: "(lms.ailene.id|(www.|ailene.)?example.com).*",
+              value: "(lms.ailene.id|(lms.)?example.com).*",
             },
           ],
           destination: "/lms/:path*",
@@ -93,20 +106,7 @@ const nextConfig = {
             {
               type: "header",
               key: "host",
-              value:
-                "(gateway.ailene.id|gateway.example.com).*",
-            },
-          ],
-          destination: "/gateway/:path*",
-        },
-        // ngrok tunnel (local dev) → gateway.
-        {
-          source: "/:path*",
-          has: [
-            {
-              type: "header",
-              key: "host",
-              value: ngrokDomain + ".*",
+              value: "(gateway.ailene.id|gateway.example.com).*",
             },
           ],
           destination: "/gateway/:path*",
@@ -122,7 +122,6 @@ const nextConfig = {
         "*.ailene.id",
         "example.com",
         "*.example.com",
-        process.env.NGROK_DOMAIN,
       ],
     },
   },

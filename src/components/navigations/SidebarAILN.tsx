@@ -233,8 +233,6 @@ export default function SidebarAILN({
     try {
       const res = await DeleteSession();
       if (res.code === "NO_CONTENT") {
-        // Login lives in a separate repo; LOGIN_URL is external so this is a
-        // full-page navigation.
         router.push(LOGIN_URL);
       } else {
         toast.error("Gagal logout. Coba lagi.");
