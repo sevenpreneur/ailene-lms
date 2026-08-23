@@ -9,7 +9,6 @@ export type LmsBackendUser = {
   full_name: string;
   email: string;
   avatar: string | null;
-  role: "student" | "champion" | "sponsor";
   job_title: string | null;
 };
 

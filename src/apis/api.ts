@@ -20,15 +20,25 @@ export async function callApi<T = unknown>(
 
   const { method = "POST", body, token } = options;
 
-  const response = await fetch(new URL(path, baseUrl).toString(), {
-    method,
-    headers: {
-      "Content-Type": "application/json",
-      ...(token ? { Authorization: `Bearer ${token}` } : {}),
-    },
-    body: body !== undefined ? JSON.stringify(body) : undefined,
-    cache: "no-store",
-  });
+  let response: Response;
+  try {
+    response = await fetch(new URL(path, baseUrl).toString(), {
+      method,
+      headers: {
+        "Content-Type": "application/json",
+        ...(token ? { Authorization: `Bearer ${token}` } : {}),
+      },
+      body: body !== undefined ? JSON.stringify(body) : undefined,
+      cache: "no-store",
+    });
+  } catch {
+    return {
+      success: false,
+      code: 502,
+      status: "BAD_GATEWAY",
+      message: "Could not reach the server. Please try again.",
+    };
+  }
 
   const data = (await response
     .json()
