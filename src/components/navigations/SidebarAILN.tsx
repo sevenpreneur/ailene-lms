@@ -3,9 +3,10 @@
 import ButtonAILN, { type VariantType } from "@/components/buttons/ButtonAILN";
 import ThemeSwitcherAILN from "@/components/buttons/ThemeSwitcherAILN";
 import { useSidebar } from "@/contexts/SidebarContext";
-import { DeleteSession } from "@/lib/actions";
+import { CheckSession, DeleteSession } from "@/lib/actions";
 import { LOGIN_URL } from "@/lib/config";
 import { setSessionToken, trpc } from "@/trpc/client";
+import { useQuery } from "@tanstack/react-query";
 import {
   BarChart3,
   BookMarked,
@@ -244,7 +245,9 @@ export default function SidebarAILN({
     }
   };
 
-  const userQ = trpc.auth.checkSession.useQuery(undefined, {
+  const userQ = useQuery({
+    queryKey: ["session"],
+    queryFn: CheckSession,
     enabled: !!sessionToken,
   });
   const memberQ = trpc.auth.checkAilMember.useQuery(undefined, {

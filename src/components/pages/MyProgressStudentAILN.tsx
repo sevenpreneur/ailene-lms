@@ -7,7 +7,9 @@ import LeaderboardPanelStudentAILN from "@/components/indexes/LeaderboardPanelSt
 import PageContainerAILN from "@/components/pages/PageContainerAILN";
 import AppErrorComponents from "@/components/states/AppErrorComponents";
 import PageHeaderAILN from "@/components/titles/PageHeaderAILN";
+import { CheckSession } from "@/lib/actions";
 import { setSessionToken, trpc } from "@/trpc/client";
+import { useQuery } from "@tanstack/react-query";
 import dayjs from "dayjs";
 import "dayjs/locale/id";
 import { ArrowRight, ClipboardCheck } from "lucide-react";
@@ -25,7 +27,7 @@ export default function MyProgressStudentAILN({
     setSessionToken(sessionToken);
   }, [sessionToken]);
 
-  const userQ = trpc.auth.checkSession.useQuery();
+  const userQ = useQuery({ queryKey: ["session"], queryFn: CheckSession });
   const memberQ = trpc.auth.checkAilMember.useQuery();
 
   if (userQ.isLoading || memberQ.isLoading) {

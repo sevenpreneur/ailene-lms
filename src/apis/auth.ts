@@ -55,3 +55,33 @@ export async function loginWithGoogleAccessToken(
 
   return { success: true, user: result.data.user };
 }
+
+export async function checkSession(): Promise<LmsBackendUser | null> {
+  const cookieStore = await cookies();
+  const sessionToken = cookieStore.get(SESSION_COOKIE_NAME)?.value;
+  if (!sessionToken) {
+    return null;
+  }
+
+  const result = await callApi<LmsBackendUser>("/api/auth/check-session", {
+    method: "POST",
+    token: sessionToken,
+  });
+
+  return result.success && result.data ? result.data : null;
+}
+
+export async function logoutSession(): Promise<void> {
+  const cookieStore = await cookies();
+  const sessionToken = cookieStore.get(SESSION_COOKIE_NAME)?.value;
+
+  if (sessionToken) {
+    try {
+      await callApi("/api/auth/logout", { method: "POST", token: sessionToken });
+    } catch {
+      // Clear the cookie below regardless of whether the backend call succeeded.
+    }
+  }
+
+  cookieStore.delete(SESSION_COOKIE_NAME);
+}

@@ -1,31 +1,20 @@
 "use server";
 
-import { SESSION_COOKIE_NAME } from "@/lib/constants";
-import { STATUS_NO_CONTENT, STATUS_NOT_FOUND } from "@/lib/status_code";
-import { setSecretKey, trpc } from "@/trpc/server";
-import { cookies } from "next/headers";
+import { STATUS_NO_CONTENT } from "@/lib/status_code";
+import {
+  checkSession as checkSessionApi,
+  logoutSession as logoutSessionApi,
+} from "@/apis/auth";
+
+export async function CheckSession() {
+  const user = await checkSessionApi();
+  if (!user) {
+    throw new Error("Session tidak valid");
+  }
+  return { user };
+}
 
 export async function DeleteSession() {
-  const cookieStore = await cookies();
-  const sessionData = cookieStore.get(SESSION_COOKIE_NAME);
-
-  if (!sessionData) {
-    return { code: STATUS_NOT_FOUND, message: "No session token found" };
-  }
-
-  setSecretKey(process.env.SECRET_KEY_PUBLIC_API!);
-  const loggedOut = await trpc.auth.logout({ token: sessionData.value });
-
-  // Match domain/name/flags used by the login repo (ailene-os) so the browser actually deletes it.
-  const domain =
-    process.env.DOMAIN_MODE === "local" ? "example.com" : "ailene.id";
-
-  cookieStore.set(SESSION_COOKIE_NAME, "", {
-    domain,
-    httpOnly: true,
-    secure: true,
-    maxAge: 0,
-  });
-
-  return { code: STATUS_NO_CONTENT, message: loggedOut.message };
+  await logoutSessionApi();
+  return { code: STATUS_NO_CONTENT, message: "Logged out" };
 }

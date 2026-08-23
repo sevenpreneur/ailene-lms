@@ -11,7 +11,9 @@ import LevelLabelStudentAILN from "@/components/labels/LevelLabelStudentAILN";
 import RewardLabelStudentAILN from "@/components/labels/RewardLabelStudentAILN";
 import PageContainerAILN from "@/components/pages/PageContainerAILN";
 import AppErrorComponents from "@/components/states/AppErrorComponents";
+import { CheckSession } from "@/lib/actions";
 import { setSessionToken, trpc } from "@/trpc/client";
+import { useQuery } from "@tanstack/react-query";
 import dayjs from "dayjs";
 import { PlusCircle } from "lucide-react";
 import Link from "next/link";
@@ -26,7 +28,7 @@ export default function DashboardStudentAILN({
     setSessionToken(sessionToken);
   }, [sessionToken]);
 
-  const userQ = trpc.auth.checkSession.useQuery();
+  const userQ = useQuery({ queryKey: ["session"], queryFn: CheckSession });
   const memberQ = trpc.auth.checkAilMember.useQuery();
 
   // Hard-fail only on an actual error — never gate the whole page on loading.

@@ -1,33 +1,7 @@
-import LogError from "@/lib/prisma-log-error";
-import { STATUS_NO_CONTENT, STATUS_OK } from "@/lib/status_code";
-import {
-  createTRPCRouter,
-  loggedInProcedure,
-  publicProcedure,
-} from "@/trpc/init";
-import { stringNotBlank } from "@/trpc/utils/validation";
-import { z } from "zod";
+import { STATUS_OK } from "@/lib/status_code";
+import { createTRPCRouter, loggedInProcedure } from "@/trpc/init";
 
 export const authRouter = createTRPCRouter({
-  checkSession: loggedInProcedure.query((opts) => {
-    const theUser = opts.ctx.user;
-    return {
-      code: STATUS_OK,
-      message: "Success",
-      user: {
-        id: theUser.id,
-        full_name: theUser.full_name,
-        email: theUser.email,
-        phone_country_id: theUser.phone_country_id,
-        phone_number: theUser.phone_number,
-        avatar: theUser.avatar,
-        role_id: theUser.role_id,
-        role_name: theUser.role.name,
-        status: theUser.status,
-      },
-    };
-  }),
-
   checkAilMember: loggedInProcedure.query(async (opts) => {
     const ailMember = await opts.ctx.prisma.ailMember.findUnique({
       where: { user_id: opts.ctx.user.id },
@@ -100,29 +74,4 @@ export const authRouter = createTRPCRouter({
       },
     };
   }),
-
-  logout: publicProcedure
-    .input(
-      z.object({
-        token: stringNotBlank(),
-      })
-    )
-    .mutation(async (opts) => {
-      const deletedTokens = await opts.ctx.prisma.token.deleteMany({
-        where: {
-          token: opts.input.token,
-        },
-      });
-      if (deletedTokens.count > 1) {
-        await LogError(
-          "auth.logout",
-          "More-than-one tokens are removed at once."
-        );
-      }
-
-      return {
-        code: STATUS_NO_CONTENT,
-        message: "Successfully logged out",
-      };
-    }),
 });

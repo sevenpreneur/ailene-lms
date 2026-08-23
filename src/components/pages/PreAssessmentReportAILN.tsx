@@ -6,7 +6,9 @@ import PageContainerAILN from "@/components/pages/PageContainerAILN";
 import AppErrorComponents from "@/components/states/AppErrorComponents";
 import AppLoadingComponents from "@/components/states/AppLoadingComponents";
 import PageHeaderAILN from "@/components/titles/PageHeaderAILN";
+import { CheckSession } from "@/lib/actions";
 import { setSessionToken, trpc } from "@/trpc/client";
+import { useQuery } from "@tanstack/react-query";
 import type { PreAssessmentRecommendation } from "@/lib/pre-assessment-report";
 import type { AppRouter } from "@/trpc/routers/_app";
 import type { inferRouterOutputs } from "@trpc/server";
@@ -72,7 +74,7 @@ function PreAssessmentReportContent({
 }) {
   const router = useRouter();
   const utils = trpc.useUtils();
-  const userQ = trpc.auth.checkSession.useQuery();
+  const userQ = useQuery({ queryKey: ["session"], queryFn: CheckSession });
   const firstName = userQ.data?.user?.full_name?.split(" ")[0] ?? "teman";
 
   // Poll the recommendation endpoint while the worker is still generating.

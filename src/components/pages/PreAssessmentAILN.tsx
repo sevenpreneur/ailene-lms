@@ -9,7 +9,9 @@ import {
   PRE_ASSESSMENT_TYPE_LABELS,
   PreAssessmentQuestion,
 } from "@/lib/pre-assessment-questions";
+import { CheckSession } from "@/lib/actions";
 import { setSessionToken, trpc } from "@/trpc/client";
+import { useQuery } from "@tanstack/react-query";
 import {
   faChevronLeft,
   faChevronRight,
@@ -450,7 +452,7 @@ export default function PreAssessmentAILN({
 }
 
 function PreAssessmentWelcomeAILN({ onStart }: { onStart: () => void }) {
-  const userQ = trpc.auth.checkSession.useQuery();
+  const userQ = useQuery({ queryKey: ["session"], queryFn: CheckSession });
   const firstName = userQ.data?.user?.full_name?.split(" ")[0] ?? "teman";
   const totalQuestions = PRE_ASSESSMENT_QUESTIONS.length;
 
