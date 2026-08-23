@@ -1,133 +1,14 @@
 import LogError from "@/lib/prisma-log-error";
-import {
-  STATUS_BAD_REQUEST,
-  STATUS_FORBIDDEN,
-  STATUS_INTERNAL_SERVER_ERROR,
-  STATUS_NO_CONTENT,
-  STATUS_OK,
-} from "@/lib/status_code";
+import { STATUS_NO_CONTENT, STATUS_OK } from "@/lib/status_code";
 import {
   createTRPCRouter,
   loggedInProcedure,
   publicProcedure,
 } from "@/trpc/init";
-import { GoogleTokenVerifier } from "@/trpc/utils/google_verifier";
 import { stringNotBlank } from "@/trpc/utils/validation";
-import { StatusEnum } from "@prisma/client";
-import { TRPCError } from "@trpc/server";
-import { randomBytes } from "crypto";
-import jwt from "jsonwebtoken";
 import { z } from "zod";
 
 export const authRouter = createTRPCRouter({
-  login: publicProcedure
-    .input(
-      z.object({
-        accessToken: stringNotBlank(),
-      })
-    )
-    .mutation(async (opts) => {
-      const userInfo = await GoogleTokenVerifier(opts.input.accessToken);
-      if (!userInfo) {
-        throw new TRPCError({
-          code: STATUS_BAD_REQUEST,
-          message: "The given credential is not valid.",
-        });
-      }
-
-      const findUser = await opts.ctx.prisma.user.findUnique({
-        where: {
-          email: userInfo.email,
-        },
-      });
-      let registeredUser = findUser;
-
-      if (!findUser) {
-        const createdUser = await opts.ctx.prisma.user.create({
-          data: {
-            full_name: userInfo.name,
-            email: userInfo.email,
-            avatar: userInfo.picture,
-          },
-        });
-        registeredUser = createdUser;
-      } else if (findUser.status === StatusEnum.INACTIVE) {
-        throw new TRPCError({
-          code: STATUS_FORBIDDEN,
-          message: "Your account has been inactivated.",
-        });
-      } else if (findUser.deleted_at !== null) {
-        throw new TRPCError({
-          code: STATUS_FORBIDDEN,
-          message: `Your account has been deleted (${findUser.deleted_at}).`,
-        });
-      } else {
-        if (findUser.full_name === findUser.email) {
-          const updatedProfile = await opts.ctx.prisma.user.updateManyAndReturn(
-            {
-              data: {
-                full_name: userInfo.name,
-                avatar: userInfo.picture,
-              },
-              where: {
-                email: userInfo.email,
-              },
-            }
-          );
-          if (updatedProfile.length > 1) {
-            await LogError(
-              "auth.login",
-              "More-than-one users have its profile updated at once."
-            );
-          }
-          registeredUser = updatedProfile[0];
-        } else if (!findUser.avatar && userInfo.picture) {
-          const updatedAvatar = await opts.ctx.prisma.user.updateManyAndReturn({
-            data: {
-              avatar: userInfo.picture,
-            },
-            where: {
-              email: userInfo.email,
-            },
-          });
-          if (updatedAvatar.length > 1) {
-            await LogError(
-              "auth.login",
-              "More-than-one users have its avatar updated at once."
-            );
-          }
-          registeredUser = updatedAvatar[0];
-        }
-
-        // $executeRaw is used for using the correct CURRENT_TIMESTAMP.
-        const updatedLogin: number = await opts.ctx.prisma
-          .$executeRaw`UPDATE users SET last_login = CURRENT_TIMESTAMP WHERE email = ${userInfo.email};`;
-        if (updatedLogin > 1) {
-          await LogError(
-            "auth.login",
-            "More-than-one users have its last_login updated at once."
-          );
-        }
-      }
-      // registeredUser should be not null
-
-      const generatedToken = randomBytes(64).toString("hex");
-      const createdToken = await opts.ctx.prisma.token.create({
-        data: {
-          user_id: registeredUser!.id,
-          is_active: true,
-          token: generatedToken,
-        },
-      });
-
-      return {
-        code: STATUS_OK,
-        message: "Success",
-        token: createdToken,
-        registered_user: registeredUser,
-      };
-    }),
-
   checkSession: loggedInProcedure.query((opts) => {
     const theUser = opts.ctx.user;
     return {
@@ -217,26 +98,6 @@ export const authRouter = createTRPCRouter({
         role: ailMember.role,
         has_pre_assessment: !!ailMember.pre_assessment,
       },
-    };
-  }),
-
-  createJWT: loggedInProcedure.query((opts) => {
-    const secretKey = process.env.SECRET_KEY_JWT;
-    if (!secretKey || secretKey == "") {
-      throw new TRPCError({
-        code: STATUS_INTERNAL_SERVER_ERROR,
-        message: "No JWT secret key!",
-      });
-    }
-
-    const payload = { user_id: opts.ctx.user.id };
-    const options = { expiresIn: "1h" } as jwt.SignOptions;
-    const createdToken = jwt.sign(payload, secretKey, options);
-
-    return {
-      code: STATUS_OK,
-      message: "Success",
-      token: createdToken,
     };
   }),
 

@@ -13,7 +13,7 @@ export type LmsBackendUser = {
   job_title: string | null;
 };
 
-const SESSION_MAX_AGE = 60 * 60 * 24 * 30;
+const SESSION_MAX_AGE = 60 * 60 * 24 * 365;
 
 // POST /api/auth/login/google is gated by a static shared bearer, not per-user auth — see docs/auth.md in ailene-lms-backend.
 export async function loginWithGoogleAccessToken(
