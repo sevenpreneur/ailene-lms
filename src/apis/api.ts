@@ -1,5 +1,7 @@
 import "server-only";
 
+import LogError from "@/lib/log-error";
+
 export type ApiEnvelope<T = unknown> = {
   success: boolean;
   code: number;
@@ -31,7 +33,8 @@ export async function callApi<T = unknown>(
       body: body !== undefined ? JSON.stringify(body) : undefined,
       cache: "no-store",
     });
-  } catch {
+  } catch (err) {
+    await LogError(`callApi ${method} ${path}`, "fetch failed", err);
     return {
       success: false,
       code: 502,
@@ -40,11 +43,15 @@ export async function callApi<T = unknown>(
     };
   }
 
-  const data = (await response
-    .json()
-    .catch(() => null)) as ApiEnvelope<T> | null;
+  const rawBody = await response.text();
+  const data = safeJsonParse<ApiEnvelope<T>>(rawBody);
 
   if (!data) {
+    await LogError(
+      `callApi ${method} ${path}`,
+      `non-JSON response (${response.status})`,
+      rawBody.slice(0, 500)
+    );
     return {
       success: false,
       code: response.status,
@@ -54,4 +61,12 @@ export async function callApi<T = unknown>(
   }
 
   return data;
+}
+
+function safeJsonParse<T>(raw: string): T | null {
+  try {
+    return JSON.parse(raw) as T;
+  } catch {
+    return null;
+  }
 }
