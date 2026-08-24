@@ -8,6 +8,7 @@ import PageContainerAILN from "@/components/pages/PageContainerAILN";
 import AppErrorComponents from "@/components/states/AppErrorComponents";
 import PageHeaderAILN from "@/components/titles/PageHeaderAILN";
 import { CheckSession } from "@/lib/actions";
+import { useProjectId } from "@/lib/use-project-id";
 import { setSessionToken, trpc } from "@/trpc/client";
 import { useQuery } from "@tanstack/react-query";
 import dayjs from "dayjs";
@@ -85,9 +86,10 @@ export default function MyProgressStudentAILN({
 }
 
 function PreAssessmentReportGateway() {
+  const projectId = useProjectId();
   return (
     <Link
-      href="/student/my-progress/pre-assessment-report"
+      href={`/${projectId}/student/my-progress/pre-assessment-report`}
       className="ailn-card group flex items-center justify-between gap-4 border bg-gray-950 p-5 transition dark:bg-card-1"
     >
       <span className="flex min-w-0 items-center gap-4">

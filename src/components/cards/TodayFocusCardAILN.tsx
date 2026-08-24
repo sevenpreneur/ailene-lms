@@ -2,6 +2,7 @@
 import ButtonAILN from "@/components/buttons/ButtonAILN";
 import GeneralLabelAILN from "@/components/labels/GeneralLabelAILN";
 import AlertConfirmDialogAILN from "@/components/modals/AlertConfirmDialogAILN";
+import { useProjectId } from "@/lib/use-project-id";
 import { trpc } from "@/trpc/client";
 import dayjs from "dayjs";
 import "dayjs/locale/id";
@@ -51,6 +52,7 @@ function formatDeadline(d: Date | string) {
 
 export default function TodayFocusCardAILN() {
   const router = useRouter();
+  const projectId = useProjectId();
   const utils = trpc.useUtils();
   const [isQuizDialogOpen, setIsQuizDialogOpen] = useState(false);
   const q = trpc.read.todayFocus.useQuery();
@@ -91,7 +93,7 @@ export default function TodayFocusCardAILN() {
           dikerjakan.
         </p>
         <div className="mt-3">
-          <Link href="/student/learning-path">
+          <Link href={`/${projectId}/student/learning-path`}>
             <ButtonAILN>Lihat modul belajar</ButtonAILN>
           </Link>
         </div>
@@ -99,14 +101,18 @@ export default function TodayFocusCardAILN() {
     );
   }
 
+  // "Video" kind's href is an external URL — everything else needs project prefixing.
+  const focusHref =
+    focus.kind === "Video" ? focus.href : `/${projectId}${focus.href}`;
+
   const detailHref =
     focus.kind === "PromptPractice" || focus.kind === "UseCasePractice"
       ? focus.level_id != null
-        ? `/student/learning-path?practice=${focus.level_id}`
-        : "/student/learning-path"
+        ? `/${projectId}/student/learning-path?practice=${focus.level_id}`
+        : `/${projectId}/student/learning-path`
       : focus.chapter_id != null
-        ? `/student/learning-path?chapter=${focus.chapter_id}`
-        : "/student/learning-path";
+        ? `/${projectId}/student/learning-path?chapter=${focus.chapter_id}`
+        : `/${projectId}/student/learning-path`;
 
   const jenisLabel =
     labelForKind(focus.kind) +
@@ -162,7 +168,7 @@ export default function TodayFocusCardAILN() {
           <div className="mt-2 flex flex-wrap items-center gap-2">
             {focus.kind === "Video" && (
               <a
-                href={focus.href}
+                href={focusHref}
                 target="_blank"
                 rel="noopener noreferrer"
                 className="inline-block"
@@ -177,7 +183,7 @@ export default function TodayFocusCardAILN() {
               </a>
             )}
             {focus.kind === "Material" && (
-              <Link href={focus.href}>
+              <Link href={focusHref}>
                 <ButtonAILN>
                   Mulai sekarang
                   <ArrowRight className="size-3.5" />
@@ -186,7 +192,7 @@ export default function TodayFocusCardAILN() {
             )}
             {(focus.kind === "PromptPractice" ||
               focus.kind === "UseCasePractice") && (
-              <Link href={focus.href}>
+              <Link href={focusHref}>
                 <ButtonAILN>
                   Mulai sekarang
                   <ArrowRight className="size-3.5" />
@@ -243,7 +249,7 @@ export default function TodayFocusCardAILN() {
           onClose={() => setIsQuizDialogOpen(false)}
           onConfirm={() => {
             setIsQuizDialogOpen(false);
-            router.push(focus.href);
+            router.push(focusHref);
           }}
         />
       )}

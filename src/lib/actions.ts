@@ -7,11 +7,11 @@ import {
 } from "@/apis/auth";
 
 export async function CheckSession() {
-  const user = await checkSessionApi();
-  if (!user) {
+  const session = await checkSessionApi();
+  if (!session) {
     throw new Error("Session tidak valid");
   }
-  return { user };
+  return session;
 }
 
 export async function DeleteSession() {

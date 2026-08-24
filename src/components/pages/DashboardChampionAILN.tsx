@@ -8,6 +8,7 @@ import MembersLabelChampionAILN from "@/components/labels/MembersLabelChampionAI
 import RecentUseCasesAILN from "@/components/indexes/RecentUseCasesAILN";
 import PageContainerAILN from "@/components/pages/PageContainerAILN";
 import AppErrorComponents from "@/components/states/AppErrorComponents";
+import { useProjectId } from "@/lib/use-project-id";
 import { setSessionToken, trpc } from "@/trpc/client";
 import { Activity, Clock, Plus, Send } from "lucide-react";
 import Link from "next/link";
@@ -44,6 +45,8 @@ export default function DashboardChampionAILN({
 }: {
   sessionToken: string;
 }) {
+  const projectId = useProjectId();
+
   useEffect(() => {
     setSessionToken(sessionToken);
   }, [sessionToken]);
@@ -110,7 +113,7 @@ export default function DashboardChampionAILN({
           </h1>
           <div className="flex items-center gap-3">
             <MembersLabelChampionAILN count={stats.total} />
-            <Link href="/champion/assignment">
+            <Link href={`/${projectId}/champion/assignment`}>
               <ButtonAILN variant="champion" size="medium">
                 <Plus className="size-4" />
                 Assign Tugas

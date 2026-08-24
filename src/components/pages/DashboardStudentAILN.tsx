@@ -12,6 +12,7 @@ import RewardLabelStudentAILN from "@/components/labels/RewardLabelStudentAILN";
 import PageContainerAILN from "@/components/pages/PageContainerAILN";
 import AppErrorComponents from "@/components/states/AppErrorComponents";
 import { CheckSession } from "@/lib/actions";
+import { useProjectId } from "@/lib/use-project-id";
 import { setSessionToken, trpc } from "@/trpc/client";
 import { useQuery } from "@tanstack/react-query";
 import dayjs from "dayjs";
@@ -24,6 +25,8 @@ export default function DashboardStudentAILN({
 }: {
   sessionToken: string;
 }) {
+  const projectId = useProjectId();
+
   useEffect(() => {
     setSessionToken(sessionToken);
   }, [sessionToken]);
@@ -72,7 +75,7 @@ export default function DashboardStudentAILN({
             <LevelLabelStudentAILN variant="compact" />
             <RewardLabelStudentAILN variant="compact" />
 
-            <Link href="/student/skill-practice/create">
+            <Link href={`/${projectId}/student/skill-practice/create`}>
               <ButtonAILN variant="student" size="medium">
                 <PlusCircle className="size-4" />
                 Catat Use Case

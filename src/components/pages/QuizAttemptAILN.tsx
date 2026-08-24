@@ -4,6 +4,7 @@ import AlertConfirmDialogAILN from "@/components/modals/AlertConfirmDialogAILN";
 import PageContainerAILN from "@/components/pages/PageContainerAILN";
 import AppLoadingComponents from "@/components/states/AppLoadingComponents";
 import { getDurationFromSeconds } from "@/lib/date-time-manipulation";
+import { useProjectId } from "@/lib/use-project-id";
 import { trpc } from "@/trpc/client";
 import {
   faChevronLeft,
@@ -68,6 +69,7 @@ export default function QuizAttemptAILN({
   data,
 }: QuizAttemptAILNProps) {
   const router = useRouter();
+  const projectId = useProjectId();
   const utils = trpc.useUtils();
   const { quiz, questions } = data;
   const { resolvedTheme } = useTheme();
@@ -214,7 +216,7 @@ export default function QuizAttemptAILN({
   const handleExit = () => setIsExitDialogOpen(true);
   const handleConfirmExit = () => {
     setIsExitDialogOpen(false);
-    router.push("/student");
+    router.push(`/${projectId}/student`);
   };
 
   const isLast = currentIdx === totalQuestions - 1;

@@ -1,6 +1,7 @@
 "use client";
 
 import SectionContainerAILN from "@/components/cards/SectionContainerAILN";
+import { useProjectId } from "@/lib/use-project-id";
 import {
   BookOpen,
   ClipboardList,
@@ -10,6 +11,8 @@ import {
 import Link from "next/link";
 
 export default function QuickActionsAILN() {
+  const projectId = useProjectId();
+
   return (
     <SectionContainerAILN
       title="Aksi Cepat"
@@ -18,19 +21,19 @@ export default function QuickActionsAILN() {
     >
       <div className="grid grid-cols-1 gap-3 sm:grid-cols-3">
         <ActionTileAILN
-          href="/student/learning-path"
+          href={`/${projectId}/student/learning-path`}
           icon={BookOpen}
           title="Lanjutkan Belajar"
           desc="Modul & materi level kamu"
         />
         <ActionTileAILN
-          href="/student/skill-practice"
+          href={`/${projectId}/student/skill-practice`}
           icon={ClipboardList}
           title="Latihan Prompt"
           desc="Skill practice dari Champion"
         />
         <ActionTileAILN
-          href="/student/my-progress"
+          href={`/${projectId}/student/my-progress`}
           icon={LineChart}
           title="Lihat Progres"
           desc="Level, streak & kompetensi"

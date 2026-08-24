@@ -19,6 +19,7 @@ import {
   Star,
   XCircle,
 } from "lucide-react";
+import { useProjectId } from "@/lib/use-project-id";
 import Image from "next/image";
 import Link from "next/link";
 
@@ -121,6 +122,7 @@ export default function SkillPracticeItemAILN(
   props: SkillPracticeItemAILNProps
 ) {
   const { variant, item, unlocked } = props;
+  const projectId = useProjectId();
   const v = variantMeta[variant];
   const status = deriveSkillPracticeStatus(item);
   const sMeta = statusMeta[status];
@@ -140,7 +142,7 @@ export default function SkillPracticeItemAILN(
       Locked
     </ButtonAILN>
   ) : (
-    <Link href={`${v.basePath}/${item.ref_id}`} className="block">
+    <Link href={`/${projectId}${v.basePath}/${item.ref_id}`} className="block">
       <ButtonAILN size="small" className="w-full">
         {ctaLabel}
       </ButtonAILN>

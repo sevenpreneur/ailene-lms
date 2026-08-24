@@ -1,10 +1,12 @@
 "use client";
 
+import { useProjectId } from "@/lib/use-project-id";
 import { trpc } from "@/trpc/client";
 import { Flame, Target } from "lucide-react";
 import Link from "next/link";
 
 export default function MomentumStripAILN() {
+  const projectId = useProjectId();
   const streakQ = trpc.read.streak.useQuery();
   const compQ = trpc.read.competencyProfile.useQuery();
 
@@ -38,7 +40,7 @@ export default function MomentumStripAILN() {
       </div>
 
       <Link
-        href="/student/skill-practice"
+        href={`/${projectId}/student/skill-practice`}
         className="group flex flex-col justify-center gap-1 rounded-lg border border-dashboard-border bg-[#FCFCFD] p-5 transition hover:border-red-300 dark:bg-card-1 dark:hover:border-red-500/40"
       >
         <div className="flex items-center gap-1.5 text-[10px] font-semibold uppercase tracking-widest text-gray-500 dark:text-gray-400">

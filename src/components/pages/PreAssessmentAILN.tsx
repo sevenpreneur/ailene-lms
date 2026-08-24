@@ -10,6 +10,7 @@ import {
   PreAssessmentQuestion,
 } from "@/lib/pre-assessment-questions";
 import { CheckSession } from "@/lib/actions";
+import { useProjectId } from "@/lib/use-project-id";
 import { setSessionToken, trpc } from "@/trpc/client";
 import { useQuery } from "@tanstack/react-query";
 import {
@@ -24,8 +25,6 @@ import { useRouter } from "next/navigation";
 import { useEffect, useMemo, useRef, useState } from "react";
 import { toast } from "sonner";
 import AlertConfirmDialogAILN from "../modals/AlertConfirmDialogAILN";
-
-const PRE_ASSESSMENT_REPORT_PATH = "/student/my-progress/pre-assessment-report";
 
 type AnswerValue = string | string[] | null;
 type AnswerMap = Record<string, AnswerValue>;
@@ -46,6 +45,8 @@ export default function PreAssessmentAILN({
 }: PreAssessmentAILNProps) {
   const utils = trpc.useUtils();
   const router = useRouter();
+  const projectId = useProjectId();
+  const preAssessmentReportPath = `/${projectId}/student/my-progress/pre-assessment-report`;
   const { resolvedTheme } = useTheme();
   const [mounted, setMounted] = useState(false);
   useEffect(() => {
@@ -64,9 +65,9 @@ export default function PreAssessmentAILN({
   // Sudah pernah mengisi → hasilnya ada di halaman report, bukan di sini.
   useEffect(() => {
     if (data?.pre_assessment) {
-      router.replace(PRE_ASSESSMENT_REPORT_PATH);
+      router.replace(preAssessmentReportPath);
     }
-  }, [data?.pre_assessment, router]);
+  }, [data?.pre_assessment, router, preAssessmentReportPath]);
 
   const submittedRef = useRef(false);
 
@@ -103,7 +104,7 @@ export default function PreAssessmentAILN({
     onSuccess: () => {
       utils.read.preAssessmentMine.invalidate();
       toast.success("Pre-assessment berhasil dikirim.");
-      router.push(PRE_ASSESSMENT_REPORT_PATH);
+      router.push(preAssessmentReportPath);
     },
     onError: (err) => {
       submittedRef.current = false;

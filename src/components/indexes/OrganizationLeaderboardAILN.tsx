@@ -2,6 +2,7 @@
 import SectionContainerAILN from "@/components/cards/SectionContainerAILN";
 import { SkeletonBlockAILN } from "@/components/states/DataStatesAILN";
 import { formatDecimal, formatInt } from "@/lib/format";
+import { useProjectId } from "@/lib/use-project-id";
 import { trpc } from "@/trpc/client";
 import { ArrowDown, ArrowUp } from "lucide-react";
 import { useRouter } from "next/navigation";
@@ -62,6 +63,7 @@ function scoreBar(ratio: number): string {
 export default function OrganizationLeaderboardAILN() {
   const q = trpc.read.organizationLeaderboard.useQuery();
   const router = useRouter();
+  const projectId = useProjectId();
   const [sortKey, setSortKey] = useState<SortKey>("avg_score");
 
   const sortControl = (
@@ -130,7 +132,7 @@ export default function OrganizationLeaderboardAILN() {
                 return (
                   <tr
                     key={d.id}
-                    onClick={() => router.push(`/sponsor/groups/${d.id}`)}
+                    onClick={() => router.push(`/${projectId}/sponsor/groups/${d.id}`)}
                     className="cursor-pointer border-b border-dashboard-border/60 transition-colors last:border-0 hover:bg-muted/50"
                   >
                     {/* Departemen */}

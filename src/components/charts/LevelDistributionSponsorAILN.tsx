@@ -3,6 +3,7 @@ import SectionContainerAILN from "@/components/cards/SectionContainerAILN";
 import { SkeletonBlockAILN } from "@/components/states/DataStatesAILN";
 import { levelColorByNumber } from "@/lib/level-colors";
 import { formatInt } from "@/lib/format";
+import { useProjectId } from "@/lib/use-project-id";
 import { trpc } from "@/trpc/client";
 import { ArrowRight } from "lucide-react";
 import Link from "next/link";
@@ -42,8 +43,6 @@ const SEGMENTS = [
     desc: "Tertahan di Level 0–1 · perlu intervensi",
   },
 ] as const;
-
-const DETAIL_HREF = "/sponsor/workforce";
 
 export default function LevelDistributionSponsorAILN({
   showDetailLink = true,
@@ -153,6 +152,8 @@ function Section({
   children: React.ReactNode;
   showDetailLink?: boolean;
 }) {
+  const projectId = useProjectId();
+
   return (
     <SectionContainerAILN
       title="Distribusi Karyawan"
@@ -160,7 +161,7 @@ function Section({
       headerRight={
         showDetailLink ? (
           <Link
-            href={DETAIL_HREF}
+            href={`/${projectId}/sponsor/workforce`}
             className="inline-flex items-center gap-1 text-sm font-semibold text-violet-600 transition-colors hover:text-violet-700 dark:text-violet-400 dark:hover:text-violet-300"
           >
             Lihat Detail

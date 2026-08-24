@@ -1,5 +1,6 @@
 "use client";
 import SectionContainerAILN from "@/components/cards/SectionContainerAILN";
+import { useProjectId } from "@/lib/use-project-id";
 import { trpc } from "@/trpc/client";
 import dayjs from "dayjs";
 import relativeTime from "dayjs/plugin/relativeTime";
@@ -8,6 +9,7 @@ import Link from "next/link";
 dayjs.extend(relativeTime);
 
 export default function RecentUseCasesAILN() {
+  const projectId = useProjectId();
   const q = trpc.list.useCaseSubmissions.useQuery();
 
   const items = (q.data?.list ?? [])
@@ -59,7 +61,7 @@ export default function RecentUseCasesAILN() {
       )}
 
       <Link
-        href="/champion/submissions/use-cases"
+        href={`/${projectId}/champion/submissions/use-cases`}
         className="mt-4 block rounded-lg border border-dashboard-border py-2 text-center text-xs font-semibold text-emerald-600 transition hover:bg-emerald-50 dark:text-emerald-400 dark:hover:bg-emerald-500/10"
       >
         Lihat semua use case

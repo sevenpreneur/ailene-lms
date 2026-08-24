@@ -5,6 +5,7 @@ import ThemeSwitcherAILN from "@/components/buttons/ThemeSwitcherAILN";
 import { useSidebar } from "@/contexts/SidebarContext";
 import { CheckSession, DeleteSession } from "@/lib/actions";
 import { LOGIN_URL } from "@/lib/config";
+import { useProjectId } from "@/lib/use-project-id";
 import { setSessionToken, trpc } from "@/trpc/client";
 import { useQuery } from "@tanstack/react-query";
 import {
@@ -203,6 +204,7 @@ export default function SidebarAILN({
   variant: SidebarAILNVariant;
 }) {
   const config = VARIANT_CONFIG[variant];
+  const projectId = useProjectId();
   const { isCollapsed, toggleSidebar } = useSidebar();
   const { resolvedTheme } = useTheme();
   const [mounted, setMounted] = useState(false);
@@ -317,15 +319,16 @@ export default function SidebarAILN({
 
         <nav className="flex flex-1 flex-col gap-2 overflow-y-auto">
           {config.menu.map((item) => {
+            const url = `/${projectId}${item.url}`;
             const active = item.exact
-              ? pathname === item.url
-              : pathname.startsWith(item.url);
+              ? pathname === url
+              : pathname.startsWith(url);
             const Icon = item.icon;
 
             return (
               <Link
                 key={item.url}
-                href={item.url}
+                href={url}
                 className={`relative flex items-center gap-3 rounded-md p-2 text-sm transition ${
                   active ? config.classes.active : INACTIVE_CLASSES
                 } ${isCollapsed ? "justify-center" : "pl-3.5"}`}
@@ -349,7 +352,7 @@ export default function SidebarAILN({
                 className={`my-1 border-t border-dashboard-border ${config.classes.divider}`}
               />
               <Link
-                href="/student/skill-practice/create"
+                href={`/${projectId}/student/skill-practice/create`}
                 title="Catat Use Case"
                 className={`flex items-center gap-3 rounded-md p-2 text-sm font-medium text-stakeholder-student-foreground transition hover:bg-red-50 dark:hover:bg-red-500/10 ${
                   isCollapsed ? "justify-center" : ""
@@ -471,9 +474,11 @@ function RoleSwitch({
   variant: SidebarAILNVariant;
   memberRole?: string;
 }) {
+  const projectId = useProjectId();
+
   if (variant === "STUDENT" && memberRole === "CHAMPION") {
     return (
-      <Link href="/champion" className="mt-2 block">
+      <Link href={`/${projectId}/champion`} className="mt-2 block">
         <ButtonAILN variant="neutral" size="small" className="w-full">
           <UserRoundKey className="size-4" />
           Mode Champion
@@ -484,7 +489,7 @@ function RoleSwitch({
 
   if (variant === "CHAMPION") {
     return (
-      <Link href="/student" className="mt-2 block">
+      <Link href={`/${projectId}/student`} className="mt-2 block">
         <ButtonAILN variant="neutral" size="small" className="w-full">
           <UserRound className="size-4" />
           Mode Student

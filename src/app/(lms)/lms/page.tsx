@@ -1,18 +1,15 @@
-import AppPageState from "@/components/states/AppPageState";
+import NoProjectStateAILN from "@/components/states/NoProjectStateAILN";
+import { checkSession } from "@/apis/auth";
 import { LOGIN_URL } from "@/lib/config";
-import { getProgramGate } from "@/lib/gate";
 import { redirect } from "next/navigation";
 
 export default async function AILNRootPage() {
-  const { sessionToken, ailMember } = await getProgramGate();
+  const session = await checkSession();
 
-  if (!sessionToken) redirect(LOGIN_URL);
+  if (!session) redirect(LOGIN_URL);
 
-  if (!ailMember) return <AppPageState variant="FORBIDDEN" />;
+  const firstProject = session.project_access[0];
+  if (!firstProject) return <NoProjectStateAILN />;
 
-  if (ailMember.role === "CHAMPION") redirect("/champion");
-  if (ailMember.role === "STUDENT") redirect("/student");
-  if (ailMember.role === "SPONSOR") redirect("/sponsor");
-
-  return <AppPageState variant="FORBIDDEN" />;
+  redirect(`/${firstProject.project_id}/${firstProject.role}`);
 }

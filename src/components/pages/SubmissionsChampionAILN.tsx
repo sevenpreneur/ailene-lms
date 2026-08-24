@@ -7,6 +7,7 @@ import SubmissionItemChampion, {
 import PageContainerAILN from "@/components/pages/PageContainerAILN";
 import PageHeaderAILN from "@/components/titles/PageHeaderAILN";
 import AppErrorComponents from "@/components/states/AppErrorComponents";
+import { useProjectId } from "@/lib/use-project-id";
 import { setSessionToken, trpc } from "@/trpc/client";
 import dayjs from "dayjs";
 import { ClipboardList } from "lucide-react";
@@ -23,6 +24,8 @@ export default function SubmissionsChampionAILN({
 }: {
   sessionToken: string;
 }) {
+  const projectId = useProjectId();
+
   useEffect(() => {
     setSessionToken(sessionToken);
   }, [sessionToken]);
@@ -37,7 +40,7 @@ export default function SubmissionsChampionAILN({
       (r): SubmissionRow => ({
         id: r.id,
         kind: "PROMPT",
-        href: `/champion/submissions/prompts/${r.id}`,
+        href: `/${projectId}/champion/submissions/prompts/${r.id}`,
         level_number: r.prompt.level.level_number,
         title: r.prompt.name,
         body: r.prompt.scenario,
@@ -55,7 +58,7 @@ export default function SubmissionsChampionAILN({
       (r): SubmissionRow => ({
         id: r.id,
         kind: "USE_CASE",
-        href: `/champion/submissions/use-cases/${r.id}`,
+        href: `/${projectId}/champion/submissions/use-cases/${r.id}`,
         level_number: r.use_case.level.level_number,
         title: r.use_case.name,
         body: r.use_case.description,

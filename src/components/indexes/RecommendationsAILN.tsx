@@ -2,6 +2,7 @@
 import GeneralLabelAILN, {
   type GeneralLabelVariantAILN,
 } from "@/components/labels/GeneralLabelAILN";
+import { useProjectId } from "@/lib/use-project-id";
 import { trpc } from "@/trpc/client";
 import {
   ArrowRight,
@@ -68,6 +69,7 @@ function RecommendationIcon({ item }: { item: RecItem }) {
 
 export default function RecommendationsAILN() {
   const router = useRouter();
+  const projectId = useProjectId();
   const utils = trpc.useUtils();
   const q = trpc.read.recommendations.useQuery();
   const selfAssignM = trpc.create.selfAssignUseCase.useMutation();
@@ -84,7 +86,7 @@ export default function RecommendationsAILN() {
         onSuccess: () => {
           utils.list.memberUseCaseLibrary.invalidate();
           utils.list.practiceSubmissions.invalidate();
-          router.push(`/student/skill-practice/use-cases/${item.id}`);
+          router.push(`/${projectId}/student/skill-practice/use-cases/${item.id}`);
         },
         onError: (err) => {
           toast.error("Gagal membuka use case", {
@@ -145,6 +147,8 @@ function RecommendationHeader({
 }: {
   levelNumber: number;
 }) {
+  const projectId = useProjectId();
+
   return (
     <div className="flex flex-wrap items-center justify-between gap-3">
       <div className="flex flex-col gap-0.5">
@@ -156,7 +160,7 @@ function RecommendationHeader({
         </p>
       </div>
       <Link
-        href="/student/skill-practice?tab=library"
+        href={`/${projectId}/student/skill-practice?tab=library`}
         className="inline-flex items-center gap-1 text-sm font-semibold text-red-600 transition hover:text-red-700 hover:underline dark:text-red-400 dark:hover:text-red-300"
       >
         Lihat semua
@@ -175,11 +179,12 @@ function RecommendationCard({
   isStarting: boolean;
   onStart: () => void;
 }) {
+  const projectId = useProjectId();
   const category = item.category ?? "Use Case";
 
   return (
     <Link
-      href={`/student/skill-practice/use-cases/${item.id}`}
+      href={`/${projectId}/student/skill-practice/use-cases/${item.id}`}
       onClick={(event) => {
         event.preventDefault();
         if (!isStarting) onStart();

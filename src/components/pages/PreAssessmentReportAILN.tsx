@@ -7,6 +7,7 @@ import AppErrorComponents from "@/components/states/AppErrorComponents";
 import AppLoadingComponents from "@/components/states/AppLoadingComponents";
 import PageHeaderAILN from "@/components/titles/PageHeaderAILN";
 import { CheckSession } from "@/lib/actions";
+import { useProjectId } from "@/lib/use-project-id";
 import { setSessionToken, trpc } from "@/trpc/client";
 import { useQuery } from "@tanstack/react-query";
 import type { PreAssessmentRecommendation } from "@/lib/pre-assessment-report";
@@ -36,6 +37,7 @@ export default function PreAssessmentReportAILN({
   sessionToken,
 }: PreAssessmentReportAILNProps) {
   const router = useRouter();
+  const projectId = useProjectId();
 
   useEffect(() => {
     if (sessionToken) setSessionToken(sessionToken);
@@ -45,9 +47,9 @@ export default function PreAssessmentReportAILN({
 
   useEffect(() => {
     if (data && !data.report) {
-      router.replace("/student/pre-assessment");
+      router.replace(`/${projectId}/student/pre-assessment`);
     }
-  }, [data, router]);
+  }, [data, router, projectId]);
 
   if (isLoading || (data && !data.report)) {
     return (
@@ -73,6 +75,7 @@ function PreAssessmentReportContent({
   report: PreAssessmentReportData;
 }) {
   const router = useRouter();
+  const projectId = useProjectId();
   const utils = trpc.useUtils();
   const userQ = useQuery({ queryKey: ["session"], queryFn: CheckSession });
   const firstName = userQ.data?.user?.full_name?.split(" ")[0] ?? "teman";
@@ -222,7 +225,7 @@ function PreAssessmentReportContent({
         </SectionContainerAILN>
 
         <div className="flex justify-end">
-          <ButtonAILN onClick={() => router.push("/student/learning-path")}>
+          <ButtonAILN onClick={() => router.push(`/${projectId}/student/learning-path`)}>
             Mulai Belajar
             <ArrowRight className="size-4" />
           </ButtonAILN>

@@ -3,6 +3,7 @@ import SectionContainerAILN from "@/components/cards/SectionContainerAILN";
 import GeneralLabelAILN, {
   type GeneralLabelVariantAILN,
 } from "@/components/labels/GeneralLabelAILN";
+import { useProjectId } from "@/lib/use-project-id";
 import type { AppRouter } from "@/trpc/routers/_app";
 import type { inferRouterOutputs } from "@trpc/server";
 import dayjs from "dayjs";
@@ -103,6 +104,7 @@ function MemberAvatar({ name, src }: { name: string; src: string | null }) {
 
 export default function ChampionTeamMembersAILN(props: { members: Member[] }) {
   const router = useRouter();
+  const projectId = useProjectId();
   const [statusFilter, setStatusFilter] = useState<"" | StatusKey>("");
   const [search, setSearch] = useState("");
   const [filterOpen, setFilterOpen] = useState(false);
@@ -236,7 +238,7 @@ export default function ChampionTeamMembersAILN(props: { members: Member[] }) {
                     (m.current_level.level_number - 1 + LEVEL_VARIANTS.length) %
                       LEVEL_VARIANTS.length
                   ];
-                const href = `/champion/members?member_id=${m.member_id}`;
+                const href = `/${projectId}/champion/members?member_id=${m.member_id}`;
                 return (
                   <tr
                     key={m.member_id}

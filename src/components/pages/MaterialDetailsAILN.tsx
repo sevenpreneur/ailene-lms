@@ -6,6 +6,7 @@ import PageContainerAILN from "@/components/pages/PageContainerAILN";
 import AppErrorComponents from "@/components/states/AppErrorComponents";
 import AppLoadingComponents from "@/components/states/AppLoadingComponents";
 import PageHeaderAILN from "@/components/titles/PageHeaderAILN";
+import { useProjectId } from "@/lib/use-project-id";
 import { setSessionToken, trpc } from "@/trpc/client";
 import {
   faArrowUpRightFromSquare,
@@ -106,6 +107,8 @@ export default function MaterialDetailsAILN({
   sessionToken,
   materialId,
 }: MaterialDetailsAILNProps) {
+  const projectId = useProjectId();
+
   useEffect(() => {
     if (sessionToken) setSessionToken(sessionToken);
   }, [sessionToken]);
@@ -359,7 +362,7 @@ export default function MaterialDetailsAILN({
                     {otherMaterials.map((m) => (
                       <Link
                         key={m.id}
-                        href={`/student/materials/${m.id}`}
+                        href={`/${projectId}/student/materials/${m.id}`}
                         className="flex items-start gap-2 rounded-md px-2 py-2 transition-colors hover:bg-gray-50 dark:hover:bg-card-2"
                       >
                         <span className="w-7 shrink-0 text-xs text-gray-400 dark:text-gray-500">
@@ -411,7 +414,7 @@ export default function MaterialDetailsAILN({
           <nav className="flex items-stretch justify-between gap-3 border-t border-dashboard-border pt-6">
             {prevMaterial ? (
               <Link
-                href={`/student/materials/${prevMaterial.id}`}
+                href={`/${projectId}/student/materials/${prevMaterial.id}`}
                 className="group flex w-[35%] items-center gap-3 rounded-xl border border-dashboard-border bg-white p-3 transition-colors hover:border-black/30 hover:bg-black/[0.02] dark:bg-card-1 dark:hover:border-white/30 dark:hover:bg-white/10"
               >
                 <FontAwesomeIcon
@@ -432,7 +435,7 @@ export default function MaterialDetailsAILN({
             )}
             {nextMaterial ? (
               <Link
-                href={`/student/materials/${nextMaterial.id}`}
+                href={`/${projectId}/student/materials/${nextMaterial.id}`}
                 className="group flex w-[35%] items-center justify-end gap-3 rounded-xl border border-dashboard-border bg-white p-3 text-right transition-colors hover:border-black/30 hover:bg-black/[0.02] dark:bg-card-1 dark:hover:border-white/30 dark:hover:bg-white/10"
               >
                 <span className="flex min-w-0 flex-col items-end">

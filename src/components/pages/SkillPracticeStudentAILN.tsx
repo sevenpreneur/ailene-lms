@@ -9,6 +9,7 @@ import SkillPracticeCardAILN, {
 import PageContainerAILN from "@/components/pages/PageContainerAILN";
 import AppErrorComponents from "@/components/states/AppErrorComponents";
 import PageHeaderAILN from "@/components/titles/PageHeaderAILN";
+import { useProjectId } from "@/lib/use-project-id";
 import { setSessionToken, trpc } from "@/trpc/client";
 import dayjs from "dayjs";
 import "dayjs/locale/id";
@@ -57,10 +58,10 @@ interface LibraryItem {
   } | null;
 }
 
-function practiceHref(kind: PracticeKind, refId: number) {
+function practiceHref(projectId: string, kind: PracticeKind, refId: number) {
   return kind === "PROMPT"
-    ? `/student/skill-practice/prompts/${refId}`
-    : `/student/skill-practice/use-cases/${refId}`;
+    ? `/${projectId}/student/skill-practice/prompts/${refId}`
+    : `/${projectId}/student/skill-practice/use-cases/${refId}`;
 }
 
 function tabFromParam(value: string | null): PracticeTab {
@@ -91,6 +92,7 @@ export default function SkillPracticeStudentAILN({
   sessionToken: string;
 }) {
   const searchParams = useSearchParams();
+  const projectId = useProjectId();
 
   useEffect(() => {
     setSessionToken(sessionToken);
@@ -122,7 +124,7 @@ export default function SkillPracticeStudentAILN({
         id: r.id,
         kind: "PROMPT" as const,
         ref_id: r.prompt.id,
-        href: practiceHref("PROMPT", r.prompt.id),
+        href: practiceHref(projectId, "PROMPT", r.prompt.id),
         title: r.prompt.name,
         body: r.prompt.scenario,
         level_number: r.prompt.level.level_number,
@@ -141,7 +143,7 @@ export default function SkillPracticeStudentAILN({
         id: r.id,
         kind: "USE_CASE" as const,
         ref_id: r.use_case.id,
-        href: practiceHref("USE_CASE", r.use_case.id),
+        href: practiceHref(projectId, "USE_CASE", r.use_case.id),
         title: r.use_case.name,
         body: r.use_case.description,
         level_number: r.use_case.level.level_number,
@@ -165,7 +167,7 @@ export default function SkillPracticeStudentAILN({
         dayjs(b.deadline ?? "9999-12-31").valueOf()
       );
     });
-  }, [assignedPromptsQ.data, assignedUseCasesQ.data]);
+  }, [assignedPromptsQ.data, assignedUseCasesQ.data, projectId]);
 
   const libraryItems = useMemo<LibraryItem[]>(() => {
     const prompts =
@@ -173,7 +175,7 @@ export default function SkillPracticeStudentAILN({
         id: r.id,
         kind: "PROMPT" as const,
         ref_id: r.id,
-        href: practiceHref("PROMPT", r.id),
+        href: practiceHref(projectId, "PROMPT", r.id),
         title: r.name,
         body: r.scenario,
         level_number: r.level.level_number,
@@ -196,7 +198,7 @@ export default function SkillPracticeStudentAILN({
         id: r.id,
         kind: "USE_CASE" as const,
         ref_id: r.id,
-        href: practiceHref("USE_CASE", r.id),
+        href: practiceHref(projectId, "USE_CASE", r.id),
         title: r.name,
         body: r.description,
         level_number: r.level.level_number,
@@ -220,7 +222,7 @@ export default function SkillPracticeStudentAILN({
       }
       return a.title.localeCompare(b.title);
     });
-  }, [libraryPromptsQ.data, libraryUseCasesQ.data]);
+  }, [libraryPromptsQ.data, libraryUseCasesQ.data, projectId]);
 
   const historyItems = useMemo<PracticeItem[]>(() => {
     return (
@@ -228,7 +230,7 @@ export default function SkillPracticeStudentAILN({
         id: r.id,
         kind: r.kind,
         ref_id: r.ref_id,
-        href: practiceHref(r.kind, r.ref_id),
+        href: practiceHref(projectId, r.kind, r.ref_id),
         title: r.title,
         body: r.body,
         level_number: r.level.level_number,
@@ -242,7 +244,7 @@ export default function SkillPracticeStudentAILN({
         is_accepted: r.is_accepted,
       })) ?? []
     );
-  }, [submissionsQ.data]);
+  }, [submissionsQ.data, projectId]);
 
   const pendingAssignedCount = assignedItems.filter(
     (item) => deriveStatus(item) === "PENDING_SUBMIT"
@@ -262,7 +264,7 @@ export default function SkillPracticeStudentAILN({
           title="Latihan Skill"
           desc="Tingkatkan kemampuanmu dengan latihan yang relevan."
         >
-          <Link href="/student/skill-practice/create">
+          <Link href={`/${projectId}/student/skill-practice/create`}>
             <ButtonAILN type="button" variant="primary" className="shrink-0">
               <Plus className="size-4" />
               Catat Latihan

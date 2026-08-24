@@ -6,15 +6,18 @@ import { ReactNode } from "react";
 
 export default async function GatedStudentLayout({
   children,
+  params,
 }: {
   children: ReactNode;
+  params: Promise<{ project_id: string }>;
 }) {
+  const { project_id } = await params;
   const { sessionToken, ailMember } = await getProgramGate();
   if (!sessionToken) redirect(LOGIN_URL);
 
   // Force pre-assessment completion before accessing any other student route.
   if (ailMember && !ailMember.has_pre_assessment) {
-    redirect("/student/pre-assessment");
+    redirect(`/${project_id}/student/pre-assessment`);
   }
 
   return (

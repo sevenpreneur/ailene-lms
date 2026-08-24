@@ -12,6 +12,20 @@ export type LmsBackendUser = {
   job_title: string | null;
 };
 
+export type LmsProjectRole = "champion" | "student" | "sponsor";
+
+export type LmsProjectAccess = {
+  project_id: string;
+  project_name: string;
+  project_avatar: string | null;
+  role: LmsProjectRole;
+};
+
+export type LmsSession = {
+  user: LmsBackendUser;
+  project_access: LmsProjectAccess[];
+};
+
 const SESSION_MAX_AGE = 60 * 60 * 24 * 365;
 
 // POST /api/auth/login/google is gated by a static shared bearer, not per-user auth — see docs/auth.md in ailene-lms-backend.
@@ -55,14 +69,14 @@ export async function loginWithGoogleAccessToken(
   return { success: true, user: result.data.user };
 }
 
-export async function checkSession(): Promise<LmsBackendUser | null> {
+export async function checkSession(): Promise<LmsSession | null> {
   const cookieStore = await cookies();
   const sessionToken = cookieStore.get(SESSION_COOKIE_NAME)?.value;
   if (!sessionToken) {
     return null;
   }
 
-  const result = await callApi<LmsBackendUser>("/api/auth/check-session", {
+  const result = await callApi<LmsSession>("/api/auth/check-session", {
     method: "POST",
     token: sessionToken,
   });
@@ -76,7 +90,10 @@ export async function logoutSession(): Promise<void> {
 
   if (sessionToken) {
     try {
-      await callApi("/api/auth/logout", { method: "POST", token: sessionToken });
+      await callApi("/api/auth/logout", {
+        method: "POST",
+        token: sessionToken,
+      });
     } catch {
       // Clear the cookie below regardless of whether the backend call succeeded.
     }

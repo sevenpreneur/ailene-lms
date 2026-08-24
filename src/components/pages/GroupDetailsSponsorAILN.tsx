@@ -23,6 +23,7 @@ import {
 import SkeletonGroupDetailAILN from "@/components/states/SkeletonGroupDetailAILN";
 import PageHeaderAILN from "@/components/titles/PageHeaderAILN";
 import { formatDecimal, formatScore } from "@/lib/format";
+import { useProjectId } from "@/lib/use-project-id";
 import { setSessionToken, trpc } from "@/trpc/client";
 import { ChevronDown, Download } from "lucide-react";
 import { useRouter } from "next/navigation";
@@ -40,6 +41,7 @@ export default function GroupDetailsSponsorAILN({
   }, [sessionToken]);
 
   const router = useRouter();
+  const projectId = useProjectId();
   const pdf = usePdfReport();
   const input = { group_id: groupId };
   const departmentsQ = trpc.read.group.departments.useQuery();
@@ -202,7 +204,7 @@ export default function GroupDetailsSponsorAILN({
             <select
               value={selectedDepartment?.id ?? groupId}
               onChange={(event) =>
-                router.push(`/sponsor/groups/${event.target.value}`)
+                router.push(`/${projectId}/sponsor/groups/${event.target.value}`)
               }
               className="h-9 appearance-none rounded-md border border-dashboard-border bg-white pl-3 pr-8 text-xs font-medium text-gray-700 outline-none transition hover:bg-gray-50 dark:bg-card-1 dark:text-gray-200 dark:hover:bg-card-2"
             >

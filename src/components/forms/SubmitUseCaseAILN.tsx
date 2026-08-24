@@ -13,6 +13,7 @@ import AppErrorComponents from "@/components/states/AppErrorComponents";
 import AppPageState from "@/components/states/AppPageState";
 import PageHeaderAILN from "@/components/titles/PageHeaderAILN";
 import { supabase } from "@/lib/supabase";
+import { useProjectId } from "@/lib/use-project-id";
 import { setSessionToken, trpc } from "@/trpc/client";
 import { AilUseCaseFrequency, AilUseCaseType } from "@prisma/client";
 import dayjs from "dayjs";
@@ -169,6 +170,7 @@ export default function SubmitUseCaseAILN({
   }, [sessionToken]);
 
   const router = useRouter();
+  const projectId = useProjectId();
   const utils = trpc.useUtils();
   const assignmentQ = trpc.read.useCaseAssignment.useQuery({
     use_case_id: useCaseId,
@@ -422,7 +424,7 @@ export default function SubmitUseCaseAILN({
           utils.list.assignedUseCases.invalidate();
           utils.list.memberUseCaseLibrary.invalidate();
           utils.list.practiceSubmissions.invalidate();
-          router.push("/student/skill-practice");
+          router.push(`/${projectId}/student/skill-practice`);
         },
         onError: (err) => {
           toast.error("Gagal kirim", { description: err.message });
@@ -897,7 +899,7 @@ export default function SubmitUseCaseAILN({
               )}
               {isLocked && (
                 <Link
-                  href="/student/skill-practice"
+                  href={`/${projectId}/student/skill-practice`}
                   className="self-center text-sm text-gray-500 underline dark:text-gray-400"
                 >
                   Kembali ke daftar tugas

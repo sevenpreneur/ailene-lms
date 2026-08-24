@@ -8,6 +8,7 @@ import {
   levelColorByCode,
   levelTextColorByCode,
 } from "@/lib/level-colors";
+import { useProjectId } from "@/lib/use-project-id";
 import Link from "next/link";
 
 /**
@@ -38,9 +39,10 @@ export default function DepartmentDistributionRowAILN({
   dimmed?: boolean;
   showFlag?: boolean;
 }) {
+  const projectId = useProjectId();
   return (
     <Link
-      href={`/sponsor/groups/${group.id}`}
+      href={`/${projectId}/sponsor/groups/${group.id}`}
       className={`grid grid-cols-[minmax(7rem,10rem)_minmax(0,1fr)_3.5rem] items-center gap-3 rounded-md px-2 py-1 text-sm transition hover:bg-muted dark:hover:bg-card-2 ${
         dimmed ? "opacity-40" : ""
       } ${

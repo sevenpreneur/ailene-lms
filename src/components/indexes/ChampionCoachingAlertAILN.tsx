@@ -1,4 +1,5 @@
 "use client";
+import { useProjectId } from "@/lib/use-project-id";
 import type { AppRouter } from "@/trpc/routers/_app";
 import type { inferRouterOutputs } from "@trpc/server";
 import dayjs from "dayjs";
@@ -88,6 +89,7 @@ function CoachAvatar({ name, src }: { name: string; src: string | null }) {
 export default function ChampionCoachingAlertAILN(props: {
   members: Member[];
 }) {
+  const projectId = useProjectId();
   const alerts = props.members.filter(
     (m) => m.status === "at_risk" || m.status === "behind"
   );
@@ -143,7 +145,7 @@ export default function ChampionCoachingAlertAILN(props: {
                 {buildTalkingPoint(m, mentor)}
               </p>
               <Link
-                href={`/champion/members?member_id=${m.member_id}`}
+                href={`/${projectId}/champion/members?member_id=${m.member_id}`}
                 className="flex items-center justify-center gap-1.5 rounded-lg border border-violet-200 px-3 py-1.5 text-xs font-semibold text-violet-700 transition hover:bg-violet-50 dark:border-violet-500/30 dark:text-violet-300 dark:hover:bg-violet-500/10"
               >
                 Buka 1:1 prep brief

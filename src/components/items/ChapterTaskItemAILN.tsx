@@ -4,6 +4,7 @@ import GeneralLabelAILN, {
   type GeneralLabelVariantAILN,
 } from "@/components/labels/GeneralLabelAILN";
 import { TaskVariant } from "@/lib/app-types";
+import { useProjectId } from "@/lib/use-project-id";
 import { trpc } from "@/trpc/client";
 import {
   faBookOpen,
@@ -90,6 +91,7 @@ type ChapterTaskItemAILNProps =
     };
 
 export default function ChapterTaskItemAILN(props: ChapterTaskItemAILNProps) {
+  const projectId = useProjectId();
   const style = variantStyles[props.variant];
   const router = useRouter();
   const utils = trpc.useUtils();
@@ -131,7 +133,7 @@ export default function ChapterTaskItemAILN(props: ChapterTaskItemAILNProps) {
         Locked
       </ButtonAILN>
     ) : hasAttempt ? (
-      <Link href={`/student/quizzes/${props.quiz.id}`} className="block">
+      <Link href={`/${projectId}/student/quizzes/${props.quiz.id}`} className="block">
         <ButtonAILN size="small" className="w-full">
           Lihat Hasil
         </ButtonAILN>
@@ -191,7 +193,7 @@ export default function ChapterTaskItemAILN(props: ChapterTaskItemAILNProps) {
       </ButtonAILN>
     ) : (
       <Link
-        href={`/student/materials/${props.material.id}`}
+        href={`/${projectId}/student/materials/${props.material.id}`}
         target="_blank"
         rel="noopener noreferrer"
       >
@@ -278,7 +280,7 @@ export default function ChapterTaskItemAILN(props: ChapterTaskItemAILNProps) {
           onClose={() => setIsStartQuizDialogOpen(false)}
           onConfirm={() => {
             setIsStartQuizDialogOpen(false);
-            router.push(`/student/quizzes/${quizId}`);
+            router.push(`/${projectId}/student/quizzes/${quizId}`);
           }}
         />
       )}

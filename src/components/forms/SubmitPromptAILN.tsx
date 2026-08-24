@@ -9,6 +9,7 @@ import PageContainerAILN from "@/components/pages/PageContainerAILN";
 import AppErrorComponents from "@/components/states/AppErrorComponents";
 import AppPageState from "@/components/states/AppPageState";
 import PageHeaderAILN from "@/components/titles/PageHeaderAILN";
+import { useProjectId } from "@/lib/use-project-id";
 import { setSessionToken, trpc } from "@/trpc/client";
 import dayjs from "dayjs";
 import {
@@ -106,6 +107,7 @@ export default function SubmitPromptAILN({
   }, [sessionToken]);
 
   const router = useRouter();
+  const projectId = useProjectId();
   const utils = trpc.useUtils();
   const assignmentQ = trpc.read.promptAssignment.useQuery({
     prompt_id: promptId,
@@ -212,7 +214,7 @@ export default function SubmitPromptAILN({
           utils.list.assignedPrompts.invalidate();
           utils.list.memberPromptLibrary.invalidate();
           utils.list.practiceSubmissions.invalidate();
-          router.push("/student/skill-practice");
+          router.push(`/${projectId}/student/skill-practice`);
         },
         onError: (err) => {
           toast.error("Gagal kirim", { description: err.message });
@@ -420,7 +422,7 @@ export default function SubmitPromptAILN({
               )}
               {isLocked && (
                 <Link
-                  href="/student/skill-practice"
+                  href={`/${projectId}/student/skill-practice`}
                   className="self-center text-sm text-gray-500 underline dark:text-gray-400"
                 >
                   Kembali ke daftar tugas

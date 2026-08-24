@@ -8,6 +8,7 @@ import PageContainerAILN from "@/components/pages/PageContainerAILN";
 import PageHeaderAILN from "@/components/titles/PageHeaderAILN";
 import SectionContainerAILN from "@/components/cards/SectionContainerAILN";
 import { supabase } from "@/lib/supabase";
+import { useProjectId } from "@/lib/use-project-id";
 import { setSessionToken, trpc } from "@/trpc/client";
 import { AilUseCaseFrequency, AilUseCaseType } from "@prisma/client";
 import {
@@ -131,6 +132,7 @@ export default function CreateSelfPracticeAILN({
   }, [sessionToken]);
 
   const router = useRouter();
+  const projectId = useProjectId();
   const utils = trpc.useUtils();
   const categoriesQ = trpc.list.memberCategories.useQuery();
   const categories = useMemo(
@@ -244,7 +246,7 @@ export default function CreateSelfPracticeAILN({
     utils.list.memberUseCaseLibrary.invalidate();
     utils.list.practiceSubmissions.invalidate();
     utils.read.todayFocus.invalidate();
-    router.push("/student/skill-practice");
+    router.push(`/${projectId}/student/skill-practice`);
   };
 
   const handleSubmit = (e: FormEvent) => {
@@ -867,7 +869,7 @@ export default function CreateSelfPracticeAILN({
         )}
 
         <div className="flex items-center justify-end gap-3 border-t border-dashboard-border pt-4">
-          <Link href="/student/skill-practice">
+          <Link href={`/${projectId}/student/skill-practice`}>
             <ButtonAILN type="button" variant="neutral" className="w-fit">
               Batal
             </ButtonAILN>
