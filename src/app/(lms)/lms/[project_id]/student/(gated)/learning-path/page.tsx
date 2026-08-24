@@ -7,8 +7,13 @@ export const metadata: Metadata = {
   title: "Student",
 };
 
-export default async function LearningPathPage() {
-  const { sessionToken, ailMember } = await getProgramGate();
+export default async function LearningPathPage({
+  params,
+}: {
+  params: Promise<{ project_id: string }>;
+}) {
+  const { project_id } = await params;
+  const { sessionToken, ailMember } = await getProgramGate(project_id);
 
   if (!sessionToken) return null;
 
@@ -19,5 +24,5 @@ export default async function LearningPathPage() {
     return <AppPageState variant="FORBIDDEN" />;
   }
 
-  return <LearningPathStudentAILN sessionToken={sessionToken} />;
+  return <LearningPathStudentAILN />;
 }

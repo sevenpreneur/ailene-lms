@@ -1,10 +1,9 @@
 "use client";
 import SectionContainerAILN from "@/components/cards/SectionContainerAILN";
-import { SkeletonBlockAILN } from "@/components/states/DataStatesAILN";
 import { levelColorByNumber } from "@/lib/level-colors";
 import { formatInt } from "@/lib/format";
 import { useProjectId } from "@/lib/use-project-id";
-import { trpc } from "@/trpc/client";
+import { getLevelDistributionMock } from "@/mock-data/sponsor";
 import { ArrowRight } from "lucide-react";
 import Link from "next/link";
 
@@ -49,30 +48,12 @@ export default function LevelDistributionSponsorAILN({
 }: {
   showDetailLink?: boolean;
 }) {
-  const q = trpc.read.levelDistribution.useQuery();
+  const data = getLevelDistributionMock();
 
-  if (q.isLoading) {
-    return (
-      <Section showDetailLink={showDetailLink}>
-        <SkeletonBlockAILN className="h-40" />
-      </Section>
-    );
-  }
-
-  if (q.error || !q.data) {
-    return (
-      <Section showDetailLink={showDetailLink}>
-        <div className="flex h-40 items-center justify-center text-sm text-muted-foreground">
-          Gagal memuat distribusi karyawan.
-        </div>
-      </Section>
-    );
-  }
-
-  const total = q.data.total;
+  const total = data.total;
   // Bucket the per-level counts into the three segments by level number (code = "L<n>").
   const segments = SEGMENTS.map((seg) => {
-    const count = q.data.levels
+    const count = data.levels
       .filter((level) => seg.test(Number(level.code.slice(1))))
       .reduce((sum, level) => sum + level.count, 0);
     return {

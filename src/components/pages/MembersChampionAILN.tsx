@@ -4,20 +4,18 @@ import InputAILN from "@/components/fields/InputAILN";
 import MemberDetailPanelChampionAILN from "@/components/indexes/MemberDetailPanelChampionAILN";
 import GeneralLabelAILN from "@/components/labels/GeneralLabelAILN";
 import PageContainerAILN from "@/components/pages/PageContainerAILN";
-import AppErrorComponents from "@/components/states/AppErrorComponents";
 import PageHeaderAILN from "@/components/titles/PageHeaderAILN";
-import { setSessionToken, trpc } from "@/trpc/client";
-import type { AppRouter } from "@/trpc/routers/_app";
-import type { inferRouterOutputs } from "@trpc/server";
+import { getLevelsMock } from "@/mock-data/shared";
+import { getTeamMembersMock } from "@/mock-data/champion";
 import { Search } from "lucide-react";
 import Image from "next/image";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
-import { useEffect, useState } from "react";
+import { useState } from "react";
 
 const DEFAULT_AVATAR =
   "https://tskubmriuclmbcfmaiur.supabase.co/storage/v1/object/public/sevenpreneur//default-avatar.svg.png";
 
-type Member = inferRouterOutputs<AppRouter>["list"]["members"]["list"][number];
+type Member = ReturnType<typeof getTeamMembersMock>["list"][number];
 
 const STATUS_META: Record<
   Member["status"],
@@ -40,15 +38,7 @@ const STATUS_META: Record<
   },
 };
 
-export default function MembersChampionAILN({
-  sessionToken,
-}: {
-  sessionToken: string;
-}) {
-  useEffect(() => {
-    setSessionToken(sessionToken);
-  }, [sessionToken]);
-
+export default function MembersChampionAILN() {
   const router = useRouter();
   const pathname = usePathname();
   const searchParams = useSearchParams();
@@ -57,10 +47,8 @@ export default function MembersChampionAILN({
   const [levelFilter, setLevelFilter] = useState<number | "ALL">("ALL");
   const [search, setSearch] = useState("");
 
-  const membersQ = trpc.list.members.useQuery({});
-  const members = membersQ.data?.list ?? [];
-  const levelsQ = trpc.list.levels.useQuery();
-  const levelTable = levelsQ.data?.list ?? [];
+  const members = getTeamMembersMock({}).list;
+  const levelTable = getLevelsMock();
 
   const selectMember = (id: number) => {
     router.replace(`${pathname}?member_id=${id}`, { scroll: false });
@@ -100,10 +88,7 @@ export default function MembersChampionAILN({
           title="Detail Anggota"
           desc="Pilih anggota untuk melihat kompetensi, breakdown, dan kirim catatan coaching."
         />
-        {membersQ.error ? (
-          <AppErrorComponents />
-        ) : (
-          <>
+        <>
             {/* Row 2: filter + search (full width) */}
             <div className="flex w-full justify-between items-center gap-4">
               {/* Level filter */}
@@ -145,11 +130,7 @@ export default function MembersChampionAILN({
                   title="Anggota Tim"
                   contentClassName="-mx-5 -mb-5 overflow-hidden"
                 >
-                  {membersQ.isLoading ? (
-                    <div className="px-5 py-10 text-center text-sm text-gray-400">
-                      Memuat…
-                    </div>
-                  ) : filtered.length === 0 ? (
+                  {filtered.length === 0 ? (
                     <div className="px-5 py-10 text-center text-sm text-gray-400">
                       Tidak ada anggota ditemukan.
                     </div>
@@ -202,8 +183,7 @@ export default function MembersChampionAILN({
                 )}
               </div>
             </div>
-          </>
-        )}
+        </>
       </div>
     </PageContainerAILN>
   );

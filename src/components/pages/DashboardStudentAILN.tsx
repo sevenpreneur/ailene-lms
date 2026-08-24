@@ -13,31 +13,18 @@ import PageContainerAILN from "@/components/pages/PageContainerAILN";
 import AppErrorComponents from "@/components/states/AppErrorComponents";
 import { CheckSession } from "@/lib/actions";
 import { useProjectId } from "@/lib/use-project-id";
-import { setSessionToken, trpc } from "@/trpc/client";
+import { getAilMemberMock } from "@/mock-data/shared";
 import { useQuery } from "@tanstack/react-query";
 import dayjs from "dayjs";
 import { PlusCircle } from "lucide-react";
 import Link from "next/link";
-import { useEffect } from "react";
 
-export default function DashboardStudentAILN({
-  sessionToken,
-}: {
-  sessionToken: string;
-}) {
+export default function DashboardStudentAILN() {
   const projectId = useProjectId();
 
-  useEffect(() => {
-    setSessionToken(sessionToken);
-  }, [sessionToken]);
-
   const userQ = useQuery({ queryKey: ["session"], queryFn: CheckSession });
-  const memberQ = trpc.auth.checkAilMember.useQuery();
 
-  // Hard-fail only on an actual error — never gate the whole page on loading.
-  // Rendering the layout immediately lets every widget fire its own query in
-  // parallel instead of waiting for these two to resolve first (no waterfall).
-  if (userQ.isError || memberQ.isError) {
+  if (userQ.isError) {
     return (
       <PageContainerAILN>
         <AppErrorComponents />
@@ -46,14 +33,12 @@ export default function DashboardStudentAILN({
   }
 
   const user = userQ.data?.user;
-  const member = memberQ.data?.ail_member;
+  const member = getAilMemberMock({ projectId, userId: user?.id ?? "current" });
   const firstName = user
     ? (user.full_name.split(" ")[0] ?? user.full_name)
     : null;
   // Rentang streak = sejak member bergabung sampai hari ini.
-  const cohortStart = member
-    ? dayjs(member.created_at).format("YYYY-MM-DD")
-    : null;
+  const cohortStart = dayjs(member.created_at).format("YYYY-MM-DD");
   const cohortEnd = dayjs().format("YYYY-MM-DD");
 
   return (
@@ -89,15 +74,11 @@ export default function DashboardStudentAILN({
         <TodayFocusCardAILN />
         <div className="grid grid-cols-1 gap-4 xl:grid-cols-[minmax(0,3fr)_minmax(0,2fr)]">
           <CompetencyProfileAILN className="h-full" />
-          {cohortStart ? (
-            <StreakCardAILN
-              startDate={cohortStart}
-              endDate={cohortEnd}
-              className="h-full"
-            />
-          ) : (
-            <div className="h-full min-h-[420px] animate-pulse rounded-md bg-gray-100 dark:bg-dashboard-border" />
-          )}
+          <StreakCardAILN
+            startDate={cohortStart}
+            endDate={cohortEnd}
+            className="h-full"
+          />
         </div>
         <RecommendationsAILN />
         <CoachingNotesAILN />

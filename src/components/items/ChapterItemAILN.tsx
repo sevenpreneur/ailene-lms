@@ -3,12 +3,12 @@ import ChapterTaskItemAILN from "@/components/items/ChapterTaskItemAILN";
 import GeneralLabelAILN, {
   type GeneralLabelVariantAILN,
 } from "@/components/labels/GeneralLabelAILN";
-import { trpc } from "@/trpc/client";
-import type { ChapterProgress } from "@/trpc/routers/ailene/utils.ailene";
+import { getTasksMock } from "@/mock-data/student";
 import { faCheck, faLock } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { ChevronDown } from "lucide-react";
-import AppErrorComponents from "../states/AppErrorComponents";
+
+type ChapterProgress = "not_started" | "in_progress" | "completed";
 
 interface Chapter {
   id: number;
@@ -35,10 +35,9 @@ interface ChapterItemAILNProps {
 }
 
 export default function ChapterItemAILN(props: ChapterItemAILNProps) {
-  const tasksQ = trpc.list.tasks.useQuery(
-    { chapter_id: props.chapter.id },
-    { enabled: props.expanded }
-  );
+  const tasks = props.expanded
+    ? getTasksMock({ chapter_id: props.chapter.id })
+    : null;
 
   return (
     <div className="relative pl-12">
@@ -108,19 +107,9 @@ export default function ChapterItemAILN(props: ChapterItemAILNProps) {
           }`}
         >
           <div className="overflow-hidden">
-            {tasksQ.isLoading && (
-              <div className="space-y-2 border-t border-dashboard-border px-4 py-3">
-                {[0, 1, 2].map((i) => (
-                  <TaskItemSkeleton key={i} />
-                ))}
-              </div>
-            )}
-            {(tasksQ.error || (!tasksQ.isLoading && !tasksQ.data)) && (
-              <AppErrorComponents />
-            )}
-            {tasksQ.data &&
+            {tasks &&
               (() => {
-                const allMaterialsRead = tasksQ.data.materials.every(
+                const allMaterialsRead = tasks.materials.every(
                   (m) => m.completed
                 );
                 const quizUnlocked = props.unlocked && allMaterialsRead;
@@ -128,28 +117,24 @@ export default function ChapterItemAILN(props: ChapterItemAILNProps) {
                 // unlocked + unfinished item, scanning materials → quiz → video.
                 let nextKey: string | null = null;
                 if (props.unlocked) {
-                  const firstMat = tasksQ.data.materials.find(
-                    (m) => !m.completed
-                  );
+                  const firstMat = tasks.materials.find((m) => !m.completed);
                   if (firstMat) {
                     nextKey = `m-${firstMat.id}`;
                   } else {
                     const firstQuiz = quizUnlocked
-                      ? tasksQ.data.quizzes.find((q) => q.attempts === 0)
+                      ? tasks.quizzes.find((q) => q.attempts === 0)
                       : undefined;
                     if (firstQuiz) {
                       nextKey = `q-${firstQuiz.id}`;
                     } else {
-                      const firstVid = tasksQ.data.videos.find(
-                        (v) => !v.completed
-                      );
+                      const firstVid = tasks.videos.find((v) => !v.completed);
                       if (firstVid) nextKey = `v-${firstVid.id}`;
                     }
                   }
                 }
                 return (
                   <div className="space-y-2 border-t border-dashboard-border px-4 py-3">
-                    {tasksQ.data.materials.map((m) => (
+                    {tasks.materials.map((m) => (
                       <ChapterTaskItemAILN
                         key={`m-${m.id}`}
                         variant="Material"
@@ -158,7 +143,7 @@ export default function ChapterItemAILN(props: ChapterItemAILNProps) {
                         isNext={nextKey === `m-${m.id}`}
                       />
                     ))}
-                    {tasksQ.data.quizzes.map((q) => (
+                    {tasks.quizzes.map((q) => (
                       <ChapterTaskItemAILN
                         key={`q-${q.id}`}
                         variant="Quiz"
@@ -172,7 +157,7 @@ export default function ChapterItemAILN(props: ChapterItemAILNProps) {
                         }
                       />
                     ))}
-                    {tasksQ.data.videos.map((v) => (
+                    {tasks.videos.map((v) => (
                       <ChapterTaskItemAILN
                         key={`v-${v.id}`}
                         variant="Video"
@@ -208,24 +193,6 @@ export function ChapterItemSkeleton() {
           </div>
         </div>
       </div>
-    </div>
-  );
-}
-
-function TaskItemSkeleton() {
-  return (
-    <div className="flex items-center gap-3 rounded-xl border border-dashboard-border bg-card-2 p-3 animate-pulse">
-      <div className="h-10 w-10 shrink-0 rounded-md bg-gray-200 dark:bg-dashboard-border" />
-      <div className="flex-1 space-y-2">
-        <div className="h-2.5 w-16 rounded bg-gray-100 dark:bg-dashboard-border" />
-        <div className="h-3.5 w-48 rounded bg-gray-300 dark:bg-gray-700" />
-        <div className="flex items-center gap-2 pt-0.5">
-          <div className="h-4 w-14 rounded-full bg-gray-200 dark:bg-dashboard-border" />
-          <div className="h-3 w-20 rounded bg-gray-200 dark:bg-dashboard-border" />
-        </div>
-      </div>
-      <div className="h-8 w-32 shrink-0 rounded-md bg-gray-200 dark:bg-dashboard-border" />
-      <div className="h-4 w-4 shrink-0 rounded-full bg-gray-200 dark:bg-dashboard-border" />
     </div>
   );
 }

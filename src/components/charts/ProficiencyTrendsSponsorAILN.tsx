@@ -1,5 +1,5 @@
 "use client";
-import { trpc } from "@/trpc/client";
+import { getProficiencyTrendsMock } from "@/mock-data/sponsor";
 import SectionContainerAILN from "@/components/cards/SectionContainerAILN";
 import {
   ChartContainer,
@@ -32,7 +32,7 @@ type ProficiencyWeek = {
 };
 
 export default function ProficiencyTrendsSponsorAILN() {
-  const q = trpc.read.proficiencyTrends.useQuery();
+  const data = getProficiencyTrendsMock();
 
   const legend = (
     <div className="flex items-center gap-3 text-xs text-muted-foreground">
@@ -41,32 +41,6 @@ export default function ProficiencyTrendsSponsorAILN() {
     </div>
   );
 
-  if (q.isLoading) {
-    return (
-      <SectionContainerAILN
-        title="Tren Skor Kompetensi"
-        desc="Periode program · per minggu"
-        headerRight={legend}
-      >
-        <div className="h-[220px] animate-pulse rounded-md bg-muted" />
-      </SectionContainerAILN>
-    );
-  }
-
-  if (q.error || !q.data) {
-    return (
-      <SectionContainerAILN
-        title="Tren Skor Kompetensi"
-        desc="Periode program · per minggu"
-        headerRight={legend}
-      >
-        <div className="flex h-[220px] items-center justify-center text-sm text-muted-foreground">
-          Gagal memuat tren penguasaan.
-        </div>
-      </SectionContainerAILN>
-    );
-  }
-
   return (
     <SectionContainerAILN
       title="Tren Skor Kompetensi"
@@ -74,7 +48,7 @@ export default function ProficiencyTrendsSponsorAILN() {
       headerRight={legend}
     >
       <div className="h-[220px]">
-        <TrendChart data={q.data.weeks} />
+        <TrendChart data={data.weeks} />
       </div>
     </SectionContainerAILN>
   );

@@ -1,5 +1,5 @@
 "use client";
-import { trpc } from "@/trpc/client";
+import { getAilMemberMock } from "@/mock-data/shared";
 import Image from "next/image";
 
 export type LevelLabelStudentVariantAILN = "compact" | "summary";
@@ -11,14 +11,11 @@ export default function LevelLabelStudentAILN({
   variant?: LevelLabelStudentVariantAILN;
   className?: string;
 }) {
-  const memberQ = trpc.auth.checkAilMember.useQuery();
-  const member = memberQ.data?.ail_member;
+  const member = getAilMemberMock();
 
-  if (!member) return null;
-
-  const levelNumber = member.current_level?.level_number ?? 0;
-  const levelName = member.current_level?.name;
-  const icon = member.current_level?.icon;
+  const levelNumber = member.current_level.level_number;
+  const levelName = member.current_level.name;
+  const icon = member.current_level.icon;
   const label = `Level ${levelNumber}`;
   const imageAlt = levelName ?? label;
 

@@ -5,7 +5,6 @@ import GeneralLabelAILN, {
 } from "@/components/labels/GeneralLabelAILN";
 import { TaskVariant } from "@/lib/app-types";
 import { useProjectId } from "@/lib/use-project-id";
-import { trpc } from "@/trpc/client";
 import {
   faBookOpen,
   faCircleCheck,
@@ -94,18 +93,7 @@ export default function ChapterTaskItemAILN(props: ChapterTaskItemAILNProps) {
   const projectId = useProjectId();
   const style = variantStyles[props.variant];
   const router = useRouter();
-  const utils = trpc.useUtils();
   const [isStartQuizDialogOpen, setIsStartQuizDialogOpen] = useState(false);
-  const invalidateProgress = () => {
-    utils.list.tasks.invalidate();
-    utils.list.chapters.invalidate();
-    utils.list.levels.invalidate();
-    utils.auth.checkAilMember.invalidate();
-    utils.read.todayFocus.invalidate();
-  };
-  const completeVideo = trpc.create.completeVideo.useMutation({
-    onSuccess: invalidateProgress,
-  });
 
   const lockedText = props.lockedMessage ?? "Locked";
 
@@ -158,22 +146,12 @@ export default function ChapterTaskItemAILN(props: ChapterTaskItemAILNProps) {
         ? "Watched"
         : "Not watched yet";
     statusVariant = !props.unlocked ? "white" : v.completed ? "green" : "blue";
-    const handleCompleteVideo = () => {
-      if (!v.completed) {
-        completeVideo.mutate({ video_id: v.id });
-      }
-    };
     cta = !props.unlocked ? (
       <ButtonAILN size="small" disabled className="w-full">
         Locked
       </ButtonAILN>
     ) : (
-      <a
-        href={v.video_url}
-        target="_blank"
-        rel="noopener noreferrer"
-        onClick={handleCompleteVideo}
-      >
+      <a href={v.video_url} target="_blank" rel="noopener noreferrer">
         <ButtonAILN size="small" className="w-full">
           Lihat Recording
         </ButtonAILN>

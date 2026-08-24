@@ -25,7 +25,7 @@ export type SizeType =
   | "mediumIcon"
   | "largeIconRounded";
 
-interface ButtonAILNProps extends ButtonHTMLAttributes<HTMLButtonElement> {
+export interface ButtonAILNProps extends ButtonHTMLAttributes<HTMLButtonElement> {
   children: React.ReactNode;
   variant?: VariantType;
   size?: SizeType;

@@ -1,16 +1,15 @@
 "use client";
-import ButtonAILN from "@/components/buttons/ButtonAILN";
+import DisabledActionButtonAILN from "@/components/buttons/DisabledActionButtonAILN";
 import SectionContainerAILN from "@/components/cards/SectionContainerAILN";
 import TextAreaAILN from "@/components/fields/TextAreaAILN";
 import GeneralLabelAILN, {
   type GeneralLabelVariantAILN,
 } from "@/components/labels/GeneralLabelAILN";
 import PageContainerAILN from "@/components/pages/PageContainerAILN";
-import AppErrorComponents from "@/components/states/AppErrorComponents";
 import AppPageState from "@/components/states/AppPageState";
 import PageHeaderAILN from "@/components/titles/PageHeaderAILN";
 import { useProjectId } from "@/lib/use-project-id";
-import { setSessionToken, trpc } from "@/trpc/client";
+import { getPromptAssignmentMock } from "@/mock-data/student";
 import dayjs from "dayjs";
 import {
   CalendarClock,
@@ -19,7 +18,6 @@ import {
   Clock,
   FileText,
   Layers,
-  Loader2,
   MessageSquare,
   Send,
   Sparkles,
@@ -27,9 +25,7 @@ import {
   Tag,
 } from "lucide-react";
 import Link from "next/link";
-import { useRouter } from "next/navigation";
-import React, { FormEvent, useEffect, useMemo, useState } from "react";
-import { toast } from "sonner";
+import React, { useEffect, useMemo, useState } from "react";
 
 type Status =
   | "PENDING_SUBMIT"
@@ -96,25 +92,12 @@ function FieldRow({
 }
 
 export default function SubmitPromptAILN({
-  sessionToken,
   promptId,
 }: {
-  sessionToken: string;
   promptId: number;
 }) {
-  useEffect(() => {
-    setSessionToken(sessionToken);
-  }, [sessionToken]);
-
-  const router = useRouter();
   const projectId = useProjectId();
-  const utils = trpc.useUtils();
-  const assignmentQ = trpc.read.promptAssignment.useQuery({
-    prompt_id: promptId,
-  });
-  const submitM = trpc.update.submitPromptAssignment.useMutation();
-
-  const a = assignmentQ.data?.assignment;
+  const a = getPromptAssignmentMock({ prompt_id: promptId });
 
   const [formData, setFormData] = useState<{
     input: string;
@@ -137,40 +120,10 @@ export default function SubmitPromptAILN({
     if (!a) return "PENDING_SUBMIT";
     if (a.is_accepted) return "ACCEPTED";
     if (!a.submitted_at) return "PENDING_SUBMIT";
-    if (
-      a.reviewed_at &&
-      dayjs(a.reviewed_at as unknown as string).isAfter(
-        dayjs(a.submitted_at as unknown as string)
-      )
-    )
+    if (a.reviewed_at && dayjs(a.reviewed_at).isAfter(dayjs(a.submitted_at)))
       return "NEEDS_REVISION";
     return "AWAITING_REVIEW";
   }, [a]);
-
-  if (assignmentQ.isLoading) {
-    return (
-      <PageContainerAILN>
-        <div className="flex w-full items-center justify-center py-12">
-          <Loader2 className="size-6 animate-spin text-gray-400" />
-        </div>
-      </PageContainerAILN>
-    );
-  }
-
-  if (assignmentQ.error) {
-    if (assignmentQ.error.data?.code === "NOT_FOUND") {
-      return (
-        <PageContainerAILN>
-          <AppPageState variant="NOT_FOUND" />
-        </PageContainerAILN>
-      );
-    }
-    return (
-      <PageContainerAILN>
-        <AppErrorComponents />
-      </PageContainerAILN>
-    );
-  }
 
   if (!a) {
     return (
@@ -183,45 +136,10 @@ export default function SubmitPromptAILN({
   const meta = statusMeta[status];
   const StatusIcon = meta.icon;
   const isLocked = status === "ACCEPTED";
-  const deadline = a.deadline as unknown as string | null;
+  const deadline = a.deadline;
   const deadlineDate = deadline ? dayjs(deadline) : null;
   const deadlineOverdue =
     deadlineDate !== null && !a.is_accepted && deadlineDate.isBefore(dayjs());
-
-  const handleSubmit = (e: FormEvent) => {
-    e.preventDefault();
-    if (!formData.input.trim()) {
-      toast.error("Input prompt tidak boleh kosong.");
-      return;
-    }
-    if (!formData.output.trim()) {
-      toast.error("Output tidak boleh kosong.");
-      return;
-    }
-    submitM.mutate(
-      {
-        prompt_id: promptId,
-        input: formData.input.trim(),
-        output: formData.output.trim(),
-      },
-      {
-        onSuccess: () => {
-          toast.success("Tugas berhasil dikirim.");
-          utils.read.promptAssignment.invalidate({
-            prompt_id: promptId,
-          });
-          utils.read.todayFocus.invalidate();
-          utils.list.assignedPrompts.invalidate();
-          utils.list.memberPromptLibrary.invalidate();
-          utils.list.practiceSubmissions.invalidate();
-          router.push(`/${projectId}/student/skill-practice`);
-        },
-        onError: (err) => {
-          toast.error("Gagal kirim", { description: err.message });
-        },
-      }
-    );
-  };
 
   return (
     <PageContainerAILN>
@@ -343,7 +261,7 @@ export default function SubmitPromptAILN({
             title={isLocked ? "Submission kamu" : "Kirim tugasmu"}
             desc="Tulis prompt yang kamu pakai dan tempel output dari AI untuk direview."
           >
-            <form onSubmit={handleSubmit} className="flex flex-col gap-4">
+            <form className="flex flex-col gap-4">
               <FieldRow
                 icon={<SquarePen className="size-4" />}
                 label="Prompt yang kamu pakai"
@@ -397,28 +315,18 @@ export default function SubmitPromptAILN({
               </FieldRow>
 
               {!isLocked && (
-                <ButtonAILN
-                  type="submit"
+                <DisabledActionButtonAILN
+                  type="button"
                   variant="primary"
-                  disabled={submitM.isPending}
                   className="w-fit self-end"
                 >
-                  {submitM.isPending ? (
-                    <>
-                      <Loader2 className="size-4 animate-spin" />
-                      Mengirim…
-                    </>
-                  ) : (
-                    <>
-                      <Send className="size-4" />
-                      {status === "NEEDS_REVISION"
-                        ? "Kirim Revisi"
-                        : a.submitted_at
-                          ? "Update Submission"
-                          : "Kirim Tugas"}
-                    </>
-                  )}
-                </ButtonAILN>
+                  <Send className="size-4" />
+                  {status === "NEEDS_REVISION"
+                    ? "Kirim Revisi"
+                    : a.submitted_at
+                      ? "Update Submission"
+                      : "Kirim Tugas"}
+                </DisabledActionButtonAILN>
               )}
               {isLocked && (
                 <Link

@@ -1,5 +1,5 @@
 "use client";
-import { trpc } from "@/trpc/client";
+import { getFirstWinMock } from "@/mock-data/student";
 import { Star } from "lucide-react";
 
 function formatTimeSaved(
@@ -18,10 +18,9 @@ function formatTimeSaved(
 }
 
 export default function FirstWinCardAILN() {
-  const q = trpc.read.firstWin.useQuery();
+  const { first_win: fw } = getFirstWinMock();
 
-  if (q.isLoading || !q.data?.first_win) return null;
-  const fw = q.data.first_win;
+  if (!fw) return null;
 
   let badge: string;
   let headline: React.ReactNode;

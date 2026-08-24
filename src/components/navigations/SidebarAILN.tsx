@@ -6,7 +6,7 @@ import { useSidebar } from "@/contexts/SidebarContext";
 import { CheckSession, DeleteSession } from "@/lib/actions";
 import { LOGIN_URL } from "@/lib/config";
 import { useProjectId } from "@/lib/use-project-id";
-import { setSessionToken, trpc } from "@/trpc/client";
+import { getAilMemberMock } from "@/mock-data/shared";
 import { useQuery } from "@tanstack/react-query";
 import {
   BarChart3,
@@ -217,10 +217,6 @@ export default function SidebarAILN({
     setMounted(true);
   }, []);
 
-  useEffect(() => {
-    if (sessionToken) setSessionToken(sessionToken);
-  }, [sessionToken]);
-
   const isDark = mounted && resolvedTheme === "dark";
   const logoUrl = isCollapsed
     ? isDark
@@ -252,18 +248,15 @@ export default function SidebarAILN({
     queryFn: CheckSession,
     enabled: !!sessionToken,
   });
-  const memberQ = trpc.auth.checkAilMember.useQuery(undefined, {
-    enabled: !!sessionToken,
-  });
   const user = userQ.data?.user;
-  const member = memberQ.data?.ail_member;
-  const championedGroups = member?.championed_groups ?? [];
+  const member = getAilMemberMock({ projectId, userId: user?.id });
+  const championedGroups = member.championed_groups;
   const groupName =
     variant === "CHAMPION"
       ? championedGroups.length > 0
         ? championedGroups.map((g) => g.name).join(", ")
         : "-"
-      : (member?.group?.name ?? "-");
+      : (member.group?.name ?? "-");
 
   return (
     <div
@@ -383,7 +376,7 @@ export default function SidebarAILN({
                     {user?.full_name ?? "..."}
                   </div>
                   <div className="truncate text-xs text-gray-500 dark:text-gray-400">
-                    {member?.job_title ?? ""}
+                    {member.job_title}
                   </div>
                 </div>
               </div>
@@ -398,7 +391,8 @@ export default function SidebarAILN({
                 />
               </div>
 
-              <RoleSwitch variant={variant} memberRole={member?.role} />
+              {/* No "also has the other role" signal anymore — always offered, the layout's real gate still blocks it. */}
+              <RoleSwitch variant={variant} memberRole="CHAMPION" />
 
               <ButtonAILN
                 variant={config.buttonVariant}

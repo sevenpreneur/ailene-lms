@@ -8,10 +8,13 @@ import { ReactNode } from "react";
 
 export default async function SponsorLayout({
   children,
+  params,
 }: {
   children: ReactNode;
+  params: Promise<{ project_id: string }>;
 }) {
-  const { sessionToken, ailMember } = await getProgramGate();
+  const { project_id } = await params;
+  const { sessionToken, ailMember } = await getProgramGate(project_id);
 
   if (!sessionToken) redirect(LOGIN_URL);
 

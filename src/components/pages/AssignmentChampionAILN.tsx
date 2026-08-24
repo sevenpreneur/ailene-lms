@@ -3,15 +3,14 @@ import AssignFormChampionAILN from "@/components/forms/AssignFormChampionAILN";
 import CreateAssignmentFormAILN from "@/components/forms/CreateAssignmentFormAILN";
 import SectionContainerAILN from "@/components/cards/SectionContainerAILN";
 import PageContainerAILN from "@/components/pages/PageContainerAILN";
-import AppErrorComponents from "@/components/states/AppErrorComponents";
 import ButtonAILN from "@/components/buttons/ButtonAILN";
 import PageHeaderAILN from "@/components/titles/PageHeaderAILN";
 import InputAILN from "@/components/fields/InputAILN";
 import AssignmentItemChampion from "@/components/items/AssignmentItemChampion";
 import GeneralLabelAILN from "@/components/labels/GeneralLabelAILN";
-import { setSessionToken, trpc } from "@/trpc/client";
+import { PROMPT_LIBRARY, USE_CASE_LIBRARY } from "@/mock-data/champion";
 import { BookOpen, Plus, Search, Send } from "lucide-react";
-import { useEffect, useState } from "react";
+import { useState } from "react";
 
 type AssignmentTab = "PROMPT" | "USE_CASE";
 
@@ -42,15 +41,7 @@ interface UseCaseItem {
   categories: CategoryRef[];
 }
 
-export default function AssignmentChampionAILN({
-  sessionToken,
-}: {
-  sessionToken: string;
-}) {
-  useEffect(() => {
-    setSessionToken(sessionToken);
-  }, [sessionToken]);
-
+export default function AssignmentChampionAILN() {
   const [tab, setTab] = useState<AssignmentTab>("PROMPT");
   const [selectedPromptId, setSelectedPromptId] = useState<number | null>(null);
   const [selectedUseCaseId, setSelectedUseCaseId] = useState<number | null>(
@@ -60,11 +51,8 @@ export default function AssignmentChampionAILN({
   const [createOpen, setCreateOpen] = useState(false);
   const [search, setSearch] = useState("");
 
-  const promptQ = trpc.list.promptLibrary.useQuery(undefined);
-  const useCaseQ = trpc.list.useCaseLibrary.useQuery(undefined);
-
-  const prompts = (promptQ.data?.list ?? []) as PromptItem[];
-  const useCases = (useCaseQ.data?.list ?? []) as UseCaseItem[];
+  const prompts = PROMPT_LIBRARY as unknown as PromptItem[];
+  const useCases = USE_CASE_LIBRARY as unknown as UseCaseItem[];
 
   const q = search.trim().toLowerCase();
   const filteredPrompts = q
@@ -82,9 +70,6 @@ export default function AssignmentChampionAILN({
     selectedUseCaseId !== null
       ? useCases.find((u) => u.id === selectedUseCaseId)
       : useCases[0];
-
-  const isLoading = tab === "PROMPT" ? promptQ.isLoading : useCaseQ.isLoading;
-  const error = tab === "PROMPT" ? promptQ.error : useCaseQ.error;
 
   return (
     <PageContainerAILN>
@@ -132,15 +117,10 @@ export default function AssignmentChampionAILN({
           </div>
         </div>
 
-        {error ? (
-          <AppErrorComponents />
-        ) : (
-          <div className="grid grid-cols-1 gap-6 xl:grid-cols-[1fr_360px]">
+        <div className="grid grid-cols-1 gap-6 xl:grid-cols-[1fr_360px]">
             {/* Grid of items */}
             <div className="flex flex-col gap-3">
-              {isLoading ? (
-                <AssignmentGridSkeleton />
-              ) : tab === "PROMPT" ? (
+              {tab === "PROMPT" ? (
                 filteredPrompts.length === 0 ? (
                   <EmptyState label="Belum ada prompt." />
                 ) : (
@@ -242,7 +222,6 @@ export default function AssignmentChampionAILN({
               )}
             </SectionContainerAILN>
           </div>
-        )}
       </div>
 
       <AssignFormChampionAILN
@@ -351,19 +330,6 @@ function EmptyState({ label }: { label: string }) {
     <div className="flex flex-col items-center gap-2 rounded-lg border border-dashed border-dashboard-border py-12 text-center text-gray-500 dark:text-gray-400">
       <BookOpen className="size-6" />
       <div className="text-sm">{label}</div>
-    </div>
-  );
-}
-
-function AssignmentGridSkeleton() {
-  return (
-    <div className="grid grid-cols-1 gap-3 md:grid-cols-2 2xl:grid-cols-3">
-      {Array.from({ length: 6 }).map((_, i) => (
-        <div
-          key={i}
-          className="h-40 animate-pulse rounded-lg border border-dashboard-border bg-gray-100 dark:bg-card-1"
-        />
-      ))}
     </div>
   );
 }

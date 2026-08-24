@@ -12,7 +12,7 @@ export default async function GatedStudentLayout({
   params: Promise<{ project_id: string }>;
 }) {
   const { project_id } = await params;
-  const { sessionToken, ailMember } = await getProgramGate();
+  const { sessionToken, ailMember } = await getProgramGate(project_id);
   if (!sessionToken) redirect(LOGIN_URL);
 
   // Force pre-assessment completion before accessing any other student route.

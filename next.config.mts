@@ -49,6 +49,22 @@ const nextConfig: NextConfig = {
   },
   async redirects() {
     return [
+      // No session cookie on a protected path -> send to /auth/login.
+      {
+        source:
+          "/:path((?!auth/login|api/auth/callback/google|_next/static|_next/image|favicon\\.ico|.*\\..*).*)",
+        has: [
+          {
+            type: "header",
+            key: "host",
+            value:
+              "(lms.ailene.id|(lms.)?example.com|sevenpreneur(-[^.]+).vercel.app).*",
+          },
+        ],
+        missing: [{ type: "cookie", key: SESSION_COOKIE_NAME }],
+        destination: "/auth/login",
+        permanent: false,
+      },
       // Already signed in -> don't show the login page again.
       {
         source: "/auth(.*)",
@@ -99,7 +115,7 @@ const nextConfig: NextConfig = {
           ],
           destination: "/lms/:path*",
         },
-        // tRPC + webhooks live under the gateway subdomain.
+        // Gateway subdomain — currently empty pending ailene-lms-backend endpoints.
         {
           source: "/:path*",
           has: [

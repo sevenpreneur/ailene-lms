@@ -15,50 +15,36 @@ import GroupUseCaseRowAILN from "@/components/items/GroupUseCaseRowAILN";
 import GeneralLabelAILN from "@/components/labels/GeneralLabelAILN";
 import PageContainerAILN from "@/components/pages/PageContainerAILN";
 import AppErrorComponents from "@/components/states/AppErrorComponents";
-import {
-  EmptyStateAILN,
-  SkeletonBlockAILN,
-  SkeletonRowsAILN,
-} from "@/components/states/DataStatesAILN";
-import SkeletonGroupDetailAILN from "@/components/states/SkeletonGroupDetailAILN";
+import { EmptyStateAILN } from "@/components/states/DataStatesAILN";
 import PageHeaderAILN from "@/components/titles/PageHeaderAILN";
 import { formatDecimal, formatScore } from "@/lib/format";
 import { useProjectId } from "@/lib/use-project-id";
-import { setSessionToken, trpc } from "@/trpc/client";
+import {
+  getGroupAttentionMembersMock,
+  getGroupDepartmentsMock,
+  getGroupLevelDistributionMock,
+  getGroupOverviewMock,
+  getGroupTopUseCasesMock,
+} from "@/mock-data/sponsor";
 import { ChevronDown, Download } from "lucide-react";
 import { useRouter } from "next/navigation";
-import { useEffect } from "react";
 
 export default function GroupDetailsSponsorAILN({
-  sessionToken,
   groupId,
 }: {
-  sessionToken: string;
   groupId: number;
 }) {
-  useEffect(() => {
-    setSessionToken(sessionToken);
-  }, [sessionToken]);
-
   const router = useRouter();
   const projectId = useProjectId();
   const pdf = usePdfReport();
   const input = { group_id: groupId };
-  const departmentsQ = trpc.read.group.departments.useQuery();
-  const overviewQ = trpc.read.group.overview.useQuery(input);
-  const distributionQ = trpc.read.group.levelDistribution.useQuery(input);
-  const topUseCasesQ = trpc.read.group.topUseCases.useQuery(input);
-  const attentionQ = trpc.read.group.attentionMembers.useQuery(input);
+  const departments = getGroupDepartmentsMock();
+  const overview = getGroupOverviewMock(input);
+  const distribution = getGroupLevelDistributionMock(input);
+  const topUseCases = getGroupTopUseCasesMock(input);
+  const attention = getGroupAttentionMembersMock(input);
 
-  if (overviewQ.isLoading) {
-    return (
-      <PageContainerAILN>
-        <SkeletonGroupDetailAILN />
-      </PageContainerAILN>
-    );
-  }
-
-  if (overviewQ.error || !overviewQ.data) {
+  if (!overview) {
     return (
       <PageContainerAILN>
         <AppErrorComponents />
@@ -66,9 +52,9 @@ export default function GroupDetailsSponsorAILN({
     );
   }
 
-  const group = overviewQ.data.group;
-  const metrics = overviewQ.data.metrics;
-  const selectedDepartment = departmentsQ.data?.departments.find(
+  const group = overview.group;
+  const metrics = overview.metrics;
+  const selectedDepartment = departments.departments.find(
     (department) => department.id === groupId
   );
 
@@ -135,7 +121,7 @@ export default function GroupDetailsSponsorAILN({
         ],
       },
     ];
-    const levels = distributionQ.data?.levels ?? [];
+    const levels = distribution.levels;
     if (levels.length > 0) {
       sections.push({
         type: "table",
@@ -149,7 +135,7 @@ export default function GroupDetailsSponsorAILN({
         ]),
       });
     }
-    const useCases = topUseCasesQ.data?.use_cases ?? [];
+    const useCases = topUseCases.use_cases;
     if (useCases.length > 0) {
       sections.push({
         type: "table",
@@ -164,7 +150,7 @@ export default function GroupDetailsSponsorAILN({
         ]),
       });
     }
-    const members = attentionQ.data?.members ?? [];
+    const members = attention.members;
     if (members.length > 0) {
       sections.push({
         type: "table",
@@ -208,13 +194,7 @@ export default function GroupDetailsSponsorAILN({
               }
               className="h-9 appearance-none rounded-md border border-dashboard-border bg-white pl-3 pr-8 text-xs font-medium text-gray-700 outline-none transition hover:bg-gray-50 dark:bg-card-1 dark:text-gray-200 dark:hover:bg-card-2"
             >
-              {(departmentsQ.data?.departments ?? [
-                {
-                  id: group.id,
-                  name: group.name,
-                  member_count: metrics.total_members,
-                },
-              ]).map((department) => (
+              {departments.departments.map((department) => (
                 <option key={department.id} value={department.id}>
                   {department.name}
                 </option>
@@ -258,14 +238,10 @@ export default function GroupDetailsSponsorAILN({
 
         <SectionContainerAILN
           title={`Distribusi level - ${group.name}`}
-          desc={`${distributionQ.data?.total_members ?? metrics.total_members} karyawan`}
+          desc={`${distribution.total_members} karyawan`}
           className="dark:shadow-[0_0_16px_rgba(0,53,157,0.06)]"
         >
-          {distributionQ.isLoading || !distributionQ.data ? (
-            <SkeletonBlockAILN className="h-24" />
-          ) : (
-            <GroupLevelDistributionAILN levels={distributionQ.data.levels} />
-          )}
+          <GroupLevelDistributionAILN levels={distribution.levels} />
         </SectionContainerAILN>
 
         <div className="grid grid-cols-1 gap-4 xl:grid-cols-[minmax(0,1fr)_minmax(360px,0.9fr)]">
@@ -273,15 +249,13 @@ export default function GroupDetailsSponsorAILN({
             title={`Top use case - ${group.name}`}
             className="dark:shadow-[0_0_16px_rgba(0,53,157,0.06)]"
           >
-            {topUseCasesQ.isLoading || !topUseCasesQ.data ? (
-              <SkeletonRowsAILN />
-            ) : topUseCasesQ.data.use_cases.length === 0 ? (
+            {topUseCases.use_cases.length === 0 ? (
               <EmptyStateAILN>
                 Belum ada use case diterima di departemen ini.
               </EmptyStateAILN>
             ) : (
               <div className="flex flex-col gap-3">
-                {topUseCasesQ.data.use_cases.map((useCase, index) => (
+                {topUseCases.use_cases.map((useCase, index) => (
                   <GroupUseCaseRowAILN
                     key={useCase.id}
                     rank={index + 1}
@@ -300,21 +274,17 @@ export default function GroupDetailsSponsorAILN({
             className="dark:shadow-[0_0_16px_rgba(0,53,157,0.06)]"
             headerRight={
               <GeneralLabelAILN variant="yellow">
-                {attentionQ.data
-                  ? `${attentionQ.data.lagging_count} ketinggalan`
-                  : "..."}
+                {attention.lagging_count} ketinggalan
               </GeneralLabelAILN>
             }
           >
-            {attentionQ.isLoading || !attentionQ.data ? (
-              <SkeletonRowsAILN />
-            ) : attentionQ.data.members.length === 0 ? (
+            {attention.members.length === 0 ? (
               <EmptyStateAILN>
                 Belum ada anggota di departemen ini.
               </EmptyStateAILN>
             ) : (
               <div className="-mx-5 -mb-5 flex flex-col">
-                {attentionQ.data.members.map((member) => (
+                {attention.members.map((member) => (
                   <AttentionMemberRowAILN key={member.id} member={member} />
                 ))}
               </div>

@@ -1,13 +1,8 @@
 "use client";
 import SectionContainerAILN from "@/components/cards/SectionContainerAILN";
-import {
-  EmptyHintAILN,
-  SkeletonBlockAILN,
-} from "@/components/states/DataStatesAILN";
+import { EmptyHintAILN } from "@/components/states/DataStatesAILN";
 import { formatInt, formatScore } from "@/lib/format";
-import { trpc } from "@/trpc/client";
-import type { AppRouter } from "@/trpc/routers/_app";
-import type { inferRouterOutputs } from "@trpc/server";
+import { getPreAssessmentTeamMock } from "@/mock-data/champion";
 import Image from "next/image";
 
 // Pillar keys → table header (short) labels; keys mirror buildPreAssessmentReport.
@@ -56,9 +51,8 @@ function getInitials(name: string): string {
 // average, grouped under each department the champion owns. Headline stats
 // summarize the team below the table.
 export default function BaselineByMemberChampionAILN() {
-  const q = trpc.read.preAssessmentTeam.useQuery();
-  const data = q.data;
-  const multiDept = (data?.departments.length ?? 0) > 1;
+  const data = getPreAssessmentTeamMock();
+  const multiDept = data.departments.length > 1;
 
   return (
     <SectionContainerAILN
@@ -72,9 +66,7 @@ export default function BaselineByMemberChampionAILN() {
       }
       contentClassName="flex flex-col gap-5"
     >
-      {q.isLoading || !data ? (
-        <SkeletonBlockAILN className="h-72" />
-      ) : data.departments.length === 0 ? (
+      {data.departments.length === 0 ? (
         <EmptyHintAILN className="h-48">
           Belum ada anggota tim yang menyelesaikan pre-assessment.
         </EmptyHintAILN>
@@ -135,8 +127,9 @@ export default function BaselineByMemberChampionAILN() {
   );
 }
 
-type Department =
-  inferRouterOutputs<AppRouter>["read"]["preAssessmentTeam"]["departments"][number];
+type Department = ReturnType<
+  typeof getPreAssessmentTeamMock
+>["departments"][number];
 
 function DepartmentRows({
   dept,

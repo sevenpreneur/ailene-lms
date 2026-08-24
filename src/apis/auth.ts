@@ -72,6 +72,7 @@ export async function loginWithGoogleAccessToken(
 export async function checkSession(): Promise<LmsSession | null> {
   const cookieStore = await cookies();
   const sessionToken = cookieStore.get(SESSION_COOKIE_NAME)?.value;
+
   if (!sessionToken) {
     return null;
   }

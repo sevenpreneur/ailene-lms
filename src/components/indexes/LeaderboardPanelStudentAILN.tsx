@@ -1,6 +1,6 @@
 "use client";
 import SectionContainerAILN from "@/components/cards/SectionContainerAILN";
-import { trpc } from "@/trpc/client";
+import { getGroupLeaderboardMock } from "@/mock-data/student";
 import { Lock } from "lucide-react";
 import Image from "next/image";
 import { useState } from "react";
@@ -12,7 +12,7 @@ type LeaderboardTab = "DEPT" | "ANGKATAN" | "TIM";
 
 export default function LeaderboardPanelStudentAILN() {
   const [tab, setTab] = useState<LeaderboardTab>("DEPT");
-  const q = trpc.read.groupLeaderboard.useQuery();
+  const data = getGroupLeaderboardMock();
 
   const tabs: { key: LeaderboardTab; label: string; enabled: boolean }[] = [
     { key: "DEPT", label: "Departemen", enabled: true },
@@ -25,13 +25,13 @@ export default function LeaderboardPanelStudentAILN() {
       title="Leaderboard"
       desc="Peringkat kontribusi XP."
       headerRight={
-        tab === "DEPT" && q.data?.group ? (
+        tab === "DEPT" && data.group ? (
           <div className="flex items-baseline gap-1.5">
             <span className="text-2xl font-bold leading-none text-gray-900 dark:text-white">
-              #{q.data.my_rank}
+              #{data.my_rank}
             </span>
             <span className="text-xs text-gray-500 dark:text-gray-400">
-              dari {q.data.total}
+              dari {data.total}
             </span>
           </div>
         ) : undefined
@@ -63,19 +63,13 @@ export default function LeaderboardPanelStudentAILN() {
         <div className="mt-4 flex-1">
           {tab !== "DEPT" ? (
             <Placeholder />
-          ) : q.isLoading ? (
-            <LeaderboardLoading />
-          ) : q.error ? (
-            <p className="py-8 text-center text-sm text-red-500 dark:text-red-400">
-              Gagal memuat leaderboard.
-            </p>
-          ) : !q.data?.group || q.data.leaderboard.length === 0 ? (
+          ) : !data.group || data.leaderboard.length === 0 ? (
             <p className="py-8 text-center text-sm text-gray-500 dark:text-gray-400">
               Kamu belum tergabung dalam group manapun.
             </p>
           ) : (
             <div className="flex flex-col gap-1">
-              {q.data.leaderboard.map((entry) => (
+              {data.leaderboard.map((entry) => (
                 <div
                   key={entry.member_id}
                   className={`flex items-center gap-3 rounded-md px-2.5 py-2 ${
@@ -130,20 +124,6 @@ function Placeholder() {
       <div className="text-sm text-gray-500 dark:text-gray-400">
         Segera hadir
       </div>
-    </div>
-  );
-}
-
-function LeaderboardLoading() {
-  return (
-    <div className="flex flex-col gap-1 animate-pulse">
-      {Array.from({ length: 6 }).map((_, i) => (
-        <div key={i} className="flex items-center gap-3 px-2.5 py-2">
-          <div className="size-4 rounded bg-gray-200 dark:bg-dashboard-border" />
-          <div className="size-8 rounded-full bg-gray-200 dark:bg-dashboard-border" />
-          <div className="h-3 flex-1 rounded bg-gray-200 dark:bg-dashboard-border" />
-        </div>
-      ))}
     </div>
   );
 }

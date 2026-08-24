@@ -1,7 +1,7 @@
 import "@/app/globals.css";
 import AppPageState from "@/components/states/AppPageState";
+import { QueryProvider } from "@/contexts/QueryProvider";
 import { SidebarProvider } from "@/contexts/SidebarContext";
-import { TRPCProvider } from "@/trpc/client";
 import { GoogleOAuthProvider } from "@react-oauth/google";
 import { Metadata } from "next";
 import { ThemeProvider } from "next-themes";
@@ -51,10 +51,6 @@ export const metadata: Metadata = {
   },
 };
 
-let baseURL = "https://gateway.ailene.id/trpc";
-if (process.env.DOMAIN_MODE === "local")
-  baseURL = "https://gateway.example.com:3000/trpc";
-
 export default function RootLayout(
   props: Readonly<{ children: React.ReactNode }>
 ) {
@@ -68,7 +64,7 @@ export default function RootLayout(
     >
       <body className="font-space-grotesk" suppressHydrationWarning>
         <GoogleOAuthProvider clientId={googleOauthId!}>
-          <TRPCProvider baseURL={baseURL}>
+          <QueryProvider>
             <ThemeProvider
               attribute="class"
               defaultTheme="light"
@@ -85,7 +81,7 @@ export default function RootLayout(
                 </div>
               </SidebarProvider>
             </ThemeProvider>
-          </TRPCProvider>
+          </QueryProvider>
         </GoogleOAuthProvider>
       </body>
     </html>

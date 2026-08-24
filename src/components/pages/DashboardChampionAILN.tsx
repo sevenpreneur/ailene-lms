@@ -7,12 +7,11 @@ import ChampionTeamMembersAILN from "@/components/indexes/ChampionTeamMembersAIL
 import MembersLabelChampionAILN from "@/components/labels/MembersLabelChampionAILN";
 import RecentUseCasesAILN from "@/components/indexes/RecentUseCasesAILN";
 import PageContainerAILN from "@/components/pages/PageContainerAILN";
-import AppErrorComponents from "@/components/states/AppErrorComponents";
+import { getTeamMembersMock } from "@/mock-data/champion";
+import { getAilMemberMock } from "@/mock-data/shared";
 import { useProjectId } from "@/lib/use-project-id";
-import { setSessionToken, trpc } from "@/trpc/client";
 import { Activity, Clock, Plus, Send } from "lucide-react";
 import Link from "next/link";
-import { useEffect } from "react";
 
 // Platform tops out at L4 (L0 Assessment … L4 Advanced) — used to normalize
 // the level component of the team score.
@@ -40,51 +39,14 @@ const ACCENT = {
   },
 };
 
-export default function DashboardChampionAILN({
-  sessionToken,
-}: {
-  sessionToken: string;
-}) {
+export default function DashboardChampionAILN() {
   const projectId = useProjectId();
 
-  useEffect(() => {
-    setSessionToken(sessionToken);
-  }, [sessionToken]);
-
-  const membersQ = trpc.list.members.useQuery({});
-  const memberQ = trpc.auth.checkAilMember.useQuery();
-
-  if (membersQ.isLoading) {
-    return (
-      <PageContainerAILN>
-        <DashboardChampionSkeleton />
-      </PageContainerAILN>
-    );
-  }
-  if (membersQ.error) {
-    return (
-      <PageContainerAILN>
-        <AppErrorComponents />
-      </PageContainerAILN>
-    );
-  }
-
-  const stats = membersQ.data?.stats ?? {
-    total: 0,
-    on_track: 0,
-    at_risk: 0,
-    behind: 0,
-    active_this_week: 0,
-    submissions_sent: 0,
-    members_submitted: 0,
-    hours_saved: 0,
-  };
-  const allMembers = membersQ.data?.list ?? [];
+  const { stats, list: allMembers } = getTeamMembersMock({});
+  const ailMember = getAilMemberMock({ projectId, userId: "current" });
 
   const groupName =
-    (memberQ.data?.ail_member?.championed_groups ?? [])
-      .map((g) => g.name)
-      .join(", ") || "Tim";
+    ailMember.championed_groups.map((g) => g.name).join(", ") || "Tim";
   const avgLevel =
     allMembers.length > 0
       ? allMembers.reduce((sum, m) => sum + m.current_level.level_number, 0) /
@@ -178,87 +140,6 @@ export default function DashboardChampionAILN({
         </div>
       </div>
     </PageContainerAILN>
-  );
-}
-
-function DashboardChampionSkeleton() {
-  return (
-    <div className="flex w-full flex-col gap-6 animate-pulse">
-      {/* Header */}
-      <div className="space-y-2">
-        <div className="h-7 w-48 rounded bg-gray-200 dark:bg-dashboard-border" />
-        <div className="h-3.5 w-72 rounded bg-gray-200 dark:bg-dashboard-border" />
-      </div>
-
-      {/* Team score banner */}
-      <div className="h-32 rounded-xl border border-dashboard-border bg-gray-100 dark:bg-dashboard-border" />
-
-      {/* Stat cards */}
-      <div className="grid grid-cols-1 gap-4 md:grid-cols-3">
-        {[0, 1, 2].map((i) => (
-          <div
-            key={i}
-            className="flex flex-col gap-2 rounded-lg border border-dashboard-border bg-white p-3 dark:bg-card-1"
-          >
-            <div className="flex items-start gap-3">
-              <div className="size-10 rounded-md bg-gray-200 dark:bg-dashboard-border" />
-              <div className="flex flex-col gap-1.5">
-                <div className="h-3 w-24 rounded bg-gray-200 dark:bg-dashboard-border" />
-                <div className="h-4 w-12 rounded bg-gray-200 dark:bg-dashboard-border" />
-              </div>
-            </div>
-            <div className="h-3 w-20 rounded bg-gray-200 dark:bg-dashboard-border" />
-          </div>
-        ))}
-      </div>
-
-      {/* Table card */}
-      <div className="rounded-lg border border-dashboard-border bg-white p-4 shadow-sm dark:bg-card-1">
-        <div className="mb-4 flex flex-wrap items-center justify-between gap-3">
-          <div className="space-y-2">
-            <div className="h-4 w-32 rounded bg-gray-200 dark:bg-dashboard-border" />
-            <div className="h-8 w-64 rounded-lg bg-gray-200 dark:bg-dashboard-border" />
-          </div>
-          <div className="h-8 w-32 rounded-lg bg-gray-200 dark:bg-dashboard-border" />
-        </div>
-        <div className="space-y-3">
-          {[0, 1, 2, 3, 4].map((i) => (
-            <div
-              key={i}
-              className="flex items-center gap-3 border-t border-dashboard-border pt-3"
-            >
-              <div className="h-8 w-8 rounded-full bg-gray-200 dark:bg-dashboard-border" />
-              <div className="flex-1 space-y-1.5">
-                <div className="h-3 w-40 rounded bg-gray-200 dark:bg-dashboard-border" />
-                <div className="h-2.5 w-56 rounded bg-gray-200 dark:bg-dashboard-border" />
-              </div>
-              <div className="h-5 w-16 rounded bg-gray-200 dark:bg-dashboard-border" />
-              <div className="h-5 w-20 rounded bg-gray-200 dark:bg-dashboard-border" />
-              <div className="h-5 w-12 rounded bg-gray-200 dark:bg-dashboard-border" />
-            </div>
-          ))}
-        </div>
-      </div>
-
-      {/* Coaching alerts card */}
-      <div className="rounded-lg border border-dashboard-border bg-white p-4 shadow-sm dark:bg-card-1">
-        <div className="mb-3 h-4 w-36 rounded bg-gray-200 dark:bg-dashboard-border" />
-        <div className="grid grid-cols-1 gap-3 md:grid-cols-2 xl:grid-cols-3">
-          {[0, 1, 2].map((i) => (
-            <div
-              key={i}
-              className="flex items-center gap-2 rounded-lg border border-dashboard-border bg-gray-50 p-3 dark:bg-card-2"
-            >
-              <div className="h-8 w-8 rounded-full bg-gray-200 dark:bg-dashboard-border" />
-              <div className="flex-1 space-y-1.5">
-                <div className="h-3 w-32 rounded bg-gray-200 dark:bg-dashboard-border" />
-                <div className="h-2.5 w-40 rounded bg-gray-200 dark:bg-dashboard-border" />
-              </div>
-            </div>
-          ))}
-        </div>
-      </div>
-    </div>
   );
 }
 

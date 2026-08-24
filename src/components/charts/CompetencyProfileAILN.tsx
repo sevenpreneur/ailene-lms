@@ -6,7 +6,7 @@ import {
   ChartTooltipContent,
   type ChartConfig,
 } from "@/components/ui/chart";
-import { trpc } from "@/trpc/client";
+import { getCompetencyProfileMock } from "@/mock-data/student";
 import {
   PolarAngleAxis,
   PolarGrid,
@@ -56,26 +56,7 @@ interface CompetencyProfileAILNProps {
 export default function CompetencyProfileAILN({
   className,
 }: CompetencyProfileAILNProps) {
-  const q = trpc.read.competencyProfile.useQuery();
-
-  if (q.isLoading) {
-    return (
-      <SectionContainerAILN title="Profil Kompetensi AI" className={className}>
-        <div className="h-[360px] animate-pulse rounded-md bg-gray-100 dark:bg-dashboard-border" />
-      </SectionContainerAILN>
-    );
-  }
-  if (q.error || !q.data) {
-    return (
-      <SectionContainerAILN title="Profil Kompetensi AI" className={className}>
-        <div className="flex h-[360px] items-center justify-center text-sm text-gray-500">
-          Gagal memuat profil kompetensi.
-        </div>
-      </SectionContainerAILN>
-    );
-  }
-
-  const { dimensions, target_level_number } = q.data.profile;
+  const { dimensions, target_level_number } = getCompetencyProfileMock();
 
   return (
     <SectionContainerAILN

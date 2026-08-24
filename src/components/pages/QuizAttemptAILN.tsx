@@ -1,11 +1,10 @@
 "use client";
 import ButtonAILN from "@/components/buttons/ButtonAILN";
+import DisabledActionButtonAILN from "@/components/buttons/DisabledActionButtonAILN";
 import AlertConfirmDialogAILN from "@/components/modals/AlertConfirmDialogAILN";
 import PageContainerAILN from "@/components/pages/PageContainerAILN";
-import AppLoadingComponents from "@/components/states/AppLoadingComponents";
 import { getDurationFromSeconds } from "@/lib/date-time-manipulation";
 import { useProjectId } from "@/lib/use-project-id";
-import { trpc } from "@/trpc/client";
 import {
   faChevronLeft,
   faChevronRight,
@@ -15,8 +14,7 @@ import {
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { useTheme } from "next-themes";
 import { useRouter } from "next/navigation";
-import { useEffect, useRef, useState } from "react";
-import { toast } from "sonner";
+import { useEffect, useState } from "react";
 
 export interface QuizOption {
   id: number;
@@ -57,7 +55,7 @@ export interface QuizDetailsData {
   xp_earned: number;
 }
 
-const AUTOSAVE_DEBOUNCE_MS = 400;
+const QUIZ_DURATION_SECONDS = 20 * 60;
 
 interface QuizAttemptAILNProps {
   quizId: string;
@@ -65,12 +63,11 @@ interface QuizAttemptAILNProps {
 }
 
 export default function QuizAttemptAILN({
-  quizId,
+  quizId: _quizId,
   data,
 }: QuizAttemptAILNProps) {
   const router = useRouter();
   const projectId = useProjectId();
-  const utils = trpc.useUtils();
   const { quiz, questions } = data;
   const { resolvedTheme } = useTheme();
   const [mounted, setMounted] = useState(false);
@@ -86,115 +83,23 @@ export default function QuizAttemptAILN({
   const [answers, setAnswers] = useState<Record<string, string | null>>({});
   // Index soal yang lagi ditampilin (mulai dari 0)
   const [currentIdx, setCurrentIdx] = useState(0);
-  // Sisa waktu dalam detik. null = belum selesai inisialisasi dari server
-  const [secondsLeft, setSecondsLeft] = useState<number | null>(null);
+  const [secondsLeft, setSecondsLeft] = useState(QUIZ_DURATION_SECONDS);
   const [isExitDialogOpen, setIsExitDialogOpen] = useState(false);
-  const [isConfirmSubmitDialogOpen, setIsConfirmSubmitDialogOpen] =
-    useState(false);
 
-  // Tandain quiz udah disubmit. Dipakai buat block autosave + submit dobel
-  const submittedRef = useRef(false);
-  // Tandain startAttempt udah dipanggil sekali. Buat StrictMode/dobel mount
-  const startedRef = useRef(false);
-  // Tandain user beneran udah pilih jawaban minimal sekali.
-  // Autosave cuma fire setelah ini true, supaya seed answers dari server
-  const userInteractedRef = useRef(false);
-
-  // Dipanggil pas component mount. Server-lah yang nentuin sisa waktu
-  const startAttempt = trpc.update.startQuizAttempt.useMutation({
-    onSuccess: (res) => {
-      if (res.status === "finalized") {
-        submittedRef.current = true;
-        utils.list.quizQuestions.invalidate({ quiz_id: quizId });
-        utils.read.quizResult.invalidate({ quiz_id: quizId });
-        utils.list.chapters.invalidate();
-        utils.list.tasks.invalidate();
-        utils.auth.checkAilMember.invalidate();
-        return;
-      }
-      setAnswers((res.answers as Record<string, string | null>) ?? {});
-      setSecondsLeft(res.seconds_left);
-    },
-    onError: () => toast.error("Gagal memulai quiz."),
-  });
-
-  // Trigger startAttempt sekali pas mount. startedRef guard biar ga dobel call
+  // Tiap detik, kurangi secondsLeft, berhenti di 0.
   useEffect(() => {
-    if (startedRef.current) return;
-    startedRef.current = true;
-    startAttempt.mutate({ quiz_id: quizId });
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [quizId]);
-
-  // Tiap detik, kurangi secondsLeft. Saat udah 0, biarin — effect lain yang handle auto-submit.
-  useEffect(() => {
-    if (secondsLeft === null) return;
     if (secondsLeft <= 0) return;
-    const id = setTimeout(
-      () => setSecondsLeft((s) => (s == null ? s : s - 1)),
-      1000
-    );
+    const id = setTimeout(() => setSecondsLeft((s) => Math.max(0, s - 1)), 1000);
     return () => clearTimeout(id);
-  }, [secondsLeft]);
-
-  // Simpan jawaban ke DB (is_completed=false). Server juga nge-check kalo draft
-  const saveDraft = trpc.update.saveQuizDraft.useMutation({
-    onSuccess: (res) => {
-      if (res.status === "finalized") {
-        submittedRef.current = true;
-        utils.list.quizQuestions.invalidate({ quiz_id: quizId });
-        utils.read.quizResult.invalidate({ quiz_id: quizId });
-        utils.list.chapters.invalidate();
-        utils.list.tasks.invalidate();
-        utils.auth.checkAilMember.invalidate();
-      }
-    },
-  });
-
-  // Finalize quiz: hitung score, set is_completed=true, award XP.
-  const submitMutation = trpc.update.submitQuiz.useMutation({
-    onError: () => toast.error("Gagal menyimpan jawaban quiz."),
-    onSuccess: () => {
-      utils.list.quizQuestions.invalidate({ quiz_id: quizId });
-      utils.read.quizResult.invalidate({ quiz_id: quizId });
-      utils.list.chapters.invalidate();
-      utils.list.tasks.invalidate();
-      utils.auth.checkAilMember.invalidate();
-    },
-  });
-
-  // Autosave tiap kali `answers` berubah
-  useEffect(() => {
-    if (!userInteractedRef.current) return;
-    if (submittedRef.current) return;
-    if (secondsLeft === null) return;
-    const id = setTimeout(() => {
-      if (submittedRef.current) return;
-      saveDraft.mutate({ quiz_id: quizId, answers });
-    }, AUTOSAVE_DEBOUNCE_MS);
-    return () => clearTimeout(id);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [answers, quizId]);
-
-  // Auto-submit pas waktu habis
-  useEffect(() => {
-    if (secondsLeft === null) return;
-    if (secondsLeft > 0) return;
-    if (submittedRef.current) return;
-    submittedRef.current = true;
-    submitMutation.mutate({ quiz_id: quizId, answers });
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [secondsLeft]);
 
   // ===== DERIVED VALUES =====
   const currentQ = questions[currentIdx];
   const totalQuestions = questions.length;
 
-  // User pilih opsi. Set userInteractedRef supaya autosave aktif.
   const handleSelect = (optionCode: string) => {
     if (!currentQ) return;
     const qid = String(currentQ.id);
-    userInteractedRef.current = true;
     setAnswers((prev) => ({ ...prev, [qid]: optionCode }));
   };
 
@@ -202,15 +107,6 @@ export default function QuizAttemptAILN({
   const handlePrev = () => setCurrentIdx((i) => Math.max(0, i - 1));
   const handleNext = () =>
     setCurrentIdx((i) => Math.min(totalQuestions - 1, i + 1));
-
-  // Submit manual via tombol "Submit jawaban". Buka dialog konfirmasi dulu.
-  const handleSubmit = () => setIsConfirmSubmitDialogOpen(true);
-  const handleConfirmSubmit = () => {
-    setIsConfirmSubmitDialogOpen(false);
-    if (submittedRef.current) return;
-    submittedRef.current = true;
-    submitMutation.mutate({ quiz_id: quizId, answers });
-  };
 
   // Buka dialog konfirmasi dulu saat mau keluar
   const handleExit = () => setIsExitDialogOpen(true);
@@ -220,15 +116,6 @@ export default function QuizAttemptAILN({
   };
 
   const isLast = currentIdx === totalQuestions - 1;
-
-  // Loading state: tunggu startAttempt response dulu sebelum render UI quiz,
-  if (secondsLeft === null) {
-    return (
-      <PageContainerAILN>
-        <AppLoadingComponents />
-      </PageContainerAILN>
-    );
-  }
 
   return (
     <PageContainerAILN>
@@ -253,10 +140,6 @@ export default function QuizAttemptAILN({
             >
               <FontAwesomeIcon icon={faClock} className="h-3.5 w-3.5" />
               {getDurationFromSeconds(Math.max(0, secondsLeft))} tersisa
-            </span>
-            <span className="flex items-center gap-1.5 text-xs font-medium text-emerald-600 dark:text-emerald-400">
-              <span className="size-1.5 rounded-full bg-emerald-500 dark:shadow-[0_0_6px_rgba(16,185,129,0.7)]" />
-              Auto-save aktif
             </span>
             <button
               type="button"
@@ -414,14 +297,9 @@ export default function QuizAttemptAILN({
               </div>
             </div>
 
-            <ButtonAILN
-              variant={nextVariant}
-              onClick={handleSubmit}
-              disabled={submitMutation.isPending}
-              className="w-full"
-            >
-              {submitMutation.isPending ? "Menyimpan..." : "Submit jawaban"}
-            </ButtonAILN>
+            <DisabledActionButtonAILN variant={nextVariant} className="w-full">
+              Submit jawaban
+            </DisabledActionButtonAILN>
           </div>
         </div>
       </div>
@@ -433,15 +311,6 @@ export default function QuizAttemptAILN({
         alertConfirmLabel="Tetap keluar"
         onClose={() => setIsExitDialogOpen(false)}
         onConfirm={handleConfirmExit}
-      />
-      <AlertConfirmDialogAILN
-        isOpen={isConfirmSubmitDialogOpen}
-        alertDialogHeader="Yakin submit jawaban?"
-        alertDialogMessage="Quiz tidak bisa diulang setelah disubmit. Pastikan semua jawaban kamu sudah benar sebelum lanjut."
-        alertCancelLabel="Periksa lagi"
-        alertConfirmLabel="Ya, submit"
-        onClose={() => setIsConfirmSubmitDialogOpen(false)}
-        onConfirm={handleConfirmSubmit}
       />
     </PageContainerAILN>
   );

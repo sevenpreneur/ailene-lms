@@ -1,64 +1,44 @@
 "use client";
+import DisabledActionButtonAILN from "@/components/buttons/DisabledActionButtonAILN";
 import ButtonAILN from "@/components/buttons/ButtonAILN";
 import SectionContainerAILN from "@/components/cards/SectionContainerAILN";
 import GeneralLabelAILN from "@/components/labels/GeneralLabelAILN";
 import PageContainerAILN from "@/components/pages/PageContainerAILN";
 import AppErrorComponents from "@/components/states/AppErrorComponents";
-import AppLoadingComponents from "@/components/states/AppLoadingComponents";
 import PageHeaderAILN from "@/components/titles/PageHeaderAILN";
 import { CheckSession } from "@/lib/actions";
 import { useProjectId } from "@/lib/use-project-id";
-import { setSessionToken, trpc } from "@/trpc/client";
+import { getPreAssessmentRecommendationsMock, getPreAssessmentReportMock } from "@/mock-data/student";
 import { useQuery } from "@tanstack/react-query";
 import type { PreAssessmentRecommendation } from "@/lib/pre-assessment-report";
-import type { AppRouter } from "@/trpc/routers/_app";
-import type { inferRouterOutputs } from "@trpc/server";
 import {
   AlertTriangle,
   ArrowRight,
   BookOpen,
   Clock3,
   Loader2,
-  RefreshCw,
   TrendingUp,
 } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useEffect } from "react";
 
-interface PreAssessmentReportAILNProps {
-  sessionToken: string;
-}
+type PreAssessmentReportData = ReturnType<
+  typeof getPreAssessmentReportMock
+>["report"];
 
-type PreAssessmentReportData = NonNullable<
-  inferRouterOutputs<AppRouter>["read"]["preAssessmentReport"]["report"]
->;
-
-export default function PreAssessmentReportAILN({
-  sessionToken,
-}: PreAssessmentReportAILNProps) {
+export default function PreAssessmentReportAILN() {
   const router = useRouter();
   const projectId = useProjectId();
 
-  useEffect(() => {
-    if (sessionToken) setSessionToken(sessionToken);
-  }, [sessionToken]);
-
-  const { data, isLoading, isError } = trpc.read.preAssessmentReport.useQuery();
+  const data = getPreAssessmentReportMock();
 
   useEffect(() => {
-    if (data && !data.report) {
+    if (!data.report) {
       router.replace(`/${projectId}/student/pre-assessment`);
     }
-  }, [data, router, projectId]);
+  }, [data.report, router, projectId]);
 
-  if (isLoading || (data && !data.report)) {
-    return (
-      <PageContainerAILN className="min-h-screen items-start">
-        <AppLoadingComponents />
-      </PageContainerAILN>
-    );
-  }
-  if (isError || !data || !data.report) {
+  if (!data.report) {
     return (
       <PageContainerAILN className="min-h-screen items-start">
         <AppErrorComponents />
@@ -76,26 +56,12 @@ function PreAssessmentReportContent({
 }) {
   const router = useRouter();
   const projectId = useProjectId();
-  const utils = trpc.useUtils();
   const userQ = useQuery({ queryKey: ["session"], queryFn: CheckSession });
   const firstName = userQ.data?.user?.full_name?.split(" ")[0] ?? "teman";
 
-  // Poll the recommendation endpoint while the worker is still generating.
-  const recQ = trpc.read.preAssessmentRecommendations.useQuery(undefined, {
-    refetchInterval: (query) => {
-      const status = query.state.data?.status;
-      return status === "pending" || status === "processing" ? 4000 : false;
-    },
-  });
-
-  const regenerate = trpc.create.regeneratePreAssessmentReport.useMutation({
-    onSuccess: () => utils.read.preAssessmentRecommendations.invalidate(),
-  });
-
-  // Default to "processing" until the first response lands so the UI shows the
-  // loading skeleton rather than flashing the failed/empty state.
-  const status = recQ.data?.status ?? "processing";
-  const recommendations = recQ.data?.recommendations ?? null;
+  const recData = getPreAssessmentRecommendationsMock();
+  const status = recData.status;
+  const recommendations = recData.recommendations;
   const items = recommendations?.items ?? [];
 
   return (
@@ -213,10 +179,7 @@ function PreAssessmentReportContent({
                   ))}
                 </div>
               ) : status === "failed" ? (
-                <RecommendationsFailed
-                  onRetry={() => regenerate.mutate()}
-                  isRetrying={regenerate.isPending}
-                />
+                <RecommendationsFailed />
               ) : (
                 <RecommendationsLoading />
               )}
@@ -293,15 +256,9 @@ function RecommendationsLoading() {
   );
 }
 
-// Shown when generation failed — offers a one-click retry that re-queues the
-// worker (create.regeneratePreAssessmentReport) and resumes polling.
-function RecommendationsFailed({
-  onRetry,
-  isRetrying,
-}: {
-  onRetry: () => void;
-  isRetrying: boolean;
-}) {
+// Shown when generation failed — retry re-queues the worker
+// (create.regeneratePreAssessmentReport), now disabled pending Java backend.
+function RecommendationsFailed() {
   return (
     <div className="flex flex-col items-start gap-3 rounded-lg border border-amber-200 bg-amber-50 px-4 py-4 text-amber-800 dark:border-amber-500/30 dark:bg-amber-500/10 dark:text-amber-200">
       <div className="flex items-center gap-2 text-sm font-semibold">
@@ -312,14 +269,9 @@ function RecommendationsFailed({
         Skill mapping di atas tetap valid. Rekomendasi personalmu belum sempat
         tersusun — coba buat ulang sebentar lagi.
       </p>
-      <ButtonAILN variant="neutral" onClick={onRetry} disabled={isRetrying}>
-        {isRetrying ? (
-          <Loader2 className="size-4 animate-spin" />
-        ) : (
-          <RefreshCw className="size-4" />
-        )}
-        {isRetrying ? "Memproses..." : "Coba generate ulang"}
-      </ButtonAILN>
+      <DisabledActionButtonAILN variant="neutral">
+        Coba generate ulang
+      </DisabledActionButtonAILN>
     </div>
   );
 }

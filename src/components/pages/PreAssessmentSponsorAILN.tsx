@@ -4,18 +4,8 @@ import BaselineByDepartmentAILN from "@/components/indexes/BaselineByDepartmentA
 import PillarRankingAILN from "@/components/indexes/PillarRankingAILN";
 import PageContainerAILN from "@/components/pages/PageContainerAILN";
 import PageHeaderAILN from "@/components/titles/PageHeaderAILN";
-import { setSessionToken } from "@/trpc/client";
-import { useEffect } from "react";
 
-export default function PreAssessmentSponsorAILN({
-  sessionToken,
-}: {
-  sessionToken: string;
-}) {
-  useEffect(() => {
-    setSessionToken(sessionToken);
-  }, [sessionToken]);
-
+export default function PreAssessmentSponsorAILN() {
   return (
     <PageContainerAILN>
       <div className="flex w-full flex-col gap-6">

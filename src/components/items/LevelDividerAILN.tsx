@@ -1,15 +1,13 @@
 "use client";
 
-import ButtonAILN from "@/components/buttons/ButtonAILN";
+import DisabledActionButtonAILN from "@/components/buttons/DisabledActionButtonAILN";
 import LevelUnlockSuccessModalAILN, {
   type LevelUnlockSuccessData,
 } from "@/components/modals/LevelUnlockSuccessModalAILN";
-import { trpc } from "@/trpc/client";
 import { faLock } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import Image from "next/image";
 import { useState } from "react";
-import { toast } from "sonner";
 
 const LOCKED_ICON_URL =
   "https://tskubmriuclmbcfmaiur.supabase.co/storage/v1/object/public/sevenpreneur/level_locked.webp";
@@ -29,23 +27,9 @@ interface LevelDividerAILNProps {
 }
 
 export default function LevelDividerAILN(props: LevelDividerAILNProps) {
-  const utils = trpc.useUtils();
   const [unlockSummary, setUnlockSummary] =
     useState<LevelUnlockSuccessData | null>(null);
   const [isUnlockModalOpen, setIsUnlockModalOpen] = useState(false);
-  const unlockMutation = trpc.update.unlockLevel.useMutation({
-    onSuccess: (data) => {
-      toast.success(`Level ${props.level.level_number} unlocked!`);
-      utils.auth.checkAilMember.invalidate();
-      if (data.unlock_summary) {
-        setUnlockSummary(data.unlock_summary);
-        setIsUnlockModalOpen(true);
-      }
-    },
-    onError: (err) => {
-      toast.error(err.message || "Failed to unlock level.");
-    },
-  });
 
   const iconUrl = props.unlocked
     ? (props.level.icon ?? LOCKED_ICON_URL)
@@ -147,16 +131,9 @@ export default function LevelDividerAILN(props: LevelDividerAILNProps) {
                     Semua quiz dan materi sudah selesai
                   </div>
                 </div>
-                <ButtonAILN
-                  variant="primary"
-                  size="medium"
-                  onClick={() =>
-                    unlockMutation.mutate({ level_id: props.level.id })
-                  }
-                  disabled={unlockMutation.isPending}
-                >
-                  {unlockMutation.isPending ? "Unlocking..." : "Unlock Level"}
-                </ButtonAILN>
+                <DisabledActionButtonAILN variant="primary" size="medium">
+                  Unlock Level
+                </DisabledActionButtonAILN>
               </div>
             ) : (
               <div className="flex items-center gap-4">

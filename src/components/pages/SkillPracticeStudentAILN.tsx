@@ -7,10 +7,15 @@ import SkillPracticeCardAILN, {
   type PracticeStatus,
 } from "@/components/items/SkillPracticeCardAILN";
 import PageContainerAILN from "@/components/pages/PageContainerAILN";
-import AppErrorComponents from "@/components/states/AppErrorComponents";
 import PageHeaderAILN from "@/components/titles/PageHeaderAILN";
 import { useProjectId } from "@/lib/use-project-id";
-import { setSessionToken, trpc } from "@/trpc/client";
+import {
+  getAssignedPromptsMock,
+  getAssignedUseCasesMock,
+  getMemberPromptLibraryMock,
+  getMemberUseCaseLibraryMock,
+  getPracticeSubmissionsMock,
+} from "@/mock-data/student";
 import dayjs from "dayjs";
 import "dayjs/locale/id";
 import { BookOpen, Clock, History, Library, Plus } from "lucide-react";
@@ -86,17 +91,9 @@ function deriveStatus(item: {
   return "AWAITING_REVIEW";
 }
 
-export default function SkillPracticeStudentAILN({
-  sessionToken,
-}: {
-  sessionToken: string;
-}) {
+export default function SkillPracticeStudentAILN() {
   const searchParams = useSearchParams();
   const projectId = useProjectId();
-
-  useEffect(() => {
-    setSessionToken(sessionToken);
-  }, [sessionToken]);
 
   const [tab, setTab] = useState<PracticeTab>(() =>
     tabFromParam(searchParams.get("tab"))
@@ -106,56 +103,42 @@ export default function SkillPracticeStudentAILN({
     setTab(tabFromParam(searchParams.get("tab")));
   }, [searchParams]);
 
-  const assignedPromptsQ = trpc.list.assignedPrompts.useQuery();
-  const assignedUseCasesQ = trpc.list.assignedUseCases.useQuery();
-  const libraryPromptsQ = trpc.list.memberPromptLibrary.useQuery(undefined, {
-    enabled: tab === "LIBRARY",
-  });
-  const libraryUseCasesQ = trpc.list.memberUseCaseLibrary.useQuery(undefined, {
-    enabled: tab === "LIBRARY",
-  });
-  const submissionsQ = trpc.list.practiceSubmissions.useQuery(undefined, {
-    enabled: tab === "HISTORY",
-  });
-
   const assignedItems = useMemo<PracticeItem[]>(() => {
-    const prompts =
-      assignedPromptsQ.data?.list.map((r) => ({
-        id: r.id,
-        kind: "PROMPT" as const,
-        ref_id: r.prompt.id,
-        href: practiceHref(projectId, "PROMPT", r.prompt.id),
-        title: r.prompt.name,
-        body: r.prompt.scenario,
-        level_number: r.prompt.level.level_number,
-        categories: r.prompt.categories,
-        champion_name: r.assigned_by?.full_name ?? null,
-        deadline: r.deadline as unknown as string | null,
-        message: r.message,
-        submitted_at: r.submitted_at as unknown as string | null,
-        reviewed_at: r.reviewed_at as unknown as string | null,
-        comment: r.comment,
-        is_accepted: r.is_accepted,
-      })) ?? [];
+    const prompts = getAssignedPromptsMock().map((r) => ({
+      id: r.id,
+      kind: "PROMPT" as const,
+      ref_id: r.prompt.id,
+      href: practiceHref(projectId, "PROMPT", r.prompt.id),
+      title: r.prompt.name,
+      body: r.prompt.scenario,
+      level_number: r.prompt.level.level_number,
+      categories: r.prompt.categories,
+      champion_name: r.assigned_by?.full_name ?? null,
+      deadline: r.deadline as unknown as string | null,
+      message: r.message,
+      submitted_at: r.submitted_at as unknown as string | null,
+      reviewed_at: r.reviewed_at as unknown as string | null,
+      comment: r.comment,
+      is_accepted: r.is_accepted,
+    }));
 
-    const useCases =
-      assignedUseCasesQ.data?.list.map((r) => ({
-        id: r.id,
-        kind: "USE_CASE" as const,
-        ref_id: r.use_case.id,
-        href: practiceHref(projectId, "USE_CASE", r.use_case.id),
-        title: r.use_case.name,
-        body: r.use_case.description,
-        level_number: r.use_case.level.level_number,
-        categories: r.use_case.categories,
-        champion_name: r.assigned_by?.full_name ?? null,
-        deadline: r.deadline as unknown as string | null,
-        message: r.message,
-        submitted_at: r.submitted_at as unknown as string | null,
-        reviewed_at: r.reviewed_at as unknown as string | null,
-        comment: r.comment,
-        is_accepted: r.is_accepted,
-      })) ?? [];
+    const useCases = getAssignedUseCasesMock().map((r) => ({
+      id: r.id,
+      kind: "USE_CASE" as const,
+      ref_id: r.use_case.id,
+      href: practiceHref(projectId, "USE_CASE", r.use_case.id),
+      title: r.use_case.name,
+      body: r.use_case.description,
+      level_number: r.use_case.level.level_number,
+      categories: r.use_case.categories,
+      champion_name: r.assigned_by?.full_name ?? null,
+      deadline: r.deadline as unknown as string | null,
+      message: r.message,
+      submitted_at: r.submitted_at as unknown as string | null,
+      reviewed_at: r.reviewed_at as unknown as string | null,
+      comment: r.comment,
+      is_accepted: r.is_accepted,
+    }));
 
     return [...prompts, ...useCases].sort((a, b) => {
       const statusOrder =
@@ -167,54 +150,52 @@ export default function SkillPracticeStudentAILN({
         dayjs(b.deadline ?? "9999-12-31").valueOf()
       );
     });
-  }, [assignedPromptsQ.data, assignedUseCasesQ.data, projectId]);
+  }, [projectId]);
 
   const libraryItems = useMemo<LibraryItem[]>(() => {
-    const prompts =
-      libraryPromptsQ.data?.list.map((r) => ({
-        id: r.id,
-        kind: "PROMPT" as const,
-        ref_id: r.id,
-        href: practiceHref(projectId, "PROMPT", r.id),
-        title: r.name,
-        body: r.scenario,
-        level_number: r.level.level_number,
-        categories: r.categories,
-        submission: r.submission
-          ? {
-              id: r.submission.id,
-              deadline: r.submission.deadline as unknown as string | null,
-              submitted_at: r.submission.submitted_at as unknown as
-                | string
-                | null,
-              reviewed_at: r.submission.reviewed_at as unknown as string | null,
-              is_accepted: r.submission.is_accepted,
-            }
-          : null,
-      })) ?? [];
+    const prompts = getMemberPromptLibraryMock().map((r) => ({
+      id: r.id,
+      kind: "PROMPT" as const,
+      ref_id: r.id,
+      href: practiceHref(projectId, "PROMPT", r.id),
+      title: r.name,
+      body: r.scenario,
+      level_number: r.level.level_number,
+      categories: r.categories,
+      submission: r.submission
+        ? {
+            id: r.submission.id,
+            deadline: r.submission.deadline as unknown as string | null,
+            submitted_at: r.submission.submitted_at as unknown as
+              | string
+              | null,
+            reviewed_at: r.submission.reviewed_at as unknown as string | null,
+            is_accepted: r.submission.is_accepted,
+          }
+        : null,
+    }));
 
-    const useCases =
-      libraryUseCasesQ.data?.list.map((r) => ({
-        id: r.id,
-        kind: "USE_CASE" as const,
-        ref_id: r.id,
-        href: practiceHref(projectId, "USE_CASE", r.id),
-        title: r.name,
-        body: r.description,
-        level_number: r.level.level_number,
-        categories: r.categories,
-        submission: r.submission
-          ? {
-              id: r.submission.id,
-              deadline: r.submission.deadline as unknown as string | null,
-              submitted_at: r.submission.submitted_at as unknown as
-                | string
-                | null,
-              reviewed_at: r.submission.reviewed_at as unknown as string | null,
-              is_accepted: r.submission.is_accepted,
-            }
-          : null,
-      })) ?? [];
+    const useCases = getMemberUseCaseLibraryMock().map((r) => ({
+      id: r.id,
+      kind: "USE_CASE" as const,
+      ref_id: r.id,
+      href: practiceHref(projectId, "USE_CASE", r.id),
+      title: r.name,
+      body: r.description,
+      level_number: r.level.level_number,
+      categories: r.categories,
+      submission: r.submission
+        ? {
+            id: r.submission.id,
+            deadline: r.submission.deadline as unknown as string | null,
+            submitted_at: r.submission.submitted_at as unknown as
+              | string
+              | null,
+            reviewed_at: r.submission.reviewed_at as unknown as string | null,
+            is_accepted: r.submission.is_accepted,
+          }
+        : null,
+    }));
 
     return [...prompts, ...useCases].sort((a, b) => {
       if (a.level_number !== b.level_number) {
@@ -222,40 +203,31 @@ export default function SkillPracticeStudentAILN({
       }
       return a.title.localeCompare(b.title);
     });
-  }, [libraryPromptsQ.data, libraryUseCasesQ.data, projectId]);
+  }, [projectId]);
 
   const historyItems = useMemo<PracticeItem[]>(() => {
-    return (
-      submissionsQ.data?.list.map((r) => ({
-        id: r.id,
-        kind: r.kind,
-        ref_id: r.ref_id,
-        href: practiceHref(projectId, r.kind, r.ref_id),
-        title: r.title,
-        body: r.body,
-        level_number: r.level.level_number,
-        categories: r.categories,
-        champion_name: r.assigned_by?.full_name ?? null,
-        deadline: r.deadline as unknown as string | null,
-        message: r.message,
-        submitted_at: r.submitted_at as unknown as string | null,
-        reviewed_at: r.reviewed_at as unknown as string | null,
-        comment: r.comment,
-        is_accepted: r.is_accepted,
-      })) ?? []
-    );
-  }, [submissionsQ.data, projectId]);
+    return getPracticeSubmissionsMock().map((r) => ({
+      id: r.id,
+      kind: r.kind,
+      ref_id: r.ref_id,
+      href: practiceHref(projectId, r.kind, r.ref_id),
+      title: r.title,
+      body: r.body,
+      level_number: r.level.level_number,
+      categories: r.categories,
+      champion_name: r.assigned_by?.full_name ?? null,
+      deadline: r.deadline as unknown as string | null,
+      message: r.message,
+      submitted_at: r.submitted_at as unknown as string | null,
+      reviewed_at: r.reviewed_at as unknown as string | null,
+      comment: r.comment,
+      is_accepted: r.is_accepted,
+    }));
+  }, [projectId]);
 
   const pendingAssignedCount = assignedItems.filter(
     (item) => deriveStatus(item) === "PENDING_SUBMIT"
   ).length;
-
-  const isAssignedLoading =
-    assignedPromptsQ.isLoading || assignedUseCasesQ.isLoading;
-  const assignedError = assignedPromptsQ.error ?? assignedUseCasesQ.error;
-  const isLibraryLoading =
-    libraryPromptsQ.isLoading || libraryUseCasesQ.isLoading;
-  const libraryError = libraryPromptsQ.error ?? libraryUseCasesQ.error;
 
   return (
     <PageContainerAILN>
@@ -302,11 +274,7 @@ export default function SkillPracticeStudentAILN({
             desc="Latihan yang diberikan untuk kamu kerjakan."
             contentClassName="flex flex-col gap-4"
           >
-            {assignedError ? (
-              <AppErrorComponents />
-            ) : isAssignedLoading ? (
-              <PracticeSkeleton />
-            ) : assignedItems.length === 0 ? (
+            {assignedItems.length === 0 ? (
               <EmptyState label="Belum ada latihan yang di-assign." />
             ) : (
               <>
@@ -345,11 +313,7 @@ export default function SkillPracticeStudentAILN({
             desc="Pilih latihan dari prompt dan use case yang tersedia."
             contentClassName="flex flex-col gap-4"
           >
-            {libraryError ? (
-              <AppErrorComponents />
-            ) : isLibraryLoading ? (
-              <PracticeSkeleton />
-            ) : libraryItems.length === 0 ? (
+            {libraryItems.length === 0 ? (
               <EmptyState label="Library belum punya latihan aktif." />
             ) : (
               <div className="grid grid-cols-1 gap-3 md:grid-cols-2">
@@ -386,11 +350,7 @@ export default function SkillPracticeStudentAILN({
             desc="Semua latihan yang berhasil kamu submit."
             contentClassName="flex flex-col gap-4"
           >
-            {submissionsQ.error ? (
-              <AppErrorComponents />
-            ) : submissionsQ.isLoading ? (
-              <PracticeSkeleton />
-            ) : historyItems.length === 0 ? (
+            {historyItems.length === 0 ? (
               <EmptyState label="Belum ada submission yang berhasil dikirim." />
             ) : (
               <div className="grid grid-cols-1 gap-3 md:grid-cols-2">
@@ -458,19 +418,6 @@ function EmptyState({ label }: { label: string }) {
     <div className="flex flex-col items-center gap-2 rounded-lg border border-dashed border-dashboard-border py-12 text-center text-gray-500 dark:text-gray-400">
       <BookOpen className="size-6" />
       <div className="text-sm">{label}</div>
-    </div>
-  );
-}
-
-function PracticeSkeleton() {
-  return (
-    <div className="grid grid-cols-1 gap-3 md:grid-cols-2">
-      {Array.from({ length: 4 }).map((_, i) => (
-        <div
-          key={i}
-          className="h-64 animate-pulse rounded-lg border border-dashboard-border bg-gray-100 dark:bg-card-1"
-        />
-      ))}
     </div>
   );
 }

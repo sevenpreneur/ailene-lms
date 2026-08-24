@@ -1,13 +1,10 @@
 "use client";
 import SectionContainerAILN from "@/components/cards/SectionContainerAILN";
 import LegendStatAILN from "@/components/items/LegendStatAILN";
-import {
-  EmptyHintAILN,
-  SkeletonBlockAILN,
-} from "@/components/states/DataStatesAILN";
+import { EmptyHintAILN } from "@/components/states/DataStatesAILN";
 import { ChartContainer, type ChartConfig } from "@/components/ui/chart";
 import { formatInt, formatScore } from "@/lib/format";
-import { trpc } from "@/trpc/client";
+import { getPreAssessmentTeamMock } from "@/mock-data/champion";
 import { Cell, Pie, PieChart } from "recharts";
 
 // Readiness tier colors (green = good → red = needs basics).
@@ -23,23 +20,16 @@ const donutConfig = {
 
 // Member readiness mix as a donut, team average baseline in the center.
 export default function ReadinessDistributionChampionAILN() {
-  const q = trpc.read.preAssessmentTeam.useQuery();
-  const data = q.data;
+  const data = getPreAssessmentTeamMock();
 
   return (
     <SectionContainerAILN
       title="Distribusi Kesiapan Anggota"
-      desc={
-        data
-          ? `Komposisi ${formatInt(
-              data.completed_count
-            )} anggota berdasarkan rata-rata baseline`
-          : "Komposisi anggota berdasarkan rata-rata baseline"
-      }
+      desc={`Komposisi ${formatInt(
+        data.completed_count
+      )} anggota berdasarkan rata-rata baseline`}
     >
-      {q.isLoading || !data ? (
-        <SkeletonBlockAILN className="h-56" />
-      ) : data.departments.length === 0 ? (
+      {data.departments.length === 0 ? (
         <EmptyHintAILN className="h-40">Belum ada data.</EmptyHintAILN>
       ) : (
         <ReadinessDonut

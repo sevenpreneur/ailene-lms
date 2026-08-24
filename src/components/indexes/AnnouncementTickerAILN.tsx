@@ -1,15 +1,13 @@
 "use client";
 
-import { trpc } from "@/trpc/client";
+import { getAnnouncementMock } from "@/mock-data/shared";
 import dayjs from "dayjs";
 import { Megaphone } from "lucide-react";
 
 export default function AnnouncementTickerAILN() {
-  const announcementQ = trpc.read.announcement.useQuery();
+  const ann = getAnnouncementMock();
 
-  if (announcementQ.isLoading || !announcementQ.data?.announcement) return null;
-
-  const ann = announcementQ.data.announcement;
+  if (!ann) return null;
   const now = dayjs();
   const active =
     ann.status === "ACTIVE" &&

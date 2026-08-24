@@ -1,17 +1,14 @@
 "use client";
 
 import { useProjectId } from "@/lib/use-project-id";
-import { trpc } from "@/trpc/client";
+import { getCompetencyProfileMock, getStreakMock } from "@/mock-data/student";
 import { Flame, Target } from "lucide-react";
 import Link from "next/link";
 
 export default function MomentumStripAILN() {
   const projectId = useProjectId();
-  const streakQ = trpc.read.streak.useQuery();
-  const compQ = trpc.read.competencyProfile.useQuery();
-
-  const streak = streakQ.data?.current_streak ?? 0;
-  const dims = compQ.data?.profile?.dimensions ?? [];
+  const streak = getStreakMock().current_streak;
+  const dims = getCompetencyProfileMock().dimensions;
   const weakest = dims.length
     ? dims.reduce((min, d) => (d.score < min.score ? d : min), dims[0])
     : null;

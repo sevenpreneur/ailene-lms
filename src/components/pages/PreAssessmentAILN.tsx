@@ -1,7 +1,7 @@
 "use client";
+import DisabledActionButtonAILN from "@/components/buttons/DisabledActionButtonAILN";
 import ButtonAILN from "@/components/buttons/ButtonAILN";
 import PageContainerSVP from "@/components/pages/PageContainerSVP";
-import AppErrorComponents from "@/components/states/AppErrorComponents";
 import AppLoadingComponents from "@/components/states/AppLoadingComponents";
 import {
   PRE_ASSESSMENT_CATEGORY_COLORS,
@@ -11,7 +11,7 @@ import {
 } from "@/lib/pre-assessment-questions";
 import { CheckSession } from "@/lib/actions";
 import { useProjectId } from "@/lib/use-project-id";
-import { setSessionToken, trpc } from "@/trpc/client";
+import { getPreAssessmentMineMock } from "@/mock-data/student";
 import { useQuery } from "@tanstack/react-query";
 import {
   faChevronLeft,
@@ -22,17 +22,10 @@ import { ArrowRight, BookOpen, Sparkles } from "lucide-react";
 import { useTheme } from "next-themes";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
-import { useEffect, useMemo, useRef, useState } from "react";
-import { toast } from "sonner";
-import AlertConfirmDialogAILN from "../modals/AlertConfirmDialogAILN";
+import { useEffect, useMemo, useState } from "react";
 
 type AnswerValue = string | string[] | null;
 type AnswerMap = Record<string, AnswerValue>;
-type FreqCode = "NEVER" | "RARELY" | "SOMETIMES" | "OFTEN" | "ALWAYS";
-
-interface PreAssessmentAILNProps {
-  sessionToken: string;
-}
 
 function isAnswered(q: PreAssessmentQuestion, v: AnswerValue): boolean {
   if (v == null) return false;
@@ -40,10 +33,7 @@ function isAnswered(q: PreAssessmentQuestion, v: AnswerValue): boolean {
   return typeof v === "string" && v.trim().length > 0;
 }
 
-export default function PreAssessmentAILN({
-  sessionToken,
-}: PreAssessmentAILNProps) {
-  const utils = trpc.useUtils();
+export default function PreAssessmentAILN() {
   const router = useRouter();
   const projectId = useProjectId();
   const preAssessmentReportPath = `/${projectId}/student/my-progress/pre-assessment-report`;
@@ -56,20 +46,14 @@ export default function PreAssessmentAILN({
   const isDark = mounted && resolvedTheme === "dark";
   const nextVariant = isDark ? "neutral" : "primary";
 
-  useEffect(() => {
-    if (sessionToken) setSessionToken(sessionToken);
-  }, [sessionToken]);
-
-  const { data, isLoading, isError } = trpc.read.preAssessmentMine.useQuery();
+  const preAssessment = getPreAssessmentMineMock();
 
   // Sudah pernah mengisi → hasilnya ada di halaman report, bukan di sini.
   useEffect(() => {
-    if (data?.pre_assessment) {
+    if (preAssessment) {
       router.replace(preAssessmentReportPath);
     }
-  }, [data?.pre_assessment, router, preAssessmentReportPath]);
-
-  const submittedRef = useRef(false);
+  }, [preAssessment, router, preAssessmentReportPath]);
 
   const [answers, setAnswers] = useState<AnswerMap>(() => {
     const init: AnswerMap = {};
@@ -79,7 +63,6 @@ export default function PreAssessmentAILN({
     return init;
   });
   const [currentIdx, setCurrentIdx] = useState(0);
-  const [isSubmitDialogOpen, setIsSubmitDialogOpen] = useState(false);
   const [started, setStarted] = useState(false);
 
   const totalQuestions = PRE_ASSESSMENT_QUESTIONS.length;
@@ -100,35 +83,8 @@ export default function PreAssessmentAILN({
     [answers]
   );
 
-  const submitMutation = trpc.create.preAssessment.useMutation({
-    onSuccess: () => {
-      utils.read.preAssessmentMine.invalidate();
-      toast.success("Pre-assessment berhasil dikirim.");
-      router.push(preAssessmentReportPath);
-    },
-    onError: (err) => {
-      submittedRef.current = false;
-      toast.error(err.message || "Gagal mengirim pre-assessment.");
-    },
-  });
-
-  if (isLoading) {
-    return (
-      <PageContainerSVP className="flex min-h-screen justify-center">
-        <AppLoadingComponents />
-      </PageContainerSVP>
-    );
-  }
-  if (isError || !data) {
-    return (
-      <PageContainerSVP className="flex min-h-screen justify-center">
-        <AppErrorComponents />
-      </PageContainerSVP>
-    );
-  }
-
   // Sudah punya hasil → tampilkan loading sembari redirect ke report (effect).
-  if (data.pre_assessment) {
+  if (preAssessment) {
     return (
       <PageContainerSVP className="flex min-h-screen justify-center">
         <AppLoadingComponents />
@@ -164,85 +120,6 @@ export default function PreAssessmentAILN({
   const handlePrev = () => setCurrentIdx((i) => Math.max(0, i - 1));
   const handleNext = () =>
     setCurrentIdx((i) => Math.min(totalQuestions - 1, i + 1));
-
-  const requestSubmit = () => {
-    if (missingRequired.length > 0) {
-      toast.error(
-        `Masih ada ${missingRequired.length} pertanyaan wajib yang belum dijawab.`
-      );
-      setCurrentIdx(
-        PRE_ASSESSMENT_QUESTIONS.findIndex(
-          (q) => q.id === missingRequired[0].id
-        )
-      );
-      return;
-    }
-    setIsSubmitDialogOpen(true);
-  };
-
-  const confirmSubmit = () => {
-    if (submittedRef.current) return;
-    setIsSubmitDialogOpen(false);
-    submittedRef.current = true;
-
-    const payload = {
-      ai_use_frequency: answers.ai_use_frequency as
-        | "NEVER"
-        | "TRIED"
-        | "WEEKLY"
-        | "DAILY"
-        | "INTENSIVE",
-      ai_tools_used: (answers.ai_tools_used as string[]) ?? [],
-      ai_limitations: (answers.ai_limitations as string[]) ?? [],
-      output_review: answers.output_review as
-        | "NO_CHECK"
-        | "SOMETIMES"
-        | "ALWAYS"
-        | "CROSS_CHECK"
-        | "NO_USE",
-      use_cases: (answers.use_cases as string[]) ?? [],
-      team_adoption: answers.team_adoption as
-        | "NONE"
-        | "PERSONAL"
-        | "PILOT"
-        | "POLICY"
-        | "INTEGRATED",
-      concrete_example: (answers.concrete_example as string | null) ?? null,
-      model_selection: answers.model_selection as FreqCode,
-      multimodal_use: answers.multimodal_use as FreqCode,
-      workflow_reuse: answers.workflow_reuse as FreqCode,
-      prompt_comfort: answers.prompt_comfort as
-        | "NONE"
-        | "BASIC"
-        | "DECENT"
-        | "STRUCTURED"
-        | "EXPERT",
-      prompt_iteration: answers.prompt_iteration as FreqCode,
-      refine_scenario: answers.refine_scenario as
-        | "TARGETED"
-        | "SWITCH_TOOL"
-        | "MANUAL"
-        | "RESTART",
-      professional_attitude: answers.professional_attitude as
-        | "TOO_RISKY"
-        | "CAUTIOUS"
-        | "NEUTRAL"
-        | "SUPPORTIVE"
-        | "ESSENTIAL",
-      data_safety_check: answers.data_safety_check as FreqCode,
-      publish_unchecked: answers.publish_unchecked as FreqCode,
-      biggest_challenge: (answers.biggest_challenge as string) ?? "",
-      training_expectation: (answers.training_expectation as string) ?? "",
-      motivation: answers.motivation as
-        | "MANDATORY"
-        | "CURIOUS"
-        | "TENTATIVE"
-        | "READY"
-        | "EAGER",
-    };
-
-    submitMutation.mutate(payload);
-  };
 
   const isLast = currentIdx === totalQuestions - 1;
   const progressPct = Math.round((answeredCount / totalQuestions) * 100);
@@ -427,27 +304,16 @@ export default function PreAssessmentAILN({
               </div>
             </div>
 
-            <ButtonAILN
+            <DisabledActionButtonAILN
+              type="button"
               variant="primary"
-              onClick={requestSubmit}
-              disabled={submitMutation.isPending}
               className="w-full"
             >
-              {submitMutation.isPending ? "Mengirim..." : "Kirim Jawaban"}
-            </ButtonAILN>
+              Kirim Jawaban
+            </DisabledActionButtonAILN>
           </div>
         </div>
       </div>
-
-      <AlertConfirmDialogAILN
-        isOpen={isSubmitDialogOpen}
-        alertDialogHeader="Kirim pre-assessment sekarang?"
-        alertDialogMessage="Jawaban hanya bisa dikirim satu kali dan tidak bisa diubah setelahnya. Pastikan semua jawabanmu sudah sesuai."
-        alertCancelLabel="Periksa lagi"
-        alertConfirmLabel="Kirim sekarang"
-        onClose={() => setIsSubmitDialogOpen(false)}
-        onConfirm={confirmSubmit}
-      />
     </PageContainerSVP>
   );
 }

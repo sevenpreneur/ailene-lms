@@ -1,15 +1,13 @@
 "use client";
 
-import ButtonAILN from "@/components/buttons/ButtonAILN";
+import DisabledActionButtonAILN from "@/components/buttons/DisabledActionButtonAILN";
 import SectionContainerAILN from "@/components/cards/SectionContainerAILN";
 import InputAILN from "@/components/fields/InputAILN";
 import TextAreaAILN from "@/components/fields/TextAreaAILN";
 import GeneralLabelAILN from "@/components/labels/GeneralLabelAILN";
-import { trpc } from "@/trpc/client";
 import dayjs from "dayjs";
 import { CalendarDays, Megaphone, Save } from "lucide-react";
-import { FormEvent, useMemo, useState } from "react";
-import { toast } from "sonner";
+import { useMemo, useState } from "react";
 
 const MAX_MESSAGE_LENGTH = 500;
 
@@ -28,21 +26,9 @@ export type Announcement = {
  */
 export default function AnnouncementFormAILN({
   announcement,
-  invalidateAnnouncement,
 }: {
   announcement: Announcement | null;
-  invalidateAnnouncement: () => Promise<unknown>;
 }) {
-  const updateAnnouncement = trpc.update.announcement.useMutation({
-    onSuccess: async () => {
-      await invalidateAnnouncement();
-      toast.success("Pengumuman berhasil diperbarui.");
-    },
-    onError: (error) => {
-      toast.error(error.message || "Gagal memperbarui pengumuman.");
-    },
-  });
-
   const [message, setMessage] = useState(announcement?.title ?? "");
   const [startDate, setStartDate] = useState(
     announcement ? dayjs(announcement.start_date).format("YYYY-MM-DD") : ""
@@ -66,15 +52,6 @@ export default function AnnouncementFormAILN({
     return `${dayjs(startDate).format("DD MMM YYYY")} - ${dayjs(endDate).format("DD MMM YYYY")}`;
   }, [startDate, endDate]);
 
-  const handleSubmit = (event: FormEvent<HTMLFormElement>) => {
-    event.preventDefault();
-    updateAnnouncement.mutate({
-      message,
-      start_date: startDate,
-      end_date: endDate,
-    });
-  };
-
   return (
     <div className="grid grid-cols-1 gap-5 xl:grid-cols-[minmax(0,1.25fr)_minmax(360px,0.75fr)]">
       <SectionContainerAILN
@@ -82,7 +59,7 @@ export default function AnnouncementFormAILN({
         headerRight={<Megaphone className="size-4 text-muted-foreground" />}
         className="dark:shadow-[0_0_16px_rgba(0,53,157,0.06)]"
       >
-        <form onSubmit={handleSubmit} className="flex flex-col gap-5">
+        <form className="flex flex-col gap-5">
           <label className="flex flex-col gap-2">
             <TextAreaAILN
               textAreaId="announcement-message"
@@ -130,15 +107,10 @@ export default function AnnouncementFormAILN({
           </div>
 
           <div className="flex justify-end">
-            <ButtonAILN
-              type="submit"
-              variant="primary"
-              size="medium"
-              disabled={updateAnnouncement.isPending}
-            >
+            <DisabledActionButtonAILN type="button" variant="primary" size="medium">
               <Save className="size-4" />
-              {updateAnnouncement.isPending ? "Menyimpan..." : "Simpan"}
-            </ButtonAILN>
+              Simpan
+            </DisabledActionButtonAILN>
           </div>
         </form>
       </SectionContainerAILN>

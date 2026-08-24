@@ -1,7 +1,5 @@
 "use client";
-import { trpc } from "@/trpc/client";
-import type { AppRouter } from "@/trpc/routers/_app";
-import type { inferRouterOutputs } from "@trpc/server";
+import { getCoachingNotesReceivedMock } from "@/mock-data/student";
 import dayjs from "dayjs";
 import "dayjs/locale/id";
 import relativeTime from "dayjs/plugin/relativeTime";
@@ -10,8 +8,7 @@ import Image from "next/image";
 dayjs.extend(relativeTime);
 dayjs.locale("id");
 
-type CoachingNote =
-  inferRouterOutputs<AppRouter>["read"]["coachingNotes"]["notes"][number];
+type CoachingNote = ReturnType<typeof getCoachingNotesReceivedMock>[number];
 
 function getInitials(name: string) {
   const parts = name.trim().split(/\s+/).filter(Boolean);
@@ -21,24 +18,7 @@ function getInitials(name: string) {
 }
 
 export default function CoachingNotesAILN() {
-  const q = trpc.read.coachingNotes.useQuery();
-  const notes = q.data?.notes ?? [];
-
-  if (q.isLoading) {
-    return (
-      <section className="mt-6 flex flex-col gap-4">
-        <CoachingNotesHeader />
-        <div className="flex flex-col gap-3">
-          {[0, 1].map((i) => (
-            <div
-              key={i}
-              className="h-28 animate-pulse rounded-lg border border-dashboard-border bg-card-1"
-            />
-          ))}
-        </div>
-      </section>
-    );
-  }
+  const notes = getCoachingNotesReceivedMock();
 
   // Hide the section entirely when the member has no coaching notes yet.
   if (notes.length === 0) return null;

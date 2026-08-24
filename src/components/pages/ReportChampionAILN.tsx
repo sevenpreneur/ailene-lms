@@ -3,51 +3,23 @@
 import ButtonAILN from "@/components/buttons/ButtonAILN";
 import SectionContainerAILN from "@/components/cards/SectionContainerAILN";
 import PageContainerAILN from "@/components/pages/PageContainerAILN";
-import AppErrorComponents from "@/components/states/AppErrorComponents";
-import { setSessionToken, trpc } from "@/trpc/client";
-import type { AppRouter } from "@/trpc/routers/_app";
-import type { inferRouterOutputs } from "@trpc/server";
+import { getChampionReportMock } from "@/mock-data/champion";
 import dayjs from "dayjs";
 import "dayjs/locale/id";
 import { Download } from "lucide-react";
-import { useEffect, useMemo, useState } from "react";
+import { useMemo, useState } from "react";
 
 const ACCENT = "#107158";
-type ChampionReportData =
-  inferRouterOutputs<AppRouter>["read"]["report"]["champion"];
+type ChampionReportData = ReturnType<typeof getChampionReportMock>;
 
-export default function ReportChampionAILN({
-  sessionToken,
-}: {
-  sessionToken: string;
-}) {
-  useEffect(() => {
-    setSessionToken(sessionToken);
-  }, [sessionToken]);
-
+export default function ReportChampionAILN() {
   const [period, setPeriod] = useState<"weekly" | "monthly">("weekly");
-  const reportQ = trpc.read.report.champion.useQuery({ period });
-
-  if (reportQ.isLoading) {
-    return (
-      <PageContainerAILN>
-        <ReportSkeleton />
-      </PageContainerAILN>
-    );
-  }
-
-  if (reportQ.error || !reportQ.data) {
-    return (
-      <PageContainerAILN>
-        <AppErrorComponents />
-      </PageContainerAILN>
-    );
-  }
+  const data = useMemo(() => getChampionReportMock({ period }), [period]);
 
   return (
     <ReportContent
-      key={`${period}-${reportQ.data.generated_at}`}
-      data={reportQ.data}
+      key={`${period}-${data.generated_at}`}
+      data={data}
       period={period}
       onPeriodChange={setPeriod}
     />
@@ -305,18 +277,6 @@ function KpiTile({
         </span>
       </div>
       <p className="mt-2 text-xs text-gray-500 dark:text-gray-400">{sub}</p>
-    </div>
-  );
-}
-
-function ReportSkeleton() {
-  return (
-    <div className="flex w-full animate-pulse flex-col gap-5">
-      <div className="h-20 rounded-lg bg-gray-100 dark:bg-dashboard-border" />
-      <div className="grid grid-cols-1 gap-4 xl:grid-cols-[minmax(0,1fr)_minmax(20rem,0.42fr)]">
-        <div className="h-[560px] rounded-lg bg-gray-100 dark:bg-dashboard-border" />
-        <div className="h-[360px] rounded-lg bg-gray-100 dark:bg-dashboard-border" />
-      </div>
     </div>
   );
 }

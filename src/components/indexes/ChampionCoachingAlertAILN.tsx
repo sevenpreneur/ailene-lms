@@ -1,7 +1,6 @@
 "use client";
 import { useProjectId } from "@/lib/use-project-id";
-import type { AppRouter } from "@/trpc/routers/_app";
-import type { inferRouterOutputs } from "@trpc/server";
+import type { getTeamMembersMock } from "@/mock-data/champion";
 import dayjs from "dayjs";
 import relativeTime from "dayjs/plugin/relativeTime";
 import { ArrowRight, Eye } from "lucide-react";
@@ -10,8 +9,7 @@ import Link from "next/link";
 
 dayjs.extend(relativeTime);
 
-type Member =
-  inferRouterOutputs<AppRouter>["list"]["members"]["list"][number];
+type Member = ReturnType<typeof getTeamMembersMock>["list"][number];
 
 const AVATAR_GRADIENTS = [
   "from-fuchsia-500 to-pink-500",

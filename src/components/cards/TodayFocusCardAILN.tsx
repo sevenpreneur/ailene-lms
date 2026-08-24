@@ -3,7 +3,7 @@ import ButtonAILN from "@/components/buttons/ButtonAILN";
 import GeneralLabelAILN from "@/components/labels/GeneralLabelAILN";
 import AlertConfirmDialogAILN from "@/components/modals/AlertConfirmDialogAILN";
 import { useProjectId } from "@/lib/use-project-id";
-import { trpc } from "@/trpc/client";
+import { getTodayFocusMock } from "@/mock-data/student";
 import dayjs from "dayjs";
 import "dayjs/locale/id";
 import { ArrowRight, Clock, Lightbulb } from "lucide-react";
@@ -53,53 +53,8 @@ function formatDeadline(d: Date | string) {
 export default function TodayFocusCardAILN() {
   const router = useRouter();
   const projectId = useProjectId();
-  const utils = trpc.useUtils();
   const [isQuizDialogOpen, setIsQuizDialogOpen] = useState(false);
-  const q = trpc.read.todayFocus.useQuery();
-
-  const completeVideo = trpc.create.completeVideo.useMutation({
-    onSuccess: () => {
-      utils.read.todayFocus.invalidate();
-      utils.list.tasks.invalidate();
-      utils.auth.checkAilMember.invalidate();
-    },
-  });
-
-  if (q.isLoading) {
-    return (
-      <CardShell>
-        <CardLoading />
-      </CardShell>
-    );
-  }
-  if (q.error || !q.data) {
-    return (
-      <CardShell>
-        <CardError />
-      </CardShell>
-    );
-  }
-
-  const focus = q.data.focus;
-
-  if (!focus) {
-    return (
-      <CardShell>
-        <h2 className="text-xl font-bold leading-snug text-gray-900 dark:text-white">
-          Semua task terbaru sudah kamu selesaikan 🎉
-        </h2>
-        <p className="mt-1 text-sm text-gray-500 dark:text-gray-400">
-          Tunggu chapter berikutnya terbuka, atau lihat ulang materi yang sudah
-          dikerjakan.
-        </p>
-        <div className="mt-3">
-          <Link href={`/${projectId}/student/learning-path`}>
-            <ButtonAILN>Lihat modul belajar</ButtonAILN>
-          </Link>
-        </div>
-      </CardShell>
-    );
-  }
+  const focus = getTodayFocusMock();
 
   // "Video" kind's href is an external URL — everything else needs project prefixing.
   const focusHref =
@@ -172,9 +127,6 @@ export default function TodayFocusCardAILN() {
                 target="_blank"
                 rel="noopener noreferrer"
                 className="inline-block"
-                onClick={() =>
-                  completeVideo.mutate({ video_id: Number(focus.task_id) })
-                }
               >
                 <ButtonAILN>
                   Mulai sekarang
@@ -257,38 +209,3 @@ export default function TodayFocusCardAILN() {
   );
 }
 
-function CardShell({ children }: { children: React.ReactNode }) {
-  return (
-    <div className={`${SURFACE} flex h-fit flex-col gap-3`}>
-      <div className="flex items-center gap-2 text-xs font-semibold uppercase tracking-widest text-red-600 dark:text-red-400">
-        <span className="size-2 rounded-full bg-red-500" />
-        Fokus Hari Ini
-      </div>
-      {children}
-    </div>
-  );
-}
-
-function CardLoading() {
-  return (
-    <div className="flex animate-pulse flex-col gap-3">
-      <div className="h-8 w-3/4 rounded bg-gray-200 dark:bg-dashboard-border" />
-      <div className="h-4 w-full rounded bg-gray-200 dark:bg-dashboard-border" />
-      <div className="h-4 w-2/3 rounded bg-gray-200 dark:bg-dashboard-border" />
-      <div className="mt-2 flex items-center gap-2">
-        <div className="h-9 w-32 rounded-md bg-gray-200 dark:bg-dashboard-border" />
-        <div className="h-9 w-24 rounded-md bg-gray-200 dark:bg-dashboard-border" />
-      </div>
-    </div>
-  );
-}
-
-function CardError() {
-  return (
-    <div className="flex h-20 items-center justify-center">
-      <span className="text-xs text-red-500 dark:text-red-400">
-        Gagal memuat data.
-      </span>
-    </div>
-  );
-}

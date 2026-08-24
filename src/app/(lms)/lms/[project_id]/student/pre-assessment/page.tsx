@@ -7,8 +7,13 @@ export const metadata: Metadata = {
   title: "Pre-Assessment",
 };
 
-export default async function PreAssessmentPage() {
-  const { sessionToken, ailMember } = await getProgramGate();
+export default async function PreAssessmentPage({
+  params,
+}: {
+  params: Promise<{ project_id: string }>;
+}) {
+  const { project_id } = await params;
+  const { sessionToken, ailMember } = await getProgramGate(project_id);
   if (!sessionToken) return null;
 
   if (
@@ -18,5 +23,5 @@ export default async function PreAssessmentPage() {
     return <AppPageState variant="FORBIDDEN" />;
   }
 
-  return <PreAssessmentAILN sessionToken={sessionToken} />;
+  return <PreAssessmentAILN />;
 }

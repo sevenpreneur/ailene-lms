@@ -4,8 +4,7 @@ import GeneralLabelAILN, {
   type GeneralLabelVariantAILN,
 } from "@/components/labels/GeneralLabelAILN";
 import { useProjectId } from "@/lib/use-project-id";
-import type { AppRouter } from "@/trpc/routers/_app";
-import type { inferRouterOutputs } from "@trpc/server";
+import type { getTeamMembersMock } from "@/mock-data/champion";
 import dayjs from "dayjs";
 import relativeTime from "dayjs/plugin/relativeTime";
 import { ChevronRight, ListFilter, Search } from "lucide-react";
@@ -15,7 +14,7 @@ import { useEffect, useRef, useState } from "react";
 
 dayjs.extend(relativeTime);
 
-type Member = inferRouterOutputs<AppRouter>["list"]["members"]["list"][number];
+type Member = ReturnType<typeof getTeamMembersMock>["list"][number];
 
 type StatusKey = "on_track" | "at_risk" | "behind";
 

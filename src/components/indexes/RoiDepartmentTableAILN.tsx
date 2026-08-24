@@ -1,8 +1,7 @@
 "use client";
 import SectionContainerAILN from "@/components/cards/SectionContainerAILN";
-import { SkeletonBlockAILN } from "@/components/states/DataStatesAILN";
 import { formatCompactIdr, formatDecimal, formatInt } from "@/lib/format";
-import { trpc } from "@/trpc/client";
+import { getDepartmentRoiMock } from "@/mock-data/sponsor";
 
 const COLORS = [
   "#06b6d4",
@@ -29,31 +28,7 @@ function idrShort(value: number): string {
 }
 
 export default function RoiDepartmentTableAILN() {
-  const q = trpc.read.outcome.departmentRoi.useQuery();
-
-  if (q.isLoading) {
-    return (
-      <SectionContainerAILN
-        title="Rincian ROI per Departemen"
-        desc="Nilai Rupiah dihitung dari jam dihemat × rata-rata biaya jam karyawan"
-      >
-        <SkeletonBlockAILN className="h-96" />
-      </SectionContainerAILN>
-    );
-  }
-
-  if (q.error || !q.data) {
-    return (
-      <SectionContainerAILN
-        title="Rincian ROI per Departemen"
-        desc="Nilai Rupiah dihitung dari jam dihemat × rata-rata biaya jam karyawan"
-      >
-        <div className="flex h-40 items-center justify-center text-sm text-muted-foreground">
-          Gagal memuat rincian ROI.
-        </div>
-      </SectionContainerAILN>
-    );
-  }
+  const data = getDepartmentRoiMock();
 
   return (
     <SectionContainerAILN
@@ -73,7 +48,7 @@ export default function RoiDepartmentTableAILN() {
             </tr>
           </thead>
           <tbody>
-            {q.data.departments.length === 0 ? (
+            {data.departments.length === 0 ? (
               <tr>
                 <td
                   colSpan={5}
@@ -83,7 +58,7 @@ export default function RoiDepartmentTableAILN() {
                 </td>
               </tr>
             ) : (
-              q.data.departments.map((department, index) => {
+              data.departments.map((department, index) => {
                 const color = COLORS[index % COLORS.length];
                 return (
                   <tr

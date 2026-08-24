@@ -1,6 +1,6 @@
 "use client";
 import { formatCompactIdr, formatDecimal, formatInt } from "@/lib/format";
-import { trpc } from "@/trpc/client";
+import { getDepartmentRoiMock, getOutcomeOverviewMock } from "@/mock-data/sponsor";
 
 function idrText(value: number): string {
   const compact = formatCompactIdr(value);
@@ -10,12 +10,10 @@ function idrText(value: number): string {
 }
 
 export default function RoiProductivityBannerAILN() {
-  const overviewQ = trpc.read.outcome.overview.useQuery();
-  const deptQ = trpc.read.outcome.departmentRoi.useQuery();
-
-  const overview = overviewQ.data;
-  const totalAnnualRoi = deptQ.data?.total_roi_annualized ?? overview?.roi_total ?? 0;
-  const ratePerHour = overview?.roi_rate_per_hour ?? 250_000;
+  const overview = getOutcomeOverviewMock();
+  const dept = getDepartmentRoiMock();
+  const totalAnnualRoi = dept.total_roi_annualized || overview.roi_total;
+  const ratePerHour = overview.roi_rate_per_hour;
   const weeklyHours =
     totalAnnualRoi > 0 ? Math.round((totalAnnualRoi / ratePerHour / 52) * 10) / 10 : 0;
   const monthlyHours = Math.round(weeklyHours * 4 * 10) / 10;

@@ -5,53 +5,18 @@ import StreakCardAILN from "@/components/charts/StreakCardAILN";
 import ButtonAILN from "@/components/buttons/ButtonAILN";
 import LeaderboardPanelStudentAILN from "@/components/indexes/LeaderboardPanelStudentAILN";
 import PageContainerAILN from "@/components/pages/PageContainerAILN";
-import AppErrorComponents from "@/components/states/AppErrorComponents";
 import PageHeaderAILN from "@/components/titles/PageHeaderAILN";
-import { CheckSession } from "@/lib/actions";
 import { useProjectId } from "@/lib/use-project-id";
-import { setSessionToken, trpc } from "@/trpc/client";
-import { useQuery } from "@tanstack/react-query";
+import { getAilMemberMock } from "@/mock-data/shared";
 import dayjs from "dayjs";
 import "dayjs/locale/id";
 import { ArrowRight, ClipboardCheck } from "lucide-react";
 import Link from "next/link";
-import { useEffect } from "react";
 
 dayjs.locale("id");
 
-export default function MyProgressStudentAILN({
-  sessionToken,
-}: {
-  sessionToken: string;
-}) {
-  useEffect(() => {
-    setSessionToken(sessionToken);
-  }, [sessionToken]);
-
-  const userQ = useQuery({ queryKey: ["session"], queryFn: CheckSession });
-  const memberQ = trpc.auth.checkAilMember.useQuery();
-
-  if (userQ.isLoading || memberQ.isLoading) {
-    return (
-      <PageContainerAILN>
-        <ProgressSkeleton />
-      </PageContainerAILN>
-    );
-  }
-  if (
-    userQ.error ||
-    memberQ.error ||
-    !userQ.data?.user ||
-    !memberQ.data?.ail_member
-  ) {
-    return (
-      <PageContainerAILN>
-        <AppErrorComponents />
-      </PageContainerAILN>
-    );
-  }
-
-  const member = memberQ.data.ail_member;
+export default function MyProgressStudentAILN() {
+  const member = getAilMemberMock();
   // Rentang streak = sejak member bergabung sampai hari ini (bukan hardcoded).
   const cohortStart = dayjs(member.created_at).format("YYYY-MM-DD");
   const cohortEnd = dayjs().format("YYYY-MM-DD");
@@ -108,30 +73,5 @@ function PreAssessmentReportGateway() {
         <ArrowRight className="size-4" />
       </ButtonAILN>
     </Link>
-  );
-}
-
-function ProgressSkeleton() {
-  return (
-    <div className="flex w-full flex-col gap-5 animate-pulse">
-      <div className="flex items-start justify-between gap-4">
-        <div className="space-y-2">
-          <div className="h-3 w-28 rounded bg-gray-200 dark:bg-dashboard-border" />
-          <div className="h-7 w-64 rounded bg-gray-200 dark:bg-dashboard-border" />
-          <div className="h-3 w-80 rounded bg-gray-200 dark:bg-dashboard-border" />
-        </div>
-        <div className="h-16 w-40 rounded-md bg-gray-200 dark:bg-dashboard-border" />
-      </div>
-      <div className="h-48 rounded-lg border border-dashboard-border bg-gray-100 dark:bg-card-1" />
-      <div className="grid grid-cols-2 gap-4">
-        {Array.from({ length: 4 }).map((_, i) => (
-          <div
-            key={i}
-            className="h-28 rounded-lg border border-dashboard-border bg-gray-100 dark:bg-card-1"
-          />
-        ))}
-      </div>
-      <div className="h-72 rounded-lg border border-dashboard-border bg-gray-100 dark:bg-card-1" />
-    </div>
   );
 }

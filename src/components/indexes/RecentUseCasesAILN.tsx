@@ -1,7 +1,7 @@
 "use client";
 import SectionContainerAILN from "@/components/cards/SectionContainerAILN";
 import { useProjectId } from "@/lib/use-project-id";
-import { trpc } from "@/trpc/client";
+import { getUseCaseSubmissionsMock } from "@/mock-data/champion";
 import dayjs from "dayjs";
 import relativeTime from "dayjs/plugin/relativeTime";
 import Link from "next/link";
@@ -10,9 +10,8 @@ dayjs.extend(relativeTime);
 
 export default function RecentUseCasesAILN() {
   const projectId = useProjectId();
-  const q = trpc.list.useCaseSubmissions.useQuery();
 
-  const items = (q.data?.list ?? [])
+  const items = getUseCaseSubmissionsMock()
     .filter((r) => r.submitted_at)
     .sort(
       (a, b) =>
@@ -23,16 +22,7 @@ export default function RecentUseCasesAILN() {
 
   return (
     <SectionContainerAILN title="Use Case Terbaru">
-      {q.isLoading ? (
-        <div className="space-y-2.5">
-          {[0, 1, 2].map((i) => (
-            <div
-              key={i}
-              className="h-9 animate-pulse rounded bg-gray-100 dark:bg-dashboard-border"
-            />
-          ))}
-        </div>
-      ) : items.length === 0 ? (
+      {items.length === 0 ? (
         <p className="text-xs text-gray-500 dark:text-gray-400">
           Belum ada use case dikirim.
         </p>

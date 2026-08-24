@@ -3,19 +3,16 @@ import GeneralLabelAILN, {
   type GeneralLabelVariantAILN,
 } from "@/components/labels/GeneralLabelAILN";
 import { useProjectId } from "@/lib/use-project-id";
-import { trpc } from "@/trpc/client";
+import { getRecommendationsMock } from "@/mock-data/student";
 import {
   ArrowRight,
   BarChart3,
   FilePenLine,
-  Loader2,
   Megaphone,
   Search,
   UsersRound,
 } from "lucide-react";
 import Link from "next/link";
-import { useRouter } from "next/navigation";
-import { useState } from "react";
 import { toast } from "sonner";
 
 type RecItem = {
@@ -68,51 +65,13 @@ function RecommendationIcon({ item }: { item: RecItem }) {
 }
 
 export default function RecommendationsAILN() {
-  const router = useRouter();
-  const projectId = useProjectId();
-  const utils = trpc.useUtils();
-  const q = trpc.read.recommendations.useQuery();
-  const selfAssignM = trpc.create.selfAssignUseCase.useMutation();
-  const [startingId, setStartingId] = useState<number | null>(null);
+  const data = getRecommendationsMock();
+  const items = data.items;
+  const levelNumber = data.level_number;
 
-  const items = q.data?.items ?? [];
-  const levelNumber = q.data?.level_number ?? 0;
-
-  const handleStart = (item: RecItem) => {
-    setStartingId(item.id);
-    selfAssignM.mutate(
-      { use_case_id: item.id },
-      {
-        onSuccess: () => {
-          utils.list.memberUseCaseLibrary.invalidate();
-          utils.list.practiceSubmissions.invalidate();
-          router.push(`/${projectId}/student/skill-practice/use-cases/${item.id}`);
-        },
-        onError: (err) => {
-          toast.error("Gagal membuka use case", {
-            description: err.message,
-          });
-        },
-        onSettled: () => setStartingId(null),
-      }
-    );
+  const handleStart = () => {
+    toast.info("Fitur ini sedang dalam migrasi ke backend baru.");
   };
-
-  if (q.isLoading) {
-    return (
-      <section className="mt-6 flex flex-col gap-4">
-        <RecommendationHeader levelNumber={levelNumber} />
-        <div className="grid grid-cols-1 gap-4 md:grid-cols-3">
-          {[0, 1, 2].map((i) => (
-            <div
-              key={i}
-              className="h-64 animate-pulse rounded-lg border border-dashboard-border bg-card-1"
-            />
-          ))}
-        </div>
-      </section>
-    );
-  }
 
   if (items.length === 0) {
     return (
@@ -130,12 +89,7 @@ export default function RecommendationsAILN() {
       <RecommendationHeader levelNumber={levelNumber} />
       <div className="grid grid-cols-1 gap-4 md:grid-cols-3">
         {items.map((item) => (
-          <RecommendationCard
-            key={item.id}
-            item={item}
-            isStarting={startingId === item.id}
-            onStart={() => handleStart(item)}
-          />
+          <RecommendationCard key={item.id} item={item} onStart={handleStart} />
         ))}
       </div>
     </section>
@@ -172,24 +126,20 @@ function RecommendationHeader({
 
 function RecommendationCard({
   item,
-  isStarting,
   onStart,
 }: {
   item: RecItem;
-  isStarting: boolean;
   onStart: () => void;
 }) {
-  const projectId = useProjectId();
   const category = item.category ?? "Use Case";
 
   return (
     <Link
-      href={`/${projectId}/student/skill-practice/use-cases/${item.id}`}
+      href="#"
       onClick={(event) => {
         event.preventDefault();
-        if (!isStarting) onStart();
+        onStart();
       }}
-      aria-disabled={isStarting}
       className="group block h-full rounded-lg focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring"
     >
       <article className="flex h-full min-h-72 flex-col rounded-lg border border-dashboard-border bg-card-1 p-5 transition group-hover:border-red-200 group-hover:bg-red-50/40 dark:group-hover:border-red-500/50 dark:group-hover:bg-red-500/5">
@@ -219,9 +169,8 @@ function RecommendationCard({
         </div>
 
         <span className="mt-4 inline-flex w-fit items-center gap-2 text-sm font-bold text-red-600 transition group-hover:text-red-700 group-hover:underline dark:text-red-400 dark:group-hover:text-red-300">
-          {isStarting ? <Loader2 className="size-4 animate-spin" /> : null}
           Catat use case ini
-          {!isStarting ? <ArrowRight className="size-4" /> : null}
+          <ArrowRight className="size-4" />
         </span>
       </article>
     </Link>

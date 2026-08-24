@@ -1,5 +1,6 @@
 "use client";
 import ButtonAILN from "@/components/buttons/ButtonAILN";
+import DisabledActionButtonAILN from "@/components/buttons/DisabledActionButtonAILN";
 import InputAILN from "@/components/fields/InputAILN";
 import NumberInputAILN from "@/components/fields/NumberInputAILN";
 import SelectAILN from "@/components/fields/SelectAILN";
@@ -9,8 +10,7 @@ import PageHeaderAILN from "@/components/titles/PageHeaderAILN";
 import SectionContainerAILN from "@/components/cards/SectionContainerAILN";
 import { supabase } from "@/lib/supabase";
 import { useProjectId } from "@/lib/use-project-id";
-import { setSessionToken, trpc } from "@/trpc/client";
-import { AilUseCaseFrequency, AilUseCaseType } from "@prisma/client";
+import { getCategoriesMock } from "@/mock-data/shared";
 import {
   FileText,
   FileUp,
@@ -23,11 +23,8 @@ import {
   X,
 } from "lucide-react";
 import Link from "next/link";
-import { useRouter } from "next/navigation";
 import React, {
   ChangeEvent,
-  FormEvent,
-  useEffect,
   useMemo,
   useRef,
   useState,
@@ -37,6 +34,16 @@ import { toast } from "sonner";
 
 type PracticeType = "PROMPT" | "USE_CASE";
 type CategoryOption = { value: number; label: string };
+type AilUseCaseFrequency = "DAILY" | "WEEKLY" | "MONTHLY" | "OCCASIONALLY";
+type AilUseCaseType =
+  | "WORKFLOW_AUTOMATION"
+  | "CONTENT_CREATION"
+  | "DATA_ANALYSIS"
+  | "RESEARCH"
+  | "COMMUNICATION"
+  | "DECISION_SUPPORT"
+  | "LEARNING"
+  | "OTHER";
 
 const OUTCOME_MAX_BYTES = 20 * 1024 * 1024;
 const OUTCOME_ACCEPT = ".pdf,.png,.jpg,.jpeg,.mp4";
@@ -122,23 +129,9 @@ function FieldRow({
   );
 }
 
-export default function CreateSelfPracticeAILN({
-  sessionToken,
-}: {
-  sessionToken: string;
-}) {
-  useEffect(() => {
-    setSessionToken(sessionToken);
-  }, [sessionToken]);
-
-  const router = useRouter();
+export default function CreateSelfPracticeAILN() {
   const projectId = useProjectId();
-  const utils = trpc.useUtils();
-  const categoriesQ = trpc.list.memberCategories.useQuery();
-  const categories = useMemo(
-    () => categoriesQ.data?.list ?? [],
-    [categoriesQ.data]
-  );
+  const categories = useMemo(() => getCategoriesMock(), []);
   const categoryOptions = useMemo<CategoryOption[]>(
     () => categories.map((c) => ({ value: c.id, label: c.name })),
     [categories]
@@ -167,16 +160,12 @@ export default function CreateSelfPracticeAILN({
   const [aiToolCustomInput, setAiToolCustomInput] = useState("");
   const [frequency, setFrequency] = useState<AilUseCaseFrequency | "">("");
   const [useCaseType, setUseCaseType] = useState<AilUseCaseType | "">("");
-  const [outcomeProof, setOutcomeProof] = useState("");
+  const [_outcomeProof, setOutcomeProof] = useState("");
   const [outcomeFileName, setOutcomeFileName] = useState<string | null>(null);
   const [outcomeLinkInput, setOutcomeLinkInput] = useState("");
   const [isUploading, setIsUploading] = useState(false);
   const [isDragOver, setIsDragOver] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
-
-  const promptM = trpc.create.selfPrompt.useMutation();
-  const useCaseM = trpc.create.selfUseCase.useMutation();
-  const isPending = promptM.isPending || useCaseM.isPending;
 
   const handleUploadFile = async (file: File) => {
     if (file.size < 1) return;
@@ -238,119 +227,9 @@ export default function CreateSelfPracticeAILN({
     setOutcomeFileName(null);
   };
 
-  const goToList = () => {
-    toast.success("Latihan berhasil dikirim ke champion untuk direview.");
-    utils.list.assignedPrompts.invalidate();
-    utils.list.assignedUseCases.invalidate();
-    utils.list.memberPromptLibrary.invalidate();
-    utils.list.memberUseCaseLibrary.invalidate();
-    utils.list.practiceSubmissions.invalidate();
-    utils.read.todayFocus.invalidate();
-    router.push(`/${projectId}/student/skill-practice`);
-  };
-
-  const handleSubmit = (e: FormEvent) => {
-    e.preventDefault();
-
-    if (!name.trim()) {
-      toast.error("Judul latihan wajib diisi.");
-      return;
-    }
-    if (selectedCategoryIds.length === 0) {
-      toast.error("Pilih minimal satu kategori.");
-      return;
-    }
-
-    if (type === "PROMPT") {
-      if (!scenario.trim()) {
-        toast.error("Konteks / tujuan wajib diisi.");
-        return;
-      }
-      if (!promptInput.trim()) {
-        toast.error("Prompt yang kamu pakai wajib diisi.");
-        return;
-      }
-      if (!promptOutput.trim()) {
-        toast.error("Output dari AI wajib diisi.");
-        return;
-      }
-      promptM.mutate(
-        {
-          name: name.trim(),
-          scenario: scenario.trim(),
-          input: promptInput.trim(),
-          output: promptOutput.trim(),
-          category_ids: selectedCategoryIds,
-        },
-        {
-          onSuccess: goToList,
-          onError: (err) =>
-            toast.error("Gagal kirim", { description: err.message }),
-        }
-      );
-      return;
-    }
-
-    // USE_CASE
-    if (!useCaseType) {
-      toast.error("Pilih tipe use case.");
-      return;
-    }
-    if (!frequency) {
-      toast.error("Pilih frekuensi pemakaian.");
-      return;
-    }
-    if (!description.trim()) {
-      toast.error("Cerita penerapan wajib diisi.");
-      return;
-    }
-    const withoutNum = Number(hoursWithoutAi);
-    if (!Number.isFinite(withoutNum) || withoutNum < 0) {
-      toast.error("Jam tanpa AI harus angka non-negatif.");
-      return;
-    }
-    const withNum = Number(hoursSaved);
-    if (!Number.isFinite(withNum) || withNum < 0) {
-      toast.error("Jam dengan AI harus angka non-negatif.");
-      return;
-    }
-    if (aiTools.length === 0) {
-      toast.error("Pilih minimal satu AI tool.");
-      return;
-    }
-    const aiToolCsv = aiTools.join(", ");
-    if (aiToolCsv.length > 255) {
-      toast.error("Daftar AI tool terlalu panjang (maks 255 karakter).");
-      return;
-    }
-    if (!outcomeProof.trim()) {
-      toast.error("Bukti outcome wajib diisi.");
-      return;
-    }
-
-    useCaseM.mutate(
-      {
-        name: name.trim(),
-        category_ids: selectedCategoryIds,
-        outcome_proof: outcomeProof.trim(),
-        hours_with_ai: withNum,
-        hours_without_ai: withoutNum,
-        description: description.trim(),
-        ai_tool: aiToolCsv,
-        frequency: frequency as AilUseCaseFrequency,
-        type: useCaseType as AilUseCaseType,
-      },
-      {
-        onSuccess: goToList,
-        onError: (err) =>
-          toast.error("Gagal kirim", { description: err.message }),
-      }
-    );
-  };
-
   return (
     <PageContainerAILN>
-      <form onSubmit={handleSubmit} className="flex w-full flex-col gap-6">
+      <form className="flex w-full flex-col gap-6">
         {/* Header */}
         <PageHeaderAILN
           title="Catat Latihan Mandiri"
@@ -463,7 +342,6 @@ export default function CreateSelfPracticeAILN({
                 setSelectedCategoryIds(vals.map((v) => v.value))
               }
               isOptionDisabled={() => selectedCategoryIds.length >= 2}
-              isLoading={categoriesQ.isLoading}
               closeMenuOnSelect={false}
               placeholder="Cari & pilih kategori (maks 2)…"
               loadingMessage={() => "Memuat kategori…"}
@@ -874,24 +752,14 @@ export default function CreateSelfPracticeAILN({
               Batal
             </ButtonAILN>
           </Link>
-          <ButtonAILN
-            type="submit"
+          <DisabledActionButtonAILN
+            type="button"
             variant="primary"
-            disabled={isPending || isUploading}
             className="w-fit"
           >
-            {isPending ? (
-              <>
-                <Loader2 className="size-4 animate-spin" />
-                Mengirim…
-              </>
-            ) : (
-              <>
-                <Send className="size-4" />
-                Kirim Latihan
-              </>
-            )}
-          </ButtonAILN>
+            <Send className="size-4" />
+            Kirim Latihan
+          </DisabledActionButtonAILN>
         </div>
       </form>
     </PageContainerAILN>

@@ -1,6 +1,6 @@
 "use client";
 import SectionContainerAILN from "@/components/cards/SectionContainerAILN";
-import { trpc } from "@/trpc/client";
+import { getAchievementsMock, getStreakMock } from "@/mock-data/student";
 import { Tooltip as MuiTooltip } from "@mui/material";
 import dayjs from "dayjs";
 import "dayjs/locale/id";
@@ -65,48 +65,10 @@ const fmtHours = (n: number) =>
   });
 
 export default function StreakCardAILN({
-  startDate,
-  endDate,
   className,
 }: StreakCardAILNProps) {
-  const achievementsQ = trpc.read.achievements.useQuery();
-  // Standar tampil 3 bulan: kalau cohort lebih pendek, mundur ke awal 3 bulan
-  // terakhir; kalau lebih panjang, tetap pakai rentang cohort penuh.
-  const threeMonthFloor = dayjs(endDate)
-    .subtract(2, "month")
-    .startOf("month");
-  const fetchFrom = (
-    dayjs(startDate).isBefore(threeMonthFloor) ? dayjs(startDate) : threeMonthFloor
-  ).format("YYYY-MM-DD");
-  const streakQ = trpc.read.streak.useQuery({
-    from: fetchFrom,
-    to: endDate,
-  });
-
-  if (achievementsQ.isLoading || streakQ.isLoading) {
-    return (
-      <SectionContainerAILN title="Capaian Kamu" className={className}>
-        <div className="h-full min-h-[420px] animate-pulse rounded-md bg-gray-100 dark:bg-dashboard-border" />
-      </SectionContainerAILN>
-    );
-  }
-  if (
-    achievementsQ.error ||
-    streakQ.error ||
-    !achievementsQ.data ||
-    !streakQ.data
-  ) {
-    return (
-      <SectionContainerAILN title="Capaian Kamu" className={className}>
-        <div className="flex h-full min-h-[420px] items-center justify-center text-sm text-red-500">
-          Gagal memuat data.
-        </div>
-      </SectionContainerAILN>
-    );
-  }
-
-  const a = achievementsQ.data;
-  const days = streakQ.data.days as DayCell[];
+  const a = getAchievementsMock();
+  const days = getStreakMock().days as DayCell[];
   const todayKey = dayjs().format("YYYY-MM-DD");
   const monthCals = buildMonthCalendars(days);
 

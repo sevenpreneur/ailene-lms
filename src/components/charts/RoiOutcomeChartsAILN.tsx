@@ -1,6 +1,5 @@
 "use client";
 import SectionContainerAILN from "@/components/cards/SectionContainerAILN";
-import { SkeletonBlockAILN } from "@/components/states/DataStatesAILN";
 import {
   ChartContainer,
   ChartTooltip,
@@ -8,7 +7,7 @@ import {
   type ChartConfig,
 } from "@/components/ui/chart";
 import { formatCompactIdr, formatDecimal } from "@/lib/format";
-import { trpc } from "@/trpc/client";
+import { getDepartmentRoiMock, getRoiTrendMock } from "@/mock-data/sponsor";
 import {
   Bar,
   BarChart,
@@ -56,33 +55,7 @@ export default function RoiOutcomeChartsAILN() {
 }
 
 function RoiTrendCard() {
-  const q = trpc.read.outcome.roiTrend.useQuery();
-
-  if (q.isLoading) {
-    return (
-      <SectionContainerAILN
-        title="Tren Nilai ROI · 6 Bulan"
-        desc="Nilai Rupiah/bulan (miliar) · proyeksi (garis putus)"
-      >
-        <SkeletonBlockAILN className="h-72" />
-      </SectionContainerAILN>
-    );
-  }
-
-  if (q.error || !q.data) {
-    return (
-      <SectionContainerAILN
-        title="Tren Nilai ROI · 6 Bulan"
-        desc="Nilai Rupiah/bulan (miliar) · proyeksi (garis putus)"
-      >
-        <div className="flex h-72 items-center justify-center text-sm text-muted-foreground">
-          Gagal memuat tren ROI.
-        </div>
-      </SectionContainerAILN>
-    );
-  }
-
-  const months = q.data.months;
+  const months = getRoiTrendMock().months;
   const first = months[0];
   const lastActual = [...months].reverse().find((month) => !month.projected);
   const target = months[months.length - 1];
@@ -169,33 +142,7 @@ function RoiTrendCard() {
 }
 
 function DepartmentHoursCard() {
-  const q = trpc.read.outcome.departmentRoi.useQuery();
-
-  if (q.isLoading) {
-    return (
-      <SectionContainerAILN
-        title="Jam Dihemat per Departemen"
-        desc="Per minggu · manager-validated"
-      >
-        <SkeletonBlockAILN className="h-72" />
-      </SectionContainerAILN>
-    );
-  }
-
-  if (q.error || !q.data) {
-    return (
-      <SectionContainerAILN
-        title="Jam Dihemat per Departemen"
-        desc="Per minggu · manager-validated"
-      >
-        <div className="flex h-72 items-center justify-center text-sm text-muted-foreground">
-          Gagal memuat jam departemen.
-        </div>
-      </SectionContainerAILN>
-    );
-  }
-
-  const data = q.data.departments.slice(0, 7).map((department) => ({
+  const data = getDepartmentRoiMock().departments.slice(0, 7).map((department) => ({
     ...department,
     short_name:
       department.name.length > 14

@@ -1,11 +1,8 @@
 "use client";
 import SectionContainerAILN from "@/components/cards/SectionContainerAILN";
-import {
-  EmptyHintAILN,
-  SkeletonBlockAILN,
-} from "@/components/states/DataStatesAILN";
+import { EmptyHintAILN } from "@/components/states/DataStatesAILN";
 import { formatScore } from "@/lib/format";
-import { trpc } from "@/trpc/client";
+import { getPreAssessmentTeamMock } from "@/mock-data/champion";
 
 // Pillar keys → ranking (descriptive) labels; keys mirror buildPreAssessmentReport.
 const PILLAR_LONG: Record<string, string> = {
@@ -22,17 +19,14 @@ const SCORE_MAX = 5;
 // lowest first — i.e. the coaching priority order, with the maturity target
 // drawn as a line on each bar.
 export default function PillarRankingChampionAILN() {
-  const q = trpc.read.preAssessmentTeam.useQuery();
-  const data = q.data;
+  const data = getPreAssessmentTeamMock();
 
   return (
     <SectionContainerAILN
       title="Prioritas Coaching per Pillar"
       desc="Rata-rata baseline tim · garis = target · diurut dari skor terendah"
     >
-      {q.isLoading || !data ? (
-        <SkeletonBlockAILN className="h-56" />
-      ) : data.departments.length === 0 ? (
+      {data.departments.length === 0 ? (
         <EmptyHintAILN className="h-40">Belum ada data.</EmptyHintAILN>
       ) : (
         <div className="flex flex-col gap-4">

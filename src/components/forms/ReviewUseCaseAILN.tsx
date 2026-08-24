@@ -1,5 +1,5 @@
 "use client";
-import ButtonAILN from "@/components/buttons/ButtonAILN";
+import DisabledActionButtonAILN from "@/components/buttons/DisabledActionButtonAILN";
 import SectionContainerAILN from "@/components/cards/SectionContainerAILN";
 import TextAreaAILN from "@/components/fields/TextAreaAILN";
 import GeneralLabelAILN, {
@@ -7,23 +7,19 @@ import GeneralLabelAILN, {
 } from "@/components/labels/GeneralLabelAILN";
 import PageContainerAILN from "@/components/pages/PageContainerAILN";
 import PageHeaderAILN from "@/components/titles/PageHeaderAILN";
-import AppErrorComponents from "@/components/states/AppErrorComponents";
 import AppPageState from "@/components/states/AppPageState";
-import { setSessionToken, trpc } from "@/trpc/client";
+import { getUseCaseSubmissionDetailMock } from "@/mock-data/champion";
 import dayjs from "dayjs";
 import "dayjs/locale/id";
 import {
   CalendarClock,
-  CheckCircle2,
   Clock,
   ExternalLink,
   FileText,
-  Loader2,
   RotateCcw,
 } from "lucide-react";
 import Image from "next/image";
 import { useEffect, useMemo, useState } from "react";
-import { toast } from "sonner";
 
 const DEFAULT_AVATAR =
   "https://tskubmriuclmbcfmaiur.supabase.co/storage/v1/object/public/sevenpreneur//default-avatar.svg.png";
@@ -51,27 +47,15 @@ const FREQUENCY_LABEL: Record<string, string> = {
   OCCASIONALLY: "Sesekali",
 };
 
-const fmt = (d: string) =>
+const fmt = (d: string | Date) =>
   dayjs(d).locale("id").format("ddd, D MMM YYYY · HH:mm");
 
 export default function ReviewUseCaseAILN({
-  sessionToken,
   submissionId,
 }: {
-  sessionToken: string;
   submissionId: number;
 }) {
-  useEffect(() => {
-    setSessionToken(sessionToken);
-  }, [sessionToken]);
-
-  const utils = trpc.useUtils();
-  const detailQ = trpc.read.useCaseSubmissionDetail.useQuery({
-    submission_id: submissionId,
-  });
-  const reviewM = trpc.update.reviewUseCaseSubmission.useMutation();
-
-  const s = detailQ.data?.submission;
+  const s = getUseCaseSubmissionDetailMock({ submission_id: submissionId });
 
   const [comment, setComment] = useState("");
 
@@ -86,39 +70,11 @@ export default function ReviewUseCaseAILN({
     if (!s) return "PENDING_SUBMIT";
     if (s.is_accepted) return "ACCEPTED";
     if (!s.submitted_at) return "PENDING_SUBMIT";
-    if (
-      s.reviewed_at &&
-      dayjs(s.reviewed_at as unknown as string).isAfter(
-        dayjs(s.submitted_at as unknown as string)
-      )
-    )
+    if (s.reviewed_at && dayjs(s.reviewed_at).isAfter(dayjs(s.submitted_at)))
       return "NEEDS_REVISION";
     return "AWAITING_REVIEW";
   }, [s]);
 
-  if (detailQ.isLoading) {
-    return (
-      <PageContainerAILN>
-        <div className="flex w-full items-center justify-center py-12">
-          <Loader2 className="size-6 animate-spin text-gray-400" />
-        </div>
-      </PageContainerAILN>
-    );
-  }
-  if (detailQ.error) {
-    if (detailQ.error.data?.code === "NOT_FOUND") {
-      return (
-        <PageContainerAILN>
-          <AppPageState variant="NOT_FOUND" />
-        </PageContainerAILN>
-      );
-    }
-    return (
-      <PageContainerAILN>
-        <AppErrorComponents />
-      </PageContainerAILN>
-    );
-  }
   if (!s) {
     return (
       <PageContainerAILN>
@@ -130,36 +86,8 @@ export default function ReviewUseCaseAILN({
   const meta = STATUS_META[status];
   const canReview =
     status === "AWAITING_REVIEW" || status === "NEEDS_REVISION";
-  const deadline = s.deadline as unknown as string | null;
-  const submittedAt = s.submitted_at as unknown as string | null;
-
-  const handleReview = (isAccepted: boolean) => {
-    if (!isAccepted && !comment.trim()) {
-      toast.error("Catatan wajib diisi kalau minta revisi.");
-      return;
-    }
-    reviewM.mutate(
-      {
-        submission_id: submissionId,
-        is_accepted: isAccepted,
-        comment: comment.trim() || null,
-      },
-      {
-        onSuccess: () => {
-          toast.success(
-            isAccepted ? "Submisi diterima." : "Revisi diminta ke student."
-          );
-          utils.read.useCaseSubmissionDetail.invalidate({
-            submission_id: submissionId,
-          });
-          utils.list.useCaseSubmissions.invalidate();
-        },
-        onError: (err) => {
-          toast.error("Gagal menyimpan review", { description: err.message });
-        },
-      }
-    );
-  };
+  const deadline = s.deadline;
+  const submittedAt = s.submitted_at;
 
   return (
     <PageContainerAILN>
@@ -170,28 +98,13 @@ export default function ReviewUseCaseAILN({
         >
           {canReview && (
             <>
-              <ButtonAILN
-                type="button"
-                variant="destructive"
-                disabled={reviewM.isPending}
-                onClick={() => handleReview(false)}
-              >
+              <DisabledActionButtonAILN type="button" variant="destructive">
                 <RotateCcw className="size-4" />
                 Minta Revisi
-              </ButtonAILN>
-              <ButtonAILN
-                type="button"
-                variant="champion"
-                disabled={reviewM.isPending}
-                onClick={() => handleReview(true)}
-              >
-                {reviewM.isPending ? (
-                  <Loader2 className="size-4 animate-spin" />
-                ) : (
-                  <CheckCircle2 className="size-4" />
-                )}
+              </DisabledActionButtonAILN>
+              <DisabledActionButtonAILN type="button" variant="champion">
                 Terima Submission
-              </ButtonAILN>
+              </DisabledActionButtonAILN>
             </>
           )}
         </PageHeaderAILN>
@@ -330,7 +243,7 @@ export default function ReviewUseCaseAILN({
                 <div className="mb-1 text-[11px] font-semibold uppercase tracking-wide text-emerald-700 dark:text-emerald-300">
                   Catatan terakhir
                   {s.reviewed_at &&
-                    ` · ${dayjs(s.reviewed_at as unknown as string)
+                    ` · ${dayjs(s.reviewed_at)
                       .locale("id")
                       .format("D MMM · HH:mm")}`}
                 </div>

@@ -1,5 +1,5 @@
 "use client";
-import ButtonAILN from "@/components/buttons/ButtonAILN";
+import DisabledActionButtonAILN from "@/components/buttons/DisabledActionButtonAILN";
 import SectionContainerAILN from "@/components/cards/SectionContainerAILN";
 import TextAreaAILN from "@/components/fields/TextAreaAILN";
 import {
@@ -8,10 +8,10 @@ import {
   ChartTooltipContent,
   type ChartConfig,
 } from "@/components/ui/chart";
-import { trpc } from "@/trpc/client";
+import { getMemberDetailMock } from "@/mock-data/champion";
 import dayjs from "dayjs";
 import relativeTime from "dayjs/plugin/relativeTime";
-import { Loader2, Send } from "lucide-react";
+import { Send } from "lucide-react";
 import { useState } from "react";
 import {
   PolarAngleAxis,
@@ -54,25 +54,11 @@ export default function MemberDetailPanelChampionAILN({
 }: {
   memberId: number;
 }) {
-  const utils = trpc.useUtils();
-  const detailQ = trpc.read.memberDetail.useQuery({ member_id: memberId });
+  const detail = getMemberDetailMock({ member_id: memberId });
 
   const [noteText, setNoteText] = useState("");
-  const noteMutation = trpc.create.coachingNote.useMutation({
-    onSuccess: () => {
-      setNoteText("");
-      utils.read.memberDetail.invalidate({ member_id: memberId });
-    },
-  });
 
-  if (detailQ.isLoading) {
-    return (
-      <div className="flex h-64 items-center justify-center rounded-lg border border-dashboard-border bg-card-1">
-        <Loader2 className="size-6 animate-spin text-gray-400" />
-      </div>
-    );
-  }
-  if (detailQ.error || !detailQ.data) {
+  if (!detail) {
     return (
       <div className="flex h-64 items-center justify-center rounded-lg border border-dashboard-border bg-card-1 text-sm text-gray-500 dark:text-gray-400">
         Gagal memuat detail anggota.
@@ -80,7 +66,7 @@ export default function MemberDetailPanelChampionAILN({
     );
   }
 
-  const { member, metrics, radar, gate, notes } = detailQ.data;
+  const { member, metrics, radar, gate, notes } = detail;
   const dimensions = radar.dimensions;
 
   const avgComp =
@@ -93,12 +79,6 @@ export default function MemberDetailPanelChampionAILN({
   );
   const gateDone = gate.requirements.filter((r) => r.completed).length;
   const gateTotal = gate.requirements.length;
-
-  const submitNote = () => {
-    const text = noteText.trim();
-    if (!text || noteMutation.isPending) return;
-    noteMutation.mutate({ member_id: memberId, text });
-  };
 
   return (
     <div className="flex flex-col gap-4">
@@ -209,20 +189,14 @@ export default function MemberDetailPanelChampionAILN({
           value={noteText}
           onTextAreaChange={setNoteText}
         />
-        <ButtonAILN
+        <DisabledActionButtonAILN
           variant="champion"
           size="medium"
           className="self-end"
-          onClick={submitNote}
-          disabled={!noteText.trim() || noteMutation.isPending}
         >
-          {noteMutation.isPending ? (
-            <Loader2 className="size-4 animate-spin" />
-          ) : (
-            <Send className="size-4" />
-          )}
+          <Send className="size-4" />
           Kirim Catatan
-        </ButtonAILN>
+        </DisabledActionButtonAILN>
       </SectionContainerAILN>
     </div>
   );

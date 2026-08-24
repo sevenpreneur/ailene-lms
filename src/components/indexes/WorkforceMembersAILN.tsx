@@ -3,18 +3,14 @@ import SectionContainerAILN from "@/components/cards/SectionContainerAILN";
 import GeneralLabelAILN, {
   type GeneralLabelVariantAILN,
 } from "@/components/labels/GeneralLabelAILN";
-import { SkeletonBlockAILN } from "@/components/states/DataStatesAILN";
 import { formatInt } from "@/lib/format";
-import type { AppRouter } from "@/trpc/routers/_app";
-import { trpc } from "@/trpc/client";
-import type { inferRouterOutputs } from "@trpc/server";
-import { ArrowUp, Check, ChevronDown, Minus, Star } from "lucide-react";
+import { getWorkforceMembersMock } from "@/mock-data/sponsor";
+import { Check, ChevronDown, Minus } from "lucide-react";
 import Image from "next/image";
 import type { ReactNode } from "react";
 import { useMemo, useState } from "react";
 
-type WorkforceMembers =
-  inferRouterOutputs<AppRouter>["read"]["workforceMembers"];
+type WorkforceMembers = ReturnType<typeof getWorkforceMembersMock>;
 type WorkforceMember = WorkforceMembers["list"][number];
 type SortKey = "score" | "hours" | "level" | "name";
 
@@ -103,32 +99,14 @@ function SegmentLabel({ segment }: { segment: WorkforceMember["segment"] }) {
 }
 
 function StatusLabel({ status }: { status: WorkforceMember["status"] }) {
-  if (status.kind === "champion") {
-    return (
-      <GeneralLabelAILN
-        variant="white"
-        icon={<Star className="size-4 fill-current" />}
-        className="border-violet-200 bg-violet-50 text-violet-700 dark:border-violet-500/30 dark:bg-violet-500/10 dark:text-violet-300"
-      >
-        {status.label}
-      </GeneralLabelAILN>
-    );
-  }
-  if (status.kind === "up") {
-    return (
-      <GeneralLabelAILN variant="green" icon={<ArrowUp className="size-4" />}>
-        {status.label}
-      </GeneralLabelAILN>
-    );
-  }
-  if (status.kind === "pass") {
+  if (status.kind === "on_track") {
     return (
       <GeneralLabelAILN variant="green" icon={<Check className="size-4" />}>
         {status.label}
       </GeneralLabelAILN>
     );
   }
-  if (status.kind === "idle") {
+  if (status.kind === "at_risk") {
     return (
       <GeneralLabelAILN variant="yellow" icon={<Minus className="size-4" />}>
         {status.label}
@@ -198,21 +176,20 @@ function sortMembers(members: WorkforceMember[], sort: SortKey) {
 }
 
 export default function WorkforceMembersAILN() {
-  const q = trpc.read.workforceMembers.useQuery();
+  const data = getWorkforceMembersMock();
   const [departmentId, setDepartmentId] = useState<number | "ALL">("ALL");
   const [sort, setSort] = useState<SortKey>("score");
 
   const rows = useMemo(() => {
-    const list = q.data?.list ?? [];
     const filtered =
       departmentId === "ALL"
-        ? list
-        : list.filter((member) => member.department?.id === departmentId);
+        ? data.list
+        : data.list.filter((member) => member.department?.id === departmentId);
     return sortMembers(filtered, sort);
-  }, [departmentId, q.data?.list, sort]);
+  }, [departmentId, data.list, sort]);
   const departmentCounts = useMemo(() => {
     const counts = new Map<number, number>();
-    for (const member of q.data?.list ?? []) {
+    for (const member of data.list) {
       if (!member.department) continue;
       counts.set(
         member.department.id,
@@ -220,25 +197,7 @@ export default function WorkforceMembersAILN() {
       );
     }
     return counts;
-  }, [q.data?.list]);
-
-  if (q.isLoading) {
-    return (
-      <SectionContainerAILN title="Drill-down per Karyawan">
-        <SkeletonBlockAILN className="h-80" />
-      </SectionContainerAILN>
-    );
-  }
-
-  if (q.error || !q.data) {
-    return (
-      <SectionContainerAILN title="Drill-down per Karyawan">
-        <div className="flex h-40 items-center justify-center text-sm text-muted-foreground">
-          Gagal memuat data karyawan.
-        </div>
-      </SectionContainerAILN>
-    );
-  }
+  }, [data.list]);
 
   const visibleRows = rows.slice(0, ROW_LIMIT);
   const activeSort = sortOptions.find((option) => option.key === sort);
@@ -276,11 +235,11 @@ export default function WorkforceMembersAILN() {
             onClick={() => setDepartmentId("ALL")}
             className="rounded-full"
           >
-            <FilterLabel active={departmentId === "ALL"} count={q.data.total}>
+            <FilterLabel active={departmentId === "ALL"} count={data.total}>
               Semua
             </FilterLabel>
           </button>
-          {q.data.departments.map((department) => (
+          {data.departments.map((department) => (
             <button
               key={department.id}
               type="button"

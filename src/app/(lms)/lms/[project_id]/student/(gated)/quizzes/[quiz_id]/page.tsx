@@ -10,11 +10,11 @@ export const metadata: Metadata = {
 export default async function QuizPage({
   params,
 }: {
-  params: Promise<{ quiz_id: string }>;
+  params: Promise<{ project_id: string; quiz_id: string }>;
 }) {
-  const { quiz_id: quizId } = await params;
+  const { project_id, quiz_id: quizId } = await params;
 
-  const { sessionToken, ailMember } = await getProgramGate();
+  const { sessionToken, ailMember } = await getProgramGate(project_id);
   if (!sessionToken) return null;
 
   if (!quizId) {
@@ -28,5 +28,5 @@ export default async function QuizPage({
     return <AppPageState variant="FORBIDDEN" />;
   }
 
-  return <QuizDetailsAILN sessionToken={sessionToken} quizId={quizId} />;
+  return <QuizDetailsAILN quizId={quizId} />;
 }

@@ -4,18 +4,8 @@ import BaselineByMemberChampionAILN from "@/components/indexes/BaselineByMemberC
 import PillarRankingChampionAILN from "@/components/indexes/PillarRankingChampionAILN";
 import PageContainerAILN from "@/components/pages/PageContainerAILN";
 import PageHeaderAILN from "@/components/titles/PageHeaderAILN";
-import { setSessionToken } from "@/trpc/client";
-import { useEffect } from "react";
 
-export default function PreAssessmentChampionAILN({
-  sessionToken,
-}: {
-  sessionToken: string;
-}) {
-  useEffect(() => {
-    setSessionToken(sessionToken);
-  }, [sessionToken]);
-
+export default function PreAssessmentChampionAILN() {
   return (
     <PageContainerAILN>
       <div className="flex w-full flex-col gap-6">

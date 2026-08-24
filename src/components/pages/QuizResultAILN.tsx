@@ -3,9 +3,8 @@ import QuizSummaryBannerAILN from "@/components/banners/QuizSummaryBannerAILN";
 import QuizAnswerDiscussionItemAILN from "@/components/items/QuizAnswerDiscussionItemAILN";
 import PageContainerAILN from "@/components/pages/PageContainerAILN";
 import AppErrorComponents from "@/components/states/AppErrorComponents";
-import AppLoadingComponents from "@/components/states/AppLoadingComponents";
 import PageHeaderAILN from "@/components/titles/PageHeaderAILN";
-import { trpc } from "@/trpc/client";
+import { getQuizResultMock } from "@/mock-data/student";
 
 interface QuizOption {
   id: number;
@@ -45,19 +44,9 @@ interface QuizResultAILNProps {
 }
 
 export default function QuizResultAILN({ quizId }: QuizResultAILNProps) {
-  const { data, isLoading, isError } = trpc.read.quizResult.useQuery({
-    quiz_id: quizId,
-  });
-
-  if (isLoading) {
-    return (
-      <PageContainerAILN>
-        <AppLoadingComponents />
-      </PageContainerAILN>
-    );
-  }
-  const d = data as unknown as QuizResultPayload | undefined;
-  if (isError || !d?.quiz) {
+  const data = getQuizResultMock({ quiz_id: quizId });
+  const d = data as unknown as QuizResultPayload | null;
+  if (!d?.quiz) {
     return (
       <PageContainerAILN>
         <AppErrorComponents />

@@ -1,7 +1,7 @@
 "use client";
 import SectionContainerAILN from "@/components/cards/SectionContainerAILN";
 import GeneralLabelAILN from "@/components/labels/GeneralLabelAILN";
-import { trpc } from "@/trpc/client";
+import { getLevelProgressMock } from "@/mock-data/student";
 import { Star } from "lucide-react";
 
 interface LevelProgressCardAILNProps {
@@ -11,44 +11,36 @@ interface LevelProgressCardAILNProps {
 export default function LevelProgressCardAILN(
   props: LevelProgressCardAILNProps
 ) {
-  const q = trpc.read.levelProgress.useQuery();
-
-  let content: React.ReactNode;
-  if (q.isLoading) {
-    content = <CardLoading />;
-  } else if (q.error || !q.data) {
-    content = <CardError />;
-  } else {
-    const { levels, current_level_number, tasks_required, tasks_done } = q.data;
-    const target = Math.max(tasks_required, 1);
-    const pct = Math.min(100, Math.round((tasks_done / target) * 100));
-    content = (
-      <>
-        <LevelStepper
-          levels={levels}
-          currentLevelNumber={current_level_number}
-          tasksRequired={tasks_required}
-          tasksDone={tasks_done}
-        />
-        <div className="mt-5 rounded-lg border border-gray-200 p-3 dark:border-dashboard-border">
-          <div className="mb-2 text-xs text-gray-700 dark:text-gray-300">
-            Progress di Level {current_level_number}
-          </div>
-          <div className="flex items-center gap-3">
-            <div className="h-2 flex-1 overflow-hidden rounded-full bg-gray-100 dark:bg-dashboard-border">
-              <div
-                className="h-full rounded-full bg-red-500 dark:shadow-[0_0_8px_rgba(239,68,68,0.7)]"
-                style={{ width: `${pct}%` }}
-              />
-            </div>
-            <span className="text-xs font-semibold text-gray-700 dark:text-gray-300">
-              {tasks_done} / {tasks_required}
-            </span>
-          </div>
+  const { levels, current_level_number, tasks_required, tasks_done } =
+    getLevelProgressMock();
+  const target = Math.max(tasks_required, 1);
+  const pct = Math.min(100, Math.round((tasks_done / target) * 100));
+  const content = (
+    <>
+      <LevelStepper
+        levels={levels}
+        currentLevelNumber={current_level_number}
+        tasksRequired={tasks_required}
+        tasksDone={tasks_done}
+      />
+      <div className="mt-5 rounded-lg border border-gray-200 p-3 dark:border-dashboard-border">
+        <div className="mb-2 text-xs text-gray-700 dark:text-gray-300">
+          Progress di Level {current_level_number}
         </div>
-      </>
-    );
-  }
+        <div className="flex items-center gap-3">
+          <div className="h-2 flex-1 overflow-hidden rounded-full bg-gray-100 dark:bg-dashboard-border">
+            <div
+              className="h-full rounded-full bg-red-500 dark:shadow-[0_0_8px_rgba(239,68,68,0.7)]"
+              style={{ width: `${pct}%` }}
+            />
+          </div>
+          <span className="text-xs font-semibold text-gray-700 dark:text-gray-300">
+            {tasks_done} / {tasks_required}
+          </span>
+        </div>
+      </div>
+    </>
+  );
 
   return (
     <SectionContainerAILN
@@ -195,33 +187,4 @@ function StatShell({
   children: React.ReactNode;
 }) {
   return <div className={`flex h-full flex-col ${className}`}>{children}</div>;
-}
-
-function CardLoading() {
-  return (
-    <div className="flex flex-col gap-3 animate-pulse">
-      <div className="mt-2 h-9 w-40 rounded bg-gray-200 dark:bg-dashboard-border" />
-      <hr className="my-3 border-gray-200 dark:border-dashboard-border" />
-      <div className="flex items-start gap-2">
-        {Array.from({ length: 3 }).map((_, i) => (
-          <div key={i} className="flex flex-1 flex-col items-center gap-2">
-            <div className="size-9 rounded-full bg-gray-200 dark:bg-dashboard-border" />
-            <div className="h-3 w-14 rounded bg-gray-200 dark:bg-dashboard-border" />
-            <div className="h-3 w-12 rounded-full bg-gray-200 dark:bg-dashboard-border" />
-          </div>
-        ))}
-      </div>
-      <div className="mt-3 h-16 rounded-lg bg-gray-100 dark:bg-dashboard-border/40" />
-    </div>
-  );
-}
-
-function CardError() {
-  return (
-    <div className="flex h-20 items-center justify-center">
-      <span className="text-xs text-red-500 dark:text-red-400">
-        Gagal memuat data.
-      </span>
-    </div>
-  );
 }

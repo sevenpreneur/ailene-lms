@@ -10,11 +10,11 @@ export const metadata: Metadata = {
 export default async function MaterialPage({
   params,
 }: {
-  params: Promise<{ material_id: string }>;
+  params: Promise<{ project_id: string; material_id: string }>;
 }) {
-  const { material_id: materialId } = await params;
+  const { project_id, material_id: materialId } = await params;
 
-  const { sessionToken, ailMember } = await getProgramGate();
+  const { sessionToken, ailMember } = await getProgramGate(project_id);
   if (!sessionToken) return null;
 
   if (!materialId) {
@@ -28,7 +28,5 @@ export default async function MaterialPage({
     return <AppPageState variant="FORBIDDEN" />;
   }
 
-  return (
-    <MaterialDetailsAILN sessionToken={sessionToken} materialId={materialId} />
-  );
+  return <MaterialDetailsAILN materialId={materialId} />;
 }

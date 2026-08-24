@@ -1,5 +1,5 @@
 "use client";
-import { trpc } from "@/trpc/client";
+import { getAilMemberMock } from "@/mock-data/shared";
 import { Star } from "lucide-react";
 
 type RewardLabelStudentVariantAILN = "compact" | "summary";
@@ -11,10 +11,7 @@ export default function RewardLabelStudentAILN({
   variant?: RewardLabelStudentVariantAILN;
   className?: string;
 }) {
-  const memberQ = trpc.auth.checkAilMember.useQuery();
-  const member = memberQ.data?.ail_member;
-
-  if (!member) return null;
+  const member = getAilMemberMock();
 
   const formattedXp = member.total_xp.toLocaleString();
 

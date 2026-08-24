@@ -18,10 +18,13 @@ import {
   formatInt,
   formatScore,
 } from "@/lib/format";
-import { setSessionToken, trpc } from "@/trpc/client";
+import {
+  getDepartmentRoiMock,
+  getOutcomeOverviewMock,
+  getTopPerformersMock,
+} from "@/mock-data/sponsor";
 import dayjs from "dayjs";
 import { BadgeCheck, Clock, Coins, Download, Gauge } from "lucide-react";
-import { useEffect } from "react";
 
 function idrShort(value: number): string {
   const compact = formatCompactIdr(value);
@@ -30,59 +33,45 @@ function idrShort(value: number): string {
     : `Rp ${compact.value}`;
 }
 
-export default function RoiProductivityAILN({
-  sessionToken,
-}: {
-  sessionToken: string;
-}) {
-  useEffect(() => {
-    setSessionToken(sessionToken);
-  }, [sessionToken]);
-
+export default function RoiProductivityAILN() {
   const pdf = usePdfReport();
-  const overviewQ = trpc.read.outcome.overview.useQuery();
-  const performersQ = trpc.read.outcome.topPerformers.useQuery();
-  const departmentRoiQ = trpc.read.outcome.departmentRoi.useQuery();
-
-  const overview = overviewQ.data;
-  const roi = formatCompactIdr(overview?.roi_total ?? 0);
+  const overview = getOutcomeOverviewMock();
+  const roi = formatCompactIdr(overview.roi_total);
 
   const buildReport = (): ReportProps => {
     const sections: ReportProps["sections"] = [];
-    if (overview) {
-      sections.push({
-        type: "kpi",
-        title: "ROI Productivity",
-        items: [
-          {
-            label: "Jam Dihemat Kumulatif",
-            value: formatDecimal(overview.hours_saved_total),
-            unit: "jam",
-            footer: `≈ ${formatScore(overview.fte_equivalent)} FTE setahun`,
-          },
-          {
-            label: "ROI Estimasi",
-            value: `Rp ${roi.value}`,
-            unit: roi.suffix,
-            footer: `basis Rp${formatInt(overview.roi_rate_per_hour)}/jam`,
-          },
-          {
-            label: "Avg Level Saat Ini",
-            value: formatScore(overview.avg_level),
-            unit: `/ ${overview.max_level_number}`,
-            footer: `skala L0-L${overview.max_level_number}`,
-          },
-          {
-            label: "Karyawan Tersertifikasi",
-            value: formatInt(overview.certified_count),
-            unit: `/ ${overview.member_count}`,
-            footer: `${overview.certified_percent}% selesai >= L1`,
-          },
-        ],
-      });
-    }
+    sections.push({
+      type: "kpi",
+      title: "ROI Productivity",
+      items: [
+        {
+          label: "Jam Dihemat Kumulatif",
+          value: formatDecimal(overview.hours_saved_total),
+          unit: "jam",
+          footer: `≈ ${formatScore(overview.fte_equivalent)} FTE setahun`,
+        },
+        {
+          label: "ROI Estimasi",
+          value: `Rp ${roi.value}`,
+          unit: roi.suffix,
+          footer: `basis Rp${formatInt(overview.roi_rate_per_hour)}/jam`,
+        },
+        {
+          label: "Avg Level Saat Ini",
+          value: formatScore(overview.avg_level),
+          unit: `/ ${overview.max_level_number}`,
+          footer: `skala L0-L${overview.max_level_number}`,
+        },
+        {
+          label: "Karyawan Tersertifikasi",
+          value: formatInt(overview.certified_count),
+          unit: `/ ${overview.member_count}`,
+          footer: `${overview.certified_percent}% selesai >= L1`,
+        },
+      ],
+    });
 
-    const departments = departmentRoiQ.data?.departments ?? [];
+    const departments = getDepartmentRoiMock().departments;
     if (departments.length > 0) {
       sections.push({
         type: "table",
@@ -99,7 +88,7 @@ export default function RoiProductivityAILN({
       });
     }
 
-    const performers = performersQ.data?.list ?? [];
+    const performers = getTopPerformersMock().list;
     if (performers.length > 0) {
       sections.push({
         type: "table",
@@ -130,9 +119,7 @@ export default function RoiProductivityAILN({
       org: ORG_NAME || undefined,
       program: PROGRAM_NAME,
       title: "ROI Productivity",
-      subtitle: overview
-        ? `${formatInt(overview.member_count)} karyawan · ${overview.department_count} departemen`
-        : undefined,
+      subtitle: `${formatInt(overview.member_count)} karyawan · ${overview.department_count} departemen`,
       generatedAt: dayjs().format("D MMMM YYYY"),
       sections,
     };
@@ -143,17 +130,13 @@ export default function RoiProductivityAILN({
       <div className="flex w-full flex-col gap-6">
         <PageHeaderAILN
           title="ROI Productivity"
-          desc={`${PROGRAM_NAME} · ${
-            overview
-              ? `${formatInt(overview.member_count)} karyawan · ${overview.department_count} departemen`
-              : "— karyawan · — departemen"
-          }`}
+          desc={`${PROGRAM_NAME} · ${formatInt(overview.member_count)} karyawan · ${overview.department_count} departemen`}
         >
           <ButtonAILN
             variant="light"
             size="medium"
             onClick={() => pdf.generate(buildReport(), "roi-productivity.pdf")}
-            disabled={pdf.exporting || !overview}
+            disabled={pdf.exporting}
           >
             <Download className="size-4" />
             {pdf.exporting ? "Menyiapkan…" : "Export PDF"}
@@ -171,13 +154,11 @@ export default function RoiProductivityAILN({
                 tile: "bg-emerald-50 dark:bg-emerald-500/15",
                 icon: "text-emerald-600 dark:text-emerald-300",
               },
-              value: overview ? formatDecimal(overview.hours_saved_total) : "—",
+              value: formatDecimal(overview.hours_saved_total),
               unit: "jam",
               footer: (
                 <KpiCaptionAILN>
-                  {overview
-                    ? `≈ ${formatScore(overview.fte_equivalent)} FTE setahun`
-                    : "—"}
+                  ≈ {formatScore(overview.fte_equivalent)} FTE setahun
                 </KpiCaptionAILN>
               ),
             },
@@ -188,13 +169,11 @@ export default function RoiProductivityAILN({
                 tile: "bg-stakeholder-sponsor-soft",
                 icon: "text-stakeholder-sponsor",
               },
-              value: overview ? `Rp ${roi.value}` : "—",
+              value: `Rp ${roi.value}`,
               unit: roi.suffix,
               footer: (
                 <KpiCaptionAILN>
-                  {overview
-                    ? `basis Rp${formatInt(overview.roi_rate_per_hour)}/jam dihemat`
-                    : "—"}
+                  basis Rp{formatInt(overview.roi_rate_per_hour)}/jam dihemat
                 </KpiCaptionAILN>
               ),
             },
@@ -205,11 +184,11 @@ export default function RoiProductivityAILN({
                 tile: "bg-indigo-50 dark:bg-indigo-500/15",
                 icon: "text-indigo-600 dark:text-indigo-300",
               },
-              value: overview ? formatScore(overview.avg_level) : "—",
-              unit: overview ? `/ ${overview.max_level_number}` : "/ —",
+              value: formatScore(overview.avg_level),
+              unit: `/ ${overview.max_level_number}`,
               footer: (
                 <KpiCaptionAILN>
-                  {overview ? `skala L0-L${overview.max_level_number}` : "—"}
+                  skala L0-L{overview.max_level_number}
                 </KpiCaptionAILN>
               ),
             },
@@ -220,13 +199,11 @@ export default function RoiProductivityAILN({
                 tile: "bg-cyan-50 dark:bg-cyan-500/15",
                 icon: "text-cyan-600 dark:text-cyan-300",
               },
-              value: overview ? formatInt(overview.certified_count) : "—",
-              unit: overview ? `/ ${overview.member_count}` : "/ —",
+              value: formatInt(overview.certified_count),
+              unit: `/ ${overview.member_count}`,
               footer: (
                 <KpiCaptionAILN>
-                  {overview
-                    ? `${overview.certified_percent}% selesai >= L1`
-                    : "—"}
+                  {overview.certified_percent}% selesai &gt;= L1
                 </KpiCaptionAILN>
               ),
             },

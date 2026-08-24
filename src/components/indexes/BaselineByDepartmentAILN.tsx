@@ -1,11 +1,8 @@
 "use client";
 import SectionContainerAILN from "@/components/cards/SectionContainerAILN";
-import {
-  EmptyHintAILN,
-  SkeletonBlockAILN,
-} from "@/components/states/DataStatesAILN";
+import { EmptyHintAILN } from "@/components/states/DataStatesAILN";
 import { formatInt, formatScore } from "@/lib/format";
-import { trpc } from "@/trpc/client";
+import { getPreAssessmentOrganizationMock } from "@/mock-data/sponsor";
 
 // Pillar keys → table header (short) labels; keys mirror buildPreAssessmentReport.
 const PILLAR_SHORT: Record<string, string> = {
@@ -29,24 +26,17 @@ const orderIndex = (key: string) => PILLAR_ORDER.indexOf(key);
 // Org competency baseline matrix: one row per department, six pillar score chips
 // + average + completion. Headline stats summarize the org below the table.
 export default function BaselineByDepartmentAILN() {
-  const q = trpc.read.preAssessmentOrganization.useQuery();
-  const data = q.data;
+  const data = getPreAssessmentOrganizationMock();
 
   return (
     <SectionContainerAILN
       title="Baseline per Departemen (6 pillar)"
-      desc={
-        data
-          ? `${formatInt(data.department_count)} departemen · ${formatInt(
-              data.total_members
-            )} karyawan · skor baseline per pillar (skala 1–5)`
-          : "Skor baseline per pillar (skala 1–5)"
-      }
+      desc={`${formatInt(data.department_count)} departemen · ${formatInt(
+        data.total_members
+      )} karyawan · skor baseline per pillar (skala 1–5)`}
       contentClassName="flex flex-col gap-5"
     >
-      {q.isLoading || !data ? (
-        <SkeletonBlockAILN className="h-72" />
-      ) : data.departments.length === 0 ? (
+      {data.departments.length === 0 ? (
         <EmptyHintAILN className="h-48">
           Belum ada departemen yang menyelesaikan pre-assessment.
         </EmptyHintAILN>

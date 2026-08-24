@@ -1,16 +1,19 @@
 "use client";
-import ChapterItemAILN, {
-  ChapterItemSkeleton,
-} from "@/components/items/ChapterItemAILN";
+import ChapterItemAILN from "@/components/items/ChapterItemAILN";
 import LevelDividerAILN from "@/components/items/LevelDividerAILN";
 import SkillPracticeListAILN from "@/components/items/SkillPracticeListAILN";
 import type { SkillPracticeItem } from "@/components/items/SkillPracticeItemAILN";
 import LevelLabelStudentAILN from "@/components/labels/LevelLabelStudentAILN";
 import RewardLabelStudentAILN from "@/components/labels/RewardLabelStudentAILN";
 import PageContainerAILN from "@/components/pages/PageContainerAILN";
-import AppErrorComponents from "@/components/states/AppErrorComponents";
 import PageHeaderAILN from "@/components/titles/PageHeaderAILN";
-import { setSessionToken, trpc } from "@/trpc/client";
+import { getLevelsMock, getAilMemberMock } from "@/mock-data/shared";
+import {
+  getAssignedPromptsMock,
+  getAssignedUseCasesMock,
+  getChaptersProgressMock,
+  getLevelProgressMock,
+} from "@/mock-data/student";
 import dayjs from "dayjs";
 import "dayjs/locale/id";
 import { useSearchParams } from "next/navigation";
@@ -18,28 +21,10 @@ import { useEffect, useRef, useState } from "react";
 
 dayjs.locale("id");
 
-interface Level {
-  id: number;
-  level_number: number;
-  name: string;
-  icon: string | null;
-  min_xp: number;
-}
+type Level = ReturnType<typeof getLevelsMock>[number];
+type Chapter = ReturnType<typeof getChaptersProgressMock>[number];
 
-interface Chapter {
-  id: number;
-  level_id: number;
-  name: string;
-  description: string | null;
-  session_date: string;
-  progress: "not_started" | "in_progress" | "completed";
-}
-
-export default function LearningPathStudentAILN({
-  sessionToken,
-}: {
-  sessionToken: string;
-}) {
+export default function LearningPathStudentAILN() {
   const [expandedChapters, setExpandedChapters] = useState<Set<number>>(
     new Set()
   );
@@ -47,16 +32,12 @@ export default function LearningPathStudentAILN({
     new Set()
   );
 
-  useEffect(() => {
-    setSessionToken(sessionToken);
-  }, [sessionToken]);
-
-  const memberQ = trpc.auth.checkAilMember.useQuery();
-  const levelsQ = trpc.list.levels.useQuery();
-  const chaptersQ = trpc.list.chapters.useQuery();
-  const levelProgressQ = trpc.read.levelProgress.useQuery();
-  const promptsQ = trpc.list.assignedPrompts.useQuery();
-  const useCasesQ = trpc.list.assignedUseCases.useQuery();
+  const member = getAilMemberMock();
+  const levels = getLevelsMock();
+  const chapters = getChaptersProgressMock();
+  const levelProgress = getLevelProgressMock();
+  const assignedPrompts = getAssignedPromptsMock();
+  const assignedUseCases = getAssignedUseCasesMock();
 
   // Pick the first useful timeline item to open.
   const searchParams = useSearchParams();
@@ -68,12 +49,6 @@ export default function LearningPathStudentAILN({
   );
   useEffect(() => {
     if (autoExpandedRef.current) return;
-    const chapters = chaptersQ.data?.list;
-    const member = memberQ.data?.ail_member;
-    const levels = levelsQ.data?.list;
-    if (!chapters || !member || !levels) return;
-    // Wait for practice queries before choosing a fallback.
-    if (promptsQ.isLoading || useCasesQ.isLoading) return;
     autoExpandedRef.current = true;
 
     if (chapterParam) {
@@ -100,7 +75,7 @@ export default function LearningPathStudentAILN({
       return;
     }
 
-    const currentLevelNumber = member.current_level?.level_number ?? 0;
+    const currentLevelNumber = member.current_level.level_number;
     const levelNumberByIdForNext = new Map(
       levels.map((l) => [l.id, l.level_number])
     );
@@ -118,7 +93,7 @@ export default function LearningPathStudentAILN({
     // Fallback to the earliest unfinished practice level.
     const levelsWithUnfinished = new Map<number, number>();
     const consider = (
-      row: { reviewed_at: string | null; is_accepted: boolean },
+      row: { reviewed_at: Date | null; is_accepted: boolean },
       lvl: { id: number; level_number: number }
     ) => {
       const accepted = !!row.reviewed_at && row.is_accepted;
@@ -128,8 +103,8 @@ export default function LearningPathStudentAILN({
         levelsWithUnfinished.set(lvl.id, lvl.level_number);
       }
     };
-    for (const r of promptsQ.data?.list ?? []) consider(r, r.prompt.level);
-    for (const r of useCasesQ.data?.list ?? []) consider(r, r.use_case.level);
+    for (const r of assignedPrompts) consider(r, r.prompt.level);
+    for (const r of assignedUseCases) consider(r, r.use_case.level);
     const earliestPractice = [...levelsWithUnfinished.entries()].sort(
       (a, b) => a[1] - b[1]
     )[0];
@@ -137,24 +112,10 @@ export default function LearningPathStudentAILN({
       setExpandedModules(new Set([earliestPractice[0]]));
       return;
     }
-  }, [
-    chaptersQ.data,
-    memberQ.data,
-    levelsQ.data,
-    promptsQ.data,
-    promptsQ.isLoading,
-    useCasesQ.data,
-    useCasesQ.isLoading,
-    chapterParam,
-    practiceParam,
-  ]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [chapterParam, practiceParam]);
 
   useEffect(() => {
-    const chapters = chaptersQ.data?.list;
-    const member = memberQ.data?.ail_member;
-    const levels = levelsQ.data?.list;
-    if (!chapters || !member || !levels) return;
-
     const previous = chapterProgressRef.current;
     if (previous.size === 0) {
       chapterProgressRef.current = new Map(
@@ -174,7 +135,7 @@ export default function LearningPathStudentAILN({
     );
     if (!completedChapter) return;
 
-    const currentLevelNumber = member.current_level?.level_number ?? 0;
+    const currentLevelNumber = member.current_level.level_number;
     const levelNumberById = new Map(levels.map((l) => [l.id, l.level_number]));
     const completedIndex = chapters.findIndex(
       (chapter) => chapter.id === completedChapter.id
@@ -189,63 +150,11 @@ export default function LearningPathStudentAILN({
     if (nextAccessible) {
       setExpandedChapters(new Set([nextAccessible.id]));
     }
-  }, [chaptersQ.data, expandedChapters, levelsQ.data, memberQ.data]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [expandedChapters]);
 
-  // Gate the skeleton on timeline data only.
-  if (
-    memberQ.isLoading ||
-    levelsQ.isLoading ||
-    chaptersQ.isLoading ||
-    promptsQ.isLoading ||
-    useCasesQ.isLoading
-  ) {
-    return (
-      <PageContainerAILN>
-        <div className="flex w-full flex-col gap-6">
-          <div className="flex items-center justify-between gap-4">
-            <div className="space-y-2">
-              <div className="h-7 w-48 rounded bg-gray-300 dark:bg-gray-700 animate-pulse" />
-              <div className="h-3 w-72 rounded bg-gray-200 dark:bg-dashboard-border animate-pulse" />
-            </div>
-            <div className="flex items-center gap-3">
-              <div className="h-14 w-44 rounded-md bg-gray-200 dark:bg-dashboard-border animate-pulse" />
-              <div className="h-14 w-32 rounded-md bg-gray-200 dark:bg-dashboard-border animate-pulse" />
-            </div>
-          </div>
-          <div className="relative">
-            <div className="absolute top-0 bottom-0 left-4 w-0.5 bg-gray-200 dark:bg-dashboard-border" />
-            <div className="space-y-4">
-              {[0, 1, 2, 3].map((i) => (
-                <ChapterItemSkeleton key={i} />
-              ))}
-            </div>
-          </div>
-        </div>
-      </PageContainerAILN>
-    );
-  }
-  // levelProgress only feeds the claimable badge.
-  if (memberQ.error || levelsQ.error || chaptersQ.error) {
-    return (
-      <PageContainerAILN>
-        <AppErrorComponents />
-      </PageContainerAILN>
-    );
-  }
-
-  const member = memberQ.data?.ail_member;
-  const levels = levelsQ.data?.list ?? [];
-  const chapters = chaptersQ.data?.list ?? [];
-  const nextLevelUnlockable =
-    levelProgressQ.data?.next_level_unlockable ?? false;
-  if (!member)
-    return (
-      <PageContainerAILN>
-        <AppErrorComponents />
-      </PageContainerAILN>
-    );
-
-  const currentLevelNumber = member.current_level?.level_number ?? 0;
+  const nextLevelUnlockable = levelProgress.next_level_unlockable;
+  const currentLevelNumber = member.current_level.level_number;
 
   const toggleChapter = (id: number) =>
     setExpandedChapters((prev) => {
@@ -292,7 +201,7 @@ export default function LearningPathStudentAILN({
     chaptersByLevel.set(ch.level_id, bucket);
   }
 
-  const allPrompts: SkillPracticeItem[] = (promptsQ.data?.list ?? []).map(
+  const allPrompts: SkillPracticeItem[] = assignedPrompts.map(
     (r) => ({
       id: r.id,
       ref_id: r.prompt.id,
@@ -309,7 +218,7 @@ export default function LearningPathStudentAILN({
       is_accepted: r.is_accepted,
     })
   );
-  const allUseCases: SkillPracticeItem[] = (useCasesQ.data?.list ?? []).map(
+  const allUseCases: SkillPracticeItem[] = assignedUseCases.map(
     (r) => ({
       id: r.id,
       ref_id: r.use_case.id,

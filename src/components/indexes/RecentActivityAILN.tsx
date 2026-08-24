@@ -1,6 +1,6 @@
 "use client";
 import SectionContainerAILN from "@/components/cards/SectionContainerAILN";
-import { trpc } from "@/trpc/client";
+import { getSponsorRecentActivityMock } from "@/mock-data/sponsor";
 import dayjs from "dayjs";
 import "dayjs/locale/id";
 import relativeTime from "dayjs/plugin/relativeTime";
@@ -46,26 +46,11 @@ const KIND_META: Record<
 };
 
 export default function RecentActivityAILN() {
-  const q = trpc.read.recentActivity.useQuery();
-  const activity = q.data?.activity ?? [];
+  const activity = getSponsorRecentActivityMock().activity;
 
   return (
     <SectionContainerAILN title="Aktivitas Terkini">
-      {q.isLoading ? (
-        <ul className="flex flex-col gap-3">
-          {[0, 1, 2, 3].map((i) => (
-            <li key={i} className="flex items-start gap-3">
-              <span className="size-9 shrink-0 animate-pulse rounded-full bg-muted" />
-              <div className="flex-1 space-y-1.5 pt-1">
-                <div className="h-3 w-3/4 animate-pulse rounded bg-muted" />
-                <div className="h-2.5 w-1/3 animate-pulse rounded bg-muted/60" />
-              </div>
-            </li>
-          ))}
-        </ul>
-      ) : q.error ? (
-        <p className="text-sm text-muted-foreground">Gagal memuat aktivitas.</p>
-      ) : activity.length === 0 ? (
+      {activity.length === 0 ? (
         <p className="text-sm text-muted-foreground">Belum ada aktivitas.</p>
       ) : (
         <ul className="-mx-5 -mb-5 divide-y divide-dashboard-border/60">

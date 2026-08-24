@@ -1,5 +1,5 @@
 "use client";
-import ButtonAILN from "@/components/buttons/ButtonAILN";
+import DisabledActionButtonAILN from "@/components/buttons/DisabledActionButtonAILN";
 import SectionContainerAILN from "@/components/cards/SectionContainerAILN";
 import InputAILN from "@/components/fields/InputAILN";
 import NumberInputAILN from "@/components/fields/NumberInputAILN";
@@ -9,13 +9,11 @@ import GeneralLabelAILN, {
   type GeneralLabelVariantAILN,
 } from "@/components/labels/GeneralLabelAILN";
 import PageContainerAILN from "@/components/pages/PageContainerAILN";
-import AppErrorComponents from "@/components/states/AppErrorComponents";
 import AppPageState from "@/components/states/AppPageState";
 import PageHeaderAILN from "@/components/titles/PageHeaderAILN";
 import { supabase } from "@/lib/supabase";
 import { useProjectId } from "@/lib/use-project-id";
-import { setSessionToken, trpc } from "@/trpc/client";
-import { AilUseCaseFrequency, AilUseCaseType } from "@prisma/client";
+import { getUseCaseAssignmentMock } from "@/mock-data/student";
 import dayjs from "dayjs";
 import {
   CalendarClock,
@@ -33,16 +31,25 @@ import {
   X,
 } from "lucide-react";
 import Link from "next/link";
-import { useRouter } from "next/navigation";
 import {
   ChangeEvent,
-  FormEvent,
   useEffect,
   useMemo,
   useRef,
   useState,
 } from "react";
 import { toast } from "sonner";
+
+type AilUseCaseFrequency = "DAILY" | "WEEKLY" | "MONTHLY" | "OCCASIONALLY";
+type AilUseCaseType =
+  | "WORKFLOW_AUTOMATION"
+  | "CONTENT_CREATION"
+  | "DATA_ANALYSIS"
+  | "RESEARCH"
+  | "COMMUNICATION"
+  | "DECISION_SUPPORT"
+  | "LEARNING"
+  | "OTHER";
 
 const OUTCOME_MAX_BYTES = 20 * 1024 * 1024;
 const OUTCOME_ACCEPT = ".pdf,.png,.jpg,.jpeg,.mp4";
@@ -159,25 +166,12 @@ function parseAiTools(csv: string): string[] {
 }
 
 export default function SubmitUseCaseAILN({
-  sessionToken,
   useCaseId,
 }: {
-  sessionToken: string;
   useCaseId: number;
 }) {
-  useEffect(() => {
-    setSessionToken(sessionToken);
-  }, [sessionToken]);
-
-  const router = useRouter();
   const projectId = useProjectId();
-  const utils = trpc.useUtils();
-  const assignmentQ = trpc.read.useCaseAssignment.useQuery({
-    use_case_id: useCaseId,
-  });
-  const submitM = trpc.update.submitUseCaseAssignment.useMutation();
-
-  const a = assignmentQ.data?.assignment;
+  const a = getUseCaseAssignmentMock({ use_case_id: useCaseId });
 
   const [formData, setFormData] = useState<{
     outcomeProof: string;
@@ -229,8 +223,8 @@ export default function SubmitUseCaseAILN({
           : "",
       aiTools: a.ai_tool ? parseAiTools(a.ai_tool) : [],
       aiToolCustomInput: "",
-      frequency: a.frequency ?? "",
-      type: a.type ?? "",
+      frequency: (a.frequency as AilUseCaseFrequency | null) ?? "",
+      type: (a.type as AilUseCaseType | null) ?? "",
       description: a.description ?? "",
     });
   }, [a]);
@@ -313,40 +307,10 @@ export default function SubmitUseCaseAILN({
     if (!a) return "PENDING_SUBMIT";
     if (a.is_accepted) return "ACCEPTED";
     if (!a.submitted_at) return "PENDING_SUBMIT";
-    if (
-      a.reviewed_at &&
-      dayjs(a.reviewed_at as unknown as string).isAfter(
-        dayjs(a.submitted_at as unknown as string)
-      )
-    )
+    if (a.reviewed_at && dayjs(a.reviewed_at).isAfter(dayjs(a.submitted_at)))
       return "NEEDS_REVISION";
     return "AWAITING_REVIEW";
   }, [a]);
-
-  if (assignmentQ.isLoading) {
-    return (
-      <PageContainerAILN>
-        <div className="flex w-full items-center justify-center py-12">
-          <Loader2 className="size-6 animate-spin text-gray-400" />
-        </div>
-      </PageContainerAILN>
-    );
-  }
-
-  if (assignmentQ.error) {
-    if (assignmentQ.error.data?.code === "NOT_FOUND") {
-      return (
-        <PageContainerAILN>
-          <AppPageState variant="NOT_FOUND" />
-        </PageContainerAILN>
-      );
-    }
-    return (
-      <PageContainerAILN>
-        <AppErrorComponents />
-      </PageContainerAILN>
-    );
-  }
 
   if (!a) {
     return (
@@ -359,79 +323,10 @@ export default function SubmitUseCaseAILN({
   const meta = statusMeta[status];
   const StatusIcon = meta.icon;
   const isLocked = status === "ACCEPTED";
-  const deadline = a.deadline as unknown as string | null;
+  const deadline = a.deadline;
   const deadlineDate = deadline ? dayjs(deadline) : null;
   const deadlineOverdue =
     deadlineDate !== null && !a.is_accepted && deadlineDate.isBefore(dayjs());
-
-  const handleSubmit = (e: FormEvent) => {
-    e.preventDefault();
-    if (!formData.outcomeProof.trim()) {
-      toast.error("Outcome / bukti hasil wajib diisi.");
-      return;
-    }
-    const hoursWithAiNum = Number(formData.hoursSaved);
-    if (!Number.isFinite(hoursWithAiNum) || hoursWithAiNum < 0) {
-      toast.error("Jam dengan AI harus angka non-negatif.");
-      return;
-    }
-    const hoursWithoutAiNum = Number(formData.hoursWithoutAi);
-    if (!Number.isFinite(hoursWithoutAiNum) || hoursWithoutAiNum < 0) {
-      toast.error("Jam tanpa AI harus angka non-negatif.");
-      return;
-    }
-    if (!formData.description.trim()) {
-      toast.error("Cerita penerapan wajib diisi.");
-      return;
-    }
-    if (formData.aiTools.length === 0) {
-      toast.error("Pilih minimal satu AI tool.");
-      return;
-    }
-    if (!formData.frequency) {
-      toast.error("Pilih frekuensi pemakaian.");
-      return;
-    }
-    if (!formData.type) {
-      toast.error("Pilih tipe use case.");
-      return;
-    }
-
-    const aiToolCsv = formData.aiTools.join(", ");
-    if (aiToolCsv.length > 255) {
-      toast.error("Daftar AI tool terlalu panjang (maks 255 karakter).");
-      return;
-    }
-
-    submitM.mutate(
-      {
-        use_case_id: useCaseId,
-        outcome_proof: formData.outcomeProof.trim(),
-        hours_with_ai: hoursWithAiNum,
-        hours_without_ai: hoursWithoutAiNum,
-        description: formData.description.trim(),
-        ai_tool: aiToolCsv,
-        frequency: formData.frequency as AilUseCaseFrequency,
-        type: formData.type as AilUseCaseType,
-      },
-      {
-        onSuccess: () => {
-          toast.success("Tugas berhasil dikirim.");
-          utils.read.useCaseAssignment.invalidate({
-            use_case_id: useCaseId,
-          });
-          utils.read.todayFocus.invalidate();
-          utils.list.assignedUseCases.invalidate();
-          utils.list.memberUseCaseLibrary.invalidate();
-          utils.list.practiceSubmissions.invalidate();
-          router.push(`/${projectId}/student/skill-practice`);
-        },
-        onError: (err) => {
-          toast.error("Gagal kirim", { description: err.message });
-        },
-      }
-    );
-  };
 
   return (
     <PageContainerAILN>
@@ -538,7 +433,7 @@ export default function SubmitUseCaseAILN({
             title={isLocked ? "Submission kamu" : "Laporkan use case-mu"}
             desc="Lengkapi detail penerapan, tools yang dipakai, dan bukti outcome dari use case ini."
           >
-            <form onSubmit={handleSubmit} className="flex flex-col gap-4">
+            <form className="flex flex-col gap-4">
               <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
                 <FieldRow
                   label="Tipe Use Case"
@@ -874,28 +769,18 @@ export default function SubmitUseCaseAILN({
               </FieldRow>
 
               {!isLocked && (
-                <ButtonAILN
-                  type="submit"
+                <DisabledActionButtonAILN
+                  type="button"
                   variant="primary"
-                  disabled={submitM.isPending}
                   className="w-fit self-end"
                 >
-                  {submitM.isPending ? (
-                    <>
-                      <Loader2 className="size-4 animate-spin" />
-                      Mengirim…
-                    </>
-                  ) : (
-                    <>
-                      <Send className="size-4" />
-                      {status === "NEEDS_REVISION"
-                        ? "Kirim Revisi"
-                        : a.submitted_at
-                          ? "Update Submission"
-                          : "Kirim Tugas"}
-                    </>
-                  )}
-                </ButtonAILN>
+                  <Send className="size-4" />
+                  {status === "NEEDS_REVISION"
+                    ? "Kirim Revisi"
+                    : a.submitted_at
+                      ? "Update Submission"
+                      : "Kirim Tugas"}
+                </DisabledActionButtonAILN>
               )}
               {isLocked && (
                 <Link

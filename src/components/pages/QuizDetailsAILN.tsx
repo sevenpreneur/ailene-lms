@@ -5,37 +5,17 @@ import QuizAttemptAILN, {
 } from "@/components/pages/QuizAttemptAILN";
 import QuizResultAILN from "@/components/pages/QuizResultAILN";
 import AppErrorComponents from "@/components/states/AppErrorComponents";
-import AppLoadingComponents from "@/components/states/AppLoadingComponents";
-import { setSessionToken, trpc } from "@/trpc/client";
-import { useEffect } from "react";
+import { getQuizQuestionsMock } from "@/mock-data/student";
 
 interface QuizDetailsAILNProps {
-  sessionToken: string;
   quizId: string;
 }
 
-export default function QuizDetailsAILN({
-  sessionToken,
-  quizId,
-}: QuizDetailsAILNProps) {
-  useEffect(() => {
-    if (sessionToken) setSessionToken(sessionToken);
-  }, [sessionToken]);
+export default function QuizDetailsAILN({ quizId }: QuizDetailsAILNProps) {
+  const data = getQuizQuestionsMock({ quiz_id: quizId });
+  const d = data as unknown as QuizDetailsData | null;
 
-  const { data, isLoading, isError } = trpc.list.quizQuestions.useQuery({
-    quiz_id: quizId,
-  });
-
-  const d = data as unknown as QuizDetailsData | undefined;
-
-  if (isLoading) {
-    return (
-      <PageContainerAILN>
-        <AppLoadingComponents />
-      </PageContainerAILN>
-    );
-  }
-  if (isError || !d?.quiz) {
+  if (!d?.quiz) {
     return (
       <PageContainerAILN>
         <AppErrorComponents />

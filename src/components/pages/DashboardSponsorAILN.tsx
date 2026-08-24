@@ -20,18 +20,23 @@ import RecentActivityAILN from "@/components/indexes/RecentActivityAILN";
 import HealthMetricAILN from "@/components/items/HealthMetricAILN";
 import SponsorStatLabelAILN from "@/components/labels/SponsorStatLabelAILN";
 import PageContainerAILN from "@/components/pages/PageContainerAILN";
-import AppErrorComponents from "@/components/states/AppErrorComponents";
-import { SkeletonBlockAILN } from "@/components/states/DataStatesAILN";
-import SkeletonExecutiveViewAILN from "@/components/states/SkeletonExecutiveViewAILN";
 import TransformationJourneyAILN from "@/components/steppers/TransformationJourneyAILN";
 import { formatCompactIdr } from "@/lib/format";
-import { setSessionToken, trpc } from "@/trpc/client";
+import {
+  getExecutiveViewMock,
+  getHeadlineMock,
+  getLevelDistributionMock,
+  getOrganizationLeaderboardMock,
+  getOrganizationStatsMock,
+  getProficiencyTrendsMock,
+  getProgramHealthMock,
+  getSponsorRecentActivityMock,
+} from "@/mock-data/sponsor";
 import dayjs from "dayjs";
 import "dayjs/locale/id";
 import relativeTime from "dayjs/plugin/relativeTime";
 import { Building2, Clock, Coins, Download, Gauge, Users } from "lucide-react";
 import type { LucideIcon } from "lucide-react";
-import { useEffect } from "react";
 
 dayjs.extend(relativeTime);
 
@@ -50,43 +55,19 @@ function tierLabel(level: number): string {
 
 // ---------- Component ----------
 
-export default function DashboardSponsorAILN({
-  sessionToken,
-}: {
-  sessionToken: string;
-}) {
-  useEffect(() => {
-    setSessionToken(sessionToken);
-  }, [sessionToken]);
-
+export default function DashboardSponsorAILN() {
   const pdf = usePdfReport();
-  const executiveQ = trpc.read.executiveView.useQuery();
-  const headlineQ = trpc.read.headline.useQuery();
-  const orgStatsQ = trpc.read.organizationStats.useQuery();
-  const healthQ = trpc.read.programHealth.useQuery();
-  const activityQ = trpc.read.recentActivity.useQuery();
+  const executiveData = getExecutiveViewMock();
+  const headlineData = getHeadlineMock();
+  const orgStats = getOrganizationStatsMock();
+  const healthData = getProgramHealthMock();
+  const activityData = getSponsorRecentActivityMock();
   // For the PDF report: data the on-page charts render via child components.
-  const levelDistQ = trpc.read.levelDistribution.useQuery();
-  const proficiencyQ = trpc.read.proficiencyTrends.useQuery();
-  const leaderboardQ = trpc.read.organizationLeaderboard.useQuery();
+  const levelDistData = getLevelDistributionMock();
+  const proficiencyData = getProficiencyTrendsMock();
+  const leaderboardData = getOrganizationLeaderboardMock();
 
-  if (executiveQ.isLoading) {
-    return (
-      <PageContainerAILN>
-        <SkeletonExecutiveViewAILN />
-      </PageContainerAILN>
-    );
-  }
-
-  if (executiveQ.error || !executiveQ.data) {
-    return (
-      <PageContainerAILN>
-        <AppErrorComponents />
-      </PageContainerAILN>
-    );
-  }
-
-  const metrics = executiveQ.data.metrics;
+  const metrics = executiveData.metrics;
   const staffActiveWeeklyValue =
     metrics.member_count === 0
       ? "0"
@@ -95,14 +76,11 @@ export default function DashboardSponsorAILN({
   const roiUnit = roi.suffix ? `${roi.suffix} Rp` : "Rp";
   const workdaysSaved = Math.round(metrics.hours_saved_total / 8);
 
-  const healthMetrics = healthQ.data?.metrics ?? [];
-  const activity = activityQ.data?.activity ?? [];
-  const orgStats = orgStatsQ.data;
+  const healthMetrics = healthData.metrics;
+  const activity = activityData.activity;
   const orgName = ORG_NAME || "Ringkasan Organisasi";
   const activeStaffCount = metrics.staff_active_weekly_count.toLocaleString("id-ID");
-  const departmentCount = orgStats
-    ? orgStats.group_count.toLocaleString("id-ID")
-    : "—";
+  const departmentCount = orgStats.group_count.toLocaleString("id-ID");
 
   // Program week derived from the configured start date (env). No start = week 1.
   const programWeek = PROGRAM_START_ISO
@@ -111,9 +89,6 @@ export default function DashboardSponsorAILN({
         PROGRAM_TOTAL_WEEKS
       )
     : 1;
-  const headlineUpdated = headlineQ.dataUpdatedAt
-    ? dayjs(headlineQ.dataUpdatedAt).locale("id").fromNow()
-    : "baru saja";
 
   const kpiCards: {
     title: string;
@@ -202,12 +177,12 @@ export default function DashboardSponsorAILN({
           footer: h.detail,
         })),
       },
-      ...(levelDistQ.data && levelDistQ.data.levels.length > 0
+      ...(levelDistData.levels.length > 0
         ? [
             {
               type: "bar" as const,
               title: "Distribusi Level Organisasi",
-              items: levelDistQ.data.levels.map((l) => ({
+              items: levelDistData.levels.map((l) => ({
                 label: `${l.code} · ${l.name}`,
                 value: l.count,
                 display: `${l.count} (${l.percent}%)`,
@@ -215,14 +190,14 @@ export default function DashboardSponsorAILN({
             },
           ]
         : []),
-      ...(proficiencyQ.data && proficiencyQ.data.weeks.length > 0
+      ...(proficiencyData.weeks.length > 0
         ? [
             {
               type: "trend" as const,
               title: "Tren Skor Kompetensi",
               firstLineName: "Rata-rata XP",
               secondLineName: "Rata-rata Level",
-              points: proficiencyQ.data.weeks.map((w) => ({
+              points: proficiencyData.weeks.map((w) => ({
                 label: w.label,
                 firstLine: w.avg_xp,
                 secondLine: w.avg_level,
@@ -230,7 +205,7 @@ export default function DashboardSponsorAILN({
             },
           ]
         : []),
-      ...(leaderboardQ.data && leaderboardQ.data.list.length > 0
+      ...(leaderboardData.list.length > 0
         ? [
             {
               type: "table" as const,
@@ -240,7 +215,7 @@ export default function DashboardSponsorAILN({
                 | "left"
                 | "right"
               )[],
-              rows: leaderboardQ.data.list.map((g) => [
+              rows: leaderboardData.list.map((g) => [
                 g.rank,
                 g.name,
                 g.member_count.toLocaleString("id-ID"),
@@ -302,17 +277,13 @@ export default function DashboardSponsorAILN({
         />
 
         {/* Headline · bulan ini */}
-        {headlineQ.data ? (
-          <HeadlineAILN
-            productivePercent={headlineQ.data.productive_percent}
-            hoursSavedLastWeek={headlineQ.data.hours_saved_last_week}
-            roiAnnualized={headlineQ.data.roi_annualized}
-            trend={headlineQ.data.trend}
-            updatedLabel={headlineUpdated}
-          />
-        ) : (
-          <SkeletonBlockAILN className="h-44" />
-        )}
+        <HeadlineAILN
+          productivePercent={headlineData.productive_percent}
+          hoursSavedLastWeek={headlineData.hours_saved_last_week}
+          roiAnnualized={headlineData.roi_annualized}
+          trend={headlineData.trend}
+          updatedLabel="baru saja"
+        />
 
         {/* KPI strip — standardized ScorecardAILN cards */}
         <div className="grid grid-cols-1 gap-4 md:grid-cols-2 xl:grid-cols-4">
@@ -345,29 +316,17 @@ export default function DashboardSponsorAILN({
               title="Kesehatan Program"
               desc="Capaian program vs target · update real-time."
             >
-              {healthQ.isLoading ? (
-                <ul className="grid grid-cols-2 gap-6 lg:grid-cols-4">
-                  {[0, 1, 2, 3].map((i) => (
-                    <li key={i} className="flex flex-col gap-2">
-                      <div className="h-3 w-20 animate-pulse rounded bg-muted" />
-                      <div className="h-3 w-16 animate-pulse rounded bg-muted/60" />
-                      <div className="mt-1 h-7 w-16 animate-pulse rounded bg-muted" />
-                    </li>
-                  ))}
-                </ul>
-              ) : (
-                <ul className="grid grid-cols-2 gap-6 lg:grid-cols-4">
-                  {healthMetrics.map((h) => (
-                    <HealthMetricAILN
-                      key={h.key}
-                      label={h.label}
-                      name={h.name}
-                      percent={h.percent}
-                      detail={h.detail}
-                    />
-                  ))}
-                </ul>
-              )}
+              <ul className="grid grid-cols-2 gap-6 lg:grid-cols-4">
+                {healthMetrics.map((h) => (
+                  <HealthMetricAILN
+                    key={h.key}
+                    label={h.label}
+                    name={h.name}
+                    percent={h.percent}
+                    detail={h.detail}
+                  />
+                ))}
+              </ul>
             </SectionContainerAILN>
 
             <RecentActivityAILN />

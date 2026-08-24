@@ -1,11 +1,8 @@
 "use client";
 import SectionContainerAILN from "@/components/cards/SectionContainerAILN";
-import {
-  EmptyHintAILN,
-  SkeletonBlockAILN,
-} from "@/components/states/DataStatesAILN";
+import { EmptyHintAILN } from "@/components/states/DataStatesAILN";
 import { formatScore } from "@/lib/format";
-import { trpc } from "@/trpc/client";
+import { getPreAssessmentOrganizationMock } from "@/mock-data/sponsor";
 
 // Pillar keys → ranking (descriptive) labels; keys mirror buildPreAssessmentReport.
 const PILLAR_LONG: Record<string, string> = {
@@ -21,17 +18,14 @@ const SCORE_MAX = 5;
 // Org pillar ranking: mean baseline per pillar across departments, lowest first,
 // with the maturity target drawn as a line on each bar.
 export default function PillarRankingAILN() {
-  const q = trpc.read.preAssessmentOrganization.useQuery();
-  const data = q.data;
+  const data = getPreAssessmentOrganizationMock();
 
   return (
     <SectionContainerAILN
       title="Peringkat Pillar Organisasi"
       desc="Rata-rata baseline lintas departemen · garis = target · diurut dari skor terendah"
     >
-      {q.isLoading || !data ? (
-        <SkeletonBlockAILN className="h-56" />
-      ) : data.departments.length === 0 ? (
+      {data.departments.length === 0 ? (
         <EmptyHintAILN className="h-40">Belum ada data.</EmptyHintAILN>
       ) : (
         <div className="flex flex-col gap-4">

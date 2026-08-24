@@ -6,12 +6,14 @@ import SubmissionItemChampion, {
 } from "@/components/items/SubmissionItemChampion";
 import PageContainerAILN from "@/components/pages/PageContainerAILN";
 import PageHeaderAILN from "@/components/titles/PageHeaderAILN";
-import AppErrorComponents from "@/components/states/AppErrorComponents";
 import { useProjectId } from "@/lib/use-project-id";
-import { setSessionToken, trpc } from "@/trpc/client";
+import {
+  getPromptSubmissionsMock,
+  getUseCaseSubmissionsMock,
+} from "@/mock-data/champion";
 import dayjs from "dayjs";
 import { ClipboardList } from "lucide-react";
-import { useEffect, useState } from "react";
+import { useState } from "react";
 
 const FILTERS: { key: ReviewStatus; label: string }[] = [
   { key: "AWAITING_REVIEW", label: "Belum direview" },
@@ -19,24 +21,13 @@ const FILTERS: { key: ReviewStatus; label: string }[] = [
   { key: "ACCEPTED", label: "Sudah diterima" },
 ];
 
-export default function SubmissionsChampionAILN({
-  sessionToken,
-}: {
-  sessionToken: string;
-}) {
+export default function SubmissionsChampionAILN() {
   const projectId = useProjectId();
-
-  useEffect(() => {
-    setSessionToken(sessionToken);
-  }, [sessionToken]);
 
   const [filter, setFilter] = useState<ReviewStatus>("AWAITING_REVIEW");
 
-  const promptsQ = trpc.list.promptSubmissions.useQuery();
-  const useCasesQ = trpc.list.useCaseSubmissions.useQuery();
-
   const rows: SubmissionRow[] = [
-    ...(promptsQ.data?.list ?? []).map(
+    ...getPromptSubmissionsMock().map(
       (r): SubmissionRow => ({
         id: r.id,
         kind: "PROMPT",
@@ -54,7 +45,7 @@ export default function SubmissionsChampionAILN({
         ai_tool: null,
       })
     ),
-    ...(useCasesQ.data?.list ?? []).map(
+    ...getUseCaseSubmissionsMock().map(
       (r): SubmissionRow => ({
         id: r.id,
         kind: "USE_CASE",
@@ -73,9 +64,6 @@ export default function SubmissionsChampionAILN({
       })
     ),
   ];
-
-  const isLoading = promptsQ.isLoading || useCasesQ.isLoading;
-  const error = promptsQ.error || useCasesQ.error;
 
   const counts: Record<ReviewStatus, number> = {
     AWAITING_REVIEW: 0,
@@ -116,11 +104,7 @@ export default function SubmissionsChampionAILN({
           ))}
         </div>
 
-        {error ? (
-          <AppErrorComponents />
-        ) : isLoading ? (
-          <SubmissionsSkeleton />
-        ) : visible.length === 0 ? (
+        {visible.length === 0 ? (
           <EmptyState
             label={`Tidak ada tugas dengan status "${
               FILTERS.find((f) => f.key === filter)?.label
@@ -176,19 +160,6 @@ function EmptyState({ label }: { label: string }) {
     <div className="flex flex-col items-center gap-2 rounded-lg border border-dashed border-dashboard-border py-12 text-center text-gray-500 dark:text-gray-400">
       <ClipboardList className="size-6" />
       <div className="text-sm">{label}</div>
-    </div>
-  );
-}
-
-function SubmissionsSkeleton() {
-  return (
-    <div className="grid grid-cols-1 gap-4 lg:grid-cols-2">
-      {Array.from({ length: 4 }).map((_, i) => (
-        <div
-          key={i}
-          className="h-56 animate-pulse rounded-lg border border-dashboard-border bg-gray-100 dark:bg-card-1"
-        />
-      ))}
     </div>
   );
 }

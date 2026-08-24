@@ -5,50 +5,21 @@ import LevelDistributionSponsorAILN from "@/components/charts/LevelDistributionS
 import WorkforceLevelByDeptAILN from "@/components/charts/WorkforceLevelByDeptAILN";
 import WorkforceMembersAILN from "@/components/indexes/WorkforceMembersAILN";
 import PageContainerAILN from "@/components/pages/PageContainerAILN";
-import AppErrorComponents from "@/components/states/AppErrorComponents";
-import SkeletonLevelDistributionAILN from "@/components/states/SkeletonLevelDistributionAILN";
 import PageHeaderAILN from "@/components/titles/PageHeaderAILN";
 import { ORG_NAME, PROGRAM_NAME } from "@/lib/config";
 import {
   usePdfReport,
   type ReportProps,
 } from "@/components/pdf/AileneReportPDF";
-import { setSessionToken, trpc } from "@/trpc/client";
+import { getLevelDistributionMock } from "@/mock-data/sponsor";
 import dayjs from "dayjs";
 import { Download } from "lucide-react";
-import { useEffect } from "react";
 
 const BRAND_GREEN = "#1f5f4e"; // active / participating
 
-export default function WorkforceSponsorAILN({
-  sessionToken,
-}: {
-  sessionToken: string;
-}) {
-  useEffect(() => {
-    setSessionToken(sessionToken);
-  }, [sessionToken]);
-
+export default function WorkforceSponsorAILN() {
   const pdf = usePdfReport();
-  const q = trpc.read.levelDistribution.useQuery();
-
-  if (q.isLoading) {
-    return (
-      <PageContainerAILN>
-        <SkeletonLevelDistributionAILN />
-      </PageContainerAILN>
-    );
-  }
-
-  if (q.error || !q.data) {
-    return (
-      <PageContainerAILN>
-        <AppErrorComponents />
-      </PageContainerAILN>
-    );
-  }
-
-  const data = q.data;
+  const data = getLevelDistributionMock();
   const levelNameByCode = new Map(data.levels.map((l) => [l.code, l.name]));
 
   // Report exports the full org snapshot.

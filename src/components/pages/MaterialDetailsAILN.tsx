@@ -4,10 +4,12 @@ import SectionContainerAILN from "@/components/cards/SectionContainerAILN";
 import GeneralLabelAILN from "@/components/labels/GeneralLabelAILN";
 import PageContainerAILN from "@/components/pages/PageContainerAILN";
 import AppErrorComponents from "@/components/states/AppErrorComponents";
-import AppLoadingComponents from "@/components/states/AppLoadingComponents";
 import PageHeaderAILN from "@/components/titles/PageHeaderAILN";
 import { useProjectId } from "@/lib/use-project-id";
-import { setSessionToken, trpc } from "@/trpc/client";
+import {
+  getLevelMaterialsMock,
+  getMaterialDetailMock,
+} from "@/mock-data/student";
 import {
   faArrowUpRightFromSquare,
   faCalendarDay,
@@ -23,14 +25,12 @@ import dayjs from "dayjs";
 import "dayjs/locale/id";
 import { marked } from "marked";
 import Link from "next/link";
-import { useEffect, useMemo, useRef } from "react";
 import styles from "../css/MaterialDetails.module.css";
 
 dayjs.locale("id");
 marked.setOptions({ gfm: true, breaks: false });
 
 interface MaterialDetailsAILNProps {
-  sessionToken: string;
   materialId: string;
 }
 
@@ -104,25 +104,14 @@ function isPdfUrl(url: string | null | undefined): boolean {
 }
 
 export default function MaterialDetailsAILN({
-  sessionToken,
   materialId,
 }: MaterialDetailsAILNProps) {
   const projectId = useProjectId();
 
-  useEffect(() => {
-    if (sessionToken) setSessionToken(sessionToken);
-  }, [sessionToken]);
-
-  const utils = trpc.useUtils();
-  const { data, isLoading, isError } = trpc.read.materialDetail.useQuery({
-    material_id: materialId,
-  });
-
-  const levelMaterialsQ = trpc.read.levelMaterials.useQuery({
-    material_id: materialId,
-  });
-  const levelNumber = levelMaterialsQ.data?.level_number ?? 0;
-  const allMaterials = levelMaterialsQ.data?.materials ?? [];
+  const data = getMaterialDetailMock({ material_id: materialId });
+  const levelMaterials = getLevelMaterialsMock({ material_id: materialId });
+  const levelNumber = levelMaterials.level_number;
+  const allMaterials = levelMaterials.materials;
   const otherMaterials = allMaterials.filter((m) => !m.is_current);
 
   const currentIdx = allMaterials.findIndex((m) => m.is_current);
@@ -132,50 +121,18 @@ export default function MaterialDetailsAILN({
       ? allMaterials[currentIdx + 1]
       : null;
 
-  const markMutation = trpc.create.completeMaterial.useMutation({
-    onSuccess: () => {
-      utils.auth.checkAilMember.invalidate();
-      utils.read.materialDetail.invalidate({ material_id: materialId });
-      utils.list.tasks.invalidate();
-      utils.list.chapters.invalidate();
-      utils.list.levels.invalidate();
-      utils.read.todayFocus.invalidate();
-    },
-  });
-
   const material = data?.material;
   const completed = data?.completed ?? false;
   const fileUrl = material?.file_url ?? null;
   const isPdf = isPdfUrl(fileUrl);
 
-  const triggeredRef = useRef(false);
-  useEffect(() => {
-    if (!material) return;
-    if (completed) return;
-    if (triggeredRef.current) return;
-    triggeredRef.current = true;
-    markMutation.mutate({ material_id: materialId });
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [material, completed, materialId]);
+  const { html: renderedContent, toc } = material?.content
+    ? renderArticle(material.content)
+    : { html: "", toc: [] as TocEntry[] };
 
-  const { html: renderedContent, toc } = useMemo(() => {
-    if (!material?.content) return { html: "", toc: [] as TocEntry[] };
-    return renderArticle(material.content);
-  }, [material]);
+  const readTime = estimateReadMinutes(material?.content);
 
-  const readTime = useMemo(
-    () => estimateReadMinutes(material?.content),
-    [material?.content]
-  );
-
-  if (isLoading) {
-    return (
-      <PageContainerAILN>
-        <AppLoadingComponents />
-      </PageContainerAILN>
-    );
-  }
-  if (isError || !material) {
+  if (!material) {
     return (
       <PageContainerAILN>
         <AppErrorComponents />

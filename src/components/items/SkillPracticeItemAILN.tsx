@@ -34,10 +34,10 @@ export interface SkillPracticeItem {
   xp_reward: number;
   categories: { id: number; name: string }[];
   assigned_by: { id: number; full_name: string; avatar: string | null } | null;
-  deadline: string | null;
+  deadline: string | Date | null;
   message: string | null;
-  submitted_at: string | null;
-  reviewed_at: string | null;
+  submitted_at: string | Date | null;
+  reviewed_at: string | Date | null;
   is_accepted: boolean;
 }
 
