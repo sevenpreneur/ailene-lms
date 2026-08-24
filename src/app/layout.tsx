@@ -8,9 +8,6 @@ import { ThemeProvider } from "next-themes";
 import { Inter, JetBrains_Mono, Space_Grotesk } from "next/font/google";
 import { Toaster } from "sonner";
 
-// Font utama tetap Space Grotesk (di body). Inter & JetBrains Mono didefinisikan
-// global di sini sebagai CSS variable, lalu dipakai di level komponen
-// (font-inter / .mono) untuk meng-overwrite Space Grotesk seperlunya.
 const spaceGrotesk = Space_Grotesk({
   variable: "--font-space-grotesk",
   subsets: ["latin"],
