@@ -65,16 +65,6 @@ const QUIZZES: QuizMock[] = CHAPTERS.map((ch, i) => ({
   ],
 }));
 
-const VIDEOS = CHAPTERS.map((ch) => ({
-  id: ch.id,
-  chapter_id: ch.id,
-  title: `Video: ${ch.name}`,
-  description: `Rekaman sesi live untuk ${ch.name}.`,
-  video_url: "https://www.youtube.com/watch?v=dQw4w9WgXcQ",
-  xp_reward: 15,
-  order_index: 1,
-}));
-
 const MATERIALS = CHAPTERS.flatMap((ch) => [
   {
     id: `mat-${ch.id}-1`,
@@ -89,31 +79,6 @@ const MATERIALS = CHAPTERS.flatMap((ch) => [
   },
 ]);
 
-export function getTasksMock(input: { chapter_id: number }) {
-  return {
-    quizzes: QUIZZES.filter((q) => q.chapter_id === input.chapter_id).map((q) => ({
-      id: q.id,
-      name: q.name,
-      description: q.description,
-      order_index: q.order_index,
-      question_count: q.questions.length,
-      xp_reward: q.questions.reduce((s, x) => s + x.xp_reward, 0),
-      xp_earned: 0,
-      best_score: null as number | null,
-      attempts: 0,
-    })),
-    videos: VIDEOS.filter((v) => v.chapter_id === input.chapter_id).map((v) => ({
-      ...v,
-      xp_earned: 0,
-      completed: false,
-    })),
-    materials: MATERIALS.filter((m) => m.chapter_id === input.chapter_id).map((m) => ({
-      ...m,
-      xp_earned: 0,
-      completed: false,
-    })),
-  };
-}
 
 export function getQuizQuestionsMock(input: { quiz_id: string }) {
   const quiz = QUIZZES.find((q) => q.id === input.quiz_id);

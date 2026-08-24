@@ -45,7 +45,6 @@ interface Material {
   title: string;
   completed: boolean;
   xp_reward: number;
-  xp_earned: number;
 }
 
 const variantStyles: Record<

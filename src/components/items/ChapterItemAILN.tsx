@@ -3,10 +3,11 @@ import ChapterTaskItemAILN from "@/components/items/ChapterTaskItemAILN";
 import GeneralLabelAILN, {
   type GeneralLabelVariantAILN,
 } from "@/components/labels/GeneralLabelAILN";
-import { getTasksMock } from "@/mock-data/student";
+import type { ChapterLearnings } from "@/apis/learnings";
 import { faCheck, faLock } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { ChevronDown } from "lucide-react";
+import { useEffect, useState } from "react";
 
 type ChapterProgress = "not_started" | "in_progress" | "completed";
 
@@ -35,9 +36,28 @@ interface ChapterItemAILNProps {
 }
 
 export default function ChapterItemAILN(props: ChapterItemAILNProps) {
-  const tasks = props.expanded
-    ? getTasksMock({ chapter_id: props.chapter.id })
-    : null;
+  const [tasks, setTasks] = useState<ChapterLearnings | null>(null);
+  const [isLoading, setIsLoading] = useState(false);
+
+  useEffect(() => {
+    if (!props.expanded || tasks) return;
+    let cancelled = false;
+
+    setIsLoading(true);
+    fetch(`/api/learnings?chapter_id=${props.chapter.id}`)
+      .then((res) => (res.ok ? (res.json() as Promise<ChapterLearnings>) : null))
+      .then((data) => {
+        if (!cancelled && data) setTasks(data);
+      })
+      .finally(() => {
+        if (!cancelled) setIsLoading(false);
+      });
+
+    return () => {
+      cancelled = true;
+    };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [props.expanded, props.chapter.id]);
 
   return (
     <div className="relative pl-12">
@@ -107,6 +127,7 @@ export default function ChapterItemAILN(props: ChapterItemAILNProps) {
           }`}
         >
           <div className="overflow-hidden">
+            {isLoading && !tasks && <ChapterTasksSkeleton />}
             {tasks &&
               (() => {
                 const allMaterialsRead = tasks.materials.every(
@@ -172,6 +193,27 @@ export default function ChapterItemAILN(props: ChapterItemAILNProps) {
           </div>
         </div>
       </div>
+    </div>
+  );
+}
+
+function ChapterTasksSkeleton() {
+  return (
+    <div className="space-y-2 border-t border-dashboard-border px-4 py-3 animate-pulse">
+      {[0, 1, 2].map((i) => (
+        <div
+          key={i}
+          className="flex items-center gap-3 rounded-xl border border-dashboard-border bg-card-2 p-3"
+        >
+          <div className="h-10 w-10 shrink-0 rounded-md bg-gray-200 dark:bg-dashboard-border" />
+          <div className="flex-1 space-y-1.5">
+            <div className="h-2.5 w-16 rounded bg-gray-100 dark:bg-dashboard-border" />
+            <div className="h-3.5 w-48 rounded bg-gray-200 dark:bg-dashboard-border" />
+          </div>
+          <div className="h-8 w-32 shrink-0 rounded-md bg-gray-200 dark:bg-dashboard-border" />
+          <div className="h-4 w-4 shrink-0 rounded-full bg-gray-200 dark:bg-dashboard-border" />
+        </div>
+      ))}
     </div>
   );
 }
