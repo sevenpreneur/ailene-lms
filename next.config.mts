@@ -40,7 +40,7 @@ const nextConfig: NextConfig = {
             type: "header",
             key: "host",
             value:
-              "(lms.ailene.id|(lms.)?example.com|sevenpreneur(-[^.]+).vercel.app).*",
+              "(lms.ailene.id|(lms.)?example.com|ailene-lms(-[^.]+).vercel.app).*",
           },
         ],
         headers: [
@@ -63,7 +63,7 @@ const nextConfig: NextConfig = {
             type: "header",
             key: "host",
             value:
-              "(lms.ailene.id|(lms.)?example.com|sevenpreneur(-[^.]+).vercel.app).*",
+              "(lms.ailene.id|(lms.)?example.com|ailene-lms(-[^.]+).vercel.app).*",
           },
         ],
         missing: [{ type: "cookie", key: SESSION_COOKIE_NAME }],
@@ -78,7 +78,7 @@ const nextConfig: NextConfig = {
             type: "header",
             key: "host",
             value:
-              "(lms.ailene.id|(lms.)?example.com|sevenpreneur(-[^.]+).vercel.app).*",
+              "(lms.ailene.id|(lms.)?example.com|ailene-lms(-[^.]+).vercel.app).*",
           },
           { type: "cookie", key: SESSION_COOKIE_NAME, value: undefined },
         ],
@@ -115,7 +115,7 @@ const nextConfig: NextConfig = {
             {
               type: "header",
               key: "host",
-              value: "sevenpreneur(-[^.]+).vercel.app.*",
+              value: "ailene-lms(-[^.]+).vercel.app.*",
             },
           ],
           destination: "/lms/:path*",

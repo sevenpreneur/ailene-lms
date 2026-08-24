@@ -46,6 +46,9 @@ type VariantConfig = {
   buttonVariant: VariantType;
   dashboardName: string;
   menu: MenuItem[];
+  // Mode-badge dot — the one deliberate spot of per-role color left in the sidebar.
+  dotClassName: string;
+  dotPulseColor: string;
 };
 
 // Sidebar chrome is always dark forest, so only the light-on-dark logo variant is ever shown.
@@ -60,6 +63,8 @@ const VARIANT_CONFIG: Record<SidebarAILNVariant, VariantConfig> = {
   STUDENT: {
     buttonVariant: "student",
     dashboardName: "Dashboard Student",
+    dotClassName: "bg-red-500",
+    dotPulseColor: "rgba(239,68,68,0.55)",
     menu: [
       { name: "Hari Ini", url: "/student", icon: CalendarDays, exact: true },
       {
@@ -79,6 +84,8 @@ const VARIANT_CONFIG: Record<SidebarAILNVariant, VariantConfig> = {
   CHAMPION: {
     buttonVariant: "champion",
     dashboardName: "Dashboard Champion",
+    dotClassName: "bg-lime-bright",
+    dotPulseColor: "rgba(214,238,48,0.55)",
     menu: [
       {
         name: "Team Overview",
@@ -103,6 +110,8 @@ const VARIANT_CONFIG: Record<SidebarAILNVariant, VariantConfig> = {
   SPONSOR: {
     buttonVariant: "sponsor",
     dashboardName: "Dashboard Sponsor",
+    dotClassName: "bg-sky-300",
+    dotPulseColor: "rgba(125,211,252,0.55)",
     menu: [
       {
         name: "Executive Overview",
@@ -272,13 +281,18 @@ export default function SidebarAILN({
 
         {/* Mode badge */}
         <div
-          className={`mb-4 flex items-center rounded-md border border-sb-border-soft bg-sb-item-active-bg ${
+          className={`mb-4 flex items-center rounded-full bg-white/10 border border-white/20 ${
             isCollapsed ? "justify-center p-2" : "gap-2 px-3 py-2"
           }`}
         >
-          <span className="size-2 shrink-0 rounded-full bg-lime-bright shadow-[0_0_8px_rgba(214,238,48,0.7)]" />
+          <span
+            className={`ailn-dot-pulse size-2 shrink-0 rounded-full ring-2 ring-white/80 ${config.dotClassName}`}
+            style={
+              { "--pulse-color": config.dotPulseColor } as React.CSSProperties
+            }
+          />
           {!isCollapsed && (
-            <span className="text-xs font-semibold text-sb-item-active-text">
+            <span className="text-xs font-semibold text-white">
               {config.dashboardName}
             </span>
           )}

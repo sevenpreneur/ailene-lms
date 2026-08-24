@@ -7,7 +7,6 @@
   /* --- Sevenpreneur Brand Color --- */
   --color-sevenpreneur-blue-azure: #0165fc;
   --color-sevenpreneur-blue-cobalt: #0041c2;
-  --color-sevenpreneur-purple-indigo: #3417e3;
   --color-sevenpreneur-red-flame: #e62314;
   --color-sevenpreneur-red-burn: #cd1f11;
   --color-sevenpreneur-red-mist: #ffcdc9;
@@ -311,6 +310,27 @@
 }
 @media (prefers-reduced-motion: reduce) {
   .ailn-ring-pulse {
+    animation: none;
+  }
+}
+
+/* Sidebar mode-badge dot — same expanding-ring pulse, color set per role via --pulse-color. */
+@keyframes ailn-dot-pulse {
+  0% {
+    box-shadow: 0 0 0 0 var(--pulse-color, rgba(214, 238, 48, 0.55));
+  }
+  70% {
+    box-shadow: 0 0 0 6px rgba(0, 0, 0, 0);
+  }
+  100% {
+    box-shadow: 0 0 0 0 rgba(0, 0, 0, 0);
+  }
+}
+.ailn-dot-pulse {
+  animation: ailn-dot-pulse 1.8s ease-out infinite;
+}
+@media (prefers-reduced-motion: reduce) {
+  .ailn-dot-pulse {
     animation: none;
   }
 }
