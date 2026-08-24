@@ -24,10 +24,10 @@ type DayCell = { date: string; count: number };
 
 function levelClass(count: number): string {
   if (count <= 0) return "bg-gray-200 dark:bg-dashboard-border";
-  if (count === 1) return "bg-red-200 dark:bg-red-500/30";
-  if (count === 2) return "bg-red-300 dark:bg-red-500/50";
-  if (count === 3) return "bg-red-400 dark:bg-red-500/70";
-  return "bg-red-600 dark:bg-red-500";
+  if (count === 1) return "bg-claude/20 dark:bg-claude/30";
+  if (count === 2) return "bg-claude/40 dark:bg-claude/50";
+  if (count === 3) return "bg-claude/60 dark:bg-claude/70";
+  return "bg-claude dark:bg-claude";
 }
 
 // Kalender multi-bulan: tiap bulan jadi blok (hari = kolom Sen..Min, minggu =
@@ -151,7 +151,7 @@ export default function StreakCardAILN({
                               <div
                                 className={`size-5 rounded-[4px] ${levelClass(cell.count)} ${
                                   cell.date === todayKey
-                                    ? "ring-1 ring-red-600 dark:ring-red-400"
+                                    ? "ring-1 ring-claude dark:ring-lime-bright"
                                     : ""
                                 }`}
                               />
@@ -170,9 +170,9 @@ export default function StreakCardAILN({
             <div className="mt-3 flex items-center gap-1.5 text-[10px] text-gray-400 dark:text-gray-500">
               <span>Sedikit</span>
               <span className="size-3 rounded-[2px] bg-gray-200 dark:bg-dashboard-border" />
-              <span className="size-3 rounded-[2px] bg-red-200 dark:bg-red-500/30" />
-              <span className="size-3 rounded-[2px] bg-red-400 dark:bg-red-500/70" />
-              <span className="size-3 rounded-[2px] bg-red-600 dark:bg-red-500" />
+              <span className="size-3 rounded-[2px] bg-claude/20 dark:bg-claude/30" />
+              <span className="size-3 rounded-[2px] bg-claude/60 dark:bg-claude/70" />
+              <span className="size-3 rounded-[2px] bg-claude dark:bg-claude" />
               <span>Banyak</span>
             </div>
           </>

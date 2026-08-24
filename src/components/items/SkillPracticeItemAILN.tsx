@@ -158,7 +158,7 @@ export default function SkillPracticeItemAILN(
       <div
         className={`flex h-10 w-10 shrink-0 items-center justify-center rounded-md ${
           locked
-            ? "bg-gray-100 text-gray-400 dark:bg-red-500/5 dark:text-red-500/40"
+            ? "bg-gray-100 text-gray-400 dark:bg-claude/5 dark:text-claude/40"
             : "bg-rose-100 text-rose-600 dark:bg-rose-500/15 dark:text-rose-300"
         }`}
       >
@@ -224,7 +224,7 @@ export default function SkillPracticeItemAILN(
         {locked && (
           <FontAwesomeIcon
             icon={faLock}
-            className="h-4 w-4 text-gray-400 dark:text-red-500/40"
+            className="h-4 w-4 text-gray-400 dark:text-claude/40"
           />
         )}
       </div>

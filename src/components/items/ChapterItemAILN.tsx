@@ -46,14 +46,14 @@ export default function ChapterItemAILN(props: ChapterItemAILNProps) {
           props.chapter.progress === "completed"
             ? "border-emerald-500 bg-white text-emerald-500 dark:bg-black"
             : props.unlocked
-            ? "border-red-500 bg-white text-red-500 dark:bg-black"
-            : "border-gray-300 bg-gray-100 text-gray-400 dark:border-red-500/30 dark:bg-black dark:text-red-500/40"
+            ? "border-claude bg-white text-claude dark:bg-black"
+            : "border-gray-300 bg-gray-100 text-gray-400 dark:border-claude/30 dark:bg-black dark:text-claude/40"
         }`}
       >
         {props.chapter.progress === "completed" ? (
           <FontAwesomeIcon icon={faCheck} size="xs" />
         ) : props.unlocked ? (
-          <span className="h-1.5 w-1.5 rounded-full bg-red-500" />
+          <span className="h-1.5 w-1.5 rounded-full bg-lime-bright" />
         ) : (
           <FontAwesomeIcon icon={faLock} size="xs" />
         )}
@@ -93,7 +93,7 @@ export default function ChapterItemAILN(props: ChapterItemAILNProps) {
               <GeneralLabelAILN variant="white">Locked</GeneralLabelAILN>
             )}
             <ChevronDown
-              className={`h-4 w-4 text-gray-400 transition-transform duration-300 dark:text-red-300/70 ${
+              className={`h-4 w-4 text-gray-400 transition-transform duration-300 dark:text-lime-bright/70 ${
                 props.expanded ? "rotate-180" : ""
               }`}
             />

@@ -133,7 +133,7 @@ export default function CreateAssignmentFormAILN({
                 onClick={() => handleInputChange("kind")("PROMPT")}
                 className={`rounded-md border px-3 py-2 text-sm font-medium transition ${
                   formData.kind === "PROMPT"
-                    ? "border-emerald-500 bg-emerald-50 text-emerald-700 dark:bg-emerald-500/10 dark:text-emerald-300"
+                    ? "border-claude bg-hijau-t text-claude dark:bg-claude/10 dark:text-lime-bright"
                     : "border-dashboard-border text-gray-600 hover:border-gray-400 dark:text-gray-300"
                 }`}
               >
@@ -144,7 +144,7 @@ export default function CreateAssignmentFormAILN({
                 onClick={() => handleInputChange("kind")("USE_CASE")}
                 className={`rounded-md border px-3 py-2 text-sm font-medium transition ${
                   formData.kind === "USE_CASE"
-                    ? "border-emerald-500 bg-emerald-50 text-emerald-700 dark:bg-emerald-500/10 dark:text-emerald-300"
+                    ? "border-claude bg-hijau-t text-claude dark:bg-claude/10 dark:text-lime-bright"
                     : "border-dashboard-border text-gray-600 hover:border-gray-400 dark:text-gray-300"
                 }`}
               >
@@ -234,16 +234,16 @@ export default function CreateAssignmentFormAILN({
               classNames={{
                 control: ({ isFocused }) =>
                   `rounded-md border bg-card-2 px-2 py-1 text-sm transition ${
-                    isFocused ? "border-emerald-500" : "border-dashboard-border"
+                    isFocused ? "border-claude" : "border-dashboard-border"
                   }`,
                 valueContainer: () => "flex flex-wrap gap-1 py-0.5",
                 placeholder: () => "px-1 text-gray-400 dark:text-gray-500",
                 input: () => "px-1 text-sm dark:text-gray-200",
                 multiValue: () =>
-                  "inline-flex items-center overflow-hidden rounded-md bg-emerald-50 text-xs font-medium text-emerald-700 dark:bg-emerald-500/10 dark:text-emerald-300",
+                  "inline-flex items-center overflow-hidden rounded-md bg-hijau-t text-xs font-medium text-claude dark:bg-claude/10 dark:text-lime-bright",
                 multiValueLabel: () => "py-0.5 pl-2",
                 multiValueRemove: () =>
-                  "flex items-center px-1 hover:bg-emerald-100 hover:text-emerald-900 dark:hover:bg-emerald-500/20",
+                  "flex items-center px-1 hover:bg-hijau/40 hover:text-claude dark:hover:bg-claude/20",
                 indicatorsContainer: () => "flex items-center text-gray-400",
                 indicatorSeparator: () => "hidden",
                 dropdownIndicator: () => "px-1 hover:text-gray-600",
@@ -256,7 +256,7 @@ export default function CreateAssignmentFormAILN({
                     isDisabled
                       ? "cursor-not-allowed text-gray-300 dark:text-gray-600"
                       : isFocused
-                        ? "cursor-pointer bg-emerald-50 text-emerald-700 dark:bg-emerald-500/10 dark:text-emerald-300"
+                        ? "cursor-pointer bg-hijau-t text-claude dark:bg-claude/10 dark:text-lime-bright"
                         : "cursor-pointer text-gray-700 dark:text-gray-200"
                   }`,
                 noOptionsMessage: () => "p-2 text-sm text-gray-500",
@@ -301,7 +301,7 @@ export default function CreateAssignmentFormAILN({
                     onClick={() => handleInputChange("mode")("INDIVIDUAL")}
                     className={`rounded-md border px-3 py-2 text-sm font-medium transition ${
                       formData.mode === "INDIVIDUAL"
-                        ? "border-emerald-500 bg-emerald-50 text-emerald-700 dark:bg-emerald-500/10 dark:text-emerald-300"
+                        ? "border-claude bg-hijau-t text-claude dark:bg-claude/10 dark:text-lime-bright"
                         : "border-dashboard-border text-gray-600 hover:border-gray-400 dark:text-gray-300"
                     }`}
                   >
@@ -312,7 +312,7 @@ export default function CreateAssignmentFormAILN({
                     onClick={() => handleInputChange("mode")("BULK")}
                     className={`rounded-md border px-3 py-2 text-sm font-medium transition ${
                       formData.mode === "BULK"
-                        ? "border-emerald-500 bg-emerald-50 text-emerald-700 dark:bg-emerald-500/10 dark:text-emerald-300"
+                        ? "border-claude bg-hijau-t text-claude dark:bg-claude/10 dark:text-lime-bright"
                         : "border-dashboard-border text-gray-600 hover:border-gray-400 dark:text-gray-300"
                     }`}
                   >
@@ -342,7 +342,7 @@ export default function CreateAssignmentFormAILN({
                             key={m.member_id}
                             className={`flex cursor-pointer items-center gap-2 rounded px-2 py-1.5 text-sm transition ${
                               checked
-                                ? "bg-emerald-50 dark:bg-emerald-500/10"
+                                ? "bg-hijau-t dark:bg-claude/10"
                                 : "hover:bg-gray-50 dark:hover:bg-white/5"
                             }`}
                           >
@@ -384,7 +384,7 @@ export default function CreateAssignmentFormAILN({
                             key={g.id}
                             className={`flex cursor-pointer items-center gap-2 rounded px-2 py-1.5 text-sm transition ${
                               checked
-                                ? "bg-emerald-50 dark:bg-emerald-500/10"
+                                ? "bg-hijau-t dark:bg-claude/10"
                                 : "hover:bg-gray-50 dark:hover:bg-white/5"
                             }`}
                           >

@@ -239,8 +239,8 @@ export default function ReviewUseCaseAILN({
             </div>
 
             {!canReview && s.comment && (
-              <div className="rounded-md border border-emerald-200 bg-emerald-50 p-3 text-sm text-gray-700 dark:border-emerald-500/30 dark:bg-emerald-500/10 dark:text-gray-200">
-                <div className="mb-1 text-[11px] font-semibold uppercase tracking-wide text-emerald-700 dark:text-emerald-300">
+              <div className="rounded-md border border-hijau-t bg-hijau-t p-3 text-sm text-gray-700 dark:border-claude/30 dark:bg-claude/10 dark:text-gray-200">
+                <div className="mb-1 text-[11px] font-semibold uppercase tracking-wide text-claude dark:text-lime-bright">
                   Catatan terakhir
                   {s.reviewed_at &&
                     ` · ${dayjs(s.reviewed_at)
@@ -306,7 +306,7 @@ function OutcomeProof({ value }: { value: string | null | undefined }) {
           href={proof}
           target="_blank"
           rel="noopener noreferrer"
-          className="inline-flex w-fit items-center gap-1.5 text-xs font-medium text-emerald-700 hover:underline dark:text-emerald-300"
+          className="inline-flex w-fit items-center gap-1.5 text-xs font-medium text-claude hover:underline dark:text-lime-bright"
         >
           <ExternalLink className="size-3.5" />
           Buka gambar di tab baru
@@ -331,7 +331,7 @@ function OutcomeProof({ value }: { value: string | null | undefined }) {
         href={proof}
         target="_blank"
         rel="noopener noreferrer"
-        className="inline-flex w-fit items-center gap-1.5 break-all rounded-md border border-dashboard-border bg-card-2 px-3 py-2 text-sm font-medium text-emerald-700 hover:underline dark:text-emerald-300"
+        className="inline-flex w-fit items-center gap-1.5 break-all rounded-md border border-dashboard-border bg-card-2 px-3 py-2 text-sm font-medium text-claude hover:underline dark:text-lime-bright"
       >
         <FileText className="size-4 shrink-0" />
         {proof}

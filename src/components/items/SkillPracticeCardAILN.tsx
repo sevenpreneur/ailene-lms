@@ -94,7 +94,7 @@ export default function SkillPracticeCardAILN({
       href={href}
       className="block focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring"
     >
-      <article className="flex min-h-64 flex-col gap-4 rounded-lg border border-dashboard-border bg-card-2 p-4 transition hover:border-red-300 hover:bg-red-50/40 dark:hover:bg-red-500/5">
+      <article className="flex min-h-64 flex-col gap-4 rounded-lg border border-dashboard-border bg-card-2 p-4 transition hover:border-hijau hover:bg-hijau-t/40 dark:hover:bg-claude/5">
         <div className="flex items-start justify-between gap-2">
           <div className="flex flex-wrap items-center gap-2">
             <GeneralLabelAILN variant="red">L{levelNumber}</GeneralLabelAILN>

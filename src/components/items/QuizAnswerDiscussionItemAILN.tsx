@@ -48,8 +48,8 @@ export default function QuizAnswerDiscussionItemAILN({
   const status = getAnswerStatus(isUnanswered, isCorrect);
 
   return (
-    <article className="flex items-start gap-4 rounded-xl border border-dashboard-border bg-card-1 p-5 dark:shadow-[0_0_18px_rgba(239,68,68,0.08)]">
-      <div className="flex size-7 shrink-0 items-center justify-center rounded-full bg-black text-xs font-bold text-white dark:border dark:border-red-500/40 dark:bg-red-500/20 dark:text-red-100">
+    <article className="flex items-start gap-4 rounded-xl border border-dashboard-border bg-card-1 p-5 dark:shadow-[0_0_18px_rgba(26,122,82,0.08)]">
+      <div className="flex size-7 shrink-0 items-center justify-center rounded-full bg-black text-xs font-bold text-white dark:border dark:border-claude/40 dark:bg-claude/20 dark:text-lime-bright">
         {no}
       </div>
 

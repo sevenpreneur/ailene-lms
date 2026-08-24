@@ -48,7 +48,7 @@ export default function LeaderboardPanelStudentAILN() {
               onClick={() => t.enabled && setTab(t.key)}
               className={`flex items-center gap-1 rounded px-3 py-1.5 text-xs font-medium transition ${
                 tab === t.key
-                  ? "bg-black text-white dark:bg-red-500/20 dark:text-red-100"
+                  ? "bg-black text-white dark:bg-claude/20 dark:text-lime-bright"
                   : t.enabled
                     ? "text-gray-600 hover:text-black dark:text-gray-300 dark:hover:text-white"
                     : "cursor-not-allowed text-gray-300 dark:text-gray-600"
@@ -74,14 +74,14 @@ export default function LeaderboardPanelStudentAILN() {
                   key={entry.member_id}
                   className={`flex items-center gap-3 rounded-md px-2.5 py-2 ${
                     entry.is_me
-                      ? "bg-red-50 font-semibold text-gray-900 dark:bg-red-500/15 dark:text-white dark:shadow-[inset_0_0_0_1px_rgba(239,68,68,0.4)]"
+                      ? "bg-hijau-t font-semibold text-gray-900 dark:bg-claude/15 dark:text-white dark:shadow-[inset_0_0_0_1px_rgba(26,122,82,0.4)]"
                       : "text-gray-700 dark:text-gray-300"
                   }`}
                 >
                   <span
                     className={`w-5 shrink-0 text-center text-sm font-semibold ${
                       entry.is_me
-                        ? "text-red-600 dark:text-red-400"
+                        ? "text-claude dark:text-lime-bright"
                         : "text-gray-400 dark:text-gray-500"
                     }`}
                   >
@@ -93,13 +93,13 @@ export default function LeaderboardPanelStudentAILN() {
                     width={32}
                     height={32}
                     className={`size-8 rounded-full object-cover ${
-                      entry.is_me ? "dark:ring-1 dark:ring-red-500/50" : ""
+                      entry.is_me ? "dark:ring-1 dark:ring-claude/50" : ""
                     }`}
                   />
                   <span className="flex-1 truncate text-sm">
                     {entry.full_name}
                     {entry.is_me && (
-                      <span className="ml-1.5 rounded bg-red-500 px-1.5 py-0.5 text-[10px] font-bold text-white">
+                      <span className="ml-1.5 rounded bg-claude px-1.5 py-0.5 text-[10px] font-bold text-white">
                         ANDA
                       </span>
                     )}

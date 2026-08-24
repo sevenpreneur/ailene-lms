@@ -167,10 +167,10 @@ export default function MemberDetailPanelChampionAILN({
             {notes.map((note) => (
               <div
                 key={note.id}
-                className="rounded-md border border-emerald-200 bg-emerald-50 px-3 py-2 text-sm dark:border-emerald-500/30 dark:bg-emerald-500/10"
+                className="rounded-md border border-hijau-t bg-hijau-t px-3 py-2 text-sm dark:border-claude/30 dark:bg-claude/10"
               >
                 <p className="text-gray-800 dark:text-gray-200">{note.text}</p>
-                <p className="mt-1 text-[11px] text-emerald-700/80 dark:text-emerald-300/70">
+                <p className="mt-1 text-[11px] text-claude/80 dark:text-lime-bright/70">
                   {note.champion_name} ·{" "}
                   {dayjs(note.created_at).format("D MMM YYYY, HH:mm")}
                 </p>

@@ -114,12 +114,10 @@ File-file penting di `src/lib/`:
 | `date-time-manipulation.ts`  | Date/time manipulation dan formatting (dayjs)                       |
 | `feature-tracking.ts`        | Client-side hook untuk track feature usage                          |
 | `format.ts`                  | Number/score formatting (locale `id-ID`) untuk dashboard laporan     |
-| `gate.ts`                    | `getProgramGate(projectId)` — cek session + role gating per-project untuk Server Component |
 | `level-colors.ts`            | Mapping level (`L0`–`L4`) ke warna UI                                |
 | `log-error.ts`               | Helper log error yang konsisten (console-only)                      |
 | `optional-type.ts`           | TypeScript helper untuk optional/nullable types                     |
 | `pre-assessment-report.ts`   | Kalkulasi murni pre-assessment report (input dari mock data)          |
-| `sponsor-access.ts`          | `canAccessSponsor()` — cek role Sponsor dari `project_access`        |
 | `status_code.ts`             | HTTP status code constants                                           |
 | `supabase.ts`                | Supabase Storage upload                                              |
 | `utils.ts`                   | General utilities — `cn()` class merger, dll                        |

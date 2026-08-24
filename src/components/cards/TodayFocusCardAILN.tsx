@@ -13,9 +13,9 @@ import { useState } from "react";
 
 dayjs.locale("id");
 
-// Soft red gradient surface — khas Today's Focus (beda dari card lain yang #FCFCFD).
+// Soft green gradient surface — khas Today's Focus (beda dari card lain yang #FCFCFD).
 const SURFACE =
-  "rounded-lg border border-red-100 bg-gradient-to-br from-red-50 via-white to-rose-50/60 p-5 dark:border-red-500/25 dark:from-red-500/10 dark:via-card-1 dark:to-rose-500/10";
+  "rounded-lg border border-hijau-t bg-gradient-to-br from-hijau-t via-white to-hijau-t/60 p-5 dark:border-claude/25 dark:from-claude/10 dark:via-card-1 dark:to-claude/10";
 
 type FocusKind =
   | "Quiz"
@@ -78,8 +78,8 @@ export default function TodayFocusCardAILN() {
       <div className="grid grid-cols-1 gap-5 lg:grid-cols-3">
         {/* Kiri — fokus utama */}
         <div className="flex flex-col gap-3 lg:col-span-2">
-          <div className="flex items-center gap-2 text-xs font-semibold uppercase tracking-widest text-red-600 dark:text-red-400">
-            <span className="size-2 rounded-full bg-red-500 dark:shadow-[0_0_8px_rgba(239,68,68,0.9)]" />
+          <div className="flex items-center gap-2 text-xs font-semibold uppercase tracking-widest text-claude dark:text-lime-bright">
+            <span className="size-2 rounded-full bg-lime-bright dark:shadow-[0_0_8px_rgba(214,238,48,0.9)]" />
             Fokus Hari Ini
           </div>
 
@@ -164,14 +164,14 @@ export default function TodayFocusCardAILN() {
         </div>
 
         {/* Kanan — detail tugas */}
-        <aside className="h-fit rounded-xl border border-red-100 bg-white/70 p-4 dark:border-red-500/20 dark:bg-card-1/60">
+        <aside className="h-fit rounded-xl border border-hijau-t bg-white/70 p-4 dark:border-claude/20 dark:bg-card-1/60">
           <div className="mono text-[10px] font-bold uppercase tracking-widest text-gray-400 dark:text-gray-500">
             Detail Tugas
           </div>
           <dl className="mt-3 flex flex-col gap-2.5 text-sm">
             <div className="flex items-center justify-between gap-3">
               <dt className="text-gray-500 dark:text-gray-400">Jenis</dt>
-              <dd className="mono font-semibold text-red-600 dark:text-red-400">
+              <dd className="mono font-semibold text-claude dark:text-lime-bright">
                 {jenisLabel}
               </dd>
             </div>

@@ -16,7 +16,7 @@ export default function MomentumStripAILN() {
   return (
     <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
       <div className="flex items-center gap-4 rounded-lg border border-dashboard-border bg-[#FCFCFD] p-5 dark:bg-card-1">
-        <span className="flex size-12 shrink-0 items-center justify-center rounded-full bg-red-50 text-red-500 dark:bg-red-500/15 dark:text-red-400">
+        <span className="flex size-12 shrink-0 items-center justify-center rounded-full bg-hijau-t text-claude dark:bg-claude/15 dark:text-lime-bright">
           <Flame className="size-6" fill="currentColor" />
         </span>
         <div className="min-w-0">
@@ -38,7 +38,7 @@ export default function MomentumStripAILN() {
 
       <Link
         href={`/${projectId}/student/skill-practice`}
-        className="group flex flex-col justify-center gap-1 rounded-lg border border-dashboard-border bg-[#FCFCFD] p-5 transition hover:border-red-300 dark:bg-card-1 dark:hover:border-red-500/40"
+        className="group flex flex-col justify-center gap-1 rounded-lg border border-dashboard-border bg-[#FCFCFD] p-5 transition hover:border-hijau dark:bg-card-1 dark:hover:border-claude/40"
       >
         <div className="flex items-center gap-1.5 text-[10px] font-semibold uppercase tracking-widest text-gray-500 dark:text-gray-400">
           <Target className="size-3.5" />
@@ -55,7 +55,7 @@ export default function MomentumStripAILN() {
                 ({weakest.score}/5)
               </span>
             </p>
-            <span className="text-xs font-medium text-red-600 group-hover:underline dark:text-red-400">
+            <span className="text-xs font-medium text-claude group-hover:underline dark:text-lime-bright">
               Latihan sekarang -&gt;
             </span>
           </>

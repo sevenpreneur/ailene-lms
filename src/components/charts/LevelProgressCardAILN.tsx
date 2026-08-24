@@ -30,7 +30,7 @@ export default function LevelProgressCardAILN(
         <div className="flex items-center gap-3">
           <div className="h-2 flex-1 overflow-hidden rounded-full bg-gray-100 dark:bg-dashboard-border">
             <div
-              className="h-full rounded-full bg-red-500 dark:shadow-[0_0_8px_rgba(239,68,68,0.7)]"
+              className="h-full rounded-full bg-claude dark:shadow-[0_0_8px_rgba(26,122,82,0.7)]"
               style={{ width: `${pct}%` }}
             />
           </div>
@@ -88,7 +88,7 @@ function LevelStepper({
                 <div
                   className={`absolute left-0 top-1/2 -translate-y-1/2 w-1/2 ${
                     leftReached
-                      ? "h-0.5 bg-red-500 dark:shadow-[0_0_4px_rgba(239,68,68,0.7)]"
+                      ? "h-0.5 bg-claude dark:shadow-[0_0_4px_rgba(26,122,82,0.7)]"
                       : "border-t-2 border-dashed border-gray-300 dark:border-dashboard-border"
                   }`}
                 />
@@ -97,7 +97,7 @@ function LevelStepper({
                 <div
                   className={`absolute right-0 top-1/2 -translate-y-1/2 w-1/2 ${
                     rightReached
-                      ? "h-0.5 bg-red-500 dark:shadow-[0_0_4px_rgba(239,68,68,0.7)]"
+                      ? "h-0.5 bg-claude dark:shadow-[0_0_4px_rgba(26,122,82,0.7)]"
                       : "border-t-2 border-dashed border-gray-300 dark:border-dashboard-border"
                   }`}
                 />
@@ -110,7 +110,7 @@ function LevelStepper({
             <div
               className={`text-xs font-bold uppercase tracking-wider ${
                 isCurrent
-                  ? "text-red-500 dark:text-red-400"
+                  ? "text-claude dark:text-lime-bright"
                   : isFuture
                     ? "text-gray-400 dark:text-gray-500"
                     : "text-gray-800 dark:text-gray-200"
@@ -134,14 +134,14 @@ function LevelStepper({
 function LevelCircle({ state }: { state: "past" | "current" | "future" }) {
   if (state === "past") {
     return (
-      <div className="relative z-10 flex size-9 items-center justify-center rounded-full bg-red-500 dark:shadow-[0_0_10px_rgba(239,68,68,0.6)]">
+      <div className="relative z-10 flex size-9 items-center justify-center rounded-full bg-claude dark:shadow-[0_0_10px_rgba(26,122,82,0.6)]">
         <Star className="size-4 fill-white text-white" />
       </div>
     );
   }
   if (state === "current") {
     return (
-      <div className="relative z-10 flex size-9 items-center justify-center rounded-full bg-red-500 shadow-[0_0_0_2px_#ffffff,0_0_0_4px_#ef4444] dark:shadow-[0_0_0_2px_#0a0a0a,0_0_0_4px_#ef4444,0_0_12px_rgba(239,68,68,0.6)]">
+      <div className="relative z-10 flex size-9 items-center justify-center rounded-full bg-claude shadow-[0_0_0_2px_#ffffff,0_0_0_4px_#1a7a52] dark:shadow-[0_0_0_2px_#0a0a0a,0_0_0_4px_#1a7a52,0_0_12px_rgba(26,122,82,0.6)]">
         <Star className="size-4 fill-white text-white" />
       </div>
     );

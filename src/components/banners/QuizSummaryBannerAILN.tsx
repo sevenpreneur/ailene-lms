@@ -35,9 +35,9 @@ export default function QuizSummaryBannerAILN({
   const passed = score >= PASS_THRESHOLD;
 
   return (
-    <section className="relative overflow-hidden rounded-xl border border-dashboard-border bg-gradient-to-br from-white via-emerald-50/35 to-amber-50/40 p-5 dark:bg-card-1 dark:from-card-1 dark:via-emerald-500/10 dark:to-amber-500/10">
-      <div className="pointer-events-none absolute left-0 top-0 h-32 w-56 bg-gradient-to-br from-amber-300/25 via-emerald-300/15 to-transparent blur-2xl" />
-      <div className="pointer-events-none absolute bottom-0 left-0 h-32 w-64 bg-gradient-to-tr from-emerald-300/20 via-amber-200/15 to-transparent blur-2xl" />
+    <section className="relative overflow-hidden rounded-xl border border-dashboard-border bg-gradient-to-br from-white via-hijau-t/35 to-amber-50/40 p-5 dark:bg-card-1 dark:from-card-1 dark:via-claude/10 dark:to-amber-500/10">
+      <div className="pointer-events-none absolute left-0 top-0 h-32 w-56 bg-gradient-to-br from-amber-300/25 via-hijau/15 to-transparent blur-2xl" />
+      <div className="pointer-events-none absolute bottom-0 left-0 h-32 w-64 bg-gradient-to-tr from-hijau/20 via-amber-200/15 to-transparent blur-2xl" />
 
       <div className="relative grid gap-6 lg:grid-cols-[minmax(0,1.35fr)_auto_minmax(13rem,0.8fr)_auto_minmax(0,1.25fr)] lg:items-center">
         <div className="flex min-w-0 items-center gap-5">
@@ -61,7 +61,7 @@ export default function QuizSummaryBannerAILN({
               </span>
               <ScoreStars score={score} />
             </div>
-            <p className="mt-2 text-xl font-black text-emerald-700 dark:text-emerald-300">
+            <p className="mt-2 text-xl font-black text-claude dark:text-lime-bright">
               {motivationalMessage(score)}
             </p>
             {xpEarned > 0 && (

@@ -11,5 +11,5 @@ export default async function AILNRootPage() {
   const firstProject = session.project_access[0];
   if (!firstProject) return <NoProjectStateAILN />;
 
-  redirect(`/${firstProject.project_id}/${firstProject.role}`);
+  redirect(`/${firstProject.id}/${firstProject.role}`);
 }

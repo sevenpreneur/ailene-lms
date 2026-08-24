@@ -5,23 +5,14 @@ import { SidebarProvider } from "@/contexts/SidebarContext";
 import { GoogleOAuthProvider } from "@react-oauth/google";
 import { Metadata } from "next";
 import { ThemeProvider } from "next-themes";
-import { Inter, JetBrains_Mono, Space_Grotesk } from "next/font/google";
+import { Stack_Sans_Headline } from "next/font/google";
 import { Toaster } from "sonner";
 
-const spaceGrotesk = Space_Grotesk({
-  variable: "--font-space-grotesk",
+// Single typeface app-wide (ailene-os) — globals.css points every other font-* utility at this same variable.
+const stackSans = Stack_Sans_Headline({
+  variable: "--font-stack",
   subsets: ["latin"],
-});
-
-const inter = Inter({
-  variable: "--font-inter",
-  subsets: ["latin"],
-});
-
-const jetbrainsMono = JetBrains_Mono({
-  variable: "--font-jetbrains-mono",
-  subsets: ["latin"],
-  weight: ["400", "500", "600"],
+  weight: ["300", "400", "500", "600", "700"],
 });
 
 export const metadata: Metadata = {
@@ -59,10 +50,10 @@ export default function RootLayout(
   return (
     <html
       lang="en"
-      className={`scroll-smooth ${spaceGrotesk.variable} ${inter.variable} ${jetbrainsMono.variable}`}
+      className={`scroll-smooth ${stackSans.variable}`}
       suppressHydrationWarning
     >
-      <body className="font-space-grotesk" suppressHydrationWarning>
+      <body className={`${stackSans.className} font-space-grotesk`} suppressHydrationWarning>
         <GoogleOAuthProvider clientId={googleOauthId!}>
           <QueryProvider>
             <ThemeProvider

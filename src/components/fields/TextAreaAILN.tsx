@@ -8,21 +8,21 @@ const variantStyles: Record<
 > = {
   STUDENT: {
     focus:
-      "focus:outline-black/10 focus:border-black dark:focus:outline-white/15 dark:focus:border-white",
+      "focus:outline-claude/15 focus:border-claude dark:focus:outline-claude/25 dark:focus:border-lime-bright",
     border: "border border-dashboard-border",
     background: "bg-card-2",
     disabled: "bg-card-2 text-muted-foreground dark:text-foreground/30",
   },
   CHAMPION: {
     focus:
-      "focus:outline-emerald-500/15 focus:border-emerald-600 dark:focus:outline-emerald-400/15 dark:focus:border-emerald-400",
+      "focus:outline-claude/15 focus:border-claude dark:focus:outline-claude/25 dark:focus:border-lime-bright",
     border: "border border-dashboard-border",
     background: "bg-card-2",
     disabled: "bg-card-2 text-muted-foreground dark:text-foreground/30",
   },
   SPONSOR: {
     focus:
-      "focus:outline-blue-500/15 focus:border-blue-600 dark:focus:outline-blue-400/15 dark:focus:border-blue-400",
+      "focus:outline-claude/15 focus:border-claude dark:focus:outline-claude/25 dark:focus:border-lime-bright",
     border: "border border-dashboard-border",
     background: "bg-card-2",
     disabled: "bg-card-2 text-muted-foreground dark:text-foreground/30",

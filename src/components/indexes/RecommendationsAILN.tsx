@@ -115,7 +115,7 @@ function RecommendationHeader({
       </div>
       <Link
         href={`/${projectId}/student/skill-practice?tab=library`}
-        className="inline-flex items-center gap-1 text-sm font-semibold text-red-600 transition hover:text-red-700 hover:underline dark:text-red-400 dark:hover:text-red-300"
+        className="inline-flex items-center gap-1 text-sm font-semibold text-claude transition hover:text-claude/80 hover:underline dark:text-lime-bright dark:hover:text-lime-bright/80"
       >
         Lihat semua
         <ArrowRight className="size-4" />
@@ -142,7 +142,7 @@ function RecommendationCard({
       }}
       className="group block h-full rounded-lg focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring"
     >
-      <article className="flex h-full min-h-72 flex-col rounded-lg border border-dashboard-border bg-card-1 p-5 transition group-hover:border-red-200 group-hover:bg-red-50/40 dark:group-hover:border-red-500/50 dark:group-hover:bg-red-500/5">
+      <article className="flex h-full min-h-72 flex-col rounded-lg border border-dashboard-border bg-card-1 p-5 transition group-hover:border-hijau-t group-hover:bg-hijau-t/40 dark:group-hover:border-claude/50 dark:group-hover:bg-claude/5">
         <div className="flex items-start justify-between gap-3">
           <span className="flex size-12 shrink-0 items-center justify-center rounded-lg border border-dashboard-border bg-gray-100 text-black dark:bg-white dark:text-black">
             <RecommendationIcon item={item} />
@@ -168,7 +168,7 @@ function RecommendationCard({
           <GeneralLabelAILN variant="yellow">Belum dicatat</GeneralLabelAILN>
         </div>
 
-        <span className="mt-4 inline-flex w-fit items-center gap-2 text-sm font-bold text-red-600 transition group-hover:text-red-700 group-hover:underline dark:text-red-400 dark:group-hover:text-red-300">
+        <span className="mt-4 inline-flex w-fit items-center gap-2 text-sm font-bold text-claude transition group-hover:text-claude/80 group-hover:underline dark:text-lime-bright dark:group-hover:text-lime-bright/80">
           Catat use case ini
           <ArrowRight className="size-4" />
         </span>

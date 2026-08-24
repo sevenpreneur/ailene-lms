@@ -135,14 +135,14 @@ function FilterLabel({
       variant="white"
       className={
         active
-          ? "border-blue-500 bg-blue-500/10 px-4 py-2 text-sm text-blue-700 dark:border-blue-400/40 dark:bg-blue-500/10 dark:text-blue-300"
-          : "border-dashboard-border px-4 py-2 text-sm text-gray-600 hover:border-blue-300 dark:text-gray-300 dark:hover:border-blue-400/40"
+          ? "border-claude bg-claude/10 px-4 py-2 text-sm text-claude dark:border-claude/40 dark:bg-claude/10 dark:text-lime-bright"
+          : "border-dashboard-border px-4 py-2 text-sm text-gray-600 hover:border-claude/40 dark:text-gray-300 dark:hover:border-claude/40"
       }
     >
       <span>{children}</span>
       <span
         className={`inline-flex min-w-5 items-center justify-center rounded-md px-1.5 py-0.5 text-[11px] font-bold text-white ${
-          active ? "bg-blue-600" : "bg-gray-400 dark:bg-gray-600"
+          active ? "bg-claude" : "bg-gray-400 dark:bg-gray-600"
         }`}
       >
         {count}

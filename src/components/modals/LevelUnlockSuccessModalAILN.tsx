@@ -73,15 +73,15 @@ export default function LevelUnlockSuccessModalAILN({
         </button>
 
         <div className="flex flex-col items-center text-center">
-          <div className="flex size-16 items-center justify-center rounded-2xl bg-emerald-700 text-white shadow-[0_18px_40px_rgba(16,113,88,0.35)]">
+          <div className="flex size-16 items-center justify-center rounded-2xl bg-claude text-white shadow-[0_18px_40px_rgba(26,122,82,0.35)]">
             <Check className="size-9" strokeWidth={3} />
           </div>
-          <div className="mt-5 text-[11px] font-bold uppercase tracking-widest text-emerald-700 dark:text-emerald-300">
+          <div className="mt-5 text-[11px] font-bold uppercase tracking-widest text-claude dark:text-lime-bright">
             Level {data.previous_level.level_number} - selesai
           </div>
           <h2 className="mt-2 text-3xl font-bold tracking-tight text-gray-900 dark:text-white">
             Anda lulus{" "}
-            <span className="text-emerald-700 dark:text-emerald-300">
+            <span className="text-claude dark:text-lime-bright">
               {previousLabel}
             </span>
           </h2>
@@ -211,7 +211,7 @@ function UnlockedRow({
 }) {
   return (
     <div className="grid grid-cols-[2.5rem_minmax(0,1fr)_4rem] items-center gap-3 border-b border-dashboard-border px-5 py-4 last:border-b-0">
-      <div className="flex size-9 items-center justify-center rounded-lg border border-emerald-200 bg-emerald-50 text-emerald-700 dark:border-emerald-500/30 dark:bg-emerald-500/10 dark:text-emerald-300">
+      <div className="flex size-9 items-center justify-center rounded-lg border border-hijau-t bg-hijau-t text-claude dark:border-claude/30 dark:bg-claude/10 dark:text-lime-bright">
         {icon}
       </div>
       <div className="min-w-0">
@@ -222,7 +222,7 @@ function UnlockedRow({
           {description}
         </div>
       </div>
-      <span className="inline-flex items-center justify-center gap-1 rounded-full border border-emerald-300 bg-emerald-50 px-2 py-0.5 text-xs font-bold text-emerald-700 dark:border-emerald-500/40 dark:bg-emerald-500/10 dark:text-emerald-300">
+      <span className="inline-flex items-center justify-center gap-1 rounded-full border border-hijau bg-hijau-t px-2 py-0.5 text-xs font-bold text-claude dark:border-claude/40 dark:bg-claude/10 dark:text-lime-bright">
         <Sparkles className="size-3" />
         Aktif
       </span>

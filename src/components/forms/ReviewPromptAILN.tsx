@@ -248,8 +248,8 @@ export default function ReviewPromptAILN({
             </div>
 
             {!canReview && s.comment && (
-              <div className="rounded-md border border-emerald-200 bg-emerald-50 p-3 text-sm text-gray-700 dark:border-emerald-500/30 dark:bg-emerald-500/10 dark:text-gray-200">
-                <div className="mb-1 text-[11px] font-semibold uppercase tracking-wide text-emerald-700 dark:text-emerald-300">
+              <div className="rounded-md border border-hijau-t bg-hijau-t p-3 text-sm text-gray-700 dark:border-claude/30 dark:bg-claude/10 dark:text-gray-200">
+                <div className="mb-1 text-[11px] font-semibold uppercase tracking-wide text-claude dark:text-lime-bright">
                   Catatan terakhir
                   {s.reviewed_at &&
                     ` · ${dayjs(s.reviewed_at)
@@ -314,8 +314,8 @@ function RubricRow({
             onClick={() => onChange(n)}
             className={`size-7 rounded-md border text-xs font-bold transition ${
               value === n
-                ? "border-emerald-500 bg-emerald-500 text-white"
-                : "border-dashboard-border text-gray-500 hover:border-emerald-400 dark:text-gray-400"
+                ? "border-claude bg-claude text-white"
+                : "border-dashboard-border text-gray-500 hover:border-claude dark:text-gray-400"
             } ${disabled ? "cursor-not-allowed opacity-60" : ""}`}
           >
             {n}

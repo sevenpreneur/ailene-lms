@@ -22,7 +22,7 @@ export default function LevelLabelStudentAILN({
   if (variant === "summary") {
     return (
       <div
-        className={`flex h-[60px] items-center gap-2 rounded-lg border bg-white px-3 dark:border-red-500/30 dark:bg-red-500/5 ${className ?? ""}`}
+        className={`flex h-[60px] items-center gap-2 rounded-lg border bg-white px-3 dark:border-claude/30 dark:bg-claude/5 ${className ?? ""}`}
       >
         {icon && (
           <Image
@@ -45,7 +45,7 @@ export default function LevelLabelStudentAILN({
 
   return (
     <div
-      className={`flex h-9 items-center gap-2 rounded-full border border-dashboard-border bg-white px-3 dark:border-red-500/30 dark:bg-red-500/5 ${className ?? ""}`}
+      className={`flex h-9 items-center gap-2 rounded-full border border-dashboard-border bg-white px-3 dark:border-claude/30 dark:bg-claude/5 ${className ?? ""}`}
     >
       {icon && (
         <Image

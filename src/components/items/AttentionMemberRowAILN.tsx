@@ -79,7 +79,7 @@ function MemberAvatar({ name, src }: { name: string; src: string | null }) {
   }
 
   return (
-    <div className="flex size-9 shrink-0 items-center justify-center rounded-full border border-dashboard-border bg-blue-50 text-xs font-bold text-blue-700 dark:bg-blue-500/10 dark:text-blue-200">
+    <div className="flex size-9 shrink-0 items-center justify-center rounded-full border border-dashboard-border bg-hijau-t text-xs font-bold text-claude dark:bg-claude/10 dark:text-lime-bright">
       {initials || <Users className="size-4" />}
     </div>
   );

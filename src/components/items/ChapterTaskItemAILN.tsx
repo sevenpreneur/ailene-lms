@@ -196,15 +196,15 @@ export default function ChapterTaskItemAILN(props: ChapterTaskItemAILNProps) {
         locked
           ? "border-dashboard-border bg-card-2 opacity-60"
           : isNext
-            ? "ailn-ring-pulse border-red-500/50 bg-red-50 ring-2 ring-red-500/30 dark:border-red-400/30 dark:bg-red-500/10 dark:ring-red-400/60"
+            ? "ailn-ring-pulse border-claude/50 bg-hijau-t ring-2 ring-claude/30 dark:border-claude/30 dark:bg-claude/10 dark:ring-claude/60"
             : "border-dashboard-border bg-card-2"
       }`}
     >
       <div
         className={`flex h-10 w-10 items-center justify-center rounded-md ${
           locked
-            ? "bg-gray-100 text-gray-400 dark:bg-red-500/5 dark:text-red-500/40"
-            : "bg-red-100 text-red-500 dark:bg-red-500/15 dark:text-red-400"
+            ? "bg-gray-100 text-gray-400 dark:bg-claude/5 dark:text-claude/40"
+            : "bg-hijau-t text-claude dark:bg-claude/15 dark:text-lime-bright"
         }`}
       >
         {style.icon}
@@ -237,15 +237,15 @@ export default function ChapterTaskItemAILN(props: ChapterTaskItemAILNProps) {
         {locked ? (
           <FontAwesomeIcon
             icon={faLock}
-            className="h-4 w-4 text-gray-400 dark:text-red-500/40"
+            className="h-4 w-4 text-gray-400 dark:text-claude/40"
           />
         ) : hasMark ? (
           <FontAwesomeIcon
             icon={faCircleCheck}
-            className="h-5 w-5 text-red-500 dark:text-red-400"
+            className="h-5 w-5 text-claude dark:text-lime-bright"
           />
         ) : (
-          <span className="block h-4 w-4 rounded-full border-2 border-gray-300 dark:border-red-500/40" />
+          <span className="block h-4 w-4 rounded-full border-2 border-gray-300 dark:border-claude/40" />
         )}
       </div>
       {props.variant === "Quiz" && (

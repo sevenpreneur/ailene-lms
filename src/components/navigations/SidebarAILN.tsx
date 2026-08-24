@@ -1,19 +1,17 @@
 "use client";
 
+import type { LmsProjectRole, LmsSession } from "@/apis/auth";
 import ButtonAILN, { type VariantType } from "@/components/buttons/ButtonAILN";
 import ThemeSwitcherAILN from "@/components/buttons/ThemeSwitcherAILN";
 import { useSidebar } from "@/contexts/SidebarContext";
-import { CheckSession, DeleteSession } from "@/lib/actions";
+import { DeleteSession } from "@/lib/actions";
 import { LOGIN_URL } from "@/lib/config";
 import { useProjectId } from "@/lib/use-project-id";
-import { getAilMemberMock } from "@/mock-data/shared";
-import { useQuery } from "@tanstack/react-query";
 import {
   BarChart3,
   BookMarked,
   BookOpen,
   CalendarDays,
-  ChevronLeft,
   ClipboardCheck,
   ClipboardList,
   FileText,
@@ -22,17 +20,17 @@ import {
   LineChart,
   LogOut,
   Megaphone,
+  PanelLeft,
   PlusCircle,
   Target,
   UserRound,
   UserRoundKey,
   type LucideIcon,
 } from "lucide-react";
-import { useTheme } from "next-themes";
 import Image from "next/image";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { toast } from "sonner";
 
 export type SidebarAILNVariant = "STUDENT" | "CHAMPION" | "SPONSOR";
@@ -48,29 +46,9 @@ type VariantConfig = {
   buttonVariant: VariantType;
   dashboardName: string;
   menu: MenuItem[];
-  classes: {
-    sidebar: string;
-    toggle: string;
-    toggleIcon: string;
-    mode: string;
-    modeDot: string;
-    modeText: string;
-    active: string;
-    activeBar: string;
-    userCard: string;
-    userAvatar: string;
-    divider: string;
-    metaText: string;
-  };
 };
 
-const INACTIVE_CLASSES =
-  "text-gray-600 hover:bg-gray-100 hover:text-black dark:text-gray-400 dark:hover:bg-white/5 dark:hover:text-white";
-
-const HUTAMA_KARYA_LOGO =
-  "https://tskubmriuclmbcfmaiur.supabase.co/storage/v1/object/public/sevenpreneur/logo-hk-danantara.webp";
-const HUTAMA_KARYA_LOGO_SQUARE =
-  "https://tskubmriuclmbcfmaiur.supabase.co/storage/v1/object/public/sevenpreneur/logo-hk-square.webp";
+// Sidebar chrome is always dark forest, so only the light-on-dark logo variant is ever shown.
 const HUTAMA_KARYA_LOGO_DARK =
   "https://tskubmriuclmbcfmaiur.supabase.co/storage/v1/object/public/sevenpreneur/logo-hk-danantara-white.webp";
 const HUTAMA_KARYA_LOGO_SQUARE_DARK =
@@ -80,7 +58,7 @@ const DEFAULT_AVATAR =
 
 const VARIANT_CONFIG: Record<SidebarAILNVariant, VariantConfig> = {
   STUDENT: {
-    buttonVariant: "primary",
+    buttonVariant: "student",
     dashboardName: "Dashboard Student",
     menu: [
       { name: "Hari Ini", url: "/student", icon: CalendarDays, exact: true },
@@ -97,22 +75,6 @@ const VARIANT_CONFIG: Record<SidebarAILNVariant, VariantConfig> = {
       },
       { name: "Progress Saya", url: "/student/my-progress", icon: LineChart },
     ],
-    classes: {
-      sidebar:
-        "dark:border-red-500/20 dark:shadow-[2px_0_24px_rgba(239,68,68,0.08)]",
-      toggle:
-        "dark:border-red-500/40 dark:bg-black dark:shadow-[0_0_8px_rgba(239,68,68,0.4)]",
-      toggleIcon: "dark:text-red-400",
-      mode: "border-red-200 bg-red-50 dark:border-red-500/30 dark:bg-red-500/10 dark:shadow-[0_0_12px_rgba(239,68,68,0.15)]",
-      modeDot: "bg-red-500 dark:shadow-[0_0_8px_rgba(239,68,68,0.9)]",
-      modeText: "text-red-600 dark:text-red-200",
-      active: "bg-gray-200 text-black dark:bg-white/10 dark:text-white",
-      activeBar: "bg-black dark:bg-white",
-      userCard: "bg-card-1 dark:bg-card-1/60",
-      userAvatar: "",
-      divider: "",
-      metaText: "dark:text-white",
-    },
   },
   CHAMPION: {
     buttonVariant: "champion",
@@ -137,22 +99,6 @@ const VARIANT_CONFIG: Record<SidebarAILNVariant, VariantConfig> = {
       },
       { name: "Reports", url: "/champion/report", icon: FileText },
     ],
-    classes: {
-      sidebar:
-        "dark:border-emerald-500/20 dark:shadow-[2px_0_24px_rgba(16,185,129,0.08)]",
-      toggle:
-        "dark:border-emerald-500/40 dark:bg-black dark:shadow-[0_0_8px_rgba(16,185,129,0.4)]",
-      toggleIcon: "dark:text-emerald-400",
-      mode: "border-emerald-200 bg-emerald-50 dark:border-emerald-500/30 dark:bg-emerald-500/10 dark:shadow-[0_0_12px_rgba(16,185,129,0.15)]",
-      modeDot: "bg-emerald-500 dark:shadow-[0_0_8px_rgba(16,185,129,0.9)]",
-      modeText: "text-emerald-700 dark:text-emerald-200",
-      active: "bg-stakeholder-champion-soft text-stakeholder-champion",
-      activeBar: "bg-stakeholder-champion",
-      userCard: "bg-card-1 dark:bg-card-1/60",
-      userAvatar: "",
-      divider: "",
-      metaText: "dark:text-white",
-    },
   },
   SPONSOR: {
     buttonVariant: "sponsor",
@@ -177,54 +123,61 @@ const VARIANT_CONFIG: Record<SidebarAILNVariant, VariantConfig> = {
       { name: "ROI Productivity", url: "/sponsor/roi", icon: Target },
       { name: "Pengumuman", url: "/sponsor/announcement", icon: Megaphone },
     ],
-    classes: {
-      sidebar:
-        "dark:border-blue-500/20 dark:shadow-[2px_0_24px_rgba(0,53,157,0.08)]",
-      toggle:
-        "dark:border-blue-500/40 dark:bg-black dark:shadow-[0_0_8px_rgba(0,53,157,0.4)]",
-      toggleIcon: "dark:text-gray-300",
-      mode: "border-blue-200 bg-blue-50 dark:border-blue-500/30 dark:bg-blue-500/10 dark:shadow-[0_0_12px_rgba(0,53,157,0.12)]",
-      modeDot: "bg-blue-600 dark:shadow-[0_0_8px_rgba(59,130,246,0.7)]",
-      modeText: "text-blue-700 dark:text-blue-200",
-      active: "bg-stakeholder-sponsor-soft text-stakeholder-sponsor",
-      activeBar: "bg-stakeholder-sponsor",
-      userCard: "bg-card-1 dark:bg-card-1/60",
-      userAvatar: "",
-      divider: "",
-      metaText: "dark:text-white",
-    },
   },
 };
 
+function NavItem({
+  href,
+  label,
+  icon: Icon,
+  active,
+  collapsed,
+}: {
+  href: string;
+  label: string;
+  icon: LucideIcon;
+  active: boolean;
+  collapsed: boolean;
+}) {
+  return (
+    <Link
+      href={href}
+      title={collapsed ? label : undefined}
+      className={`flex items-center rounded-md text-sm transition-colors ${
+        collapsed ? "justify-center px-2 py-2" : "gap-2 px-3 py-1.5"
+      } ${
+        active
+          ? "bg-linear-to-r from-[rgba(214,238,48,0.18)] to-transparent text-sb-item-active-text"
+          : "text-sb-text hover:bg-linear-to-r hover:from-[rgba(214,238,48,0.1)] hover:to-transparent hover:text-sb-text-strong"
+      }`}
+    >
+      <Icon className="h-4 w-4 shrink-0" />
+      {!collapsed && <span className="truncate font-medium">{label}</span>}
+    </Link>
+  );
+}
+
 export default function SidebarAILN({
-  sessionToken,
+  session,
   variant,
 }: {
-  sessionToken: string;
+  session: LmsSession;
   variant: SidebarAILNVariant;
 }) {
   const config = VARIANT_CONFIG[variant];
   const projectId = useProjectId();
   const { isCollapsed, toggleSidebar } = useSidebar();
-  const { resolvedTheme } = useTheme();
-  const [mounted, setMounted] = useState(false);
   const [isLoggingOut, setIsLoggingOut] = useState(false);
   const pathname = usePathname();
   const router = useRouter();
+  const user = session.user;
+  const projectAccess = session.project_access.find(
+    (project) => project.id === projectId
+  );
 
-  useEffect(() => {
-    // eslint-disable-next-line react-hooks/set-state-in-effect
-    setMounted(true);
-  }, []);
-
-  const isDark = mounted && resolvedTheme === "dark";
-  const logoUrl = isCollapsed
-    ? isDark
-      ? HUTAMA_KARYA_LOGO_SQUARE_DARK
-      : HUTAMA_KARYA_LOGO_SQUARE
-    : isDark
-      ? HUTAMA_KARYA_LOGO_DARK
-      : HUTAMA_KARYA_LOGO;
+  const logoUrl =
+    projectAccess?.avatar ||
+    (isCollapsed ? HUTAMA_KARYA_LOGO_SQUARE_DARK : HUTAMA_KARYA_LOGO_DARK);
 
   const handleLogout = async () => {
     if (isLoggingOut) return;
@@ -243,68 +196,89 @@ export default function SidebarAILN({
     }
   };
 
-  const userQ = useQuery({
-    queryKey: ["session"],
-    queryFn: CheckSession,
-    enabled: !!sessionToken,
-  });
-  const user = userQ.data?.user;
-  const member = getAilMemberMock({ projectId, userId: user?.id });
-  const championedGroups = member.championed_groups;
-  const groupName =
-    variant === "CHAMPION"
-      ? championedGroups.length > 0
-        ? championedGroups.map((g) => g.name).join(", ")
-        : "-"
-      : (member.group?.name ?? "-");
+  const groupName = projectAccess?.group_name ?? "-";
 
   return (
     <div
-      className={`fixed left-0 z-50 hidden h-full w-full bg-white dark:bg-black dark:border-r lg:flex lg:flex-col ${
+      className={`fixed left-0 z-50 hidden h-full w-full flex-col border-r border-sb-border bg-sb-bg transition-[max-width] duration-150 lg:flex ${
         isCollapsed ? "max-w-16" : "max-w-64"
-      } ${config.classes.sidebar}`}
-      style={{ borderRight: "1px solid var(--dashboard-border)" }}
+      }`}
     >
       <div
-        className={`relative flex h-full w-full flex-col ${
+        className={`flex h-full w-full flex-col ${
           isCollapsed ? "px-2 py-4" : "p-4"
         }`}
       >
-        <button
-          onClick={toggleSidebar}
-          className={`absolute -right-4 top-6 z-10 flex h-8 w-8 items-center justify-center rounded-full border bg-white shadow-sm ${config.classes.toggle}`}
+        {/* Logo + project name + menu toggle */}
+        <div
+          className={`flex shrink-0 items-center pb-4 ${
+            isCollapsed ? "justify-center" : "justify-between"
+          }`}
         >
-          <ChevronLeft
-            className={`h-3 w-3 text-gray-500 transition-transform ${
-              config.classes.toggleIcon
-            } ${isCollapsed ? "rotate-180" : ""}`}
-          />
-        </button>
+          {!isCollapsed && (
+            <div className="flex min-w-0 items-center gap-2.5">
+              <div className="relative size-9 shrink-0 overflow-hidden rounded bg-white/5 ring-1 ring-sb-border-soft">
+                <Image
+                  src={logoUrl}
+                  alt={projectAccess?.name ?? "Project"}
+                  fill
+                  unoptimized
+                  className="object-cover"
+                />
+              </div>
+              <div className="min-w-0">
+                <div className="truncate text-sm font-bold text-sb-text-strong">
+                  {projectAccess?.name ?? "Project"}
+                </div>
+                <div className="text-[9px] font-semibold uppercase tracking-wider text-sb-text/60">
+                  Powered by Ailene
+                </div>
+              </div>
+            </div>
+          )}
 
-        <div className="mb-6 flex items-center justify-center">
-          <Image
-            src={logoUrl}
-            alt="Hutama Karya"
-            width={400}
-            height={400}
-            className={
-              isCollapsed ? "h-10 w-10 object-contain" : "h-auto w-full"
-            }
-          />
+          {isCollapsed && (
+            <div className="relative size-9 shrink-0 overflow-hidden rounded bg-white/5 ring-1 ring-sb-border-soft">
+              <Image
+                src={logoUrl}
+                alt={projectAccess?.name ?? "Project"}
+                fill
+                unoptimized
+                className="object-cover"
+              />
+            </div>
+          )}
+
+          <button
+            onClick={toggleSidebar}
+            aria-label="Toggle sidebar"
+            className={`flex size-8 shrink-0 items-center justify-center rounded-md border border-sb-border-soft text-sb-text transition-colors hover:bg-sb-item-hover hover:text-sb-text-strong ${
+              isCollapsed ? "hidden" : ""
+            }`}
+          >
+            <PanelLeft size={16} />
+          </button>
         </div>
 
+        {isCollapsed && (
+          <button
+            onClick={toggleSidebar}
+            aria-label="Toggle sidebar"
+            className="mb-4 flex size-8 shrink-0 items-center justify-center self-center rounded-md border border-sb-border-soft text-sb-text transition-colors hover:bg-sb-item-hover hover:text-sb-text-strong"
+          >
+            <PanelLeft size={16} />
+          </button>
+        )}
+
+        {/* Mode badge */}
         <div
-          className={`mb-4 flex items-center rounded-md border ${
-            config.classes.mode
-          } ${isCollapsed ? "justify-center p-2" : "gap-2 px-3 py-2"}`}
+          className={`mb-4 flex items-center rounded-md border border-sb-border-soft bg-sb-item-active-bg ${
+            isCollapsed ? "justify-center p-2" : "gap-2 px-3 py-2"
+          }`}
         >
-          <span
-            className={`size-2 shrink-0 rounded-full ${config.classes.modeDot}`}
-          />
+          <span className="size-2 shrink-0 rounded-full bg-lime-bright shadow-[0_0_8px_rgba(214,238,48,0.7)]" />
           {!isCollapsed && (
-            <span
-              className={`text-xs font-semibold ${config.classes.modeText}`}
-            >
+            <span className="text-xs font-semibold text-sb-item-active-text">
               {config.dashboardName}
             </span>
           )}
@@ -316,92 +290,72 @@ export default function SidebarAILN({
             const active = item.exact
               ? pathname === url
               : pathname.startsWith(url);
-            const Icon = item.icon;
 
             return (
-              <Link
+              <NavItem
                 key={item.url}
                 href={url}
-                className={`relative flex items-center gap-3 rounded-md p-2 text-sm transition ${
-                  active ? config.classes.active : INACTIVE_CLASSES
-                } ${isCollapsed ? "justify-center" : "pl-3.5"}`}
-              >
-                {active && !isCollapsed && (
-                  <span
-                    className={`absolute left-1 top-1/2 h-5 w-1 -translate-y-1/2 rounded-full ${config.classes.activeBar}`}
-                  />
-                )}
-                <Icon className="h-4 w-4 shrink-0" />
-                {!isCollapsed && (
-                  <span className="font-medium">{item.name}</span>
-                )}
-              </Link>
+                label={item.name}
+                icon={item.icon}
+                active={active}
+                collapsed={isCollapsed}
+              />
             );
           })}
 
           {variant === "STUDENT" && (
             <>
-              <div
-                className={`my-1 border-t border-dashboard-border ${config.classes.divider}`}
-              />
-              <Link
+              <div className="my-1 border-t border-sb-border-soft" />
+              <NavItem
                 href={`/${projectId}/student/skill-practice/create`}
-                title="Catat Use Case"
-                className={`flex items-center gap-3 rounded-md p-2 text-sm font-medium text-stakeholder-student-foreground transition hover:bg-red-50 dark:hover:bg-red-500/10 ${
-                  isCollapsed ? "justify-center" : ""
-                }`}
-              >
-                <PlusCircle className="h-4 w-4 shrink-0" />
-                {!isCollapsed && <span>Catat Use Case</span>}
-              </Link>
+                label="Catat Use Case"
+                icon={PlusCircle}
+                active={false}
+                collapsed={isCollapsed}
+              />
             </>
           )}
         </nav>
 
+        {/* Footer — user identity + group + role mode + logout */}
         <div className="mt-3 shrink-0">
           {!isCollapsed ? (
-            <div
-              className={`rounded-lg border border-dashboard-border p-3 ${config.classes.userCard}`}
-            >
+            <div className="rounded-lg border border-sb-border-soft bg-sb-item-active-bg/40 p-3">
               <div className="flex items-center gap-3">
                 <Image
-                  src={user?.avatar || DEFAULT_AVATAR}
-                  alt={user?.full_name ?? ""}
+                  src={user.avatar || DEFAULT_AVATAR}
+                  alt={user.full_name}
                   width={36}
                   height={36}
-                  className={`h-9 w-9 rounded-full object-cover dark:ring-1 ${config.classes.userAvatar}`}
+                  unoptimized
+                  className="size-9 shrink-0 rounded-full object-cover"
                 />
                 <div className="min-w-0 flex-1">
-                  <div className="truncate text-sm font-semibold dark:text-white">
-                    {user?.full_name ?? "..."}
+                  <div className="truncate text-sm font-semibold text-sb-text-strong">
+                    {user.full_name}
                   </div>
-                  <div className="truncate text-xs text-gray-500 dark:text-gray-400">
-                    {member.job_title}
+                  <div className="truncate text-xs text-sb-text">
+                    {user.job_title}
                   </div>
                 </div>
               </div>
 
-              <div
-                className={`mt-2 border-t border-dashboard-border pt-2 ${config.classes.divider}`}
-              >
+              <div className="mt-2 border-t border-sb-border-soft pt-2">
                 <IdentityMeta
                   variant={variant}
                   groupName={groupName}
-                  metaTextClassName={config.classes.metaText}
+                  projectName={projectAccess?.name ?? "-"}
                 />
               </div>
 
-              {/* No "also has the other role" signal anymore — always offered, the layout's real gate still blocks it. */}
-              <RoleSwitch variant={variant} memberRole="CHAMPION" />
+              <RoleSwitch variant={variant} memberRole={projectAccess?.role} />
 
               <ButtonAILN
                 variant={config.buttonVariant}
                 size="small"
                 onClick={handleLogout}
                 disabled={isLoggingOut}
-                className={
-                  variant === "SPONSOR" ? "mt-3 w-full" : "mt-2 w-full"
-                }
+                className="mt-2 w-full"
               >
                 <LogOut className="size-4" />
                 {isLoggingOut ? "Logging out..." : "Logout"}
@@ -409,11 +363,12 @@ export default function SidebarAILN({
             </div>
           ) : (
             <Image
-              src={user?.avatar || DEFAULT_AVATAR}
-              alt={user?.full_name ?? ""}
+              src={user.avatar || DEFAULT_AVATAR}
+              alt={user.full_name}
               width={36}
               height={36}
-              className={`mx-auto h-9 w-9 rounded-full object-cover dark:ring-1 ${config.classes.userAvatar}`}
+              unoptimized
+              className="mx-auto size-9 rounded-full object-cover"
             />
           )}
         </div>
@@ -425,17 +380,17 @@ export default function SidebarAILN({
 function IdentityMeta({
   variant,
   groupName,
-  metaTextClassName,
+  projectName,
 }: {
   variant: SidebarAILNVariant;
   groupName: string;
-  metaTextClassName: string;
+  projectName: string;
 }) {
   if (variant === "SPONSOR") {
     return (
       <div className="flex items-center justify-between gap-2">
-        <span className="text-xs tracking-wide text-gray-500 dark:text-gray-400">
-          Hutama Karya
+        <span className="text-xs tracking-wide text-sb-text">
+          {projectName}
         </span>
         <ThemeSwitcherAILN />
       </div>
@@ -443,21 +398,17 @@ function IdentityMeta({
   }
 
   return (
-    <>
-      <div className="flex items-center justify-between gap-2">
-        <div className="min-w-0">
-          <div className="text-[10px] uppercase tracking-wide text-gray-500 dark:text-gray-400">
-            Group
-          </div>
-          <div
-            className={`truncate text-xs font-medium text-gray-700 ${metaTextClassName}`}
-          >
-            {groupName}
-          </div>
+    <div className="flex items-center justify-between gap-2">
+      <div className="min-w-0">
+        <div className="text-[10px] uppercase tracking-wide text-sb-text/70">
+          Group
         </div>
-        <ThemeSwitcherAILN />
+        <div className="truncate text-xs font-medium text-sb-text-strong">
+          {groupName}
+        </div>
       </div>
-    </>
+      <ThemeSwitcherAILN />
+    </div>
   );
 }
 
@@ -466,11 +417,11 @@ function RoleSwitch({
   memberRole,
 }: {
   variant: SidebarAILNVariant;
-  memberRole?: string;
+  memberRole?: LmsProjectRole;
 }) {
   const projectId = useProjectId();
 
-  if (variant === "STUDENT" && memberRole === "CHAMPION") {
+  if (variant === "STUDENT" && memberRole === "champion") {
     return (
       <Link href={`/${projectId}/champion`} className="mt-2 block">
         <ButtonAILN variant="neutral" size="small" className="w-full">

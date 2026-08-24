@@ -1,6 +1,7 @@
 import "server-only";
 
 import { cookies } from "next/headers";
+import { cache } from "react";
 import { callApi } from "./api";
 import { SESSION_COOKIE_NAME } from "@/lib/constants";
 
@@ -9,15 +10,17 @@ export type LmsBackendUser = {
   full_name: string;
   email: string;
   avatar: string | null;
-  job_title: string | null;
+  job_title: string;
 };
 
 export type LmsProjectRole = "champion" | "student" | "sponsor";
 
 export type LmsProjectAccess = {
-  project_id: string;
-  project_name: string;
-  project_avatar: string | null;
+  id: string;
+  name: string;
+  avatar: string | null;
+  group_id: number | null;
+  group_name: string | null;
   role: LmsProjectRole;
 };
 
@@ -69,7 +72,7 @@ export async function loginWithGoogleAccessToken(
   return { success: true, user: result.data.user };
 }
 
-export async function checkSession(): Promise<LmsSession | null> {
+export const checkSession = cache(async (): Promise<LmsSession | null> => {
   const cookieStore = await cookies();
   const sessionToken = cookieStore.get(SESSION_COOKIE_NAME)?.value;
 
@@ -83,7 +86,7 @@ export async function checkSession(): Promise<LmsSession | null> {
   });
 
   return result.success && result.data ? result.data : null;
-}
+});
 
 export async function logoutSession(): Promise<void> {
   const cookieStore = await cookies();

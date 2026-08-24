@@ -36,14 +36,29 @@
 }
 
 :root {
+  /* --- Ailene brand accent (ported from ailene-os) --- */
+  --claude: #1a7a52;
+  --lime-bright: #d6ee30;
+  --forest-deep: #062319;
+  --ailene-logo-start: #439f4d;
+  --ailene-logo-end: #dfff6c;
+  --hijau: #8fc55a;
+  --hijau-t: #e6f1d8;
+
   --border: oklch(0.922 0 0);
-  --dashboard-bg: var(--muted);
-  --card-1: #fcfcfd;
-  --card-2: #fdfdfd;
-  --dashboard-border: var(--border);
-  --sb-bg: #f7f5fc;
-  --sb-text: #595b68;
-  --sb-text-strong: #1a2236;
+  --dashboard-bg: #eef3ea;
+  --card-1: #ffffff;
+  --card-2: #f8faf7;
+  --dashboard-border: #dde6d8;
+  /* Sidebar chrome stays dark forest regardless of app theme (matches ailene-os). */
+  --sb-bg: #062319;
+  --sb-border: #0f4a34;
+  --sb-border-soft: #0c3b29;
+  --sb-text: #a9c2b3;
+  --sb-text-strong: #f4faf1;
+  --sb-item-hover: #103d2d;
+  --sb-item-active-bg: #103d2d;
+  --sb-item-active-text: #d6ee30;
 
   /* Ailene sponsor chart palette — explicit level categories. */
   --ailn-level-0: #e2e8f0; /* L0 Awareness */
@@ -73,23 +88,21 @@
   --muted: oklch(0.97 0 0);
   --muted-foreground: oklch(0.556 0 0);
   --destructive: oklch(0.577 0.245 27.325);
-  --background: oklch(1 0 0);
-  --foreground: oklch(0.145 0 0);
+  --background: #ffffff;
+  --foreground: #171717;
 
-  /* Stakeholder · Student (red) */
-  --stakeholder-student: oklch(0.577 0.245 27.325);
-  --stakeholder-student-soft: oklch(0.962 0.018 24);
-  --stakeholder-student-foreground: oklch(0.515 0.21 27);
+  /* Student/Champion/Sponsor no longer have distinct accent colors, only labels differ — kept as three token sets so components don't need to change which one they reference. */
+  --stakeholder-student: var(--claude);
+  --stakeholder-student-soft: var(--hijau-t);
+  --stakeholder-student-foreground: #0f4a34;
 
-  /* Stakeholder · Champion (green) */
-  --stakeholder-champion: oklch(0.6 0.13 162);
-  --stakeholder-champion-soft: oklch(0.962 0.026 165);
-  --stakeholder-champion-foreground: oklch(0.46 0.1 162);
+  --stakeholder-champion: var(--claude);
+  --stakeholder-champion-soft: var(--hijau-t);
+  --stakeholder-champion-foreground: #0f4a34;
 
-  /* Stakeholder · Sponsor (Sevenpreneur azure) */
-  --stakeholder-sponsor: var(--color-sevenpreneur-blue-azure);
-  --stakeholder-sponsor-soft: oklch(0.955 0.03 252);
-  --stakeholder-sponsor-foreground: var(--color-sevenpreneur-blue-cobalt);
+  --stakeholder-sponsor: var(--claude);
+  --stakeholder-sponsor-soft: var(--hijau-t);
+  --stakeholder-sponsor-foreground: #0f4a34;
 
   /* UI states · success (green) · warning (amber) · danger (red) · info (azure) */
   --state-success: oklch(0.6 0.13 162);
@@ -107,16 +120,22 @@
 }
 
 .dark {
-  --background: oklch(0.145 0 0);
-  --foreground: oklch(0.985 0 0);
+  --background: #05120c;
+  --foreground: #e7f2e9;
   --border: oklch(1 0 0 / 10%);
-  --dashboard-bg: var(--background);
-  --card-1: #171717;
-  --card-2: #1e1e1e;
-  --dashboard-border: var(--border);
-  --sb-bg: #0b0e15;
-  --sb-text: #abb1bf;
-  --sb-text-strong: rgba(255, 255, 255, 0.95);
+  --dashboard-bg: #05120c;
+  --card-1: #0b2118;
+  --card-2: #102a1e;
+  --dashboard-border: #163a2b;
+  /* Sidebar chrome stays the same dark forest as light mode — see :root. */
+  --sb-bg: #062319;
+  --sb-border: #0f4a34;
+  --sb-border-soft: #0c3b29;
+  --sb-text: #a9c2b3;
+  --sb-text-strong: #f4faf1;
+  --sb-item-hover: #103d2d;
+  --sb-item-active-bg: #103d2d;
+  --sb-item-active-text: #d6ee30;
   --color-destructive-muted: var(--color-sevenpreneur-red-midnight);
 
   /* --- Default Shadcn ---*/
@@ -143,17 +162,15 @@
      ACCENT SYSTEM (dark) — accents brighten, soft = accent at low alpha.
      ============================================================ */
 
-  /* Stakeholder · Student (red) */
-  --stakeholder-student-soft: oklch(0.704 0.191 22.216 / 0.15);
-  --stakeholder-student-foreground: oklch(0.82 0.14 22);
+  /* Stakeholder — unified green/lime, same rationale as :root above. */
+  --stakeholder-student-soft: rgba(26, 122, 82, 0.18);
+  --stakeholder-student-foreground: var(--lime-bright);
 
-  /* Stakeholder · Champion (green) */
-  --stakeholder-champion-soft: oklch(0.7 0.14 162 / 0.15);
-  --stakeholder-champion-foreground: oklch(0.84 0.12 165);
+  --stakeholder-champion-soft: rgba(26, 122, 82, 0.18);
+  --stakeholder-champion-foreground: var(--lime-bright);
 
-  /* Stakeholder · Sponsor (azure) */
-  --stakeholder-sponsor-soft: oklch(0.68 0.16 254 / 0.15);
-  --stakeholder-sponsor-foreground: oklch(0.82 0.1 252);
+  --stakeholder-sponsor-soft: rgba(26, 122, 82, 0.18);
+  --stakeholder-sponsor-foreground: var(--lime-bright);
 
   /* UI states */
   --state-success: oklch(0.7 0.14 162);
@@ -199,8 +216,21 @@
   --color-dashboard-border: var(--dashboard-border);
   /* --- sidebar --- */
   --color-sb-bg: var(--sb-bg);
+  --color-sb-border: var(--sb-border);
+  --color-sb-border-soft: var(--sb-border-soft);
   --color-sb-text: var(--sb-text);
   --color-sb-text-strong: var(--sb-text-strong);
+  --color-sb-item-hover: var(--sb-item-hover);
+  --color-sb-item-active-bg: var(--sb-item-active-bg);
+  --color-sb-item-active-text: var(--sb-item-active-text);
+  /* --- brand accent --- */
+  --color-claude: var(--claude);
+  --color-lime-bright: var(--lime-bright);
+  --color-forest-deep: var(--forest-deep);
+  --color-ailene-logo-start: var(--ailene-logo-start);
+  --color-ailene-logo-end: var(--ailene-logo-end);
+  --color-hijau: var(--hijau);
+  --color-hijau-t: var(--hijau-t);
   --color-destructive: var(--destructive);
   --color-muted-foreground: var(--muted-foreground);
   --color-muted: var(--muted);
@@ -239,10 +269,10 @@
   --radius-3xl: calc(var(--radius) * 2.2);
   --radius-4xl: calc(var(--radius) * 2.6);
 
-  /* --- fonts --- */
-  --font-inter: var(--font-inter);
-  --font-space-grotesk: var(--font-space-grotesk);
-  --font-jetbrains-mono: var(--font-jetbrains-mono);
+  /* --- fonts --- one typeface everywhere (ailene-os): legacy Inter/Space Grotesk/JetBrains Mono names all resolve to the same Stack Sans Headline variable set in layout.tsx. */
+  --font-inter: var(--font-stack);
+  --font-space-grotesk: var(--font-stack);
+  --font-jetbrains-mono: var(--font-stack);
 }
 
 @layer base {
@@ -267,13 +297,13 @@
    (ChapterTaskItemAILN). An expanding red ring that fades out, looping. */
 @keyframes ailn-ring-pulse {
   0% {
-    box-shadow: 0 0 0 0 rgba(239, 68, 68, 0.45);
+    box-shadow: 0 0 0 0 rgba(26, 122, 82, 0.45);
   }
   70% {
-    box-shadow: 0 0 0 6px rgba(239, 68, 68, 0);
+    box-shadow: 0 0 0 6px rgba(26, 122, 82, 0);
   }
   100% {
-    box-shadow: 0 0 0 0 rgba(239, 68, 68, 0);
+    box-shadow: 0 0 0 0 rgba(26, 122, 82, 0);
   }
 }
 .ailn-ring-pulse {
@@ -300,11 +330,9 @@
 }
 
 .display-font {
-  font-family:
-    var(--font-space-grotesk), "Space Grotesk", ui-sans-serif, sans-serif;
+  font-family: var(--font-stack), ui-sans-serif, sans-serif;
   letter-spacing: -0.02em;
 }
 .mono {
-  font-family:
-    var(--font-jetbrains-mono), "JetBrains Mono", ui-monospace, monospace;
+  font-family: var(--font-stack), ui-monospace, monospace;
 }

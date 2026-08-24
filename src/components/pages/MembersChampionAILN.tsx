@@ -206,14 +206,14 @@ function LevelPill({
       onClick={onClick}
       className={`inline-flex items-center gap-2 rounded-full border px-4 py-2 text-sm font-semibold transition ${
         active
-          ? "border-emerald-500 bg-emerald-500/10 text-emerald-700 dark:border-emerald-400/40 dark:text-emerald-300"
+          ? "border-claude bg-claude/10 text-claude dark:border-claude/40 dark:text-lime-bright"
           : "border-dashboard-border text-gray-600 hover:border-gray-400 dark:text-gray-300"
       }`}
     >
       <span>{label}</span>
       <span
         className={`inline-flex size-5 items-center justify-center rounded-full text-[11px] font-bold text-white ${
-          active ? "bg-emerald-600" : "bg-gray-400 dark:bg-gray-600"
+          active ? "bg-claude" : "bg-gray-400 dark:bg-gray-600"
         }`}
       >
         {count}
@@ -236,7 +236,7 @@ function MemberRow({
     <tr
       onClick={onClick}
       className={`cursor-pointer border-b border-dashboard-border transition ${
-        selected ? "bg-emerald-500/[0.06]" : "hover:bg-emerald-500/[0.04]"
+        selected ? "bg-claude/[0.06]" : "hover:bg-claude/[0.04]"
       }`}
     >
       <td className="px-5 py-3">
@@ -267,7 +267,7 @@ function MemberRow({
         <div className="flex items-center gap-2">
           <div className="h-1.5 w-24 overflow-hidden rounded-full bg-gray-100 dark:bg-dashboard-border">
             <div
-              className="h-full rounded-full bg-emerald-500"
+              className="h-full rounded-full bg-claude"
               style={{ width: `${member.progress_percent}%` }}
             />
           </div>

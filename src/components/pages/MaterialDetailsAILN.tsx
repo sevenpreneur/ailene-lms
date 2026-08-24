@@ -215,7 +215,7 @@ export default function MaterialDetailsAILN({
           {/* Main content */}
           <div className="flex flex-col gap-6 min-w-0">
             {fileUrl && (
-              <div className="overflow-hidden rounded-xl border border-dashboard-border bg-white dark:bg-card-1 dark:shadow-[0_0_18px_rgba(239,68,68,0.08)]">
+              <div className="overflow-hidden rounded-xl border border-dashboard-border bg-white dark:bg-card-1 dark:shadow-[0_0_18px_rgba(26,122,82,0.08)]">
                 <div className="flex items-center justify-between gap-3 border-b border-dashboard-border px-4 py-3">
                   <div className="flex items-center gap-2 text-sm font-semibold text-sevenpreneur-coal dark:text-white">
                     <FontAwesomeIcon
@@ -349,7 +349,7 @@ export default function MaterialDetailsAILN({
               )}
 
               {updatedAt && (
-                <div className="rounded-xl border border-dashboard-border bg-white p-4 dark:bg-card-1 dark:shadow-[0_0_18px_rgba(239,68,68,0.08)]">
+                <div className="rounded-xl border border-dashboard-border bg-white p-4 dark:bg-card-1 dark:shadow-[0_0_18px_rgba(26,122,82,0.08)]">
                   <div className="mb-2 text-sm font-semibold text-sevenpreneur-coal dark:text-white">
                     Di halaman ini
                   </div>

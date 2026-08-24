@@ -57,7 +57,7 @@ export default function AnnouncementFormAILN({
       <SectionContainerAILN
         title="Update pengumuman"
         headerRight={<Megaphone className="size-4 text-muted-foreground" />}
-        className="dark:shadow-[0_0_16px_rgba(0,53,157,0.06)]"
+        className="dark:shadow-[0_0_16px_rgba(26,122,82,0.06)]"
       >
         <form className="flex flex-col gap-5">
           <label className="flex flex-col gap-2">
@@ -118,7 +118,7 @@ export default function AnnouncementFormAILN({
       <aside className="flex flex-col gap-4">
         <SectionContainerAILN
           title="Pratinjau di halaman Hari Ini"
-          className="dark:shadow-[0_0_16px_rgba(0,53,157,0.06)]"
+          className="dark:shadow-[0_0_16px_rgba(26,122,82,0.06)]"
         >
           <div className="overflow-hidden rounded-md border border-dashboard-border bg-gray-50 dark:bg-dashboard-bg">
             <div className="flex w-full items-stretch overflow-hidden bg-black">
@@ -154,7 +154,7 @@ export default function AnnouncementFormAILN({
 
         <SectionContainerAILN
           title="Catatan"
-          className="dark:shadow-[0_0_16px_rgba(0,53,157,0.06)]"
+          className="dark:shadow-[0_0_16px_rgba(26,122,82,0.06)]"
         >
           <p className="text-sm leading-6 text-gray-600 dark:text-gray-300">
             Form ini hanya mengubah isi pesan, start date, dan end date. Status

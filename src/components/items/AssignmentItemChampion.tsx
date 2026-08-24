@@ -25,9 +25,9 @@ export default function AssignmentItemChampion({
     <button
       type="button"
       onClick={onClick}
-      className={`flex flex-col gap-3 rounded-lg border bg-card-1 p-4 text-left transition hover:border-emerald-400 hover:bg-emerald-500/[0.04] ${
+      className={`flex flex-col gap-3 rounded-lg border bg-card-1 p-4 text-left transition hover:border-claude/60 hover:bg-claude/[0.04] ${
         isSelected
-          ? "border-emerald-500 ring-1 ring-emerald-500 dark:border-emerald-400 dark:ring-emerald-400"
+          ? "border-claude ring-1 ring-claude dark:border-claude dark:ring-claude"
           : "border-dashboard-border"
       }`}
     >

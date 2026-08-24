@@ -239,7 +239,7 @@ export default function GroupDetailsSponsorAILN({
         <SectionContainerAILN
           title={`Distribusi level - ${group.name}`}
           desc={`${distribution.total_members} karyawan`}
-          className="dark:shadow-[0_0_16px_rgba(0,53,157,0.06)]"
+          className="dark:shadow-[0_0_16px_rgba(26,122,82,0.06)]"
         >
           <GroupLevelDistributionAILN levels={distribution.levels} />
         </SectionContainerAILN>
@@ -247,7 +247,7 @@ export default function GroupDetailsSponsorAILN({
         <div className="grid grid-cols-1 gap-4 xl:grid-cols-[minmax(0,1fr)_minmax(360px,0.9fr)]">
           <SectionContainerAILN
             title={`Top use case - ${group.name}`}
-            className="dark:shadow-[0_0_16px_rgba(0,53,157,0.06)]"
+            className="dark:shadow-[0_0_16px_rgba(26,122,82,0.06)]"
           >
             {topUseCases.use_cases.length === 0 ? (
               <EmptyStateAILN>
@@ -271,7 +271,7 @@ export default function GroupDetailsSponsorAILN({
 
           <SectionContainerAILN
             title="Anggota"
-            className="dark:shadow-[0_0_16px_rgba(0,53,157,0.06)]"
+            className="dark:shadow-[0_0_16px_rgba(26,122,82,0.06)]"
             headerRight={
               <GeneralLabelAILN variant="yellow">
                 {attention.lagging_count} ketinggalan

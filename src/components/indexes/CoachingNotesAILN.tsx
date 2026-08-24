@@ -52,7 +52,7 @@ function CoachingNoteCard({ note }: { note: CoachingNote }) {
   const { champion } = note;
 
   return (
-    <article className="flex gap-4 rounded-lg border border-red-100 bg-gradient-to-br from-red-50 via-white to-rose-50/60 p-5 dark:border-red-500/25 dark:from-red-500/10 dark:via-card-1 dark:to-rose-500/10">
+    <article className="flex gap-4 rounded-lg border border-hijau-t bg-gradient-to-br from-hijau-t via-white to-hijau-t/60 p-5 dark:border-claude/25 dark:from-claude/10 dark:via-card-1 dark:to-claude/10">
       <CoachAvatar name={champion.full_name} src={champion.avatar} />
 
       <div className="flex min-w-0 flex-1 flex-col gap-2">
@@ -60,7 +60,7 @@ function CoachingNoteCard({ note }: { note: CoachingNote }) {
           <span className="text-sm font-bold text-foreground dark:text-white">
             {champion.full_name}
           </span>
-          <span className="rounded-md border border-red-200 bg-red-50 px-1.5 py-0.5 text-[10px] font-bold uppercase tracking-wide text-red-600 dark:border-red-500/30 dark:bg-red-500/10 dark:text-red-300">
+          <span className="rounded-md border border-hijau-t bg-hijau-t px-1.5 py-0.5 text-[10px] font-bold uppercase tracking-wide text-claude dark:border-claude/30 dark:bg-claude/10 dark:text-lime-bright">
             {champion.role}
           </span>
           <span className="text-xs text-muted-foreground">
@@ -89,7 +89,7 @@ function CoachAvatar({ name, src }: { name: string; src: string | null }) {
     );
   }
   return (
-    <span className="flex size-11 shrink-0 items-center justify-center rounded-full bg-gradient-to-br from-red-400 to-rose-400 text-sm font-bold text-white">
+    <span className="flex size-11 shrink-0 items-center justify-center rounded-full bg-claude text-sm font-bold text-white">
       {getInitials(name)}
     </span>
   );

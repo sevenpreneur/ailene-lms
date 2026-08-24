@@ -32,12 +32,12 @@ export default function SkillPracticeListAILN(
       <div
         className={`absolute top-4 left-0 flex h-8 w-8 items-center justify-center rounded-full border-2 ${
           props.unlocked
-            ? "border-red-500 bg-white text-red-500 dark:bg-black"
-            : "border-gray-300 bg-gray-100 text-gray-400 dark:border-red-500/30 dark:bg-black dark:text-red-500/40"
+            ? "border-claude bg-white text-claude dark:bg-black"
+            : "border-gray-300 bg-gray-100 text-gray-400 dark:border-claude/30 dark:bg-black dark:text-claude/40"
         }`}
       >
         {props.unlocked ? (
-          <GraduationCap className="size-4 text-red-500 dark:text-red-400" />
+          <GraduationCap className="size-4 text-claude dark:text-lime-bright" />
         ) : (
           <FontAwesomeIcon icon={faLock} className="h-4 w-4" />
         )}
@@ -74,7 +74,7 @@ export default function SkillPracticeListAILN(
               <GeneralLabelAILN variant="white">Locked</GeneralLabelAILN>
             )}
             <ChevronDown
-              className={`h-4 w-4 text-gray-400 transition-transform duration-300 dark:text-red-300/70 ${
+              className={`h-4 w-4 text-gray-400 transition-transform duration-300 dark:text-lime-bright/70 ${
                 props.expanded ? "rotate-180" : ""
               }`}
             />

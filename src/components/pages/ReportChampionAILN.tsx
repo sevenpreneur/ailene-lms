@@ -9,7 +9,7 @@ import "dayjs/locale/id";
 import { Download } from "lucide-react";
 import { useMemo, useState } from "react";
 
-const ACCENT = "#107158";
+const ACCENT = "#1a7a52";
 type ChampionReportData = ReturnType<typeof getChampionReportMock>;
 
 export default function ReportChampionAILN() {
@@ -141,7 +141,7 @@ function ReportContent({
         <div className="grid grid-cols-1 gap-4 xl:grid-cols-[minmax(0,1fr)_minmax(20rem,0.42fr)]">
           <section className="rounded-lg border border-dashboard-border bg-white shadow-sm dark:bg-card-1">
             <div className="border-b border-dashboard-border p-5">
-              <div className="text-[11px] font-bold uppercase tracking-widest text-emerald-700 dark:text-emerald-300">
+              <div className="text-[11px] font-bold uppercase tracking-widest text-claude dark:text-lime-bright">
                 Draft - auto-generated
               </div>
               <h2 className="mt-2 text-xl font-bold text-gray-900 dark:text-white">
@@ -217,7 +217,7 @@ function ReportContent({
                 <div className="text-base font-bold text-gray-900 dark:text-white">
                   Narasi Champion
                 </div>
-                <span className="text-xs font-semibold text-emerald-700 dark:text-emerald-300">
+                <span className="text-xs font-semibold text-claude dark:text-lime-bright">
                   Auto-draft - bisa diedit
                 </span>
               </div>
@@ -225,7 +225,7 @@ function ReportContent({
                 value={narrative}
                 onChange={(event) => setNarrative(event.target.value)}
                 rows={5}
-                className="w-full resize-none rounded-md border border-dashboard-border bg-gray-50 px-4 py-3 text-sm leading-6 text-gray-900 outline-none focus:border-emerald-500 dark:bg-card-2 dark:text-white"
+                className="w-full resize-none rounded-md border border-dashboard-border bg-gray-50 px-4 py-3 text-sm leading-6 text-gray-900 outline-none focus:border-claude dark:bg-card-2 dark:text-white"
               />
             </div>
           </section>

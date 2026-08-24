@@ -398,14 +398,14 @@ function TabButton({
       onClick={onClick}
       className={`-mb-px inline-flex h-12 cursor-pointer items-center gap-2 border-b-2 px-4 text-sm font-semibold transition ${
         active
-          ? "border-red-500 text-red-600 dark:border-red-400 dark:text-red-300"
+          ? "border-claude text-claude dark:border-claude dark:text-lime-bright"
           : "border-transparent text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200"
       }`}
     >
       {icon}
       <span>{label}</span>
       {badge ? (
-        <span className="inline-flex min-w-5 items-center justify-center rounded-full bg-red-600 px-1.5 py-0.5 text-[11px] font-bold text-white">
+        <span className="inline-flex min-w-5 items-center justify-center rounded-full bg-claude px-1.5 py-0.5 text-[11px] font-bold text-white">
           {badge}
         </span>
       ) : null}

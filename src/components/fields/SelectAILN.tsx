@@ -17,39 +17,39 @@ const variantStyles: Record<
   }
 > = {
   STUDENT: {
-    focus: "outline-4 outline-black/10 border-black dark:border-white",
+    focus: "outline-4 outline-claude/15 border-claude dark:border-lime-bright",
     border: "border border-dashboard-border",
     background: "bg-card-2",
     disabled: "bg-card-2 text-muted-foreground dark:text-foreground/30",
     dropdown: "bg-card-1 border border-dashboard-border",
     itemActive:
-      "bg-black/5 text-foreground dark:text-white dark:bg-card-2",
+      "bg-claude/10 text-claude dark:text-lime-bright dark:bg-claude/15",
     itemHover:
-      "hover:bg-black/5 hover:text-foreground dark:hover:text-white dark:hover:bg-card-2",
+      "hover:bg-claude/10 hover:text-claude dark:hover:text-lime-bright dark:hover:bg-claude/15",
   },
   CHAMPION: {
     focus:
-      "outline-4 outline-emerald-500/15 border-emerald-600 dark:border-emerald-400",
+      "outline-4 outline-claude/15 border-claude dark:border-lime-bright",
     border: "border border-dashboard-border",
     background: "bg-card-2",
     disabled: "bg-card-2 text-muted-foreground dark:text-foreground/30",
     dropdown: "bg-card-1 border border-dashboard-border",
     itemActive:
-      "bg-emerald-500/10 text-emerald-700 dark:text-emerald-200 dark:bg-emerald-500/15",
+      "bg-claude/10 text-claude dark:text-lime-bright dark:bg-claude/15",
     itemHover:
-      "hover:bg-emerald-500/10 hover:text-emerald-700 dark:hover:text-emerald-200 dark:hover:bg-emerald-500/15",
+      "hover:bg-claude/10 hover:text-claude dark:hover:text-lime-bright dark:hover:bg-claude/15",
   },
   SPONSOR: {
     focus:
-      "outline-4 outline-blue-500/15 border-blue-600 dark:border-blue-400",
+      "outline-4 outline-claude/15 border-claude dark:border-lime-bright",
     border: "border border-dashboard-border",
     background: "bg-card-2",
     disabled: "bg-card-2 text-muted-foreground dark:text-foreground/30",
     dropdown: "bg-card-1 border border-dashboard-border",
     itemActive:
-      "bg-blue-500/10 text-blue-700 dark:text-blue-200 dark:bg-blue-500/15",
+      "bg-claude/10 text-claude dark:text-lime-bright dark:bg-claude/15",
     itemHover:
-      "hover:bg-blue-500/10 hover:text-blue-700 dark:hover:text-blue-200 dark:hover:bg-blue-500/15",
+      "hover:bg-claude/10 hover:text-claude dark:hover:text-lime-bright dark:hover:bg-claude/15",
   },
 };
 

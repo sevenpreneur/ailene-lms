@@ -272,14 +272,14 @@ export default function CreateSelfPracticeAILN() {
                   onClick={() => setType(opt.value)}
                   className={`flex items-center gap-3 rounded-lg border p-3 text-left transition ${
                     active
-                      ? "border-red-500 bg-red-50 dark:border-red-400 dark:bg-red-500/10"
+                      ? "border-claude bg-hijau-t dark:border-claude dark:bg-claude/10"
                       : "border-dashboard-border bg-white hover:border-foreground/30 dark:bg-card-1"
                   }`}
                 >
                   <div
                     className={`flex size-9 shrink-0 items-center justify-center rounded-md ${
                       active
-                        ? "bg-red-500 text-white"
+                        ? "bg-claude text-white"
                         : "bg-card-2 text-foreground dark:text-gray-300"
                     }`}
                   >
@@ -354,16 +354,16 @@ export default function CreateSelfPracticeAILN() {
               classNames={{
                 control: ({ isFocused }) =>
                   `rounded-md border bg-card-2 px-2 py-1 text-sm transition ${
-                    isFocused ? "border-red-500" : "border-dashboard-border"
+                    isFocused ? "border-claude" : "border-dashboard-border"
                   }`,
                 valueContainer: () => "flex flex-wrap gap-1 py-0.5",
                 placeholder: () => "px-1 text-gray-400 dark:text-gray-500",
                 input: () => "px-1 text-sm dark:text-gray-200",
                 multiValue: () =>
-                  "inline-flex items-center overflow-hidden rounded-md bg-red-50 text-xs font-medium text-red-700 dark:bg-red-500/10 dark:text-red-300",
+                  "inline-flex items-center overflow-hidden rounded-md bg-hijau-t text-xs font-medium text-claude dark:bg-claude/10 dark:text-lime-bright",
                 multiValueLabel: () => "py-0.5 pl-2",
                 multiValueRemove: () =>
-                  "flex items-center px-1 hover:bg-red-100 hover:text-red-900 dark:hover:bg-red-500/20",
+                  "flex items-center px-1 hover:bg-hijau hover:text-forest-deep dark:hover:bg-claude/20",
                 indicatorsContainer: () => "flex items-center text-gray-400",
                 indicatorSeparator: () => "hidden",
                 dropdownIndicator: () => "px-1 hover:text-gray-600",
@@ -376,7 +376,7 @@ export default function CreateSelfPracticeAILN() {
                     isDisabled
                       ? "cursor-not-allowed text-gray-300 dark:text-gray-600"
                       : isFocused
-                        ? "cursor-pointer bg-red-50 text-red-700 dark:bg-red-500/10 dark:text-red-300"
+                        ? "cursor-pointer bg-hijau-t text-claude dark:bg-claude/10 dark:text-lime-bright"
                         : "cursor-pointer text-gray-700 dark:text-gray-200"
                   }`,
                 noOptionsMessage: () => "p-2 text-sm text-gray-500",

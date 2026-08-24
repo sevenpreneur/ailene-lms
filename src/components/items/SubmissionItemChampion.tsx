@@ -70,7 +70,7 @@ export default function SubmissionItemChampion({ row }: { row: SubmissionRow }) 
   return (
     <Link
       href={row.href}
-      className="flex flex-col gap-2.5 rounded-lg border border-dashboard-border bg-card-1 p-4 transition hover:border-emerald-400 hover:bg-emerald-500/[0.04]"
+      className="flex flex-col gap-2.5 rounded-lg border border-dashboard-border bg-card-1 p-4 transition hover:border-claude/60 hover:bg-claude/[0.04]"
     >
       {/* Top: member + status */}
       <div className="flex items-center justify-between gap-2">

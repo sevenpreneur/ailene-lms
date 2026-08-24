@@ -52,7 +52,7 @@ export default function RecentUseCasesAILN() {
 
       <Link
         href={`/${projectId}/champion/submissions/use-cases`}
-        className="mt-4 block rounded-lg border border-dashboard-border py-2 text-center text-xs font-semibold text-emerald-600 transition hover:bg-emerald-50 dark:text-emerald-400 dark:hover:bg-emerald-500/10"
+        className="mt-4 block rounded-lg border border-dashboard-border py-2 text-center text-xs font-semibold text-claude transition hover:bg-hijau-t dark:text-lime-bright dark:hover:bg-claude/10"
       >
         Lihat semua use case
       </Link>

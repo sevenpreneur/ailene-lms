@@ -70,7 +70,7 @@ export default function AssignFormChampionAILN({
                 onClick={() => setMode("INDIVIDUAL")}
                 className={`rounded-md border px-3 py-2 text-sm font-medium transition ${
                   mode === "INDIVIDUAL"
-                    ? "border-emerald-500 bg-emerald-50 text-emerald-700 dark:bg-emerald-500/10 dark:text-emerald-300"
+                    ? "border-claude bg-hijau-t text-claude dark:bg-claude/10 dark:text-lime-bright"
                     : "border-dashboard-border text-gray-600 hover:border-gray-400 dark:text-gray-300"
                 }`}
               >
@@ -81,7 +81,7 @@ export default function AssignFormChampionAILN({
                 onClick={() => setMode("BULK")}
                 className={`rounded-md border px-3 py-2 text-sm font-medium transition ${
                   mode === "BULK"
-                    ? "border-emerald-500 bg-emerald-50 text-emerald-700 dark:bg-emerald-500/10 dark:text-emerald-300"
+                    ? "border-claude bg-hijau-t text-claude dark:bg-claude/10 dark:text-lime-bright"
                     : "border-dashboard-border text-gray-600 hover:border-gray-400 dark:text-gray-300"
                 }`}
               >
@@ -107,7 +107,7 @@ export default function AssignFormChampionAILN({
                         key={m.member_id}
                         className={`flex cursor-pointer items-center gap-2 rounded px-2 py-1.5 text-sm transition ${
                           checked
-                            ? "bg-emerald-50 dark:bg-emerald-500/10"
+                            ? "bg-hijau-t dark:bg-claude/10"
                             : "hover:bg-gray-50 dark:hover:bg-white/5"
                         }`}
                       >
@@ -147,7 +147,7 @@ export default function AssignFormChampionAILN({
                         key={g.id}
                         className={`flex cursor-pointer items-center gap-2 rounded px-2 py-1.5 text-sm transition ${
                           checked
-                            ? "bg-emerald-50 dark:bg-emerald-500/10"
+                            ? "bg-hijau-t dark:bg-claude/10"
                             : "hover:bg-gray-50 dark:hover:bg-white/5"
                         }`}
                       >

@@ -128,7 +128,7 @@ export default function PreAssessmentAILN() {
     <PageContainerSVP className="flex min-h-screen justify-center">
       <div className="flex w-full flex-col gap-4 my-10">
         {/* Header */}
-        <div className="flex flex-col gap-3 rounded-xl border bg-white p-4 dark:border-dashboard-border dark:bg-card-1 dark:shadow-[0_0_18px_rgba(239,68,68,0.08)]">
+        <div className="flex flex-col gap-3 rounded-xl border bg-white p-4 dark:border-dashboard-border dark:bg-card-1 dark:shadow-[0_0_18px_rgba(26,122,82,0.08)]">
           <div className="flex flex-wrap items-center gap-3">
             <div className="flex-1">
               <h1 className="text-base font-semibold dark:text-white">
@@ -143,7 +143,7 @@ export default function PreAssessmentAILN() {
             <span className="rounded-full bg-gray-100 px-3 py-1 text-xs font-medium text-gray-700 dark:bg-dashboard-border dark:text-gray-300">
               Soal {currentIdx + 1} / {totalQuestions}
             </span>
-            <span className="rounded-full bg-emerald-50 px-3 py-1 text-xs font-semibold text-emerald-700 dark:bg-emerald-500/10 dark:text-emerald-300 dark:border dark:border-emerald-500/40">
+            <span className="rounded-full bg-hijau-t px-3 py-1 text-xs font-semibold text-claude dark:bg-claude/10 dark:text-lime-bright dark:border dark:border-claude/40">
               {answeredCount} / {totalQuestions} terjawab ({progressPct}%)
             </span>
           </div>
@@ -155,7 +155,7 @@ export default function PreAssessmentAILN() {
                   key={idx}
                   className={`h-full flex-1 ${
                     ans
-                      ? "bg-emerald-600 dark:bg-emerald-500 dark:shadow-[0_0_6px_rgba(16,185,129,0.6)]"
+                      ? "bg-claude dark:bg-claude dark:shadow-[0_0_6px_rgba(26,122,82,0.6)]"
                       : "bg-gray-200 dark:bg-dashboard-border"
                   }`}
                 />
@@ -167,7 +167,7 @@ export default function PreAssessmentAILN() {
         {/* Main body */}
         <div className="flex flex-1 gap-4">
           {/* Left: question */}
-          <div className="flex flex-1 flex-col gap-4 rounded-xl border bg-white p-6 dark:border-dashboard-border dark:bg-card-1 dark:shadow-[0_0_18px_rgba(239,68,68,0.08)]">
+          <div className="flex flex-1 flex-col gap-4 rounded-xl border bg-white p-6 dark:border-dashboard-border dark:bg-card-1 dark:shadow-[0_0_18px_rgba(26,122,82,0.08)]">
             <div className="flex flex-wrap items-center gap-2">
               <span className="text-[11px] font-semibold uppercase tracking-widest text-gray-500 dark:text-gray-400">
                 SOAL {currentIdx + 1}
@@ -226,7 +226,7 @@ export default function PreAssessmentAILN() {
 
           {/* Right: navigation panel */}
           <div className="flex w-80 shrink-0 flex-col gap-4">
-            <div className="flex flex-col gap-3 rounded-xl border bg-white p-4 dark:border-dashboard-border dark:bg-card-1 dark:shadow-[0_0_18px_rgba(239,68,68,0.08)]">
+            <div className="flex flex-col gap-3 rounded-xl border bg-white p-4 dark:border-dashboard-border dark:bg-card-1 dark:shadow-[0_0_18px_rgba(26,122,82,0.08)]">
               <span className="text-[11px] font-semibold uppercase tracking-widest text-gray-500 dark:text-gray-400">
                 NAVIGASI
               </span>
@@ -238,10 +238,10 @@ export default function PreAssessmentAILN() {
                   let cls = "";
                   if (isCurrent) {
                     cls =
-                      "bg-red-500 text-white dark:shadow-[0_0_10px_rgba(239,68,68,0.7)]";
+                      "bg-claude text-white dark:shadow-[0_0_10px_rgba(26,122,82,0.7)]";
                   } else if (ans) {
                     cls =
-                      "bg-black text-white dark:bg-red-500/20 dark:text-red-100 dark:border dark:border-red-500/40";
+                      "bg-black text-white dark:bg-claude/20 dark:text-lime-bright dark:border dark:border-claude/40";
                   } else {
                     cls =
                       "border border-dashboard-border bg-gray-100 text-gray-500 dark:bg-card-2 dark:text-gray-400";
@@ -262,11 +262,11 @@ export default function PreAssessmentAILN() {
               </div>
               <div className="flex flex-col gap-1.5 border-t pt-3 text-xs text-gray-600 dark:border-dashboard-border dark:text-gray-400">
                 <LegendItem
-                  color="bg-black dark:bg-red-500/20 dark:border dark:border-red-500/40"
+                  color="bg-black dark:bg-claude/20 dark:border dark:border-claude/40"
                   label="Terjawab"
                 />
                 <LegendItem
-                  color="bg-red-500 dark:shadow-[0_0_6px_rgba(239,68,68,0.6)]"
+                  color="bg-claude dark:shadow-[0_0_6px_rgba(26,122,82,0.6)]"
                   label="Saat ini"
                 />
                 <LegendItem
@@ -276,7 +276,7 @@ export default function PreAssessmentAILN() {
               </div>
             </div>
 
-            <div className="flex flex-col gap-2 rounded-xl border bg-white p-4 dark:border-dashboard-border dark:bg-card-1 dark:shadow-[0_0_18px_rgba(239,68,68,0.08)]">
+            <div className="flex flex-col gap-2 rounded-xl border bg-white p-4 dark:border-dashboard-border dark:bg-card-1 dark:shadow-[0_0_18px_rgba(26,122,82,0.08)]">
               <span className="text-[11px] font-semibold uppercase tracking-widest text-gray-500 dark:text-gray-400">
                 STATUS
               </span>
@@ -354,7 +354,7 @@ function PreAssessmentWelcomeAILN({ onStart }: { onStart: () => void }) {
       />
 
       <div className="relative z-10 mx-auto flex w-full max-w-2xl flex-col py-12">
-        <div className="rounded-2xl border bg-white p-8 shadow-xl dark:border-dashboard-border dark:bg-card-1 dark:shadow-[0_0_18px_rgba(239,68,68,0.08)]">
+        <div className="rounded-2xl border bg-white p-8 shadow-xl dark:border-dashboard-border dark:bg-card-1 dark:shadow-[0_0_18px_rgba(26,122,82,0.08)]">
           <div className="mb-7 flex justify-center">
             <Image
               src="https://tskubmriuclmbcfmaiur.supabase.co/storage/v1/object/public/sevenpreneur/logo-hk-danantara.webp"
@@ -386,7 +386,7 @@ function PreAssessmentWelcomeAILN({ onStart }: { onStart: () => void }) {
                 key={point.title}
                 className="flex items-start gap-3 rounded-xl border border-dashboard-border bg-gray-50/60 p-4 dark:bg-card-2"
               >
-                <div className="flex size-9 shrink-0 items-center justify-center rounded-lg bg-red-100 text-red-500 dark:bg-red-500/15 dark:text-red-400">
+                <div className="flex size-9 shrink-0 items-center justify-center rounded-lg bg-hijau-t text-claude dark:bg-claude/15 dark:text-lime-bright">
                   {point.icon}
                 </div>
                 <div className="min-w-0">
@@ -449,14 +449,14 @@ function QuestionBody({
               onClick={() => onSelectSingle(code)}
               className={`flex items-center gap-3 rounded-lg border-[1.5px] px-4 py-3 text-left text-sm transition ${
                 selected
-                  ? "border-emerald-500 bg-emerald-50 dark:border-emerald-500/60 dark:bg-emerald-500/10 dark:text-white dark:shadow-[0_0_10px_rgba(16,185,129,0.25)]"
-                  : "border-dashboard-border bg-white hover:border-black/30 hover:bg-gray-50 dark:bg-card-1 dark:text-gray-200 dark:hover:border-red-500/30 dark:hover:bg-card-2"
+                  ? "border-claude bg-hijau-t dark:border-claude/60 dark:bg-claude/10 dark:text-white dark:shadow-[0_0_10px_rgba(26,122,82,0.25)]"
+                  : "border-dashboard-border bg-white hover:border-black/30 hover:bg-gray-50 dark:bg-card-1 dark:text-gray-200 dark:hover:border-claude/30 dark:hover:bg-card-2"
               }`}
             >
               <div
                 className={`flex size-6 shrink-0 items-center justify-center rounded-full text-xs font-bold ${
                   selected
-                    ? "bg-emerald-500 text-white dark:shadow-[0_0_8px_rgba(16,185,129,0.6)]"
+                    ? "bg-claude text-white dark:shadow-[0_0_8px_rgba(26,122,82,0.6)]"
                     : "bg-gray-200 text-gray-700 dark:bg-dashboard-border dark:text-gray-300"
                 }`}
               >
@@ -486,14 +486,14 @@ function QuestionBody({
               onClick={() => onToggleMulti(opt)}
               className={`flex items-center gap-3 rounded-lg border-[1.5px] px-4 py-3 text-left text-sm transition ${
                 selected
-                  ? "border-emerald-500 bg-emerald-50 dark:border-emerald-500/60 dark:bg-emerald-500/10 dark:text-white dark:shadow-[0_0_10px_rgba(16,185,129,0.25)]"
-                  : "border-dashboard-border bg-white hover:border-black/30 hover:bg-gray-50 dark:bg-card-1 dark:text-gray-200 dark:hover:border-red-500/30 dark:hover:bg-card-2"
+                  ? "border-claude bg-hijau-t dark:border-claude/60 dark:bg-claude/10 dark:text-white dark:shadow-[0_0_10px_rgba(26,122,82,0.25)]"
+                  : "border-dashboard-border bg-white hover:border-black/30 hover:bg-gray-50 dark:bg-card-1 dark:text-gray-200 dark:hover:border-claude/30 dark:hover:bg-card-2"
               }`}
             >
               <div
                 className={`flex size-6 shrink-0 items-center justify-center rounded-md text-xs font-bold ${
                   selected
-                    ? "bg-emerald-500 text-white dark:shadow-[0_0_8px_rgba(16,185,129,0.6)]"
+                    ? "bg-claude text-white dark:shadow-[0_0_8px_rgba(26,122,82,0.6)]"
                     : "border border-gray-300 bg-white text-gray-700 dark:border-dashboard-border dark:bg-card-1 dark:text-gray-300"
                 }`}
               >
@@ -519,7 +519,7 @@ function QuestionBody({
           onChange={(e) => onTextChange(e.target.value)}
           maxLength={255}
           placeholder={question.placeholder}
-          className="w-full rounded-lg border border-dashboard-border px-4 py-3 text-sm transition focus:border-emerald-500 focus:outline-none dark:bg-card-1 dark:text-white dark:placeholder:text-gray-500 dark:focus:border-emerald-500/60 dark:focus:shadow-[0_0_10px_rgba(16,185,129,0.2)]"
+          className="w-full rounded-lg border border-dashboard-border px-4 py-3 text-sm transition focus:border-claude focus:outline-none dark:bg-card-1 dark:text-white dark:placeholder:text-gray-500 dark:focus:border-claude/60 dark:focus:shadow-[0_0_10px_rgba(26,122,82,0.2)]"
         />
       </div>
     );
@@ -535,7 +535,7 @@ function QuestionBody({
         onChange={(e) => onTextChange(e.target.value)}
         placeholder={question.placeholder}
         rows={6}
-        className="w-full resize-none rounded-lg border border-dashboard-border px-4 py-3 text-sm transition focus:border-emerald-500 focus:outline-none dark:bg-card-1 dark:text-white dark:placeholder:text-gray-500 dark:focus:border-emerald-500/60 dark:focus:shadow-[0_0_10px_rgba(16,185,129,0.2)]"
+        className="w-full resize-none rounded-lg border border-dashboard-border px-4 py-3 text-sm transition focus:border-claude focus:outline-none dark:bg-card-1 dark:text-white dark:placeholder:text-gray-500 dark:focus:border-claude/60 dark:focus:shadow-[0_0_10px_rgba(26,122,82,0.2)]"
       />
     </div>
   );

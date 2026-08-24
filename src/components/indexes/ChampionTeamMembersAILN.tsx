@@ -154,7 +154,7 @@ export default function ChampionTeamMembersAILN(props: { members: Member[] }) {
               value={search}
               onChange={(e) => setSearch(e.target.value)}
               placeholder="Cari anggota…"
-              className="h-10 w-full rounded-lg border border-dashboard-border bg-white pl-9 pr-3 text-sm text-foreground placeholder:text-gray-400 focus:border-emerald-500 focus:outline-none dark:bg-card-1 dark:text-gray-200"
+              className="h-10 w-full rounded-lg border border-dashboard-border bg-white pl-9 pr-3 text-sm text-foreground placeholder:text-gray-400 focus:border-claude focus:outline-none dark:bg-card-1 dark:text-gray-200"
             />
           </div>
           <div className="relative" ref={filterRef}>
@@ -163,7 +163,7 @@ export default function ChampionTeamMembersAILN(props: { members: Member[] }) {
               onClick={() => setFilterOpen((v) => !v)}
               className={`flex h-10 items-center gap-2 rounded-lg border px-3 text-sm font-medium transition ${
                 statusFilter
-                  ? "border-emerald-400 bg-emerald-50 text-emerald-700 dark:border-emerald-500/40 dark:bg-emerald-500/10 dark:text-emerald-300"
+                  ? "border-claude bg-hijau-t text-claude dark:border-claude/40 dark:bg-claude/10 dark:text-lime-bright"
                   : "border-dashboard-border bg-white text-foreground hover:border-foreground/40 dark:bg-card-1 dark:text-gray-200"
               }`}
             >
@@ -182,13 +182,13 @@ export default function ChampionTeamMembersAILN(props: { members: Member[] }) {
                     }}
                     className={`flex w-full items-center justify-between px-3 py-2 text-left text-sm transition hover:bg-gray-50 dark:hover:bg-card-2 ${
                       statusFilter === opt.value
-                        ? "font-semibold text-emerald-700 dark:text-emerald-300"
+                        ? "font-semibold text-claude dark:text-lime-bright"
                         : "text-foreground dark:text-gray-200"
                     }`}
                   >
                     {opt.label}
                     {statusFilter === opt.value && (
-                      <span className="size-1.5 rounded-full bg-emerald-500" />
+                      <span className="size-1.5 rounded-full bg-lime-bright" />
                     )}
                   </button>
                 ))}
@@ -294,7 +294,7 @@ export default function ChampionTeamMembersAILN(props: { members: Member[] }) {
                         className={`inline-flex items-center gap-0.5 text-xs font-semibold ${
                           m.status === "behind"
                             ? "text-amber-700 dark:text-amber-300"
-                            : "text-emerald-700 dark:text-emerald-300"
+                            : "text-claude dark:text-lime-bright"
                         } group-hover:underline`}
                       >
                         Lihat detail

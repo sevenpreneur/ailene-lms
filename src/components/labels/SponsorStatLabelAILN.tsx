@@ -14,7 +14,7 @@ export default function SponsorStatLabelAILN({
 }) {
   return (
     <span
-      className={`inline-flex h-9 items-center gap-2 rounded-full border border-stakeholder-sponsor/20 bg-stakeholder-sponsor-soft px-3 text-sm font-semibold text-stakeholder-sponsor dark:border-blue-500/30 dark:bg-blue-500/10 dark:text-blue-300 ${className ?? ""}`}
+      className={`inline-flex h-9 items-center gap-2 rounded-full border border-stakeholder-sponsor/20 bg-stakeholder-sponsor-soft px-3 text-sm font-semibold text-stakeholder-sponsor dark:border-claude/30 dark:bg-claude/10 dark:text-lime-bright ${className ?? ""}`}
     >
       <Icon className="size-4" />
       <span className="font-bold">{value}</span>

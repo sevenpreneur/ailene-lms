@@ -1,8 +1,7 @@
+import { checkSession } from "@/apis/auth";
 import SidebarAILN from "@/components/navigations/SidebarAILN";
 import AppPageState from "@/components/states/AppPageState";
 import { LOGIN_URL } from "@/lib/config";
-import { getProgramGate } from "@/lib/gate";
-import { canAccessSponsor } from "@/lib/sponsor-access";
 import { redirect } from "next/navigation";
 import { ReactNode } from "react";
 
@@ -14,17 +13,20 @@ export default async function SponsorLayout({
   params: Promise<{ project_id: string }>;
 }) {
   const { project_id } = await params;
-  const { sessionToken, ailMember } = await getProgramGate(project_id);
+  const session = await checkSession();
 
-  if (!sessionToken) redirect(LOGIN_URL);
+  if (!session) redirect(LOGIN_URL);
 
-  if (!ailMember || !canAccessSponsor(ailMember)) {
+  const projectAccess = session.project_access.find(
+    (project) => project.id === project_id
+  );
+  if (projectAccess?.role !== "sponsor") {
     return <AppPageState variant="FORBIDDEN" />;
   }
 
   return (
     <>
-      <SidebarAILN sessionToken={sessionToken} variant="SPONSOR" />
+      <SidebarAILN session={session} variant="SPONSOR" />
       {children}
     </>
   );
