@@ -7,15 +7,19 @@ export type LevelLabelStudentVariantAILN = "compact" | "summary";
 export default function LevelLabelStudentAILN({
   variant = "compact",
   className,
+  levelNumber: levelNumberProp,
+  levelName: levelNameProp,
 }: {
   variant?: LevelLabelStudentVariantAILN;
   className?: string;
+  levelNumber?: number;
+  levelName?: string;
 }) {
   const member = getAilMemberMock();
 
-  const levelNumber = member.current_level.level_number;
-  const levelName = member.current_level.name;
-  const icon = member.current_level.icon;
+  const levelNumber = levelNumberProp ?? member.current_level.level_number;
+  const levelName = levelNameProp ?? member.current_level.name;
+  const icon = levelNumberProp === undefined ? member.current_level.icon : null;
   const label = `Level ${levelNumber}`;
   const imageAlt = levelName ?? label;
 

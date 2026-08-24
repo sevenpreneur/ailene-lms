@@ -7,7 +7,7 @@ import LevelLabelStudentAILN from "@/components/labels/LevelLabelStudentAILN";
 import RewardLabelStudentAILN from "@/components/labels/RewardLabelStudentAILN";
 import PageContainerAILN from "@/components/pages/PageContainerAILN";
 import PageHeaderAILN from "@/components/titles/PageHeaderAILN";
-import { getLevelsMock, getAilMemberMock } from "@/mock-data/shared";
+import type { LmsLevel } from "@/apis/level";
 import {
   getAssignedPromptsMock,
   getAssignedUseCasesMock,
@@ -21,10 +21,18 @@ import { useEffect, useRef, useState } from "react";
 
 dayjs.locale("id");
 
-type Level = ReturnType<typeof getLevelsMock>[number];
+type Level = LmsLevel;
 type Chapter = ReturnType<typeof getChaptersProgressMock>[number];
 
-export default function LearningPathStudentAILN() {
+export default function LearningPathStudentAILN({
+  levels,
+  currentLevelNumber,
+  totalXp,
+}: {
+  levels: Level[];
+  currentLevelNumber: number;
+  totalXp: number;
+}) {
   const [expandedChapters, setExpandedChapters] = useState<Set<number>>(
     new Set()
   );
@@ -32,12 +40,12 @@ export default function LearningPathStudentAILN() {
     new Set()
   );
 
-  const member = getAilMemberMock();
-  const levels = getLevelsMock();
   const chapters = getChaptersProgressMock();
   const levelProgress = getLevelProgressMock();
   const assignedPrompts = getAssignedPromptsMock();
   const assignedUseCases = getAssignedUseCasesMock();
+  const currentLevelName =
+    levels.find((l) => l.level_number === currentLevelNumber)?.name ?? null;
 
   // Pick the first useful timeline item to open.
   const searchParams = useSearchParams();
@@ -75,14 +83,9 @@ export default function LearningPathStudentAILN() {
       return;
     }
 
-    const currentLevelNumber = member.current_level.level_number;
-    const levelNumberByIdForNext = new Map(
-      levels.map((l) => [l.id, l.level_number])
-    );
     const nextChapterToOpen = chapters.find((c) => {
       if (c.progress === "completed") return false;
-      const lvlNum = levelNumberByIdForNext.get(c.level_id);
-      if (lvlNum === undefined || lvlNum > currentLevelNumber) return false;
+      if (c.level.level_number > currentLevelNumber) return false;
       return true;
     });
     if (nextChapterToOpen) {
@@ -91,25 +94,26 @@ export default function LearningPathStudentAILN() {
     }
 
     // Fallback to the earliest unfinished practice level.
-    const levelsWithUnfinished = new Map<number, number>();
+    const levelNumbersWithUnfinished = new Set<number>();
     const consider = (
       row: { reviewed_at: Date | null; is_accepted: boolean },
-      lvl: { id: number; level_number: number }
+      lvl: { level_number: number }
     ) => {
       const accepted = !!row.reviewed_at && row.is_accepted;
       if (accepted) return;
       if (lvl.level_number > currentLevelNumber) return;
-      if (!levelsWithUnfinished.has(lvl.id)) {
-        levelsWithUnfinished.set(lvl.id, lvl.level_number);
-      }
+      levelNumbersWithUnfinished.add(lvl.level_number);
     };
     for (const r of assignedPrompts) consider(r, r.prompt.level);
     for (const r of assignedUseCases) consider(r, r.use_case.level);
-    const earliestPractice = [...levelsWithUnfinished.entries()].sort(
-      (a, b) => a[1] - b[1]
+    const earliestLevelNumber = [...levelNumbersWithUnfinished].sort(
+      (a, b) => a - b
     )[0];
-    if (earliestPractice) {
-      setExpandedModules(new Set([earliestPractice[0]]));
+    const earliestLevelId = levels.find(
+      (l) => l.level_number === earliestLevelNumber
+    )?.id;
+    if (earliestLevelId !== undefined) {
+      setExpandedModules(new Set([earliestLevelId]));
       return;
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -135,16 +139,13 @@ export default function LearningPathStudentAILN() {
     );
     if (!completedChapter) return;
 
-    const currentLevelNumber = member.current_level.level_number;
-    const levelNumberById = new Map(levels.map((l) => [l.id, l.level_number]));
     const completedIndex = chapters.findIndex(
       (chapter) => chapter.id === completedChapter.id
     );
     const nextAccessible = chapters.find((chapter, index) => {
       if (index <= completedIndex) return false;
       if (chapter.progress === "completed") return false;
-      const lvlNum = levelNumberById.get(chapter.level_id);
-      if (lvlNum === undefined || lvlNum > currentLevelNumber) return false;
+      if (chapter.level.level_number > currentLevelNumber) return false;
       return true;
     });
     if (nextAccessible) {
@@ -154,7 +155,6 @@ export default function LearningPathStudentAILN() {
   }, [expandedChapters]);
 
   const nextLevelUnlockable = levelProgress.next_level_unlockable;
-  const currentLevelNumber = member.current_level.level_number;
 
   const toggleChapter = (id: number) =>
     setExpandedChapters((prev) => {
@@ -173,6 +173,7 @@ export default function LearningPathStudentAILN() {
     });
 
   // Build the level-driven timeline.
+  type TimelineLevel = Level & { icon: string | null };
   type Item =
     | {
         kind: "chapter";
@@ -182,13 +183,13 @@ export default function LearningPathStudentAILN() {
       }
     | {
         kind: "level";
-        level: Level;
+        level: TimelineLevel;
         unlocked: boolean;
         claimable: boolean;
       }
     | {
         kind: "skillPractice";
-        level: Level;
+        level: TimelineLevel;
         levelUnlocked: boolean;
         prompts: SkillPracticeItem[];
         useCases: SkillPracticeItem[];
@@ -196,66 +197,67 @@ export default function LearningPathStudentAILN() {
 
   const chaptersByLevel = new Map<number, Chapter[]>();
   for (const ch of chapters) {
-    const bucket = chaptersByLevel.get(ch.level_id) ?? [];
+    const key = ch.level.level_number;
+    const bucket = chaptersByLevel.get(key) ?? [];
     bucket.push(ch);
-    chaptersByLevel.set(ch.level_id, bucket);
+    chaptersByLevel.set(key, bucket);
   }
 
-  const allPrompts: SkillPracticeItem[] = assignedPrompts.map(
-    (r) => ({
-      id: r.id,
-      ref_id: r.prompt.id,
-      level: r.prompt.level,
-      name: r.prompt.name,
-      body: r.prompt.scenario,
-      xp_reward: r.prompt.xp_reward,
-      categories: r.prompt.categories,
-      assigned_by: r.assigned_by,
-      deadline: r.deadline,
-      message: r.message,
-      submitted_at: r.submitted_at,
-      reviewed_at: r.reviewed_at,
-      is_accepted: r.is_accepted,
-    })
-  );
-  const allUseCases: SkillPracticeItem[] = assignedUseCases.map(
-    (r) => ({
-      id: r.id,
-      ref_id: r.use_case.id,
-      level: r.use_case.level,
-      name: r.use_case.name,
-      body: r.use_case.description,
-      xp_reward: r.use_case.xp_reward,
-      categories: r.use_case.categories,
-      assigned_by: r.assigned_by,
-      deadline: r.deadline,
-      message: r.message,
-      submitted_at: r.submitted_at,
-      reviewed_at: r.reviewed_at,
-      is_accepted: r.is_accepted,
-    })
-  );
+  const allPrompts: SkillPracticeItem[] = assignedPrompts.map((r) => ({
+    id: r.id,
+    ref_id: r.prompt.id,
+    level: r.prompt.level,
+    name: r.prompt.name,
+    body: r.prompt.scenario,
+    xp_reward: r.prompt.xp_reward,
+    categories: r.prompt.categories,
+    assigned_by: r.assigned_by,
+    deadline: r.deadline,
+    message: r.message,
+    submitted_at: r.submitted_at,
+    reviewed_at: r.reviewed_at,
+    is_accepted: r.is_accepted,
+  }));
+  const allUseCases: SkillPracticeItem[] = assignedUseCases.map((r) => ({
+    id: r.id,
+    ref_id: r.use_case.id,
+    level: r.use_case.level,
+    name: r.use_case.name,
+    body: r.use_case.description,
+    xp_reward: r.use_case.xp_reward,
+    categories: r.use_case.categories,
+    assigned_by: r.assigned_by,
+    deadline: r.deadline,
+    message: r.message,
+    submitted_at: r.submitted_at,
+    reviewed_at: r.reviewed_at,
+    is_accepted: r.is_accepted,
+  }));
   const promptsByLevel = new Map<number, SkillPracticeItem[]>();
   for (const p of allPrompts) {
-    const bucket = promptsByLevel.get(p.level.id) ?? [];
+    const key = p.level.level_number;
+    const bucket = promptsByLevel.get(key) ?? [];
     bucket.push(p);
-    promptsByLevel.set(p.level.id, bucket);
+    promptsByLevel.set(key, bucket);
   }
   const useCasesByLevel = new Map<number, SkillPracticeItem[]>();
   for (const u of allUseCases) {
-    const bucket = useCasesByLevel.get(u.level.id) ?? [];
+    const key = u.level.level_number;
+    const bucket = useCasesByLevel.get(key) ?? [];
     bucket.push(u);
-    useCasesByLevel.set(u.level.id, bucket);
+    useCasesByLevel.set(key, bucket);
   }
 
   const items: Item[] = [];
   let weekIndex = 0;
   levels.forEach((lvl) => {
     const levelUnlocked = lvl.level_number <= currentLevelNumber;
+    // Backend doesn't return a per-level icon — LevelDividerAILN falls back to its own art when null.
+    const timelineLevel: TimelineLevel = { ...lvl, icon: null };
 
     items.push({
       kind: "level",
-      level: lvl,
+      level: timelineLevel,
       unlocked: levelUnlocked,
       claimable:
         !levelUnlocked &&
@@ -263,7 +265,7 @@ export default function LearningPathStudentAILN() {
         nextLevelUnlockable,
     });
 
-    const levelChapters = chaptersByLevel.get(lvl.id) ?? [];
+    const levelChapters = chaptersByLevel.get(lvl.level_number) ?? [];
     for (const ch of levelChapters) {
       weekIndex += 1;
       items.push({
@@ -274,12 +276,12 @@ export default function LearningPathStudentAILN() {
       });
     }
 
-    const lvlPrompts = promptsByLevel.get(lvl.id) ?? [];
-    const lvlUseCases = useCasesByLevel.get(lvl.id) ?? [];
+    const lvlPrompts = promptsByLevel.get(lvl.level_number) ?? [];
+    const lvlUseCases = useCasesByLevel.get(lvl.level_number) ?? [];
     if (lvlPrompts.length + lvlUseCases.length > 0) {
       items.push({
         kind: "skillPractice",
-        level: lvl,
+        level: timelineLevel,
         levelUnlocked,
         prompts: lvlPrompts,
         useCases: lvlUseCases,
@@ -294,8 +296,12 @@ export default function LearningPathStudentAILN() {
           title="Jalur Belajar"
           desc="Tuntaskan semua tugas mingguan untuk maju ke level berikutnya."
         >
-          <LevelLabelStudentAILN variant="summary" />
-          <RewardLabelStudentAILN variant="summary" />
+          <LevelLabelStudentAILN
+            variant="summary"
+            levelNumber={currentLevelNumber}
+            levelName={currentLevelName ?? undefined}
+          />
+          <RewardLabelStudentAILN variant="summary" xp={totalXp} />
         </PageHeaderAILN>
 
         {/* Timeline */}

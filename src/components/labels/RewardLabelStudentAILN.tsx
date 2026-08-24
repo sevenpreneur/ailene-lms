@@ -7,13 +7,15 @@ type RewardLabelStudentVariantAILN = "compact" | "summary";
 export default function RewardLabelStudentAILN({
   variant = "compact",
   className,
+  xp: xpProp,
 }: {
   variant?: RewardLabelStudentVariantAILN;
   className?: string;
+  xp?: number;
 }) {
   const member = getAilMemberMock();
 
-  const formattedXp = member.total_xp.toLocaleString();
+  const formattedXp = (xpProp ?? member.total_xp).toLocaleString();
 
   if (variant === "summary") {
     return (

@@ -17,7 +17,6 @@ interface Level {
   level_number: number;
   name: string;
   icon: string | null;
-  min_xp: number;
 }
 
 interface LevelDividerAILNProps {
