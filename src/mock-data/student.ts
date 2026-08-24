@@ -18,20 +18,6 @@ import { daysAgo, daysFromNow, relativeDayStrip, round1 } from "./utils";
 const CURRENT_LEVEL_NUMBER = 3;
 const CURRENT_XP = 1050;
 
-export function getChaptersProgressMock() {
-  return CHAPTERS.map((ch) => {
-    const unlocked = ch.level.level_number <= CURRENT_LEVEL_NUMBER;
-    const completed = ch.level.level_number < CURRENT_LEVEL_NUMBER;
-    const progress: "not_started" | "in_progress" | "completed" = !unlocked
-      ? "not_started"
-      : completed
-        ? "completed"
-        : "in_progress";
-    const totalTasks = 3;
-    const doneTasks = progress === "completed" ? 3 : progress === "in_progress" ? 1 : 0;
-    return { ...ch, progress, done_tasks: doneTasks, total_tasks: totalTasks };
-  });
-}
 
 type QuizMock = {
   id: string;

@@ -7,11 +7,10 @@ import LevelLabelStudentAILN from "@/components/labels/LevelLabelStudentAILN";
 import RewardLabelStudentAILN from "@/components/labels/RewardLabelStudentAILN";
 import PageContainerAILN from "@/components/pages/PageContainerAILN";
 import PageHeaderAILN from "@/components/titles/PageHeaderAILN";
-import type { LmsLevel } from "@/apis/level";
+import type { StudentChapter, StudentLevel } from "@/apis/student";
 import {
   getAssignedPromptsMock,
   getAssignedUseCasesMock,
-  getChaptersProgressMock,
   getLevelProgressMock,
 } from "@/mock-data/student";
 import dayjs from "dayjs";
@@ -21,15 +20,17 @@ import { useEffect, useRef, useState } from "react";
 
 dayjs.locale("id");
 
-type Level = LmsLevel;
-type Chapter = ReturnType<typeof getChaptersProgressMock>[number];
+type Level = StudentLevel;
+type Chapter = StudentChapter;
 
 export default function LearningPathStudentAILN({
   levels,
+  chapters,
   currentLevelNumber,
   totalXp,
 }: {
   levels: Level[];
+  chapters: Chapter[];
   currentLevelNumber: number;
   totalXp: number;
 }) {
@@ -40,7 +41,6 @@ export default function LearningPathStudentAILN({
     new Set()
   );
 
-  const chapters = getChaptersProgressMock();
   const levelProgress = getLevelProgressMock();
   const assignedPrompts = getAssignedPromptsMock();
   const assignedUseCases = getAssignedUseCasesMock();
