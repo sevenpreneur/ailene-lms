@@ -1,4 +1,5 @@
-import QuizDetailsAILN from "@/components/pages/QuizDetailsAILN";
+import { getQuizDetails } from "@/apis/learnings";
+import QuizAttemptAILN from "@/components/pages/QuizAttemptAILN";
 import AppPageState from "@/components/states/AppPageState";
 import { Metadata } from "next";
 
@@ -17,5 +18,22 @@ export default async function QuizPage({
     return <AppPageState variant="NOT_FOUND" />;
   }
 
-  return <QuizDetailsAILN quizId={quizId} />;
+  const quiz = await getQuizDetails(quizId);
+  if (!quiz) {
+    return <AppPageState variant="NOT_FOUND" />;
+  }
+
+  return (
+    <QuizAttemptAILN
+      data={{
+        quiz: {
+          id: quiz.id,
+          name: quiz.name,
+          description: quiz.description,
+          chapter: quiz.chapter,
+        },
+        questions: quiz.questions,
+      }}
+    />
+  );
 }

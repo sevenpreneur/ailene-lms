@@ -80,24 +80,6 @@ const MATERIALS = CHAPTERS.flatMap((ch) => [
 ]);
 
 
-export function getQuizQuestionsMock(input: { quiz_id: string }) {
-  const quiz = QUIZZES.find((q) => q.id === input.quiz_id);
-  if (!quiz) return null;
-  const chapter = CHAPTERS.find((c) => c.id === quiz.chapter_id)!;
-  return {
-    quiz: { id: quiz.id, name: quiz.name, description: quiz.description, chapter: { id: chapter.id, name: chapter.name } },
-    questions: quiz.questions,
-    progress: null as {
-      attempt_number: number;
-      score: number;
-      answers: Record<string, string>;
-      submitted_at: Date;
-    } | null,
-    draft: null as { attempt_number: number; answers: Record<string, string>; started_at: Date; updated_at: Date } | null,
-    xp_earned: 0,
-  };
-}
-
 export function getQuizResultMock(input: { quiz_id: string }) {
   const quiz = QUIZZES.find((q) => q.id === input.quiz_id);
   if (!quiz) return null;
@@ -112,38 +94,6 @@ export function getQuizResultMock(input: { quiz_id: string }) {
     questions: quiz.questions,
     submission: { attempt_number: 1, score: 90, answers, submitted_at: daysAgo(3) },
     xp_earned: quiz.questions.reduce((s, x) => s + x.xp_reward, 0),
-  };
-}
-
-export function getMaterialDetailMock(input: { material_id: string }) {
-  const material = MATERIALS.find((m) => m.id === input.material_id);
-  if (!material) return null;
-  const chapter = CHAPTERS.find((c) => c.id === material.chapter_id)!;
-  return {
-    material: { ...material, chapter: { id: chapter.id, name: chapter.name }, created_at: daysAgo(30), updated_at: daysAgo(10) },
-    completed: false,
-    completed_at: null as Date | null,
-    xp_earned: 0,
-  };
-}
-
-export function getLevelMaterialsMock(input: { material_id: string }) {
-  const material = MATERIALS.find((m) => m.id === input.material_id);
-  const chapter = material ? CHAPTERS.find((c) => c.id === material.chapter_id) : undefined;
-  const levelNumber = chapter?.level.level_number ?? 1;
-  const siblings = MATERIALS.filter(
-    (m) => CHAPTERS.find((c) => c.id === m.chapter_id)?.level.level_number === levelNumber
-  );
-  return {
-    level_number: levelNumber,
-    materials: siblings.map((m, i) => ({
-      id: m.id,
-      title: m.title,
-      index: i + 1,
-      completed: false,
-      locked: false,
-      is_current: m.id === input.material_id,
-    })),
   };
 }
 

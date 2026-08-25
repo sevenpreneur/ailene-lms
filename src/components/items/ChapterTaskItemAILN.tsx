@@ -150,11 +150,11 @@ export default function ChapterTaskItemAILN(props: ChapterTaskItemAILNProps) {
         Locked
       </ButtonAILN>
     ) : (
-      <a href={v.video_url} target="_blank" rel="noopener noreferrer">
+      <Link href={`/${projectId}/student/videos/${props.video.id}`} className="block">
         <ButtonAILN size="small" className="w-full">
           Lihat Recording
         </ButtonAILN>
-      </a>
+      </Link>
     );
   } else {
     const m = props.material;

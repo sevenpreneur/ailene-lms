@@ -1,3 +1,4 @@
+import { getMaterialDetails } from "@/apis/learnings";
 import MaterialDetailsAILN from "@/components/pages/MaterialDetailsAILN";
 import AppPageState from "@/components/states/AppPageState";
 import { Metadata } from "next";
@@ -17,5 +18,10 @@ export default async function MaterialPage({
     return <AppPageState variant="NOT_FOUND" />;
   }
 
-  return <MaterialDetailsAILN materialId={materialId} />;
+  const material = await getMaterialDetails(materialId);
+  if (!material) {
+    return <AppPageState variant="NOT_FOUND" />;
+  }
+
+  return <MaterialDetailsAILN material={material} />;
 }

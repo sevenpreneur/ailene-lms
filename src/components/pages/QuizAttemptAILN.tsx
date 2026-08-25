@@ -20,13 +20,11 @@ export interface QuizOption {
   id: number;
   option_code: string;
   text: string;
-  is_correct: boolean;
 }
 
 export interface QuizQuestion {
   id: number;
   question: string;
-  explanation: string | null;
   order_index: number;
   xp_reward: number;
   options: QuizOption[];
@@ -40,32 +38,15 @@ export interface QuizDetailsData {
     chapter: { id: number; name: string } | null;
   };
   questions: QuizQuestion[];
-  progress: {
-    attempt_number: number;
-    score: number;
-    answers: unknown;
-    submitted_at: Date | string;
-  } | null;
-  draft: {
-    attempt_number: number;
-    answers: unknown;
-    started_at: Date | string;
-    updated_at: Date | string;
-  } | null;
-  xp_earned: number;
 }
 
 const QUIZ_DURATION_SECONDS = 20 * 60;
 
 interface QuizAttemptAILNProps {
-  quizId: string;
   data: QuizDetailsData;
 }
 
-export default function QuizAttemptAILN({
-  quizId: _quizId,
-  data,
-}: QuizAttemptAILNProps) {
+export default function QuizAttemptAILN({ data }: QuizAttemptAILNProps) {
   const router = useRouter();
   const projectId = useProjectId();
   const { quiz, questions } = data;
