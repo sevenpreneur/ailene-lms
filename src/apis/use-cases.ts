@@ -15,6 +15,7 @@ export type UseCaseLibraryItem = {
   categories: UseCaseCategory[];
   deadline_at: string | null;
   submitted_at: string | null;
+  reviewed_at: string | null;
   is_accepted: boolean | null;
 };
 
@@ -29,6 +30,8 @@ export type AssignedUseCase = {
   id: number;
   name: string;
   description: string;
+  level_id: number;
+  level_number: number;
   categories: UseCaseCategory[];
   xp_reward: number;
   is_accepted: boolean;

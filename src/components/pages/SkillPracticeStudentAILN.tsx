@@ -84,7 +84,6 @@ function deriveStatus(item: {
 function assignedToPracticeItem(
   kind: PracticeKind,
   row: AssignedPrompt | AssignedUseCase,
-  levelNumber: number,
   projectId: string
 ): PracticeItem {
   return {
@@ -93,7 +92,7 @@ function assignedToPracticeItem(
     href: practiceHref(projectId, kind, row.id),
     title: row.name,
     body: row.description,
-    level_number: levelNumber,
+    level_number: row.level_number,
     categories: row.categories,
     champion_name: row.assigned_by?.name ?? null,
     deadline: row.deadline_at,
@@ -116,12 +115,11 @@ function libraryToItem(
     body: row.description,
     level_number: row.level_number,
     categories: row.categories,
-    // Library list has no reviewed_at, so deriveStatus falls back to AWAITING_REVIEW here.
     submission: row.submitted_at
       ? {
           deadline: row.deadline_at,
           submitted_at: row.submitted_at,
-          reviewed_at: null,
+          reviewed_at: row.reviewed_at,
           is_accepted: row.is_accepted ?? false,
         }
       : null,
@@ -150,29 +148,14 @@ export default function SkillPracticeStudentAILN({
     setTab(tabFromParam(searchParams.get("tab")));
   }, [searchParams]);
 
-  const promptLevelById = new Map(
-    promptLibrary.map((p) => [p.id, p.level_number])
-  );
-  const useCaseLevelById = new Map(
-    useCaseLibrary.map((u) => [u.id, u.level_number])
-  );
-
-  const assignedItems: PracticeItem[] = [];
-  for (const r of assignedPrompts) {
-    const levelNumber = promptLevelById.get(r.id);
-    if (levelNumber === undefined) continue;
-    assignedItems.push(
-      assignedToPracticeItem("PROMPT", r, levelNumber, projectId)
-    );
-  }
-  for (const r of assignedUseCases) {
-    const levelNumber = useCaseLevelById.get(r.id);
-    if (levelNumber === undefined) continue;
-    assignedItems.push(
-      assignedToPracticeItem("USE_CASE", r, levelNumber, projectId)
-    );
-  }
-  assignedItems.sort((a, b) => {
+  const assignedItems: PracticeItem[] = [
+    ...assignedPrompts.map((r) =>
+      assignedToPracticeItem("PROMPT", r, projectId)
+    ),
+    ...assignedUseCases.map((r) =>
+      assignedToPracticeItem("USE_CASE", r, projectId)
+    ),
+  ].sort((a, b) => {
     const statusOrder =
       Number(a.is_accepted) - Number(b.is_accepted) ||
       Number(Boolean(a.submitted_at)) - Number(Boolean(b.submitted_at));

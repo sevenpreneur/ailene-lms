@@ -2,6 +2,11 @@
 import GeneralLabelAILN, {
   type GeneralLabelVariantAILN,
 } from "@/components/labels/GeneralLabelAILN";
+import {
+  faPuzzlePiece,
+  faWandMagicSparkles,
+} from "@fortawesome/free-solid-svg-icons";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import dayjs from "dayjs";
 import "dayjs/locale/id";
 import {
@@ -87,7 +92,9 @@ export default function SkillPracticeCardAILN({
     status === "PENDING_SUBMIT" &&
     deadline !== null &&
     dayjs(deadline).isBefore(dayjs());
-  const hasFooter = Boolean(deadline || submittedAt || championName || message);
+  const hasFooter = Boolean(
+    deadline || submittedAt || championName || message || categories.length > 0
+  );
 
   return (
     <Link
@@ -97,15 +104,20 @@ export default function SkillPracticeCardAILN({
       <article className="flex min-h-64 flex-col gap-4 rounded-lg border border-dashboard-border bg-card-2 p-4 transition hover:border-hijau hover:bg-hijau-t/40 dark:hover:bg-claude/5">
         <div className="flex items-start justify-between gap-2">
           <div className="flex flex-wrap items-center gap-2">
-            <GeneralLabelAILN variant="red">L{levelNumber}</GeneralLabelAILN>
-            <GeneralLabelAILN variant="white">
+            <GeneralLabelAILN variant="red">
+              Level {levelNumber}
+            </GeneralLabelAILN>
+            <GeneralLabelAILN
+              variant="white"
+              icon={
+                <FontAwesomeIcon
+                  icon={kind === "PROMPT" ? faWandMagicSparkles : faPuzzlePiece}
+                  className="size-3"
+                />
+              }
+            >
               {kind === "PROMPT" ? "Prompt" : "Use Case"}
             </GeneralLabelAILN>
-            {categories.slice(0, 2).map((category) => (
-              <GeneralLabelAILN key={category.id} variant="white">
-                {category.name}
-              </GeneralLabelAILN>
-            ))}
           </div>
           <GeneralLabelAILN
             variant={meta.variant}
@@ -126,7 +138,19 @@ export default function SkillPracticeCardAILN({
         </div>
 
         {hasFooter && (
-          <div className="flex flex-col gap-1 border-t border-dashboard-border pt-3 text-xs text-gray-600 dark:text-gray-300 font-inter">
+          <div className="flex flex-col gap-2 border-t border-dashboard-border pt-3 text-xs text-gray-600 dark:text-gray-300 font-inter">
+            {categories.length > 0 && (
+              <div className="flex flex-wrap items-center gap-1.5">
+                <span className="shrink-0 font-semibold text-gray-500 dark:text-gray-400">
+                  Category:
+                </span>
+                {categories.map((category) => (
+                  <GeneralLabelAILN key={category.id} variant="white">
+                    {category.name}
+                  </GeneralLabelAILN>
+                ))}
+              </div>
+            )}
             {deadline && (
               <div className="flex items-center gap-2">
                 <CalendarClock className="size-3.5 shrink-0" />

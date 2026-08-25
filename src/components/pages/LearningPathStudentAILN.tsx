@@ -21,19 +21,30 @@ dayjs.locale("id");
 type Level = StudentLevel;
 type Chapter = StudentChapter;
 
-function toSkillPracticeItems<T extends { id: number }>(
-  rows: T[],
-  levelById: Record<number, number>,
-  map: (row: T, levelNumber: number) => SkillPracticeItem
-): SkillPracticeItem[] {
-  const items: SkillPracticeItem[] = [];
-  for (const row of rows) {
-    const levelNumber = levelById[row.id];
-    // Skip items the library cross-reference couldn't resolve a level for.
-    if (levelNumber === undefined) continue;
-    items.push(map(row, levelNumber));
-  }
-  return items;
+function toSkillPracticeItem(
+  r: AssignedPrompt | AssignedUseCase
+): SkillPracticeItem {
+  return {
+    id: r.id,
+    ref_id: r.id,
+    level_number: r.level_number,
+    name: r.name,
+    body: r.description,
+    xp_reward: r.xp_reward,
+    categories: r.categories,
+    assigned_by: r.assigned_by
+      ? {
+          id: r.assigned_by.id,
+          full_name: r.assigned_by.name,
+          avatar: r.assigned_by.avatar,
+        }
+      : null,
+    deadline: r.deadline_at,
+    message: null,
+    submitted_at: r.submitted_at,
+    reviewed_at: r.reviewed_at,
+    is_accepted: r.is_accepted,
+  };
 }
 
 export default function LearningPathStudentAILN({
@@ -43,8 +54,6 @@ export default function LearningPathStudentAILN({
   totalXp,
   assignedPrompts,
   assignedUseCases,
-  promptLevelById,
-  useCaseLevelById,
 }: {
   levels: Level[];
   chapters: Chapter[];
@@ -52,8 +61,6 @@ export default function LearningPathStudentAILN({
   totalXp: number;
   assignedPrompts: AssignedPrompt[];
   assignedUseCases: AssignedUseCase[];
-  promptLevelById: Record<number, number>;
-  useCaseLevelById: Record<number, number>;
 }) {
   const [expandedChapters, setExpandedChapters] = useState<Set<number>>(
     new Set()
@@ -66,56 +73,8 @@ export default function LearningPathStudentAILN({
   const currentLevelName =
     levels.find((l) => l.level_number === currentLevelNumber)?.name ?? null;
 
-  const allPrompts = toSkillPracticeItems(
-    assignedPrompts,
-    promptLevelById,
-    (r, level_number) => ({
-      id: r.id,
-      ref_id: r.id,
-      level_number,
-      name: r.name,
-      body: r.description,
-      xp_reward: r.xp_reward,
-      categories: r.categories,
-      assigned_by: r.assigned_by
-        ? {
-            id: r.assigned_by.id,
-            full_name: r.assigned_by.name,
-            avatar: r.assigned_by.avatar,
-          }
-        : null,
-      deadline: r.deadline_at,
-      message: null,
-      submitted_at: r.submitted_at,
-      reviewed_at: r.reviewed_at,
-      is_accepted: r.is_accepted,
-    })
-  );
-  const allUseCases = toSkillPracticeItems(
-    assignedUseCases,
-    useCaseLevelById,
-    (r, level_number) => ({
-      id: r.id,
-      ref_id: r.id,
-      level_number,
-      name: r.name,
-      body: r.description,
-      xp_reward: r.xp_reward,
-      categories: r.categories,
-      assigned_by: r.assigned_by
-        ? {
-            id: r.assigned_by.id,
-            full_name: r.assigned_by.name,
-            avatar: r.assigned_by.avatar,
-          }
-        : null,
-      deadline: r.deadline_at,
-      message: null,
-      submitted_at: r.submitted_at,
-      reviewed_at: r.reviewed_at,
-      is_accepted: r.is_accepted,
-    })
-  );
+  const allPrompts = assignedPrompts.map(toSkillPracticeItem);
+  const allUseCases = assignedUseCases.map(toSkillPracticeItem);
 
   // Pick the first useful timeline item to open.
   const searchParams = useSearchParams();
