@@ -194,45 +194,6 @@ export function getAssignedUseCasesMock() {
   ];
 }
 
-export function getMemberPromptLibraryMock() {
-  return [
-    {
-      id: 1,
-      name: "Ringkasan Notulen Rapat",
-      scenario: "Ubah transkrip rapat panjang jadi ringkasan poin aksi.",
-      expected_output: "Daftar poin aksi dengan PIC dan deadline.",
-      level: levelByNumber(1),
-      categories: [CATEGORIES[0]],
-      created_at: daysAgo(40),
-      submission: { id: 10, deadline: null as Date | null, submitted_at: daysAgo(35), reviewed_at: daysAgo(33), is_accepted: true },
-    },
-    {
-      id: 2,
-      name: "Analisis Data Penjualan",
-      scenario: "Minta AI membaca tabel penjualan dan menemukan tren utama.",
-      expected_output: "3-5 insight tren beserta rekomendasi tindak lanjut.",
-      level: levelByNumber(2),
-      categories: [CATEGORIES[3]],
-      created_at: daysAgo(35),
-      submission: null as { id: number; deadline: Date | null; submitted_at: Date | null; reviewed_at: Date | null; is_accepted: boolean } | null,
-    },
-  ];
-}
-
-export function getMemberUseCaseLibraryMock() {
-  return [
-    {
-      id: 1,
-      name: "Otomatisasi Laporan Mingguan",
-      description: "Pakai AI untuk menyusun laporan mingguan dari data mentah.",
-      level: levelByNumber(2),
-      categories: [CATEGORIES[2]],
-      created_at: daysAgo(38),
-      submission: { id: 11, deadline: null as Date | null, submitted_at: daysAgo(20), reviewed_at: daysAgo(18), is_accepted: true },
-    },
-  ];
-}
-
 export function getPracticeSubmissionsMock() {
   return [
     {

@@ -28,12 +28,12 @@ dayjs.locale("id");
 export interface SkillPracticeItem {
   id: number;
   ref_id: number;
-  level: { id: number; level_number: number; name: string };
+  level_number: number;
   name: string;
   body: string;
   xp_reward: number;
   categories: { id: number; name: string }[];
-  assigned_by: { id: number; full_name: string; avatar: string | null } | null;
+  assigned_by: { id: string; full_name: string; avatar: string | null } | null;
   deadline: string | Date | null;
   message: string | null;
   submitted_at: string | Date | null;

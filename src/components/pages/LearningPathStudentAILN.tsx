@@ -8,11 +8,9 @@ import RewardLabelStudentAILN from "@/components/labels/RewardLabelStudentAILN";
 import PageContainerAILN from "@/components/pages/PageContainerAILN";
 import PageHeaderAILN from "@/components/titles/PageHeaderAILN";
 import type { StudentChapter, StudentLevel } from "@/apis/student";
-import {
-  getAssignedPromptsMock,
-  getAssignedUseCasesMock,
-  getLevelProgressMock,
-} from "@/mock-data/student";
+import type { AssignedPrompt } from "@/apis/prompts";
+import type { AssignedUseCase } from "@/apis/use-cases";
+import { getLevelProgressMock } from "@/mock-data/student";
 import dayjs from "dayjs";
 import "dayjs/locale/id";
 import { useSearchParams } from "next/navigation";
@@ -23,16 +21,39 @@ dayjs.locale("id");
 type Level = StudentLevel;
 type Chapter = StudentChapter;
 
+function toSkillPracticeItems<T extends { id: number }>(
+  rows: T[],
+  levelById: Record<number, number>,
+  map: (row: T, levelNumber: number) => SkillPracticeItem
+): SkillPracticeItem[] {
+  const items: SkillPracticeItem[] = [];
+  for (const row of rows) {
+    const levelNumber = levelById[row.id];
+    // Skip items the library cross-reference couldn't resolve a level for.
+    if (levelNumber === undefined) continue;
+    items.push(map(row, levelNumber));
+  }
+  return items;
+}
+
 export default function LearningPathStudentAILN({
   levels,
   chapters,
   currentLevelNumber,
   totalXp,
+  assignedPrompts,
+  assignedUseCases,
+  promptLevelById,
+  useCaseLevelById,
 }: {
   levels: Level[];
   chapters: Chapter[];
   currentLevelNumber: number;
   totalXp: number;
+  assignedPrompts: AssignedPrompt[];
+  assignedUseCases: AssignedUseCase[];
+  promptLevelById: Record<number, number>;
+  useCaseLevelById: Record<number, number>;
 }) {
   const [expandedChapters, setExpandedChapters] = useState<Set<number>>(
     new Set()
@@ -42,10 +63,59 @@ export default function LearningPathStudentAILN({
   );
 
   const levelProgress = getLevelProgressMock();
-  const assignedPrompts = getAssignedPromptsMock();
-  const assignedUseCases = getAssignedUseCasesMock();
   const currentLevelName =
     levels.find((l) => l.level_number === currentLevelNumber)?.name ?? null;
+
+  const allPrompts = toSkillPracticeItems(
+    assignedPrompts,
+    promptLevelById,
+    (r, level_number) => ({
+      id: r.id,
+      ref_id: r.id,
+      level_number,
+      name: r.name,
+      body: r.description,
+      xp_reward: r.xp_reward,
+      categories: r.categories,
+      assigned_by: r.assigned_by
+        ? {
+            id: r.assigned_by.id,
+            full_name: r.assigned_by.name,
+            avatar: r.assigned_by.avatar,
+          }
+        : null,
+      deadline: r.deadline_at,
+      message: null,
+      submitted_at: r.submitted_at,
+      reviewed_at: r.reviewed_at,
+      is_accepted: r.is_accepted,
+    })
+  );
+  const allUseCases = toSkillPracticeItems(
+    assignedUseCases,
+    useCaseLevelById,
+    (r, level_number) => ({
+      id: r.id,
+      ref_id: r.id,
+      level_number,
+      name: r.name,
+      body: r.description,
+      xp_reward: r.xp_reward,
+      categories: r.categories,
+      assigned_by: r.assigned_by
+        ? {
+            id: r.assigned_by.id,
+            full_name: r.assigned_by.name,
+            avatar: r.assigned_by.avatar,
+          }
+        : null,
+      deadline: r.deadline_at,
+      message: null,
+      submitted_at: r.submitted_at,
+      reviewed_at: r.reviewed_at,
+      is_accepted: r.is_accepted,
+    })
+  );
 
   // Pick the first useful timeline item to open.
   const searchParams = useSearchParams();
@@ -95,17 +165,14 @@ export default function LearningPathStudentAILN({
 
     // Fallback to the earliest unfinished practice level.
     const levelNumbersWithUnfinished = new Set<number>();
-    const consider = (
-      row: { reviewed_at: Date | null; is_accepted: boolean },
-      lvl: { level_number: number }
-    ) => {
-      const accepted = !!row.reviewed_at && row.is_accepted;
+    const consider = (item: SkillPracticeItem) => {
+      const accepted = !!item.reviewed_at && item.is_accepted;
       if (accepted) return;
-      if (lvl.level_number > currentLevelNumber) return;
-      levelNumbersWithUnfinished.add(lvl.level_number);
+      if (item.level_number > currentLevelNumber) return;
+      levelNumbersWithUnfinished.add(item.level_number);
     };
-    for (const r of assignedPrompts) consider(r, r.prompt.level);
-    for (const r of assignedUseCases) consider(r, r.use_case.level);
+    for (const r of allPrompts) consider(r);
+    for (const r of allUseCases) consider(r);
     const earliestLevelNumber = [...levelNumbersWithUnfinished].sort(
       (a, b) => a - b
     )[0];
@@ -203,49 +270,17 @@ export default function LearningPathStudentAILN({
     chaptersByLevel.set(key, bucket);
   }
 
-  const allPrompts: SkillPracticeItem[] = assignedPrompts.map((r) => ({
-    id: r.id,
-    ref_id: r.prompt.id,
-    level: r.prompt.level,
-    name: r.prompt.name,
-    body: r.prompt.scenario,
-    xp_reward: r.prompt.xp_reward,
-    categories: r.prompt.categories,
-    assigned_by: r.assigned_by,
-    deadline: r.deadline,
-    message: r.message,
-    submitted_at: r.submitted_at,
-    reviewed_at: r.reviewed_at,
-    is_accepted: r.is_accepted,
-  }));
-  const allUseCases: SkillPracticeItem[] = assignedUseCases.map((r) => ({
-    id: r.id,
-    ref_id: r.use_case.id,
-    level: r.use_case.level,
-    name: r.use_case.name,
-    body: r.use_case.description,
-    xp_reward: r.use_case.xp_reward,
-    categories: r.use_case.categories,
-    assigned_by: r.assigned_by,
-    deadline: r.deadline,
-    message: r.message,
-    submitted_at: r.submitted_at,
-    reviewed_at: r.reviewed_at,
-    is_accepted: r.is_accepted,
-  }));
   const promptsByLevel = new Map<number, SkillPracticeItem[]>();
   for (const p of allPrompts) {
-    const key = p.level.level_number;
-    const bucket = promptsByLevel.get(key) ?? [];
+    const bucket = promptsByLevel.get(p.level_number) ?? [];
     bucket.push(p);
-    promptsByLevel.set(key, bucket);
+    promptsByLevel.set(p.level_number, bucket);
   }
   const useCasesByLevel = new Map<number, SkillPracticeItem[]>();
   for (const u of allUseCases) {
-    const key = u.level.level_number;
-    const bucket = useCasesByLevel.get(key) ?? [];
+    const bucket = useCasesByLevel.get(u.level_number) ?? [];
     bucket.push(u);
-    useCasesByLevel.set(key, bucket);
+    useCasesByLevel.set(u.level_number, bucket);
   }
 
   const items: Item[] = [];

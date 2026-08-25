@@ -9,19 +9,14 @@ import SkillPracticeCardAILN, {
 import PageContainerAILN from "@/components/pages/PageContainerAILN";
 import PageHeaderAILN from "@/components/titles/PageHeaderAILN";
 import { useProjectId } from "@/lib/use-project-id";
-import {
-  getAssignedPromptsMock,
-  getAssignedUseCasesMock,
-  getMemberPromptLibraryMock,
-  getMemberUseCaseLibraryMock,
-  getPracticeSubmissionsMock,
-} from "@/mock-data/student";
+import type { AssignedPrompt, PromptLibraryItem } from "@/apis/prompts";
+import type { AssignedUseCase, UseCaseLibraryItem } from "@/apis/use-cases";
 import dayjs from "dayjs";
 import "dayjs/locale/id";
 import { BookOpen, Clock, History, Library, Plus } from "lucide-react";
 import Link from "next/link";
 import { useSearchParams } from "next/navigation";
-import { useEffect, useMemo, useState, type ReactNode } from "react";
+import { useEffect, type ReactNode, useState } from "react";
 
 dayjs.locale("id");
 
@@ -30,7 +25,6 @@ type PracticeTab = "ASSIGNED" | "LIBRARY" | "HISTORY";
 interface PracticeItem {
   id: number;
   kind: PracticeKind;
-  ref_id: number;
   href: string;
   title: string;
   body: string;
@@ -38,24 +32,20 @@ interface PracticeItem {
   categories: Category[];
   champion_name: string | null;
   deadline: string | null;
-  message: string | null;
   submitted_at: string | null;
   reviewed_at: string | null;
-  comment: string | null;
   is_accepted: boolean;
 }
 
 interface LibraryItem {
   id: number;
   kind: PracticeKind;
-  ref_id: number;
   href: string;
   title: string;
   body: string;
   level_number: number;
   categories: Category[];
   submission: {
-    id: number;
     deadline: string | null;
     submitted_at: string | null;
     reviewed_at: string | null;
@@ -91,7 +81,64 @@ function deriveStatus(item: {
   return "AWAITING_REVIEW";
 }
 
-export default function SkillPracticeStudentAILN() {
+function assignedToPracticeItem(
+  kind: PracticeKind,
+  row: AssignedPrompt | AssignedUseCase,
+  levelNumber: number,
+  projectId: string
+): PracticeItem {
+  return {
+    id: row.id,
+    kind,
+    href: practiceHref(projectId, kind, row.id),
+    title: row.name,
+    body: row.description,
+    level_number: levelNumber,
+    categories: row.categories,
+    champion_name: row.assigned_by?.name ?? null,
+    deadline: row.deadline_at,
+    submitted_at: row.submitted_at,
+    reviewed_at: row.reviewed_at,
+    is_accepted: row.is_accepted,
+  };
+}
+
+function libraryToItem(
+  kind: PracticeKind,
+  row: PromptLibraryItem | UseCaseLibraryItem,
+  projectId: string
+): LibraryItem {
+  return {
+    id: row.id,
+    kind,
+    href: practiceHref(projectId, kind, row.id),
+    title: row.name,
+    body: row.description,
+    level_number: row.level_number,
+    categories: row.categories,
+    // Library list has no reviewed_at, so deriveStatus falls back to AWAITING_REVIEW here.
+    submission: row.submitted_at
+      ? {
+          deadline: row.deadline_at,
+          submitted_at: row.submitted_at,
+          reviewed_at: null,
+          is_accepted: row.is_accepted ?? false,
+        }
+      : null,
+  };
+}
+
+export default function SkillPracticeStudentAILN({
+  promptLibrary,
+  useCaseLibrary,
+  assignedPrompts,
+  assignedUseCases,
+}: {
+  promptLibrary: PromptLibraryItem[];
+  useCaseLibrary: UseCaseLibraryItem[];
+  assignedPrompts: AssignedPrompt[];
+  assignedUseCases: AssignedUseCase[];
+}) {
   const searchParams = useSearchParams();
   const projectId = useProjectId();
 
@@ -103,127 +150,72 @@ export default function SkillPracticeStudentAILN() {
     setTab(tabFromParam(searchParams.get("tab")));
   }, [searchParams]);
 
-  const assignedItems = useMemo<PracticeItem[]>(() => {
-    const prompts = getAssignedPromptsMock().map((r) => ({
-      id: r.id,
-      kind: "PROMPT" as const,
-      ref_id: r.prompt.id,
-      href: practiceHref(projectId, "PROMPT", r.prompt.id),
-      title: r.prompt.name,
-      body: r.prompt.scenario,
-      level_number: r.prompt.level.level_number,
-      categories: r.prompt.categories,
-      champion_name: r.assigned_by?.full_name ?? null,
-      deadline: r.deadline as unknown as string | null,
-      message: r.message,
-      submitted_at: r.submitted_at as unknown as string | null,
-      reviewed_at: r.reviewed_at as unknown as string | null,
-      comment: r.comment,
-      is_accepted: r.is_accepted,
-    }));
+  const promptLevelById = new Map(
+    promptLibrary.map((p) => [p.id, p.level_number])
+  );
+  const useCaseLevelById = new Map(
+    useCaseLibrary.map((u) => [u.id, u.level_number])
+  );
 
-    const useCases = getAssignedUseCasesMock().map((r) => ({
-      id: r.id,
-      kind: "USE_CASE" as const,
-      ref_id: r.use_case.id,
-      href: practiceHref(projectId, "USE_CASE", r.use_case.id),
-      title: r.use_case.name,
-      body: r.use_case.description,
-      level_number: r.use_case.level.level_number,
-      categories: r.use_case.categories,
-      champion_name: r.assigned_by?.full_name ?? null,
-      deadline: r.deadline as unknown as string | null,
-      message: r.message,
-      submitted_at: r.submitted_at as unknown as string | null,
-      reviewed_at: r.reviewed_at as unknown as string | null,
-      comment: r.comment,
-      is_accepted: r.is_accepted,
-    }));
+  const assignedItems: PracticeItem[] = [];
+  for (const r of assignedPrompts) {
+    const levelNumber = promptLevelById.get(r.id);
+    if (levelNumber === undefined) continue;
+    assignedItems.push(
+      assignedToPracticeItem("PROMPT", r, levelNumber, projectId)
+    );
+  }
+  for (const r of assignedUseCases) {
+    const levelNumber = useCaseLevelById.get(r.id);
+    if (levelNumber === undefined) continue;
+    assignedItems.push(
+      assignedToPracticeItem("USE_CASE", r, levelNumber, projectId)
+    );
+  }
+  assignedItems.sort((a, b) => {
+    const statusOrder =
+      Number(a.is_accepted) - Number(b.is_accepted) ||
+      Number(Boolean(a.submitted_at)) - Number(Boolean(b.submitted_at));
+    if (statusOrder !== 0) return statusOrder;
+    return (
+      dayjs(a.deadline ?? "9999-12-31").valueOf() -
+      dayjs(b.deadline ?? "9999-12-31").valueOf()
+    );
+  });
 
-    return [...prompts, ...useCases].sort((a, b) => {
-      const statusOrder =
-        Number(a.is_accepted) - Number(b.is_accepted) ||
-        Number(Boolean(a.submitted_at)) - Number(Boolean(b.submitted_at));
-      if (statusOrder !== 0) return statusOrder;
-      return (
-        dayjs(a.deadline ?? "9999-12-31").valueOf() -
-        dayjs(b.deadline ?? "9999-12-31").valueOf()
-      );
-    });
-  }, [projectId]);
+  const libraryItems: LibraryItem[] = [
+    ...promptLibrary.map((r) => libraryToItem("PROMPT", r, projectId)),
+    ...useCaseLibrary.map((r) => libraryToItem("USE_CASE", r, projectId)),
+  ].sort((a, b) => {
+    if (a.level_number !== b.level_number) {
+      return a.level_number - b.level_number;
+    }
+    return a.title.localeCompare(b.title);
+  });
 
-  const libraryItems = useMemo<LibraryItem[]>(() => {
-    const prompts = getMemberPromptLibraryMock().map((r) => ({
-      id: r.id,
-      kind: "PROMPT" as const,
-      ref_id: r.id,
-      href: practiceHref(projectId, "PROMPT", r.id),
-      title: r.name,
-      body: r.scenario,
-      level_number: r.level.level_number,
-      categories: r.categories,
-      submission: r.submission
-        ? {
-            id: r.submission.id,
-            deadline: r.submission.deadline as unknown as string | null,
-            submitted_at: r.submission.submitted_at as unknown as
-              | string
-              | null,
-            reviewed_at: r.submission.reviewed_at as unknown as string | null,
-            is_accepted: r.submission.is_accepted,
-          }
-        : null,
-    }));
-
-    const useCases = getMemberUseCaseLibraryMock().map((r) => ({
-      id: r.id,
-      kind: "USE_CASE" as const,
-      ref_id: r.id,
-      href: practiceHref(projectId, "USE_CASE", r.id),
-      title: r.name,
-      body: r.description,
-      level_number: r.level.level_number,
-      categories: r.categories,
-      submission: r.submission
-        ? {
-            id: r.submission.id,
-            deadline: r.submission.deadline as unknown as string | null,
-            submitted_at: r.submission.submitted_at as unknown as
-              | string
-              | null,
-            reviewed_at: r.submission.reviewed_at as unknown as string | null,
-            is_accepted: r.submission.is_accepted,
-          }
-        : null,
-    }));
-
-    return [...prompts, ...useCases].sort((a, b) => {
-      if (a.level_number !== b.level_number) {
-        return a.level_number - b.level_number;
-      }
-      return a.title.localeCompare(b.title);
-    });
-  }, [projectId]);
-
-  const historyItems = useMemo<PracticeItem[]>(() => {
-    return getPracticeSubmissionsMock().map((r) => ({
-      id: r.id,
-      kind: r.kind,
-      ref_id: r.ref_id,
-      href: practiceHref(projectId, r.kind, r.ref_id),
-      title: r.title,
-      body: r.body,
-      level_number: r.level.level_number,
-      categories: r.categories,
-      champion_name: r.assigned_by?.full_name ?? null,
-      deadline: r.deadline as unknown as string | null,
-      message: r.message,
-      submitted_at: r.submitted_at as unknown as string | null,
-      reviewed_at: r.reviewed_at as unknown as string | null,
-      comment: r.comment,
-      is_accepted: r.is_accepted,
-    }));
-  }, [projectId]);
+  // History = submitted assigned items + submitted library items not already counted as assigned.
+  const assignedIds = new Set(assignedItems.map((i) => `${i.kind}-${i.id}`));
+  const historyItems: PracticeItem[] = [
+    ...assignedItems.filter((i) => i.submitted_at !== null),
+    ...libraryItems
+      .filter(
+        (i) => i.submission?.submitted_at && !assignedIds.has(`${i.kind}-${i.id}`)
+      )
+      .map((i) => ({
+        id: i.id,
+        kind: i.kind,
+        href: i.href,
+        title: i.title,
+        body: i.body,
+        level_number: i.level_number,
+        categories: i.categories,
+        champion_name: null,
+        deadline: i.submission!.deadline,
+        submitted_at: i.submission!.submitted_at,
+        reviewed_at: i.submission!.reviewed_at,
+        is_accepted: i.submission!.is_accepted,
+      })),
+  ];
 
   const pendingAssignedCount = assignedItems.filter(
     (item) => deriveStatus(item) === "PENDING_SUBMIT"
@@ -296,7 +288,7 @@ export default function SkillPracticeStudentAILN() {
                       status={deriveStatus(item)}
                       deadline={item.deadline}
                       championName={item.champion_name}
-                      message={item.message}
+                      message={null}
                       submittedAt={null}
                       href={item.href}
                     />
