@@ -31,7 +31,11 @@ export default async function MaterialPage({
     return (
       <AppPageState
         variant="FORBIDDEN"
-        message="Kamu belum memiliki akses untuk membaca materi ini."
+        message={
+          materialResult.reason === "level_locked"
+            ? "Materi ini belum bisa diakses. Selesaikan bagian sebelumnya untuk membukanya."
+            : "Kamu belum memiliki akses untuk membaca materi ini."
+        }
       />
     );
   }
@@ -39,16 +43,6 @@ export default async function MaterialPage({
     return <AppPageState variant="NOT_FOUND" />;
   }
   const material = materialResult.data;
-
-  const currentEntry = levelMaterials?.materials.find((m) => m.is_current);
-  if (currentEntry?.locked) {
-    return (
-      <AppPageState
-        variant="FORBIDDEN"
-        message="Materi ini belum bisa diakses. Selesaikan bagian sebelumnya untuk membukanya."
-      />
-    );
-  }
 
   const completion = await completeMaterial(materialId);
 

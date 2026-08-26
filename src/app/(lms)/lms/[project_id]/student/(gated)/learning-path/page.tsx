@@ -1,8 +1,5 @@
-import {
-  getStudentChapters,
-  getStudentLevels,
-  getStudentStatus,
-} from "@/apis/student";
+import { getStudentChapters, getStudentLevels } from "@/apis/learnings";
+import { getStudentStatus } from "@/apis/student";
 import { getAssignedPrompts } from "@/apis/prompts";
 import { getAssignedUseCases } from "@/apis/use-cases";
 import LearningPathStudentAILN from "@/components/pages/LearningPathStudentAILN";

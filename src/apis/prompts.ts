@@ -46,7 +46,7 @@ async function getSessionToken(): Promise<string | null> {
   return cookieStore.get(SESSION_COOKIE_NAME)?.value ?? null;
 }
 
-// POST /api/prompts needs the caller's own session JWT — see docs/api/prompts.md in ailene-lms-backend.
+// POST /api/v1/prompts needs the caller's own session JWT — see docs/api/prompts.md in ailene-lms-backend.
 export async function getPrompts(
   projectId: string,
   options?: { search?: string; page?: number; page_size?: number }
@@ -54,14 +54,14 @@ export async function getPrompts(
   const sessionToken = await getSessionToken();
   if (!sessionToken) return { list: [], metapaging: null };
 
-  const result = await callApi<{ list: PromptLibraryItem[]; metapaging: Metapaging }>(
-    "/api/prompts",
-    {
-      method: "POST",
-      body: { project_id: projectId, ...options },
-      token: sessionToken,
-    }
-  );
+  const result = await callApi<{
+    list: PromptLibraryItem[];
+    metapaging: Metapaging;
+  }>("/api/v1/prompts", {
+    method: "POST",
+    body: { project_id: projectId, ...options },
+    token: sessionToken,
+  });
 
   if (!result.success) {
     await LogError("getPrompts", result.code, result.status, result.message);
@@ -70,7 +70,7 @@ export async function getPrompts(
   return result.data ?? { list: [], metapaging: null };
 }
 
-// POST /api/prompts/assigned needs the caller's own session JWT — see docs/api/prompts.md in ailene-lms-backend.
+// POST /api/v1/prompts/assigned needs the caller's own session JWT — see docs/api/prompts.md in ailene-lms-backend.
 export async function getAssignedPrompts(
   projectId: string,
   options?: { has_submitted?: boolean; is_accepted?: boolean }
@@ -78,14 +78,19 @@ export async function getAssignedPrompts(
   const sessionToken = await getSessionToken();
   if (!sessionToken) return [];
 
-  const result = await callApi<AssignedPrompt[]>("/api/prompts/assigned", {
+  const result = await callApi<AssignedPrompt[]>("/api/v1/prompts/assigned", {
     method: "POST",
     body: { project_id: projectId, ...options },
     token: sessionToken,
   });
 
   if (!result.success) {
-    await LogError("getAssignedPrompts", result.code, result.status, result.message);
+    await LogError(
+      "getAssignedPrompts",
+      result.code,
+      result.status,
+      result.message
+    );
     return [];
   }
   return result.data ?? [];

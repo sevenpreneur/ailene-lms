@@ -24,7 +24,11 @@ export default async function VideoPage({
     return (
       <AppPageState
         variant="FORBIDDEN"
-        message="Kamu belum memiliki akses untuk menonton video ini."
+        message={
+          result.reason === "level_locked"
+            ? "Video ini belum bisa diakses. Selesaikan bagian sebelumnya untuk membukanya."
+            : "Kamu belum memiliki akses untuk menonton video ini."
+        }
       />
     );
   }

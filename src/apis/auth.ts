@@ -31,7 +31,7 @@ export type LmsSession = {
 
 const SESSION_MAX_AGE = 60 * 60 * 24 * 365;
 
-// POST /api/auth/login/google is gated by a static shared bearer, not per-user auth — see docs/auth.md in ailene-lms-backend.
+// POST /api/v1/auth/login/google is gated by a static shared bearer, not per-user auth — see docs/auth.md in ailene-lms-backend.
 export async function loginWithGoogleAccessToken(
   accessToken: string
 ): Promise<
@@ -44,7 +44,7 @@ export async function loginWithGoogleAccessToken(
   }
 
   const result = await callApi<{ token: string; user: LmsBackendUser }>(
-    "/api/auth/login/google",
+    "/api/v1/auth/login/google",
     {
       method: "POST",
       body: { access_token: accessToken },
@@ -80,7 +80,7 @@ export const checkSession = cache(async (): Promise<LmsSession | null> => {
     return null;
   }
 
-  const result = await callApi<LmsSession>("/api/auth/check-session", {
+  const result = await callApi<LmsSession>("/api/v1/auth/check-session", {
     method: "POST",
     token: sessionToken,
   });
@@ -94,7 +94,7 @@ export async function logoutSession(): Promise<void> {
 
   if (sessionToken) {
     try {
-      await callApi("/api/auth/logout", {
+      await callApi("/api/v1/auth/logout", {
         method: "POST",
         token: sessionToken,
       });

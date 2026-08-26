@@ -7,7 +7,7 @@ import LevelLabelStudentAILN from "@/components/labels/LevelLabelStudentAILN";
 import RewardLabelStudentAILN from "@/components/labels/RewardLabelStudentAILN";
 import PageContainerAILN from "@/components/pages/PageContainerAILN";
 import PageHeaderAILN from "@/components/titles/PageHeaderAILN";
-import type { StudentChapter, StudentLevel } from "@/apis/student";
+import type { StudentChapter, StudentLevel } from "@/apis/learnings";
 import type { AssignedPrompt } from "@/apis/prompts";
 import type { AssignedUseCase } from "@/apis/use-cases";
 import { getLevelProgressMock } from "@/mock-data/student";

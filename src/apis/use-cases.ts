@@ -46,7 +46,7 @@ async function getSessionToken(): Promise<string | null> {
   return cookieStore.get(SESSION_COOKIE_NAME)?.value ?? null;
 }
 
-// POST /api/use-cases needs the caller's own session JWT — see docs/api/use-cases.md in ailene-lms-backend.
+// POST /api/v1/use-cases needs the caller's own session JWT — see docs/api/use-cases.md in ailene-lms-backend.
 export async function getUseCases(
   projectId: string,
   options?: { search?: string; page?: number; page_size?: number }
@@ -54,14 +54,14 @@ export async function getUseCases(
   const sessionToken = await getSessionToken();
   if (!sessionToken) return { list: [], metapaging: null };
 
-  const result = await callApi<{ list: UseCaseLibraryItem[]; metapaging: Metapaging }>(
-    "/api/use-cases",
-    {
-      method: "POST",
-      body: { project_id: projectId, ...options },
-      token: sessionToken,
-    }
-  );
+  const result = await callApi<{
+    list: UseCaseLibraryItem[];
+    metapaging: Metapaging;
+  }>("/api/v1/use-cases", {
+    method: "POST",
+    body: { project_id: projectId, ...options },
+    token: sessionToken,
+  });
 
   if (!result.success) {
     await LogError("getUseCases", result.code, result.status, result.message);
@@ -70,7 +70,7 @@ export async function getUseCases(
   return result.data ?? { list: [], metapaging: null };
 }
 
-// POST /api/use-cases/assigned needs the caller's own session JWT — see docs/api/use-cases.md in ailene-lms-backend.
+// POST /api/v1/use-cases/assigned needs the caller's own session JWT — see docs/api/use-cases.md in ailene-lms-backend.
 export async function getAssignedUseCases(
   projectId: string,
   options?: { has_submitted?: boolean; is_accepted?: boolean }
@@ -78,14 +78,22 @@ export async function getAssignedUseCases(
   const sessionToken = await getSessionToken();
   if (!sessionToken) return [];
 
-  const result = await callApi<AssignedUseCase[]>("/api/use-cases/assigned", {
-    method: "POST",
-    body: { project_id: projectId, ...options },
-    token: sessionToken,
-  });
+  const result = await callApi<AssignedUseCase[]>(
+    "/api/v1/use-cases/assigned",
+    {
+      method: "POST",
+      body: { project_id: projectId, ...options },
+      token: sessionToken,
+    }
+  );
 
   if (!result.success) {
-    await LogError("getAssignedUseCases", result.code, result.status, result.message);
+    await LogError(
+      "getAssignedUseCases",
+      result.code,
+      result.status,
+      result.message
+    );
     return [];
   }
   return result.data ?? [];

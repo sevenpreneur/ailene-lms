@@ -45,6 +45,27 @@ export type ChapterLearnings = {
 
 export type LearningChapterRef = { id: number; name: string };
 
+export type StudentLevel = {
+  id: number;
+  level_number: number;
+  name: string;
+};
+
+export type StudentChapter = {
+  id: number;
+  name: string;
+  description: string | null;
+  session_date: string;
+  duration_minutes: number;
+  location_name: string | null;
+  location_url: string | null;
+  method: "online" | "offline";
+  level: StudentLevel;
+  done_tasks: number;
+  total_tasks: number;
+  progress: "not_started" | "in_progress" | "completed";
+};
+
 export type MaterialDetail = {
   id: string;
   title: string;
@@ -130,22 +151,35 @@ const NO_PROJECT_ACCESS_MESSAGE = "No access found for this project";
 
 export type LearningDetailResult<T> =
   | { kind: "ok"; data: T }
-  | { kind: "forbidden" }
+  | { kind: "forbidden"; reason: "no_access" | "level_locked" }
   | { kind: "not_found" };
+
+function toLearningDetailFailure<T>(
+  message: string,
+  status: string
+): LearningDetailResult<T> {
+  if (message === NO_PROJECT_ACCESS_MESSAGE) {
+    return { kind: "forbidden", reason: "no_access" };
+  }
+  if (status === "FORBIDDEN") {
+    return { kind: "forbidden", reason: "level_locked" };
+  }
+  return { kind: "not_found" };
+}
 
 async function getSessionToken(): Promise<string | null> {
   const cookieStore = await cookies();
   return cookieStore.get(SESSION_COOKIE_NAME)?.value ?? null;
 }
 
-// POST /api/learnings needs the caller's own session JWT — see docs/api/learnings.md in ailene-lms-backend.
+// POST /api/v1/learnings needs the caller's own session JWT — see docs/api/learnings.md in ailene-lms-backend.
 export async function getLearnings(
   chapterId: number
 ): Promise<ChapterLearnings | null> {
   const sessionToken = await getSessionToken();
   if (!sessionToken) return null;
 
-  const result = await callApi<ChapterLearnings>("/api/learnings", {
+  const result = await callApi<ChapterLearnings>("/api/v1/learnings", {
     method: "POST",
     body: { chapter_id: chapterId },
     token: sessionToken,
@@ -158,21 +192,68 @@ export async function getLearnings(
   return result.data ?? null;
 }
 
-// POST /api/learnings/material-details needs the caller's own session JWT — see docs/api/learnings.md in ailene-lms-backend.
+// POST /api/v1/learnings/chapters needs the caller's own session JWT — see docs/api/learnings.md in ailene-lms-backend.
+export async function getStudentChapters(
+  projectId: string
+): Promise<StudentChapter[]> {
+  const sessionToken = await getSessionToken();
+  if (!sessionToken) return [];
+
+  const result = await callApi<StudentChapter[]>("/api/v1/learnings/chapters", {
+    method: "POST",
+    body: { project_id: projectId },
+    token: sessionToken,
+  });
+
+  if (!result.success) {
+    await LogError(
+      "getStudentChapters",
+      result.code,
+      result.status,
+      result.message
+    );
+    return [];
+  }
+  return result.data ?? [];
+}
+
+// POST /api/v1/learnings/levels needs the caller's own session JWT — see docs/api/learnings.md in ailene-lms-backend.
+export async function getStudentLevels(
+  projectId: string
+): Promise<StudentLevel[]> {
+  const sessionToken = await getSessionToken();
+  if (!sessionToken) return [];
+
+  const result = await callApi<StudentLevel[]>("/api/v1/learnings/levels", {
+    method: "POST",
+    body: { project_id: projectId },
+    token: sessionToken,
+  });
+
+  if (!result.success) {
+    await LogError(
+      "getStudentLevels",
+      result.code,
+      result.status,
+      result.message
+    );
+    return [];
+  }
+  return result.data ?? [];
+}
+
+// POST /api/v1/materials/details needs the caller's own session JWT — see docs/api/materials.md in ailene-lms-backend.
 export async function getMaterialDetails(
   materialId: string
 ): Promise<LearningDetailResult<MaterialDetail>> {
   const sessionToken = await getSessionToken();
   if (!sessionToken) return { kind: "not_found" };
 
-  const result = await callApi<MaterialDetail>(
-    "/api/learnings/material-details",
-    {
-      method: "POST",
-      body: { material_id: materialId },
-      token: sessionToken,
-    }
-  );
+  const result = await callApi<MaterialDetail>("/api/v1/materials/details", {
+    method: "POST",
+    body: { material_id: materialId },
+    token: sessionToken,
+  });
 
   if (!result.success) {
     await LogError(
@@ -181,21 +262,19 @@ export async function getMaterialDetails(
       result.status,
       result.message
     );
-    return result.message === NO_PROJECT_ACCESS_MESSAGE
-      ? { kind: "forbidden" }
-      : { kind: "not_found" };
+    return toLearningDetailFailure(result.message, result.status);
   }
   return result.data ? { kind: "ok", data: result.data } : { kind: "not_found" };
 }
 
-// POST /api/learnings/video-details needs the caller's own session JWT — see docs/api/learnings.md in ailene-lms-backend.
+// POST /api/v1/videos/details needs the caller's own session JWT — see docs/api/videos.md in ailene-lms-backend.
 export async function getVideoDetails(
   videoId: number
 ): Promise<LearningDetailResult<VideoDetail>> {
   const sessionToken = await getSessionToken();
   if (!sessionToken) return { kind: "not_found" };
 
-  const result = await callApi<VideoDetail>("/api/learnings/video-details", {
+  const result = await callApi<VideoDetail>("/api/v1/videos/details", {
     method: "POST",
     body: { video_id: videoId },
     token: sessionToken,
@@ -208,21 +287,19 @@ export async function getVideoDetails(
       result.status,
       result.message
     );
-    return result.message === NO_PROJECT_ACCESS_MESSAGE
-      ? { kind: "forbidden" }
-      : { kind: "not_found" };
+    return toLearningDetailFailure(result.message, result.status);
   }
   return result.data ? { kind: "ok", data: result.data } : { kind: "not_found" };
 }
 
-// POST /api/learnings/quiz-details needs the caller's own session JWT — see docs/api/learnings.md in ailene-lms-backend.
+// POST /api/v1/quizzes/details needs the caller's own session JWT — see docs/api/quizzes.md in ailene-lms-backend.
 export async function getQuizDetails(
   quizId: string
 ): Promise<LearningDetailResult<QuizDetail>> {
   const sessionToken = await getSessionToken();
   if (!sessionToken) return { kind: "not_found" };
 
-  const result = await callApi<QuizDetail>("/api/learnings/quiz-details", {
+  const result = await callApi<QuizDetail>("/api/v1/quizzes/details", {
     method: "POST",
     body: { quiz_id: quizId },
     token: sessionToken,
@@ -235,21 +312,19 @@ export async function getQuizDetails(
       result.status,
       result.message
     );
-    return result.message === NO_PROJECT_ACCESS_MESSAGE
-      ? { kind: "forbidden" }
-      : { kind: "not_found" };
+    return toLearningDetailFailure(result.message, result.status);
   }
   return result.data ? { kind: "ok", data: result.data } : { kind: "not_found" };
 }
 
-// POST /api/learnings/materials needs the caller's own session JWT — see docs/api/learnings.md in ailene-lms-backend.
+// POST /api/v1/learnings/materials needs the caller's own session JWT — see docs/api/learnings.md in ailene-lms-backend.
 export async function getLevelMaterials(
   materialId: string
 ): Promise<LevelMaterials | null> {
   const sessionToken = await getSessionToken();
   if (!sessionToken) return null;
 
-  const result = await callApi<LevelMaterials>("/api/learnings/materials", {
+  const result = await callApi<LevelMaterials>("/api/v1/learnings/materials", {
     method: "POST",
     body: { material_id: materialId },
     token: sessionToken,
@@ -267,7 +342,7 @@ export async function getLevelMaterials(
   return result.data ?? null;
 }
 
-// POST /api/learnings/material-completion needs the caller's own session JWT — see docs/api/learnings.md in ailene-lms-backend.
+// POST /api/v1/materials/completion needs the caller's own session JWT — see docs/api/materials.md in ailene-lms-backend.
 export async function completeMaterial(
   materialId: string
 ): Promise<MaterialCompletion | null> {
@@ -275,7 +350,7 @@ export async function completeMaterial(
   if (!sessionToken) return null;
 
   const result = await callApi<MaterialCompletion>(
-    "/api/learnings/material-completion",
+    "/api/v1/materials/completion",
     {
       method: "POST",
       body: { material_id: materialId },
@@ -295,7 +370,7 @@ export async function completeMaterial(
   return result.data ?? null;
 }
 
-// POST /api/learnings/video-completion needs the caller's own session JWT — see docs/api/learnings.md in ailene-lms-backend.
+// POST /api/v1/videos/completion needs the caller's own session JWT — see docs/api/videos.md in ailene-lms-backend.
 export async function completeVideo(
   videoId: number
 ): Promise<VideoCompletion | null> {
@@ -303,7 +378,7 @@ export async function completeVideo(
   if (!sessionToken) return null;
 
   const result = await callApi<VideoCompletion>(
-    "/api/learnings/video-completion",
+    "/api/v1/videos/completion",
     {
       method: "POST",
       body: { video_id: videoId },
