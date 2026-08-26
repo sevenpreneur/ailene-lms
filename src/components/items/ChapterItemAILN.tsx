@@ -135,21 +135,21 @@ export default function ChapterItemAILN(props: ChapterItemAILNProps) {
                 );
                 const quizUnlocked = props.unlocked && allMaterialsRead;
                 // The single "continue here" task in this chapter — first
-                // unlocked + unfinished item, scanning materials → quiz → video.
+                // unlocked + unfinished item, scanning materials → video → quiz.
                 let nextKey: string | null = null;
                 if (props.unlocked) {
                   const firstMat = tasks.materials.find((m) => !m.completed);
                   if (firstMat) {
                     nextKey = `m-${firstMat.id}`;
                   } else {
-                    const firstQuiz = quizUnlocked
-                      ? tasks.quizzes.find((q) => q.attempts === 0)
-                      : undefined;
-                    if (firstQuiz) {
-                      nextKey = `q-${firstQuiz.id}`;
+                    const firstVid = tasks.videos.find((v) => !v.completed);
+                    if (firstVid) {
+                      nextKey = `v-${firstVid.id}`;
                     } else {
-                      const firstVid = tasks.videos.find((v) => !v.completed);
-                      if (firstVid) nextKey = `v-${firstVid.id}`;
+                      const firstQuiz = quizUnlocked
+                        ? tasks.quizzes.find((q) => q.attempts === 0)
+                        : undefined;
+                      if (firstQuiz) nextKey = `q-${firstQuiz.id}`;
                     }
                   }
                 }
@@ -164,6 +164,15 @@ export default function ChapterItemAILN(props: ChapterItemAILNProps) {
                         isNext={nextKey === `m-${m.id}`}
                       />
                     ))}
+                    {tasks.videos.map((v) => (
+                      <ChapterTaskItemAILN
+                        key={`v-${v.id}`}
+                        variant="Video"
+                        video={v}
+                        unlocked={props.unlocked}
+                        isNext={nextKey === `v-${v.id}`}
+                      />
+                    ))}
                     {tasks.quizzes.map((q) => (
                       <ChapterTaskItemAILN
                         key={`q-${q.id}`}
@@ -176,15 +185,6 @@ export default function ChapterItemAILN(props: ChapterItemAILNProps) {
                             ? "Baca semua materi, sebelum memulai quiz"
                             : undefined
                         }
-                      />
-                    ))}
-                    {tasks.videos.map((v) => (
-                      <ChapterTaskItemAILN
-                        key={`v-${v.id}`}
-                        variant="Video"
-                        video={v}
-                        unlocked={props.unlocked}
-                        isNext={nextKey === `v-${v.id}`}
                       />
                     ))}
                   </div>

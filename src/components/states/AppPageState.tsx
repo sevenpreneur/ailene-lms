@@ -45,10 +45,13 @@ export const variantStyles: Record<
 
 interface AppPageStateProps {
   variant: PageStateType;
+  /** Overrides the variant's default message — e.g. a specific reason why access was denied. */
+  message?: string;
 }
 
-export default function AppPageState(props: AppPageStateProps) {
-  const { title, message, image } = variantStyles[props.variant];
+export default function AppPageState({ variant, message }: AppPageStateProps) {
+  const { title, message: defaultMessage, image } = variantStyles[variant];
+  const resolvedMessage = message ?? defaultMessage;
 
   return (
     <div className="state-root flex flex-col w-full min-h-screen pt-24 px-6 items-center sm:pt-32 lg:px-0 lg:pt-0 lg:justify-center">
@@ -67,7 +70,7 @@ export default function AppPageState(props: AppPageStateProps) {
             {title}
           </h2>
           <p className="state-description  text-center font-medium text-emphasis dark:text-foreground">
-            {message}
+            {resolvedMessage}
           </p>
         </div>
         <Link href="/">

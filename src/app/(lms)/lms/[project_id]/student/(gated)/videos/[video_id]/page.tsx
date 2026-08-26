@@ -19,10 +19,18 @@ export default async function VideoPage({
     return <AppPageState variant="NOT_FOUND" />;
   }
 
-  const video = await getVideoDetails(videoId);
-  if (!video) {
+  const result = await getVideoDetails(videoId);
+  if (result.kind === "forbidden") {
+    return (
+      <AppPageState
+        variant="FORBIDDEN"
+        message="Kamu belum memiliki akses untuk menonton video ini."
+      />
+    );
+  }
+  if (result.kind === "not_found") {
     return <AppPageState variant="NOT_FOUND" />;
   }
 
-  return <VideoDetailsAILN video={video} />;
+  return <VideoDetailsAILN video={result.data} />;
 }

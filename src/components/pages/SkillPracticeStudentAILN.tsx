@@ -212,7 +212,12 @@ export default function SkillPracticeStudentAILN({
           desc="Tingkatkan kemampuanmu dengan latihan yang relevan."
         >
           <Link href={`/${projectId}/student/skill-practice/create`}>
-            <ButtonAILN type="button" variant="primary" className="shrink-0">
+            <ButtonAILN
+              type="button"
+              variant="lime"
+              size="medium"
+              className="shrink-0"
+            >
               <Plus className="size-4" />
               Catat Latihan
             </ButtonAILN>

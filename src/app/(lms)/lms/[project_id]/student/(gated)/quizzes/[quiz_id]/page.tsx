@@ -18,10 +18,19 @@ export default async function QuizPage({
     return <AppPageState variant="NOT_FOUND" />;
   }
 
-  const quiz = await getQuizDetails(quizId);
-  if (!quiz) {
+  const result = await getQuizDetails(quizId);
+  if (result.kind === "forbidden") {
+    return (
+      <AppPageState
+        variant="FORBIDDEN"
+        message="Kamu belum memiliki akses untuk mengerjakan quiz ini."
+      />
+    );
+  }
+  if (result.kind === "not_found") {
     return <AppPageState variant="NOT_FOUND" />;
   }
+  const quiz = result.data;
 
   return (
     <QuizAttemptAILN

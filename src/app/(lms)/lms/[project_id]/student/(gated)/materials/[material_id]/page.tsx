@@ -22,15 +22,35 @@ export default async function MaterialPage({
     return <AppPageState variant="NOT_FOUND" />;
   }
 
-  const material = await getMaterialDetails(materialId);
-  if (!material) {
+  const [materialResult, levelMaterials] = await Promise.all([
+    getMaterialDetails(materialId),
+    getLevelMaterials(materialId),
+  ]);
+
+  if (materialResult.kind === "forbidden") {
+    return (
+      <AppPageState
+        variant="FORBIDDEN"
+        message="Kamu belum memiliki akses untuk membaca materi ini."
+      />
+    );
+  }
+  if (materialResult.kind === "not_found") {
     return <AppPageState variant="NOT_FOUND" />;
   }
+  const material = materialResult.data;
 
-  const [levelMaterials, completion] = await Promise.all([
-    getLevelMaterials(materialId),
-    completeMaterial(materialId),
-  ]);
+  const currentEntry = levelMaterials?.materials.find((m) => m.is_current);
+  if (currentEntry?.locked) {
+    return (
+      <AppPageState
+        variant="FORBIDDEN"
+        message="Materi ini belum bisa diakses. Selesaikan bagian sebelumnya untuk membukanya."
+      />
+    );
+  }
+
+  const completion = await completeMaterial(materialId);
 
   const resolvedMaterial = completion
     ? {

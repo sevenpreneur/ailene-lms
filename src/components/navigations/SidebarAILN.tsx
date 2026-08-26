@@ -1,7 +1,7 @@
 "use client";
 
 import type { LmsProjectRole, LmsSession } from "@/apis/auth";
-import ButtonAILN, { type VariantType } from "@/components/buttons/ButtonAILN";
+import ButtonAILN from "@/components/buttons/ButtonAILN";
 import ThemeSwitcherAILN from "@/components/buttons/ThemeSwitcherAILN";
 import { useSidebar } from "@/contexts/SidebarContext";
 import { DeleteSession } from "@/lib/actions";
@@ -43,7 +43,6 @@ type MenuItem = {
 };
 
 type VariantConfig = {
-  buttonVariant: VariantType;
   dashboardName: string;
   menu: MenuItem[];
   // Mode-badge dot — the one deliberate spot of per-role color left in the sidebar.
@@ -61,7 +60,6 @@ const DEFAULT_AVATAR =
 
 const VARIANT_CONFIG: Record<SidebarAILNVariant, VariantConfig> = {
   STUDENT: {
-    buttonVariant: "student",
     dashboardName: "Dashboard Student",
     dotClassName: "bg-red-500",
     dotPulseColor: "rgba(239,68,68,0.55)",
@@ -82,7 +80,6 @@ const VARIANT_CONFIG: Record<SidebarAILNVariant, VariantConfig> = {
     ],
   },
   CHAMPION: {
-    buttonVariant: "champion",
     dashboardName: "Dashboard Champion",
     dotClassName: "bg-lime-bright",
     dotPulseColor: "rgba(214,238,48,0.55)",
@@ -108,7 +105,6 @@ const VARIANT_CONFIG: Record<SidebarAILNVariant, VariantConfig> = {
     ],
   },
   SPONSOR: {
-    buttonVariant: "sponsor",
     dashboardName: "Dashboard Sponsor",
     dotClassName: "bg-sky-300",
     dotPulseColor: "rgba(125,211,252,0.55)",
@@ -226,7 +222,7 @@ export default function SidebarAILN({
         >
           {!isCollapsed && (
             <div className="flex min-w-0 items-center gap-2.5">
-              <div className="relative size-9 shrink-0 overflow-hidden rounded bg-white/5 ring-1 ring-sb-border-soft">
+              <div className="relative size-9 shrink-0 overflow-hidden rounded-sm bg-white/5 ring-2 ring-sb-border-soft">
                 <Image
                   src={logoUrl}
                   alt={projectAccess?.name ?? "Project"}
@@ -365,7 +361,7 @@ export default function SidebarAILN({
               <RoleSwitch variant={variant} memberRole={projectAccess?.role} />
 
               <ButtonAILN
-                variant={config.buttonVariant}
+                variant="light"
                 size="small"
                 onClick={handleLogout}
                 disabled={isLoggingOut}
@@ -438,7 +434,7 @@ function RoleSwitch({
   if (variant === "STUDENT" && memberRole === "champion") {
     return (
       <Link href={`/${projectId}/champion`} className="mt-2 block">
-        <ButtonAILN variant="neutral" size="small" className="w-full">
+        <ButtonAILN variant="lime" size="small" className="w-full">
           <UserRoundKey className="size-4" />
           Mode Champion
         </ButtonAILN>
@@ -449,7 +445,7 @@ function RoleSwitch({
   if (variant === "CHAMPION") {
     return (
       <Link href={`/${projectId}/student`} className="mt-2 block">
-        <ButtonAILN variant="neutral" size="small" className="w-full">
+        <ButtonAILN variant="lime" size="small" className="w-full">
           <UserRound className="size-4" />
           Mode Student
         </ButtonAILN>

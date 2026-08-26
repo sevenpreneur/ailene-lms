@@ -7,13 +7,13 @@ import { TaskVariant } from "@/lib/app-types";
 import { useProjectId } from "@/lib/use-project-id";
 import {
   faBookOpen,
-  faCircleCheck,
   faCirclePlay,
   faLock,
   faSquareCheck,
   faStar,
 } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { Check } from "lucide-react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
@@ -120,13 +120,17 @@ export default function ChapterTaskItemAILN(props: ChapterTaskItemAILNProps) {
         Locked
       </ButtonAILN>
     ) : hasAttempt ? (
-      <Link href={`/${projectId}/student/quizzes/${props.quiz.id}`} className="block">
-        <ButtonAILN size="small" className="w-full">
+      <Link
+        href={`/${projectId}/student/quizzes/${props.quiz.id}`}
+        className="block"
+      >
+        <ButtonAILN variant="forest" size="small" className="w-full">
           Lihat Hasil
         </ButtonAILN>
       </Link>
     ) : (
       <ButtonAILN
+        variant="forest"
         size="small"
         className="w-full"
         onClick={() => setIsStartQuizDialogOpen(true)}
@@ -150,8 +154,11 @@ export default function ChapterTaskItemAILN(props: ChapterTaskItemAILNProps) {
         Locked
       </ButtonAILN>
     ) : (
-      <Link href={`/${projectId}/student/videos/${props.video.id}`} className="block">
-        <ButtonAILN size="small" className="w-full">
+      <Link
+        href={`/${projectId}/student/videos/${props.video.id}`}
+        className="block"
+      >
+        <ButtonAILN variant="forest" size="small" className="w-full">
           Lihat Recording
         </ButtonAILN>
       </Link>
@@ -174,7 +181,7 @@ export default function ChapterTaskItemAILN(props: ChapterTaskItemAILNProps) {
         target="_blank"
         rel="noopener noreferrer"
       >
-        <ButtonAILN size="small" className="w-full">
+        <ButtonAILN variant="forest" size="small" className="w-full">
           Baca Materi
         </ButtonAILN>
       </Link>
@@ -182,8 +189,7 @@ export default function ChapterTaskItemAILN(props: ChapterTaskItemAILNProps) {
   }
 
   const locked = !props.unlocked;
-  // The "continue here" item: unlocked, not yet done, flagged by the parent as
-  // the next task to tackle in this chapter.
+
   const isNext = !!props.isNext && !locked && !hasMark;
   const quizQuestionCount =
     props.variant === "Quiz" ? props.quiz.question_count : 0;
@@ -209,10 +215,10 @@ export default function ChapterTaskItemAILN(props: ChapterTaskItemAILNProps) {
         {style.icon}
       </div>
       <div className="flex-1">
-        <div className="text-[10px] uppercase tracking-wide text-gray-500 dark:text-gray-400">
+        <div className="text-xs uppercase tracking-wide text-gray-500 dark:text-gray-400">
           {style.badge}
         </div>
-        <div className="text-sm font-semibold dark:text-white">{title}</div>
+        <div className="text-[15px] font-semibold dark:text-white">{title}</div>
         <div className="mt-1 flex items-center gap-2">
           <GeneralLabelAILN
             variant="white"
@@ -239,10 +245,9 @@ export default function ChapterTaskItemAILN(props: ChapterTaskItemAILNProps) {
             className="h-4 w-4 text-gray-400 dark:text-claude/40"
           />
         ) : hasMark ? (
-          <FontAwesomeIcon
-            icon={faCircleCheck}
-            className="h-5 w-5 text-claude dark:text-lime-bright"
-          />
+          <span className="flex h-5 w-5 items-center justify-center rounded-full bg-lime-bright text-forest-deep">
+            <Check className="size-3.5" />
+          </span>
         ) : (
           <span className="block h-4 w-4 rounded-full border-2 border-gray-300 dark:border-claude/40" />
         )}

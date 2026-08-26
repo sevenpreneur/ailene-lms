@@ -19,7 +19,13 @@ import dayjs from "dayjs";
 import { PlusCircle } from "lucide-react";
 import Link from "next/link";
 
-export default function DashboardStudentAILN() {
+export default function DashboardStudentAILN({
+  currentLevelNumber,
+  totalXp,
+}: {
+  currentLevelNumber: number;
+  totalXp: number;
+}) {
   const projectId = useProjectId();
 
   const userQ = useQuery({ queryKey: ["session"], queryFn: CheckSession });
@@ -57,11 +63,14 @@ export default function DashboardStudentAILN() {
           </h1>
 
           <div className="flex items-center gap-3">
-            <LevelLabelStudentAILN variant="compact" />
-            <RewardLabelStudentAILN variant="compact" />
+            <LevelLabelStudentAILN
+              variant="compact"
+              levelNumber={currentLevelNumber}
+            />
+            <RewardLabelStudentAILN variant="compact" xp={totalXp} />
 
             <Link href={`/${projectId}/student/skill-practice/create`}>
-              <ButtonAILN variant="student" size="medium">
+              <ButtonAILN variant="lime" size="medium">
                 <PlusCircle className="size-4" />
                 Catat Use Case
               </ButtonAILN>

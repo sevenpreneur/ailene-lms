@@ -8,7 +8,9 @@ export type VariantType =
   | "champion"
   | "sponsor"
   | "neutral"
-  | "light";
+  | "light"
+  | "forest"
+  | "lime";
 
 export type SizeType =
   | "default"
@@ -61,6 +63,10 @@ const ButtonAILN = forwardRef<HTMLButtonElement, ButtonAILNProps>(
       "bg-light-background text-light-foreground border hover:bg-light-hover active:bg-light-active disabled:bg-light-muted disabled:text-light-foreground/30";
     const neutralClasses =
       "bg-light-background text-light-foreground border border-dashboard-border hover:bg-light-hover active:bg-light-active disabled:bg-light-muted disabled:text-light-foreground/30 dark:bg-dashboard-bg dark:text-white dark:hover:bg-card-1 dark:active:bg-card-1 dark:disabled:bg-card-1/40 dark:disabled:text-red-100/40";
+    const forestClasses =
+      "bg-forest-deep text-white hover:bg-forest-deep/90 active:bg-forest-deep/80 disabled:bg-forest-deep/40 disabled:text-white/40";
+    const limeClasses =
+      "bg-lime-bright text-forest-deep hover:bg-lime-bright/90 active:bg-lime-bright/80 disabled:bg-lime-bright/40 disabled:text-forest-deep/40";
 
     const variantClasses: Record<VariantType, string> = {
       primary: primaryClasses,
@@ -70,6 +76,8 @@ const ButtonAILN = forwardRef<HTMLButtonElement, ButtonAILNProps>(
       sponsor: sponsorClasses,
       neutral: neutralClasses,
       light: lightClasses,
+      forest: forestClasses,
+      lime: limeClasses,
     };
 
     const sizeClasses: Record<SizeType, string> = {

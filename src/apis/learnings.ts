@@ -118,6 +118,14 @@ export type MaterialCompletion = {
   xp_awarded: number;
 };
 
+// Backend returns 404/NOT_FOUND for both "no such row" and "no project access" — only the message tells them apart.
+const NO_PROJECT_ACCESS_MESSAGE = "No access found for this project";
+
+export type LearningDetailResult<T> =
+  | { kind: "ok"; data: T }
+  | { kind: "forbidden" }
+  | { kind: "not_found" };
+
 async function getSessionToken(): Promise<string | null> {
   const cookieStore = await cookies();
   return cookieStore.get(SESSION_COOKIE_NAME)?.value ?? null;
@@ -146,9 +154,9 @@ export async function getLearnings(
 // POST /api/learnings/material-details needs the caller's own session JWT — see docs/api/learnings.md in ailene-lms-backend.
 export async function getMaterialDetails(
   materialId: string
-): Promise<MaterialDetail | null> {
+): Promise<LearningDetailResult<MaterialDetail>> {
   const sessionToken = await getSessionToken();
-  if (!sessionToken) return null;
+  if (!sessionToken) return { kind: "not_found" };
 
   const result = await callApi<MaterialDetail>(
     "/api/learnings/material-details",
@@ -166,17 +174,19 @@ export async function getMaterialDetails(
       result.status,
       result.message
     );
-    return null;
+    return result.message === NO_PROJECT_ACCESS_MESSAGE
+      ? { kind: "forbidden" }
+      : { kind: "not_found" };
   }
-  return result.data ?? null;
+  return result.data ? { kind: "ok", data: result.data } : { kind: "not_found" };
 }
 
 // POST /api/learnings/video-details needs the caller's own session JWT — see docs/api/learnings.md in ailene-lms-backend.
 export async function getVideoDetails(
   videoId: number
-): Promise<VideoDetail | null> {
+): Promise<LearningDetailResult<VideoDetail>> {
   const sessionToken = await getSessionToken();
-  if (!sessionToken) return null;
+  if (!sessionToken) return { kind: "not_found" };
 
   const result = await callApi<VideoDetail>("/api/learnings/video-details", {
     method: "POST",
@@ -191,17 +201,19 @@ export async function getVideoDetails(
       result.status,
       result.message
     );
-    return null;
+    return result.message === NO_PROJECT_ACCESS_MESSAGE
+      ? { kind: "forbidden" }
+      : { kind: "not_found" };
   }
-  return result.data ?? null;
+  return result.data ? { kind: "ok", data: result.data } : { kind: "not_found" };
 }
 
 // POST /api/learnings/quiz-details needs the caller's own session JWT — see docs/api/learnings.md in ailene-lms-backend.
 export async function getQuizDetails(
   quizId: string
-): Promise<QuizDetail | null> {
+): Promise<LearningDetailResult<QuizDetail>> {
   const sessionToken = await getSessionToken();
-  if (!sessionToken) return null;
+  if (!sessionToken) return { kind: "not_found" };
 
   const result = await callApi<QuizDetail>("/api/learnings/quiz-details", {
     method: "POST",
@@ -216,9 +228,11 @@ export async function getQuizDetails(
       result.status,
       result.message
     );
-    return null;
+    return result.message === NO_PROJECT_ACCESS_MESSAGE
+      ? { kind: "forbidden" }
+      : { kind: "not_found" };
   }
-  return result.data ?? null;
+  return result.data ? { kind: "ok", data: result.data } : { kind: "not_found" };
 }
 
 // POST /api/learnings/materials needs the caller's own session JWT — see docs/api/learnings.md in ailene-lms-backend.
