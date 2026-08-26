@@ -1,13 +1,5 @@
 export type PreAssessmentReportTone = "green" | "yellow";
 
-// Status lifecycle of the AI-generated recommendation section. Mirrors the
-// CHECK constraint on ail_pre_assessment_reports.status.
-export type PreAssessmentReportStatus =
-  | "pending"
-  | "processing"
-  | "completed"
-  | "failed";
-
 // One AI-generated use-case recommendation. Shape is consumed verbatim by
 // PreAssessmentReportAILN — keep field names in sync with the card renderer.
 export type PreAssessmentRecommendation = {
@@ -17,12 +9,6 @@ export type PreAssessmentRecommendation = {
   speed: string; // e.g. "~70% lebih cepat"
   description: string; // 1-2 sentence actionable explanation
   lessons: string[]; // referenced curriculum chapter names (verbatim)
-};
-
-// Full payload stored in ail_pre_assessment_reports.recommendations (JSON).
-export type PreAssessmentRecommendations = {
-  time_saved_label: string; // e.g. "~4,9 Jam/minggu"
-  items: PreAssessmentRecommendation[];
 };
 
 export type PreAssessmentReportPillar = {
