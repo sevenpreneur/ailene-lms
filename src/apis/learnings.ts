@@ -97,6 +97,27 @@ export type QuizDetail = {
   questions: QuizDetailQuestion[];
 };
 
+export type LevelMaterialItem = {
+  id: string;
+  title: string;
+  index: number;
+  completed: boolean;
+  locked: boolean;
+  is_current: boolean;
+};
+
+export type LevelMaterials = {
+  level_number: number;
+  materials: LevelMaterialItem[];
+};
+
+export type MaterialCompletion = {
+  material_id: string;
+  completed: boolean;
+  completed_at: string;
+  xp_awarded: number;
+};
+
 async function getSessionToken(): Promise<string | null> {
   const cookieStore = await cookies();
   return cookieStore.get(SESSION_COOKIE_NAME)?.value ?? null;
@@ -191,6 +212,59 @@ export async function getQuizDetails(
   if (!result.success) {
     await LogError(
       "getQuizDetails",
+      result.code,
+      result.status,
+      result.message
+    );
+    return null;
+  }
+  return result.data ?? null;
+}
+
+// POST /api/learnings/materials needs the caller's own session JWT — see docs/api/learnings.md in ailene-lms-backend.
+export async function getLevelMaterials(
+  materialId: string
+): Promise<LevelMaterials | null> {
+  const sessionToken = await getSessionToken();
+  if (!sessionToken) return null;
+
+  const result = await callApi<LevelMaterials>("/api/learnings/materials", {
+    method: "POST",
+    body: { material_id: materialId },
+    token: sessionToken,
+  });
+
+  if (!result.success) {
+    await LogError(
+      "getLevelMaterials",
+      result.code,
+      result.status,
+      result.message
+    );
+    return null;
+  }
+  return result.data ?? null;
+}
+
+// POST /api/learnings/material-completion needs the caller's own session JWT — see docs/api/learnings.md in ailene-lms-backend.
+export async function completeMaterial(
+  materialId: string
+): Promise<MaterialCompletion | null> {
+  const sessionToken = await getSessionToken();
+  if (!sessionToken) return null;
+
+  const result = await callApi<MaterialCompletion>(
+    "/api/learnings/material-completion",
+    {
+      method: "POST",
+      body: { material_id: materialId },
+      token: sessionToken,
+    }
+  );
+
+  if (!result.success) {
+    await LogError(
+      "completeMaterial",
       result.code,
       result.status,
       result.message
