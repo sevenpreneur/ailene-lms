@@ -15,6 +15,7 @@ export type LearningQuiz = {
   xp_earned: number;
   best_score: number | null;
   attempts: number;
+  active_attempt_started_at: string | null;
 };
 
 export type LearningVideo = {
@@ -118,6 +119,58 @@ export type QuizDetail = {
   questions: QuizDetailQuestion[];
 };
 
+export type QuizAnswers = Record<string, string | null>;
+
+export type QuizAttemptState = {
+  status: "active" | "finalized";
+  submission_id: number | null;
+  started_at: string | null;
+  server_now: string | null;
+  seconds_left: number | null;
+  answers: QuizAnswers | null;
+};
+
+export type QuizUpdateResult = {
+  status: "active" | "finalized";
+};
+
+export type QuizSubmitResult = {
+  score: number;
+  xp_awarded: number;
+  attempt_number: number;
+};
+
+export type QuizResultOption = {
+  id: number;
+  option_code: string;
+  text: string;
+  is_correct: boolean;
+};
+
+export type QuizResultQuestion = {
+  id: number;
+  question: string;
+  order_index: number;
+  xp_reward: number;
+  explanation: string | null;
+  options: QuizResultOption[];
+};
+
+export type QuizResult = {
+  id: string;
+  name: string;
+  description: string | null;
+  chapter: LearningChapterRef;
+  questions: QuizResultQuestion[];
+  submission: {
+    attempt_number: number;
+    score: number;
+    answers: QuizAnswers;
+    submitted_at: string;
+  };
+  xp_earned: number;
+};
+
 export type LevelMaterialItem = {
   id: string;
   title: string;
@@ -172,14 +225,14 @@ async function getSessionToken(): Promise<string | null> {
   return cookieStore.get(SESSION_COOKIE_NAME)?.value ?? null;
 }
 
-// POST /api/v1/learnings needs the caller's own session JWT — see docs/api/learnings.md in ailene-lms-backend.
+// POST /api/v1/learnings/task needs the caller's own session JWT — see docs/api/learnings.md in ailene-lms-backend.
 export async function getLearnings(
   chapterId: number
 ): Promise<ChapterLearnings | null> {
   const sessionToken = await getSessionToken();
   if (!sessionToken) return null;
 
-  const result = await callApi<ChapterLearnings>("/api/v1/learnings", {
+  const result = await callApi<ChapterLearnings>("/api/v1/learnings/task", {
     method: "POST",
     body: { chapter_id: chapterId },
     token: sessionToken,
@@ -267,6 +320,31 @@ export async function getMaterialDetails(
   return result.data ? { kind: "ok", data: result.data } : { kind: "not_found" };
 }
 
+// POST /api/v1/materials/in-level needs the caller's own session JWT — see docs/api/materials.md in ailene-lms-backend.
+export async function getLevelMaterials(
+  materialId: string
+): Promise<LevelMaterials | null> {
+  const sessionToken = await getSessionToken();
+  if (!sessionToken) return null;
+
+  const result = await callApi<LevelMaterials>("/api/v1/materials/in-level", {
+    method: "POST",
+    body: { material_id: materialId },
+    token: sessionToken,
+  });
+
+  if (!result.success) {
+    await LogError(
+      "getLevelMaterials",
+      result.code,
+      result.status,
+      result.message
+    );
+    return null;
+  }
+  return result.data ?? null;
+}
+
 // POST /api/v1/videos/details needs the caller's own session JWT — see docs/api/videos.md in ailene-lms-backend.
 export async function getVideoDetails(
   videoId: number
@@ -317,26 +395,91 @@ export async function getQuizDetails(
   return result.data ? { kind: "ok", data: result.data } : { kind: "not_found" };
 }
 
-// POST /api/v1/learnings/materials needs the caller's own session JWT — see docs/api/learnings.md in ailene-lms-backend.
-export async function getLevelMaterials(
-  materialId: string
-): Promise<LevelMaterials | null> {
+// POST /api/v1/quizzes/attempt needs the caller's own session JWT — see docs/api/quizzes.md in ailene-lms-backend.
+export async function startQuizAttempt(
+  quizId: string
+): Promise<QuizAttemptState | null> {
   const sessionToken = await getSessionToken();
   if (!sessionToken) return null;
 
-  const result = await callApi<LevelMaterials>("/api/v1/learnings/materials", {
+  const result = await callApi<QuizAttemptState>("/api/v1/quizzes/attempt", {
     method: "POST",
-    body: { material_id: materialId },
+    body: { quiz_id: quizId },
     token: sessionToken,
   });
 
   if (!result.success) {
     await LogError(
-      "getLevelMaterials",
+      "startQuizAttempt",
       result.code,
       result.status,
       result.message
     );
+    return null;
+  }
+  return result.data ?? null;
+}
+
+// POST /api/v1/quizzes/update needs the caller's own session JWT — see docs/api/quizzes.md in ailene-lms-backend.
+export async function updateQuizAnswers(
+  quizId: string,
+  answers: QuizAnswers
+): Promise<QuizUpdateResult | null> {
+  const sessionToken = await getSessionToken();
+  if (!sessionToken) return null;
+
+  const result = await callApi<QuizUpdateResult>("/api/v1/quizzes/update", {
+    method: "POST",
+    body: { quiz_id: quizId, answers },
+    token: sessionToken,
+  });
+
+  if (!result.success) {
+    await LogError(
+      "updateQuizAnswers",
+      result.code,
+      result.status,
+      result.message
+    );
+    return null;
+  }
+  return result.data ?? null;
+}
+
+// POST /api/v1/quizzes/submit needs the caller's own session JWT — see docs/api/quizzes.md in ailene-lms-backend.
+export async function submitQuiz(
+  quizId: string,
+  answers: QuizAnswers
+): Promise<QuizSubmitResult | null> {
+  const sessionToken = await getSessionToken();
+  if (!sessionToken) return null;
+
+  const result = await callApi<QuizSubmitResult>("/api/v1/quizzes/submit", {
+    method: "POST",
+    body: { quiz_id: quizId, answers },
+    token: sessionToken,
+  });
+
+  if (!result.success) {
+    await LogError("submitQuiz", result.code, result.status, result.message);
+    return null;
+  }
+  return result.data ?? null;
+}
+
+// POST /api/v1/quizzes/result needs the caller's own session JWT — see docs/api/quizzes.md in ailene-lms-backend.
+export async function getQuizResult(quizId: string): Promise<QuizResult | null> {
+  const sessionToken = await getSessionToken();
+  if (!sessionToken) return null;
+
+  const result = await callApi<QuizResult>("/api/v1/quizzes/result", {
+    method: "POST",
+    body: { quiz_id: quizId },
+    token: sessionToken,
+  });
+
+  if (!result.success) {
+    await LogError("getQuizResult", result.code, result.status, result.message);
     return null;
   }
   return result.data ?? null;

@@ -1,6 +1,5 @@
 "use client";
 import ButtonAILN from "@/components/buttons/ButtonAILN";
-import DisabledActionButtonAILN from "@/components/buttons/DisabledActionButtonAILN";
 import AlertConfirmDialogAILN from "@/components/modals/AlertConfirmDialogAILN";
 import PageContainerAILN from "@/components/pages/PageContainerAILN";
 import { getDurationFromSeconds } from "@/lib/date-time-manipulation";
@@ -12,9 +11,9 @@ import {
   faRightFromBracket,
 } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { useTheme } from "next-themes";
 import { useRouter } from "next/navigation";
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
+import { toast } from "sonner";
 
 export interface QuizOption {
   id: number;
@@ -40,46 +39,103 @@ export interface QuizDetailsData {
   questions: QuizQuestion[];
 }
 
-const QUIZ_DURATION_SECONDS = 20 * 60;
+const UPDATE_DEBOUNCE_MS = 800;
 
 interface QuizAttemptAILNProps {
   data: QuizDetailsData;
+  initialAnswers: Record<string, string | null>;
+  initialSecondsLeft: number;
 }
 
-export default function QuizAttemptAILN({ data }: QuizAttemptAILNProps) {
+export default function QuizAttemptAILN({
+  data,
+  initialAnswers,
+  initialSecondsLeft,
+}: QuizAttemptAILNProps) {
   const router = useRouter();
   const projectId = useProjectId();
   const { quiz, questions } = data;
-  const { resolvedTheme } = useTheme();
-  const [mounted, setMounted] = useState(false);
-
-  useEffect(() => {
-    queueMicrotask(() => setMounted(true));
-  }, []);
-
-  const isDark = mounted && resolvedTheme === "dark";
-  const nextVariant = isDark ? "neutral" : "primary";
 
   // Jawaban user, key = question id (string), value = option_code yang dipilih
-  const [answers, setAnswers] = useState<Record<string, string | null>>({});
+  const [answers, setAnswers] = useState<Record<string, string | null>>(
+    initialAnswers
+  );
   // Index soal yang lagi ditampilin (mulai dari 0)
   const [currentIdx, setCurrentIdx] = useState(0);
-  const [secondsLeft, setSecondsLeft] = useState(QUIZ_DURATION_SECONDS);
+  const [secondsLeft, setSecondsLeft] = useState(initialSecondsLeft);
   const [isExitDialogOpen, setIsExitDialogOpen] = useState(false);
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
   // Tiap detik, kurangi secondsLeft, berhenti di 0.
   useEffect(() => {
-    if (secondsLeft <= 0) return;
+    if (secondsLeft <= 0 || isSubmitting) return;
     const id = setTimeout(() => setSecondsLeft((s) => Math.max(0, s - 1)), 1000);
     return () => clearTimeout(id);
-  }, [secondsLeft]);
+  }, [secondsLeft, isSubmitting]);
+
+  const handleSubmit = useCallback(() => {
+    setIsSubmitting(true);
+  }, []);
+
+  // Trigger the actual submit call once isSubmitting flips true.
+  useEffect(() => {
+    if (!isSubmitting) return;
+    let cancelled = false;
+
+    fetch("/api/quizzes/submit", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ quiz_id: quiz.id, answers }),
+    })
+      .then((res) => (res.ok ? res.json() : Promise.reject(res)))
+      .then(() => {
+        if (cancelled) return;
+        router.refresh();
+      })
+      .catch(() => {
+        if (cancelled) return;
+        toast.error("Gagal mengirim jawaban quiz. Coba lagi.");
+        setIsSubmitting(false);
+      });
+
+    return () => {
+      cancelled = true;
+    };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [isSubmitting]);
+
+  // Auto-submit begitu waktu habis.
+  useEffect(() => {
+    if (secondsLeft > 0) return;
+    handleSubmit();
+  }, [secondsLeft, handleSubmit]);
+
+  // Debounced autosave — kirim draft jawaban terbaru ~800ms setelah pilihan terakhir.
+  const isFirstAnswersRender = useRef(true);
+  useEffect(() => {
+    if (isFirstAnswersRender.current) {
+      isFirstAnswersRender.current = false;
+      return;
+    }
+    if (isSubmitting) return;
+
+    const id = setTimeout(() => {
+      fetch("/api/quizzes/update", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ quiz_id: quiz.id, answers }),
+      }).catch(() => {});
+    }, UPDATE_DEBOUNCE_MS);
+
+    return () => clearTimeout(id);
+  }, [answers, quiz.id, isSubmitting]);
 
   // ===== DERIVED VALUES =====
   const currentQ = questions[currentIdx];
   const totalQuestions = questions.length;
 
   const handleSelect = (optionCode: string) => {
-    if (!currentQ) return;
+    if (!currentQ || isSubmitting) return;
     const qid = String(currentQ.id);
     setAnswers((prev) => ({ ...prev, [qid]: optionCode }));
   };
@@ -97,6 +153,7 @@ export default function QuizAttemptAILN({ data }: QuizAttemptAILNProps) {
   };
 
   const isLast = currentIdx === totalQuestions - 1;
+  const timeIsUp = secondsLeft <= 0;
 
   return (
     <PageContainerAILN>
@@ -120,7 +177,9 @@ export default function QuizAttemptAILN({ data }: QuizAttemptAILNProps) {
               }`}
             >
               <FontAwesomeIcon icon={faClock} className="h-3.5 w-3.5" />
-              {getDurationFromSeconds(Math.max(0, secondsLeft))} tersisa
+              {timeIsUp
+                ? "Waktu habis"
+                : `${getDurationFromSeconds(secondsLeft)} tersisa`}
             </span>
             <button
               type="button"
@@ -178,8 +237,9 @@ export default function QuizAttemptAILN({ data }: QuizAttemptAILNProps) {
                       <button
                         key={opt.id}
                         type="button"
+                        disabled={isSubmitting}
                         onClick={() => handleSelect(opt.option_code)}
-                        className={`flex items-center gap-3 rounded-lg border-[1.5px] px-4 py-3 text-left text-sm transition ${
+                        className={`flex items-center gap-3 rounded-lg border-[1.5px] px-4 py-3 text-left text-sm transition disabled:cursor-not-allowed disabled:opacity-60 ${
                           isSelected
                             ? "border-claude bg-hijau-t dark:border-claude/60 dark:bg-claude/10 dark:text-white dark:shadow-[0_0_10px_rgba(26,122,82,0.25)]"
                             : "border-gray-200 bg-white hover:border-black/30 hover:bg-gray-50 dark:border-dashboard-border dark:bg-card-1 dark:text-gray-200 dark:hover:border-claude/30 dark:hover:bg-card-2"
@@ -216,7 +276,7 @@ export default function QuizAttemptAILN({ data }: QuizAttemptAILNProps) {
                 Sebelumnya
               </ButtonAILN>
               <ButtonAILN
-                variant={nextVariant}
+                variant="forest"
                 onClick={handleNext}
                 disabled={isLast}
               >
@@ -278,9 +338,14 @@ export default function QuizAttemptAILN({ data }: QuizAttemptAILNProps) {
               </div>
             </div>
 
-            <DisabledActionButtonAILN variant={nextVariant} className="w-full">
-              Submit jawaban
-            </DisabledActionButtonAILN>
+            <ButtonAILN
+              variant="lime"
+              className="w-full"
+              disabled={isSubmitting}
+              onClick={handleSubmit}
+            >
+              {isSubmitting ? "Mengirim..." : "Submit jawaban"}
+            </ButtonAILN>
           </div>
         </div>
       </div>

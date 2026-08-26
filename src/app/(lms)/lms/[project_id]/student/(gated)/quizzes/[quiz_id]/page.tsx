@@ -1,5 +1,10 @@
-import { getQuizDetails } from "@/apis/learnings";
+import {
+  getQuizDetails,
+  getQuizResult,
+  startQuizAttempt,
+} from "@/apis/learnings";
 import QuizAttemptAILN from "@/components/pages/QuizAttemptAILN";
+import QuizResultAILN from "@/components/pages/QuizResultAILN";
 import AppPageState from "@/components/states/AppPageState";
 import { Metadata } from "next";
 
@@ -36,6 +41,27 @@ export default async function QuizPage({
   }
   const quiz = result.data;
 
+  if (quiz.attempts > 0) {
+    const quizResult = await getQuizResult(quizId);
+    if (!quizResult) {
+      return <AppPageState variant="NOT_FOUND" />;
+    }
+    return <QuizResultAILN result={quizResult} />;
+  }
+
+  const attempt = await startQuizAttempt(quizId);
+  if (!attempt) {
+    return <AppPageState variant="NOT_FOUND" />;
+  }
+
+  if (attempt.status === "finalized") {
+    const quizResult = await getQuizResult(quizId);
+    if (!quizResult) {
+      return <AppPageState variant="NOT_FOUND" />;
+    }
+    return <QuizResultAILN result={quizResult} />;
+  }
+
   return (
     <QuizAttemptAILN
       data={{
@@ -47,6 +73,8 @@ export default async function QuizPage({
         },
         questions: quiz.questions,
       }}
+      initialAnswers={attempt.answers ?? {}}
+      initialSecondsLeft={attempt.seconds_left ?? 20 * 60}
     />
   );
 }

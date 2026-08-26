@@ -13,10 +13,12 @@ import {
   faStar,
 } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import dayjs from "dayjs";
 import { Check } from "lucide-react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { useState } from "react";
+import { useEffect, useState } from "react";
+import { getDurationFromSeconds } from "@/lib/date-time-manipulation";
 import AlertConfirmDialogAILN from "../modals/AlertConfirmDialogAILN";
 
 const QUIZ_DURATION_MINUTES = 20;
@@ -29,6 +31,7 @@ interface Quiz {
   question_count: number;
   xp_reward: number;
   xp_earned: number;
+  active_attempt_started_at: string | null;
 }
 
 interface Video {
@@ -94,6 +97,31 @@ export default function ChapterTaskItemAILN(props: ChapterTaskItemAILNProps) {
   const router = useRouter();
   const [isStartQuizDialogOpen, setIsStartQuizDialogOpen] = useState(false);
 
+  const activeAttemptStartedAt =
+    props.variant === "Quiz" ? props.quiz.active_attempt_started_at : null;
+  const [activeAttemptSecondsLeft, setActiveAttemptSecondsLeft] = useState<
+    number | null
+  >(null);
+
+  // Live countdown for an in-progress quiz attempt, derived from started_at + the 20-minute limit.
+  useEffect(() => {
+    if (!activeAttemptStartedAt) {
+      queueMicrotask(() => setActiveAttemptSecondsLeft(null));
+      return;
+    }
+
+    const tick = () => {
+      const elapsed = dayjs().diff(dayjs(activeAttemptStartedAt), "second");
+      setActiveAttemptSecondsLeft(
+        Math.max(0, QUIZ_DURATION_MINUTES * 60 - elapsed)
+      );
+    };
+
+    queueMicrotask(tick);
+    const id = setInterval(tick, 1000);
+    return () => clearInterval(id);
+  }, [activeAttemptStartedAt]);
+
   const lockedText = props.lockedMessage ?? "Locked";
 
   let title = "";
@@ -106,20 +134,50 @@ export default function ChapterTaskItemAILN(props: ChapterTaskItemAILNProps) {
   if (props.variant === "Quiz") {
     const q = props.quiz;
     const hasAttempt = q.attempts > 0;
+    const hasActiveAttempt = !!q.active_attempt_started_at;
+    const timeIsUp = activeAttemptSecondsLeft === 0;
+    const isActiveAndRunning = hasActiveAttempt && !timeIsUp;
+    // Countdown hit 00:00 but this list hasn't refetched attempts yet — treat it as done already.
+    const timedOutWithoutRecord = hasActiveAttempt && timeIsUp && !hasAttempt;
     title = q.name;
     xpReward = q.xp_reward;
     hasMark = hasAttempt;
     meta = !props.unlocked
       ? lockedText
-      : !hasAttempt
-        ? "Not taken yet"
-        : `Score: ${q.best_score}%`;
-    statusVariant = !props.unlocked ? "white" : !hasAttempt ? "blue" : "green";
+      : isActiveAndRunning
+        ? "Sedang dikerjakan"
+        : timedOutWithoutRecord
+          ? "Waktu habis"
+          : !hasAttempt
+            ? "Not taken yet"
+            : `Score: ${q.best_score}%`;
+    statusVariant = !props.unlocked
+      ? "white"
+      : isActiveAndRunning
+        ? "blue"
+        : timedOutWithoutRecord
+          ? "yellow"
+          : !hasAttempt
+            ? "blue"
+            : "green";
     cta = !props.unlocked ? (
       <ButtonAILN size="small" disabled className="w-full">
         Locked
       </ButtonAILN>
-    ) : hasAttempt ? (
+    ) : isActiveAndRunning ? (
+      <Link
+        href={`/${projectId}/student/quizzes/${props.quiz.id}`}
+        className="block"
+      >
+        <ButtonAILN variant="lime" size="small" className="w-full">
+          Lanjutkan Quiz (
+          {activeAttemptSecondsLeft !== null
+            ? getDurationFromSeconds(activeAttemptSecondsLeft)
+            : "..."}
+          )
+        </ButtonAILN>
+      </Link>
+    ) : hasAttempt || timedOutWithoutRecord ? (
       <Link
         href={`/${projectId}/student/quizzes/${props.quiz.id}`}
         className="block"
@@ -237,7 +295,7 @@ export default function ChapterTaskItemAILN(props: ChapterTaskItemAILNProps) {
           )}
         </div>
       </div>
-      <div className="w-32 shrink-0">{cta}</div>
+      <div className="w-40 shrink-0">{cta}</div>
       <div className="w-6">
         {locked ? (
           <FontAwesomeIcon

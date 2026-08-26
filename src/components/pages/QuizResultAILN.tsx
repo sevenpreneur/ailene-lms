@@ -2,68 +2,18 @@
 import QuizSummaryBannerAILN from "@/components/banners/QuizSummaryBannerAILN";
 import QuizAnswerDiscussionItemAILN from "@/components/items/QuizAnswerDiscussionItemAILN";
 import PageContainerAILN from "@/components/pages/PageContainerAILN";
-import AppErrorComponents from "@/components/states/AppErrorComponents";
 import PageHeaderAILN from "@/components/titles/PageHeaderAILN";
-import { getQuizResultMock } from "@/mock-data/student";
-
-interface QuizOption {
-  id: number;
-  option_code: string;
-  text: string;
-  is_correct: boolean;
-}
-
-interface QuizQuestion {
-  id: number;
-  question: string;
-  explanation: string | null;
-  order_index: number;
-  xp_reward: number;
-  options: QuizOption[];
-}
-
-interface QuizResultPayload {
-  quiz: {
-    id: string;
-    name: string;
-    description: string | null;
-    chapter: { id: number; name: string } | null;
-  };
-  questions: QuizQuestion[];
-  submission: {
-    attempt_number: number;
-    score: number;
-    answers: unknown;
-    submitted_at: Date | string;
-  };
-  xp_earned: number;
-}
+import type { QuizResult } from "@/apis/learnings";
 
 interface QuizResultAILNProps {
-  quizId: string;
+  result: QuizResult;
 }
 
-export default function QuizResultAILN({ quizId }: QuizResultAILNProps) {
-  const data = getQuizResultMock({ quiz_id: quizId });
-  const d = data as unknown as QuizResultPayload | null;
-  if (!d?.quiz) {
-    return (
-      <PageContainerAILN>
-        <AppErrorComponents />
-      </PageContainerAILN>
-    );
-  }
-
-  const { quiz, questions, submission, xp_earned } = d;
+export default function QuizResultAILN({ result }: QuizResultAILNProps) {
+  const { name, questions, submission, xp_earned } = result;
   const score = submission.score;
-  const answers: Record<string, string | null> =
-    submission.answers &&
-    typeof submission.answers === "object" &&
-    submission.answers !== null
-      ? (submission.answers as Record<string, string | null>)
-      : {};
+  const answers = submission.answers ?? {};
 
-  // Hitung statistik
   const totalQuestions = questions.length;
   let correctCount = 0;
   let wrongCount = 0;
@@ -84,7 +34,7 @@ export default function QuizResultAILN({ quizId }: QuizResultAILNProps) {
       <div className="flex w-full flex-col gap-4">
         <PageHeaderAILN
           title="Hasil Quiz"
-          desc={`Lihat skor, XP, dan pembahasan jawaban untuk ${quiz.name}.`}
+          desc={`Lihat skor, XP, dan pembahasan jawaban untuk ${name}.`}
         />
 
         <QuizSummaryBannerAILN

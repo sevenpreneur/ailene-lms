@@ -19,52 +19,6 @@ const CURRENT_LEVEL_NUMBER = 3;
 const CURRENT_XP = 1050;
 
 
-type QuizMock = {
-  id: string;
-  chapter_id: number;
-  name: string;
-  description: string;
-  order_index: number;
-  questions: {
-    id: number;
-    question: string;
-    explanation: string | null;
-    xp_reward: number;
-    options: { id: number; option_code: string; text: string; is_correct: boolean }[];
-  }[];
-};
-
-const QUIZZES: QuizMock[] = CHAPTERS.map((ch, i) => ({
-  id: `quiz-${ch.id}`,
-  chapter_id: ch.id,
-  name: `Quiz: ${ch.name}`,
-  description: `Uji pemahamanmu tentang ${ch.name.toLowerCase()}.`,
-  order_index: 1,
-  questions: [
-    {
-      id: i * 10 + 1,
-      question: "Apa manfaat utama menggunakan AI untuk pekerjaan sehari-hari?",
-      explanation: "AI membantu mempercepat tugas repetitif dan memberi insight lebih cepat.",
-      xp_reward: 20,
-      options: [
-        { id: i * 100 + 1, option_code: "A", text: "Menghemat waktu pengerjaan", is_correct: true },
-        { id: i * 100 + 2, option_code: "B", text: "Menggantikan seluruh pekerjaan manusia", is_correct: false },
-        { id: i * 100 + 3, option_code: "C", text: "Tidak ada manfaat signifikan", is_correct: false },
-      ],
-    },
-    {
-      id: i * 10 + 2,
-      question: "Prompt yang baik sebaiknya mencantumkan apa?",
-      explanation: "Konteks dan hasil yang diharapkan bikin output AI lebih relevan.",
-      xp_reward: 20,
-      options: [
-        { id: i * 100 + 4, option_code: "A", text: "Konteks dan format output yang diinginkan", is_correct: true },
-        { id: i * 100 + 5, option_code: "B", text: "Sesingkat mungkin tanpa detail", is_correct: false },
-      ],
-    },
-  ],
-}));
-
 const MATERIALS = CHAPTERS.flatMap((ch) => [
   {
     id: `mat-${ch.id}-1`,
@@ -79,23 +33,6 @@ const MATERIALS = CHAPTERS.flatMap((ch) => [
   },
 ]);
 
-
-export function getQuizResultMock(input: { quiz_id: string }) {
-  const quiz = QUIZZES.find((q) => q.id === input.quiz_id);
-  if (!quiz) return null;
-  const chapter = CHAPTERS.find((c) => c.id === quiz.chapter_id)!;
-  const answers: Record<string, string> = {};
-  for (const q of quiz.questions) {
-    const correct = q.options.find((o) => o.is_correct);
-    if (correct) answers[String(q.id)] = correct.option_code;
-  }
-  return {
-    quiz: { id: quiz.id, name: quiz.name, description: quiz.description, chapter: { id: chapter.id, name: chapter.name } },
-    questions: quiz.questions,
-    submission: { attempt_number: 1, score: 90, answers, submitted_at: daysAgo(3) },
-    xp_earned: quiz.questions.reduce((s, x) => s + x.xp_reward, 0),
-  };
-}
 
 export function getAssignedPromptsMock() {
   return [
