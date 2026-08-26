@@ -40,21 +40,34 @@ export default function ChapterItemAILN(props: ChapterItemAILNProps) {
   const [isLoading, setIsLoading] = useState(false);
 
   useEffect(() => {
-    if (!props.expanded || tasks) return;
+    if (!props.expanded) return;
     let cancelled = false;
 
-    setIsLoading(true);
-    fetch(`/api/learnings?chapter_id=${props.chapter.id}`)
-      .then((res) => (res.ok ? (res.json() as Promise<ChapterLearnings>) : null))
-      .then((data) => {
-        if (!cancelled && data) setTasks(data);
-      })
-      .finally(() => {
-        if (!cancelled) setIsLoading(false);
-      });
+    const fetchTasks = (silent: boolean) => {
+      if (!silent) setIsLoading(true);
+      fetch(`/api/learnings?chapter_id=${props.chapter.id}`)
+        .then((res) => (res.ok ? (res.json() as Promise<ChapterLearnings>) : null))
+        .then((data) => {
+          if (!cancelled && data) setTasks(data);
+        })
+        .finally(() => {
+          if (!cancelled) setIsLoading(false);
+        });
+    };
+
+    if (!tasks) fetchTasks(false);
+
+    // Refetch silently on tab-focus/back-nav so completion shows up without a manual refresh.
+    const refetchSilently = () => {
+      if (document.visibilityState !== "hidden") fetchTasks(true);
+    };
+    document.addEventListener("visibilitychange", refetchSilently);
+    window.addEventListener("popstate", refetchSilently);
 
     return () => {
       cancelled = true;
+      document.removeEventListener("visibilitychange", refetchSilently);
+      window.removeEventListener("popstate", refetchSilently);
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [props.expanded, props.chapter.id]);

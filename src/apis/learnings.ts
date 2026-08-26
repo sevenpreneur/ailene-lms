@@ -118,6 +118,13 @@ export type MaterialCompletion = {
   xp_awarded: number;
 };
 
+export type VideoCompletion = {
+  video_id: number;
+  completed: boolean;
+  completed_at: string;
+  xp_awarded: number;
+};
+
 // Backend returns 404/NOT_FOUND for both "no such row" and "no project access" — only the message tells them apart.
 const NO_PROJECT_ACCESS_MESSAGE = "No access found for this project";
 
@@ -279,6 +286,34 @@ export async function completeMaterial(
   if (!result.success) {
     await LogError(
       "completeMaterial",
+      result.code,
+      result.status,
+      result.message
+    );
+    return null;
+  }
+  return result.data ?? null;
+}
+
+// POST /api/learnings/video-completion needs the caller's own session JWT — see docs/api/learnings.md in ailene-lms-backend.
+export async function completeVideo(
+  videoId: number
+): Promise<VideoCompletion | null> {
+  const sessionToken = await getSessionToken();
+  if (!sessionToken) return null;
+
+  const result = await callApi<VideoCompletion>(
+    "/api/learnings/video-completion",
+    {
+      method: "POST",
+      body: { video_id: videoId },
+      token: sessionToken,
+    }
+  );
+
+  if (!result.success) {
+    await LogError(
+      "completeVideo",
       result.code,
       result.status,
       result.message
