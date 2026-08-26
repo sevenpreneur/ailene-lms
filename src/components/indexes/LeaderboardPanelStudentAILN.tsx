@@ -1,6 +1,6 @@
 "use client";
 import SectionContainerAILN from "@/components/cards/SectionContainerAILN";
-import { getGroupLeaderboardMock } from "@/mock-data/student";
+import type { StudentLeaderboard } from "@/apis/student";
 import { Lock } from "lucide-react";
 import Image from "next/image";
 import { useState } from "react";
@@ -10,9 +10,16 @@ const DEFAULT_AVATAR =
 
 type LeaderboardTab = "DEPT" | "ANGKATAN" | "TIM";
 
-export default function LeaderboardPanelStudentAILN() {
+interface LeaderboardPanelStudentAILNProps {
+  data: StudentLeaderboard;
+  className?: string;
+}
+
+export default function LeaderboardPanelStudentAILN({
+  data,
+  className,
+}: LeaderboardPanelStudentAILNProps) {
   const [tab, setTab] = useState<LeaderboardTab>("DEPT");
-  const data = getGroupLeaderboardMock();
 
   const tabs: { key: LeaderboardTab; label: string; enabled: boolean }[] = [
     { key: "DEPT", label: "Departemen", enabled: true },
@@ -24,6 +31,7 @@ export default function LeaderboardPanelStudentAILN() {
     <SectionContainerAILN
       title="Leaderboard"
       desc="Peringkat kontribusi XP."
+      className={className}
       headerRight={
         tab === "DEPT" && data.group ? (
           <div className="flex items-baseline gap-1.5">
@@ -71,7 +79,7 @@ export default function LeaderboardPanelStudentAILN() {
             <div className="flex flex-col gap-1">
               {data.leaderboard.map((entry) => (
                 <div
-                  key={entry.member_id}
+                  key={entry.access_id}
                   className={`flex items-center gap-3 rounded-md px-2.5 py-2 ${
                     entry.is_me
                       ? "bg-hijau-t font-semibold text-gray-900 dark:bg-claude/15 dark:text-white dark:shadow-[inset_0_0_0_1px_rgba(26,122,82,0.4)]"

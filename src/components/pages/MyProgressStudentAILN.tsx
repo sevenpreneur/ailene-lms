@@ -1,50 +1,80 @@
 "use client";
+import AchievementsCardAILN from "@/components/charts/AchievementsCardAILN";
 import CompetencyProfileAILN from "@/components/charts/CompetencyProfileAILN";
 import LevelProgressCardAILN from "@/components/charts/LevelProgressCardAILN";
-import StreakCardAILN from "@/components/charts/StreakCardAILN";
 import ButtonAILN from "@/components/buttons/ButtonAILN";
 import LeaderboardPanelStudentAILN from "@/components/indexes/LeaderboardPanelStudentAILN";
 import PageContainerAILN from "@/components/pages/PageContainerAILN";
 import PageHeaderAILN from "@/components/titles/PageHeaderAILN";
 import { useProjectId } from "@/lib/use-project-id";
-import { getAilMemberMock } from "@/mock-data/shared";
-import dayjs from "dayjs";
-import "dayjs/locale/id";
+import type { StudentLevel } from "@/apis/learnings";
+import type {
+  StudentCompetency,
+  StudentLeaderboard,
+  StudentLevelProgress,
+} from "@/apis/student";
 import { ArrowRight, ClipboardCheck } from "lucide-react";
 import Link from "next/link";
 
-dayjs.locale("id");
+interface MyProgressStudentAILNProps {
+  levels: StudentLevel[];
+  levelProgress: StudentLevelProgress | null;
+  competency: StudentCompetency | null;
+  leaderboard: StudentLeaderboard | null;
+}
 
-export default function MyProgressStudentAILN() {
-  const member = getAilMemberMock();
-  // Rentang streak = sejak member bergabung sampai hari ini (bukan hardcoded).
-  const cohortStart = dayjs(member.created_at).format("YYYY-MM-DD");
-  const cohortEnd = dayjs().format("YYYY-MM-DD");
-
+export default function MyProgressStudentAILN({
+  levels,
+  levelProgress,
+  competency,
+  leaderboard,
+}: MyProgressStudentAILNProps) {
   return (
     <PageContainerAILN>
       <div className="flex w-full flex-col gap-5">
         <PageHeaderAILN
           title="Progress Belajar AI"
-          desc="Pantau perkembangan level, kompetensi, streak, dan kontribusi XP dalam satu tempat."
+          desc="Pantau perkembangan level, kompetensi, dan kontribusi XP dalam satu tempat."
         />
 
-        {/* Level journey — full width */}
+        {/* Level journey */}
         <PreAssessmentReportGateway />
-        <LevelProgressCardAILN />
 
-        {/* Profil Kompetensi 60% sejajar Capaian Kamu / streak 40% (tinggi sama) */}
+        {/* Level Progress 60% sejajar Capaian Kamu 40% (tinggi sama) */}
         <div className="grid grid-cols-1 gap-5 xl:grid-cols-[minmax(0,3fr)_minmax(0,2fr)]">
-          <CompetencyProfileAILN className="h-full" />
-          <StreakCardAILN
-            startDate={cohortStart}
-            endDate={cohortEnd}
+          <LevelProgressCardAILN
+            levels={levels}
+            currentLevelNumber={levelProgress?.current_level_number ?? 0}
+            tasksRequired={levelProgress?.tasks_required ?? 0}
+            tasksDone={levelProgress?.tasks_done ?? 0}
+            className="h-full"
+          />
+          <AchievementsCardAILN
+            totalXp={levelProgress?.total_xp ?? 0}
+            currentLevelNumber={levelProgress?.current_level_number ?? null}
+            currentLevelName={levelProgress?.current_level_name ?? null}
+            useCaseApprovedCount={levelProgress?.use_case_approved_count ?? 0}
+            promptApprovedCount={levelProgress?.prompt_approved_count ?? 0}
+            hoursSavedTotal={levelProgress?.hours_saved_total ?? 0}
+            toolsMastered={levelProgress?.tools_mastered ?? []}
             className="h-full"
           />
         </div>
 
-        {/* Leaderboard — full width */}
-        <LeaderboardPanelStudentAILN />
+        {/* Profil Kompetensi 60% sejajar Leaderboard 40% (tinggi sama) */}
+        <div className="grid grid-cols-1 gap-5 xl:grid-cols-[minmax(0,3fr)_minmax(0,2fr)]">
+          <CompetencyProfileAILN
+            dimensions={competency?.dimensions ?? []}
+            currentLevelNumber={competency?.current_level_number ?? 0}
+            className="h-full"
+          />
+          <LeaderboardPanelStudentAILN
+            data={
+              leaderboard ?? { group: null, my_rank: 0, total: 0, leaderboard: [] }
+            }
+            className="h-full"
+          />
+        </div>
       </div>
     </PageContainerAILN>
   );

@@ -241,15 +241,6 @@ export function getFirstWinMock() {
   };
 }
 
-export function getAchievementsMock() {
-  return {
-    use_case_count: 1,
-    prompt_count: 1,
-    hours_saved_total: 4,
-    tools_mastered: ["ChatGPT", "Claude"],
-  };
-}
-
 export function getStreakMock() {
   const pattern = [true, true, false, true, true, true, true];
   return {

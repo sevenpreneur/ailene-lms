@@ -6,7 +6,7 @@ import {
   ChartTooltipContent,
   type ChartConfig,
 } from "@/components/ui/chart";
-import { getCompetencyProfileMock } from "@/mock-data/student";
+import type { StudentCompetencyDimension } from "@/apis/student";
 import {
   PolarAngleAxis,
   PolarGrid,
@@ -22,9 +22,7 @@ const formatScore = (n: number) =>
   });
 
 function barColorClass(score: number) {
-  if (score >= 3.5) return "bg-emerald-500 dark:bg-emerald-400";
-  if (score >= 2.5) return "bg-blue-500 dark:bg-blue-400";
-  if (score > 0) return "bg-amber-500 dark:bg-amber-400";
+  if (score > 0) return "bg-lime-bright";
   return "bg-gray-300 dark:bg-gray-600";
 }
 
@@ -50,13 +48,17 @@ function targetScoreForDimension(key: string, targetLevelNumber: number) {
 }
 
 interface CompetencyProfileAILNProps {
+  dimensions: StudentCompetencyDimension[];
+  currentLevelNumber: number;
   className?: string;
 }
 
 export default function CompetencyProfileAILN({
+  dimensions,
+  currentLevelNumber,
   className,
 }: CompetencyProfileAILNProps) {
-  const { dimensions, target_level_number } = getCompetencyProfileMock();
+  const targetLevelNumber = currentLevelNumber + 1;
 
   return (
     <SectionContainerAILN
@@ -64,12 +66,12 @@ export default function CompetencyProfileAILN({
       desc={<>Radar 6 dimensi adalah diagnosa kompetensi AI</>}
       className={className}
     >
-      <div className="grid grid-cols-1 gap-4 lg:grid-cols-[1.1fr_1fr] lg:items-center">
+      <div className="flex flex-col gap-4">
         {/* Radar chart */}
         <div className="min-w-0">
           <RadarBlock
             dimensions={dimensions}
-            targetLevelNumber={target_level_number}
+            targetLevelNumber={targetLevelNumber}
           />
         </div>
 
@@ -78,46 +80,30 @@ export default function CompetencyProfileAILN({
           <p className="text-[10px] font-semibold uppercase tracking-[0.18em] text-muted-foreground">
             Diagnosa per Pillar
           </p>
-          {dimensions.map((d) => {
-            const pct = Math.max(0, Math.min(100, (d.score / 5) * 100));
-            return (
-              <div key={d.key}>
-                <div className="flex items-baseline justify-between">
-                  <span className="text-sm font-semibold text-foreground dark:text-white">
-                    {d.name}
-                  </span>
-                  <span className="text-sm font-semibold tabular-nums text-foreground dark:text-white">
-                    {formatScore(d.score)} / 5
-                  </span>
+          <div className="grid grid-flow-col grid-rows-3 gap-x-6 gap-y-3">
+            {dimensions.map((d) => {
+              const pct = Math.max(0, Math.min(100, (d.score / 5) * 100));
+              return (
+                <div key={d.key}>
+                  <div className="flex items-baseline justify-between">
+                    <span className="text-sm font-semibold text-foreground dark:text-white">
+                      {d.name}
+                    </span>
+                    <span className="text-sm font-semibold tabular-nums text-foreground dark:text-white">
+                      {formatScore(d.score)} / 5
+                    </span>
+                  </div>
+                  <div className="mt-1.5 h-1.5 overflow-hidden rounded-full bg-gray-100 dark:bg-dashboard-border">
+                    <div
+                      className={`h-full rounded-full ${barColorClass(d.score)}`}
+                      style={{ width: `${pct}%` }}
+                    />
+                  </div>
                 </div>
-                <div className="mt-1.5 h-1.5 overflow-hidden rounded-full bg-gray-100 dark:bg-dashboard-border">
-                  <div
-                    className={`h-full rounded-full ${barColorClass(d.score)}`}
-                    style={{ width: `${pct}%` }}
-                  />
-                </div>
-              </div>
-            );
-          })}
+              );
+            })}
+          </div>
         </div>
-      </div>
-
-      <div className="mt-5 rounded-lg border border-dashed border-dashboard-border bg-muted/30 p-4 text-xs leading-6 text-muted-foreground">
-        <p>
-          <span className="font-semibold text-foreground dark:text-white">
-            Catatan:
-          </span>{" "}
-          Radar ini membaca 6 pillar kompetensi AI: AI Foundation, Prompting
-          Quality, Tool Fluency, Use Case Diversity, AI Habit, dan Agentic
-          Capabilities. Skor 0-5 dipakai sebagai diagnosa untuk melihat area
-          yang sudah kuat dan area yang perlu dibantu lewat latihan berikutnya.
-        </p>
-        <p className="mt-2">
-          Garis putus-putus menunjukkan target untuk level berikutnya, sehingga
-          bentuk radar akan ikut berubah ketika level member naik. Radar ini
-          membantu coaching, sedangkan kenaikan level tetap mengikuti gate dan
-          aktivitas belajar yang diselesaikan.
-        </p>
       </div>
     </SectionContainerAILN>
   );

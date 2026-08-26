@@ -2,8 +2,8 @@
 import ButtonAILN from "@/components/buttons/ButtonAILN";
 import FirstWinCardAILN from "@/components/cards/FirstWinCardAILN";
 import TodayFocusCardAILN from "@/components/cards/TodayFocusCardAILN";
+import AchievementsCardAILN from "@/components/charts/AchievementsCardAILN";
 import CompetencyProfileAILN from "@/components/charts/CompetencyProfileAILN";
-import StreakCardAILN from "@/components/charts/StreakCardAILN";
 import AnnouncementTickerAILN from "@/components/indexes/AnnouncementTickerAILN";
 import CoachingNotesAILN from "@/components/indexes/CoachingNotesAILN";
 import RecommendationsAILN from "@/components/indexes/RecommendationsAILN";
@@ -11,20 +11,23 @@ import LevelLabelStudentAILN from "@/components/labels/LevelLabelStudentAILN";
 import RewardLabelStudentAILN from "@/components/labels/RewardLabelStudentAILN";
 import PageContainerAILN from "@/components/pages/PageContainerAILN";
 import AppErrorComponents from "@/components/states/AppErrorComponents";
+import type { StudentCompetency, StudentLevelProgress } from "@/apis/student";
 import { CheckSession } from "@/lib/actions";
 import { useProjectId } from "@/lib/use-project-id";
-import { getAilMemberMock } from "@/mock-data/shared";
 import { useQuery } from "@tanstack/react-query";
-import dayjs from "dayjs";
 import { PlusCircle } from "lucide-react";
 import Link from "next/link";
 
 export default function DashboardStudentAILN({
   currentLevelNumber,
   totalXp,
+  levelProgress,
+  competency,
 }: {
   currentLevelNumber: number;
   totalXp: number;
+  levelProgress: StudentLevelProgress | null;
+  competency: StudentCompetency | null;
 }) {
   const projectId = useProjectId();
 
@@ -39,13 +42,9 @@ export default function DashboardStudentAILN({
   }
 
   const user = userQ.data?.user;
-  const member = getAilMemberMock({ projectId, userId: user?.id ?? "current" });
   const firstName = user
     ? (user.full_name.split(" ")[0] ?? user.full_name)
     : null;
-  // Rentang streak = sejak member bergabung sampai hari ini.
-  const cohortStart = dayjs(member.created_at).format("YYYY-MM-DD");
-  const cohortEnd = dayjs().format("YYYY-MM-DD");
 
   return (
     <PageContainerAILN>
@@ -82,10 +81,19 @@ export default function DashboardStudentAILN({
         <FirstWinCardAILN />
         <TodayFocusCardAILN />
         <div className="grid grid-cols-1 gap-4 xl:grid-cols-[minmax(0,3fr)_minmax(0,2fr)]">
-          <CompetencyProfileAILN className="h-full" />
-          <StreakCardAILN
-            startDate={cohortStart}
-            endDate={cohortEnd}
+          <CompetencyProfileAILN
+            dimensions={competency?.dimensions ?? []}
+            currentLevelNumber={competency?.current_level_number ?? 0}
+            className="h-full"
+          />
+          <AchievementsCardAILN
+            totalXp={levelProgress?.total_xp ?? totalXp}
+            currentLevelNumber={levelProgress?.current_level_number ?? currentLevelNumber}
+            currentLevelName={levelProgress?.current_level_name ?? null}
+            useCaseApprovedCount={levelProgress?.use_case_approved_count ?? 0}
+            promptApprovedCount={levelProgress?.prompt_approved_count ?? 0}
+            hoursSavedTotal={levelProgress?.hours_saved_total ?? 0}
+            toolsMastered={levelProgress?.tools_mastered ?? []}
             className="h-full"
           />
         </div>
