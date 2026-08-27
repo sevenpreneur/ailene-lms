@@ -199,6 +199,32 @@ export type VideoCompletion = {
   xp_awarded: number;
 };
 
+export type TodayFocusKind =
+  | "material"
+  | "quiz"
+  | "video"
+  | "prompt_practice"
+  | "use_case_practice";
+
+export type TodayFocusAssignedBy = {
+  id: string;
+  name: string;
+  avatar: string | null;
+};
+
+export type TodayFocus = {
+  kind: TodayFocusKind;
+  task_id: string;
+  task_title: string;
+  chapter_id: number | null;
+  chapter_name: string | null;
+  level_id: number | null;
+  level_number: number | null;
+  category: string | null;
+  assigned_by: TodayFocusAssignedBy | null;
+  deadline: string | null;
+};
+
 // Backend returns 404/NOT_FOUND for both "no such row" and "no project access" — only the message tells them apart.
 const NO_PROJECT_ACCESS_MESSAGE = "No access found for this project";
 
@@ -539,4 +565,32 @@ export async function completeVideo(
     return null;
   }
   return result.data ?? null;
+}
+
+// POST /api/v1/learnings/today-focus needs the caller's own session JWT — see docs/api/learnings.md in ailene-lms-backend.
+export async function getTodayFocus(
+  projectId: string
+): Promise<TodayFocus | null> {
+  const sessionToken = await getSessionToken();
+  if (!sessionToken) return null;
+
+  const result = await callApi<{ focus: TodayFocus | null }>(
+    "/api/v1/learnings/today-focus",
+    {
+      method: "POST",
+      body: { project_id: projectId },
+      token: sessionToken,
+    }
+  );
+
+  if (!result.success) {
+    await LogError(
+      "getTodayFocus",
+      result.code,
+      result.status,
+      result.message
+    );
+    return null;
+  }
+  return result.data?.focus ?? null;
 }

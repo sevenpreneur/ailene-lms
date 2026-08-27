@@ -6,13 +6,17 @@ import AchievementsCardAILN from "@/components/charts/AchievementsCardAILN";
 import CompetencyProfileAILN from "@/components/charts/CompetencyProfileAILN";
 import AnnouncementTickerAILN from "@/components/indexes/AnnouncementTickerAILN";
 import CoachingNotesAILN from "@/components/indexes/CoachingNotesAILN";
-import RecommendationsAILN from "@/components/indexes/RecommendationsAILN";
 import LevelLabelStudentAILN from "@/components/labels/LevelLabelStudentAILN";
 import RewardLabelStudentAILN from "@/components/labels/RewardLabelStudentAILN";
 import PageContainerAILN from "@/components/pages/PageContainerAILN";
 import AppErrorComponents from "@/components/states/AppErrorComponents";
 import type { Announcement } from "@/apis/announcement";
-import type { StudentCompetency, StudentLevelProgress } from "@/apis/student";
+import type { CoachingNote } from "@/apis/coaching-notes";
+import type {
+  StudentCompetency,
+  StudentLevelProgress,
+} from "@/apis/student";
+import type { TodayFocus } from "@/apis/learnings";
 import { CheckSession } from "@/lib/actions";
 import { useProjectId } from "@/lib/use-project-id";
 import { useQuery } from "@tanstack/react-query";
@@ -25,12 +29,16 @@ export default function DashboardStudentAILN({
   levelProgress,
   competency,
   announcement,
+  todayFocus,
+  coachingNotes,
 }: {
   currentLevelNumber: number;
   totalXp: number;
   levelProgress: StudentLevelProgress | null;
   competency: StudentCompetency | null;
   announcement: Announcement | null;
+  todayFocus: TodayFocus | null;
+  coachingNotes: CoachingNote[];
 }) {
   const projectId = useProjectId();
 
@@ -82,7 +90,7 @@ export default function DashboardStudentAILN({
 
         <AnnouncementTickerAILN announcement={announcement} />
         <FirstWinCardAILN />
-        <TodayFocusCardAILN />
+        <TodayFocusCardAILN focus={todayFocus} />
         <div className="grid grid-cols-1 gap-4 xl:grid-cols-[minmax(0,3fr)_minmax(0,2fr)]">
           <CompetencyProfileAILN
             dimensions={competency?.dimensions ?? []}
@@ -100,8 +108,7 @@ export default function DashboardStudentAILN({
             className="h-full"
           />
         </div>
-        <RecommendationsAILN />
-        <CoachingNotesAILN />
+        <CoachingNotesAILN notes={coachingNotes} />
       </div>
     </PageContainerAILN>
   );

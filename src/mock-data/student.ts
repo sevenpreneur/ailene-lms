@@ -1,10 +1,8 @@
-// Student-facing mock data — today-focus, learning path, skill-practice,
-// quizzes, my-progress, and pre-assessment (student view).
+// Student-facing mock data — learning path, skill-practice, quizzes, my-progress, and pre-assessment (student view).
 
 import { buildPreAssessmentReport } from "@/lib/pre-assessment-report";
 import {
   CATEGORIES,
-  CHAPTERS,
   GROUPS,
   LEVELS,
   MEMBER_ROSTER,
@@ -17,21 +15,6 @@ import { daysAgo, daysFromNow, relativeDayStrip, round1 } from "./utils";
 // shared.ts's getAilMemberMock so every widget tells the same story.
 const CURRENT_LEVEL_NUMBER = 3;
 const CURRENT_XP = 1050;
-
-
-const MATERIALS = CHAPTERS.flatMap((ch) => [
-  {
-    id: `mat-${ch.id}-1`,
-    chapter_id: ch.id,
-    title: `Ringkasan Materi: ${ch.name}`,
-    description: "Rangkuman poin-poin penting dari sesi.",
-    content: `# ${ch.name}\n\nIni adalah ringkasan materi untuk chapter "${ch.name}". Konten lengkap akan tersedia setelah integrasi backend Java.`,
-    file_url: null as string | null,
-    image_url: null as string | null,
-    xp_reward: 10,
-    order_index: 1,
-  },
-]);
 
 
 export function getAssignedPromptsMock() {
@@ -167,25 +150,6 @@ export function getUseCaseAssignmentMock(input: { use_case_id: number }) {
   };
 }
 
-type FocusKind = "Quiz" | "Video" | "Material" | "PromptPractice" | "UseCasePractice";
-
-export function getTodayFocusMock() {
-  const chapter = CHAPTERS[2]; // in-progress chapter (L3)
-  return {
-    kind: "Material" as FocusKind,
-    task_id: MATERIALS[2].id,
-    task_title: MATERIALS[2].title,
-    chapter_id: chapter.id,
-    chapter_name: chapter.name,
-    level_id: chapter.level_id,
-    level_number: chapter.level.level_number,
-    category: null as string | null,
-    assigned_by_name: null as string | null,
-    deadline: undefined as Date | undefined,
-    href: `/student/materials/${MATERIALS[2].id}`,
-  };
-}
-
 export function getLevelProgressMock() {
   const nextLevel = levelByNumber(Math.min(4, CURRENT_LEVEL_NUMBER + 1));
   return {
@@ -315,17 +279,6 @@ export function getPreAssessmentRecommendationsMock() {
     error_message: null as string | null,
     generated_at: daysAgo(13),
   };
-}
-
-export function getCoachingNotesReceivedMock() {
-  return [
-    {
-      id: 1,
-      text: "Progress kamu bagus minggu ini, terus konsisten praktik use case-nya ya.",
-      created_at: daysAgo(4),
-      champion: { id: 101, role: "CHAMPION", full_name: "Andra Wicaksono", avatar: null as string | null },
-    },
-  ];
 }
 
 export function getGroupLeaderboardMock() {
