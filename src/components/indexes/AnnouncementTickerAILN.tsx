@@ -1,16 +1,20 @@
 "use client";
 
-import { getAnnouncementMock } from "@/mock-data/shared";
+import type { Announcement } from "@/apis/announcement";
 import dayjs from "dayjs";
 import { Megaphone } from "lucide-react";
 
-export default function AnnouncementTickerAILN() {
-  const ann = getAnnouncementMock();
+export default function AnnouncementTickerAILN({
+  announcement,
+}: {
+  announcement: Announcement | null;
+}) {
+  const ann = announcement;
 
   if (!ann) return null;
   const now = dayjs();
   const active =
-    ann.status === "ACTIVE" &&
+    ann.status === "active" &&
     now.isAfter(dayjs(ann.start_date)) &&
     now.isBefore(dayjs(ann.end_date));
   if (!active) return null;

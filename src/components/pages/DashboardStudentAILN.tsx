@@ -11,6 +11,7 @@ import LevelLabelStudentAILN from "@/components/labels/LevelLabelStudentAILN";
 import RewardLabelStudentAILN from "@/components/labels/RewardLabelStudentAILN";
 import PageContainerAILN from "@/components/pages/PageContainerAILN";
 import AppErrorComponents from "@/components/states/AppErrorComponents";
+import type { Announcement } from "@/apis/announcement";
 import type { StudentCompetency, StudentLevelProgress } from "@/apis/student";
 import { CheckSession } from "@/lib/actions";
 import { useProjectId } from "@/lib/use-project-id";
@@ -23,11 +24,13 @@ export default function DashboardStudentAILN({
   totalXp,
   levelProgress,
   competency,
+  announcement,
 }: {
   currentLevelNumber: number;
   totalXp: number;
   levelProgress: StudentLevelProgress | null;
   competency: StudentCompetency | null;
+  announcement: Announcement | null;
 }) {
   const projectId = useProjectId();
 
@@ -77,7 +80,7 @@ export default function DashboardStudentAILN({
           </div>
         </header>
 
-        <AnnouncementTickerAILN />
+        <AnnouncementTickerAILN announcement={announcement} />
         <FirstWinCardAILN />
         <TodayFocusCardAILN />
         <div className="grid grid-cols-1 gap-4 xl:grid-cols-[minmax(0,3fr)_minmax(0,2fr)]">

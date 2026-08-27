@@ -1,3 +1,4 @@
+import { getAnnouncementDetails } from "@/apis/announcement";
 import {
   getStudentCompetency,
   getStudentLevelProgress,
@@ -16,10 +17,11 @@ export default async function StudentPage({
   params: Promise<{ project_id: string }>;
 }) {
   const { project_id } = await params;
-  const [status, levelProgress, competency] = await Promise.all([
+  const [status, levelProgress, competency, announcement] = await Promise.all([
     getStudentStatus(project_id),
     getStudentLevelProgress(project_id),
     getStudentCompetency(project_id),
+    getAnnouncementDetails(project_id),
   ]);
 
   return (
@@ -28,6 +30,7 @@ export default async function StudentPage({
       totalXp={status?.xp_count ?? 0}
       levelProgress={levelProgress}
       competency={competency}
+      announcement={announcement}
     />
   );
 }
