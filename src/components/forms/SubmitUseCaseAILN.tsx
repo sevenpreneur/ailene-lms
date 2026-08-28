@@ -9,11 +9,10 @@ import GeneralLabelAILN, {
   type GeneralLabelVariantAILN,
 } from "@/components/labels/GeneralLabelAILN";
 import PageContainerAILN from "@/components/pages/PageContainerAILN";
-import AppPageState from "@/components/states/AppPageState";
 import PageHeaderAILN from "@/components/titles/PageHeaderAILN";
 import { supabase } from "@/lib/supabase";
 import { useProjectId } from "@/lib/use-project-id";
-import { getUseCaseAssignmentMock } from "@/mock-data/student";
+import type { UseCaseDetail } from "@/apis/use-cases";
 import dayjs from "dayjs";
 import {
   CalendarClock,
@@ -25,19 +24,12 @@ import {
   Layers,
   Link as LinkIcon,
   Loader2,
-  MessageSquare,
   Send,
   Tag,
   X,
 } from "lucide-react";
 import Link from "next/link";
-import {
-  ChangeEvent,
-  useEffect,
-  useMemo,
-  useRef,
-  useState,
-} from "react";
+import { ChangeEvent, useMemo, useRef, useState } from "react";
 import { toast } from "sonner";
 
 type AilUseCaseFrequency = "DAILY" | "WEEKLY" | "MONTHLY" | "OCCASIONALLY";
@@ -158,20 +150,13 @@ const AI_TOOL_PRESETS = [
   "Make",
 ];
 
-function parseAiTools(csv: string): string[] {
-  return csv
-    .split(",")
-    .map((s) => s.trim())
-    .filter((s) => s.length > 0);
-}
-
 export default function SubmitUseCaseAILN({
-  useCaseId,
+  useCase,
 }: {
-  useCaseId: number;
+  useCase: UseCaseDetail;
 }) {
   const projectId = useProjectId();
-  const a = getUseCaseAssignmentMock({ use_case_id: useCaseId });
+  const useCaseId = useCase.id;
 
   const [formData, setFormData] = useState<{
     outcomeProof: string;
@@ -199,35 +184,6 @@ export default function SubmitUseCaseAILN({
   const [isUploading, setIsUploading] = useState(false);
   const [isDragOver, setIsDragOver] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
-
-  useEffect(() => {
-    if (!a) return;
-    const existing = a.outcome_proof ?? "";
-    // Heuristic: if URL is from our Supabase storage, treat as uploaded file
-    // (show file chip). Otherwise treat as pasted link.
-    const isUploaded =
-      !!existing && existing.includes("/storage/v1/object/public/");
-    setFormData({
-      outcomeProof: existing,
-      outcomeFileName: isUploaded
-        ? decodeURIComponent(existing.split("/").pop() ?? "uploaded file")
-        : null,
-      outcomeLinkInput: isUploaded ? "" : existing,
-      hoursSaved:
-        a.hours_with_ai !== null && a.hours_with_ai !== undefined
-          ? String(a.hours_with_ai)
-          : "",
-      hoursWithoutAi:
-        a.hours_without_ai !== null && a.hours_without_ai !== undefined
-          ? String(a.hours_without_ai)
-          : "",
-      aiTools: a.ai_tool ? parseAiTools(a.ai_tool) : [],
-      aiToolCustomInput: "",
-      frequency: (a.frequency as AilUseCaseFrequency | null) ?? "",
-      type: (a.type as AilUseCaseType | null) ?? "",
-      description: a.description ?? "",
-    });
-  }, [a]);
 
   const handleUploadFile = async (file: File) => {
     if (file.size < 1) return;
@@ -304,44 +260,40 @@ export default function SubmitUseCaseAILN({
   };
 
   const status: Status = useMemo(() => {
-    if (!a) return "PENDING_SUBMIT";
-    if (a.is_accepted) return "ACCEPTED";
-    if (!a.submitted_at) return "PENDING_SUBMIT";
-    if (a.reviewed_at && dayjs(a.reviewed_at).isAfter(dayjs(a.submitted_at)))
+    if (useCase.is_accepted) return "ACCEPTED";
+    if (!useCase.submitted_at) return "PENDING_SUBMIT";
+    if (
+      useCase.reviewed_at &&
+      dayjs(useCase.reviewed_at).isAfter(dayjs(useCase.submitted_at))
+    )
       return "NEEDS_REVISION";
     return "AWAITING_REVIEW";
-  }, [a]);
-
-  if (!a) {
-    return (
-      <PageContainerAILN>
-        <AppPageState variant="NOT_FOUND" />
-      </PageContainerAILN>
-    );
-  }
+  }, [useCase]);
 
   const meta = statusMeta[status];
   const StatusIcon = meta.icon;
   const isLocked = status === "ACCEPTED";
-  const deadline = a.deadline;
+  const deadline = useCase.deadline_at;
   const deadlineDate = deadline ? dayjs(deadline) : null;
   const deadlineOverdue =
-    deadlineDate !== null && !a.is_accepted && deadlineDate.isBefore(dayjs());
+    deadlineDate !== null &&
+    !useCase.is_accepted &&
+    deadlineDate.isBefore(dayjs());
 
   return (
     <PageContainerAILN>
       <div className="flex w-full flex-col gap-6">
         <div className="flex flex-col gap-3">
-          <PageHeaderAILN title={a.use_case.name} />
+          <PageHeaderAILN title={useCase.name} />
           <div className="mt-1 flex flex-wrap items-center gap-2 text-sm">
             <GeneralLabelAILN
               variant="red"
               icon={<Layers className="h-3 w-3" />}
             >
-              Level {a.use_case.level.level_number}
+              Level {useCase.level_number}
             </GeneralLabelAILN>
 
-            {a.use_case.categories.map((c) => (
+            {useCase.categories.map((c) => (
               <GeneralLabelAILN
                 key={c.id}
                 variant="white"
@@ -358,17 +310,10 @@ export default function SubmitUseCaseAILN({
               {meta.label}
             </GeneralLabelAILN>
           </div>
-
-          {a.message && (
-            <div className="flex items-start gap-2 text-sm text-gray-600 dark:text-gray-400">
-              <MessageSquare className="size-3.5 shrink-0 mt-0.5" />
-              <span className="italic">&ldquo;{a.message}&rdquo;</span>
-            </div>
-          )}
         </div>
 
         <div className="grid grid-cols-1 gap-4 lg:grid-cols-[1fr_1.8fr] lg:items-start">
-          {/* LEFT: Deskripsi use case + champion review notes */}
+          {/* LEFT: Deskripsi use case */}
           <div className="flex flex-col gap-4 lg:sticky lg:top-6 lg:self-start lg:max-h-[calc(100vh-3rem)] lg:overflow-y-auto">
             <div className="ailn-card flex flex-col gap-4 bg-card-1 p-5 border">
               <div className="size-10 rounded-full bg-black flex items-center justify-center text-white dark:bg-white dark:text-black">
@@ -378,7 +323,7 @@ export default function SubmitUseCaseAILN({
                 Deskripsi Use Case
               </h2>
               <p className="text-sm whitespace-pre-wrap  text-gray-700 dark:text-gray-200">
-                {a.use_case.description}
+                {useCase.description}
               </p>
 
               {deadlineDate && (
@@ -404,26 +349,11 @@ export default function SubmitUseCaseAILN({
               )}
             </div>
 
-            {status === "NEEDS_REVISION" && a.comment && (
-              <div className="rounded-lg border border-red-200 bg-red-50 p-4 dark:border-red-500/30 dark:bg-red-500/10">
-                <div className="text-[11px] font-semibold uppercase tracking-wide text-red-700 dark:text-red-300">
-                  Catatan champion · perlu revisi
-                </div>
-                <p className="mt-1 text-sm text-red-700 dark:text-red-200">
-                  {a.comment}
-                </p>
-              </div>
-            )}
             {status === "ACCEPTED" && (
               <div className="rounded-lg border border-emerald-200 bg-emerald-50 p-4 dark:border-emerald-500/30 dark:bg-emerald-500/10">
                 <div className="text-[11px] font-semibold uppercase tracking-wide text-emerald-700 dark:text-emerald-300">
                   Diterima oleh champion
                 </div>
-                {a.comment && (
-                  <p className="mt-1 text-sm text-emerald-700 dark:text-emerald-200">
-                    {a.comment}
-                  </p>
-                )}
               </div>
             )}
           </div>
@@ -777,7 +707,7 @@ export default function SubmitUseCaseAILN({
                   <Send className="size-4" />
                   {status === "NEEDS_REVISION"
                     ? "Kirim Revisi"
-                    : a.submitted_at
+                    : useCase.submitted_at
                       ? "Update Submission"
                       : "Kirim Tugas"}
                 </DisabledActionButtonAILN>

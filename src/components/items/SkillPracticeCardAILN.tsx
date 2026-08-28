@@ -15,10 +15,13 @@ import {
   CheckCircle2,
   CircleAlert,
   Clock,
+  Loader2,
   MessageSquare,
   Send,
 } from "lucide-react";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
+import React, { useState } from "react";
 
 dayjs.locale("id");
 
@@ -73,6 +76,7 @@ export default function SkillPracticeCardAILN({
   message,
   submittedAt,
   href,
+  onSelfAssign,
 }: {
   kind: PracticeKind;
   title: string;
@@ -85,7 +89,10 @@ export default function SkillPracticeCardAILN({
   message: string | null;
   submittedAt: string | null;
   href: string;
+  onSelfAssign?: () => Promise<boolean>;
 }) {
+  const router = useRouter();
+  const [isAssigning, setIsAssigning] = useState(false);
   const meta = statusMeta[status];
   const StatusIcon = meta.icon;
   const deadlineOverdue =
@@ -96,12 +103,30 @@ export default function SkillPracticeCardAILN({
     deadline || submittedAt || championName || message || categories.length > 0
   );
 
+  const handleClick = async (e: React.MouseEvent) => {
+    if (!onSelfAssign || isAssigning) return;
+    e.preventDefault();
+    setIsAssigning(true);
+    const ok = await onSelfAssign();
+    setIsAssigning(false);
+    if (ok) router.push(href);
+  };
+
   return (
     <Link
       href={href}
-      className="block focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring"
+      onClick={handleClick}
+      aria-disabled={isAssigning}
+      className={`block focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring ${
+        isAssigning ? "pointer-events-none opacity-70" : ""
+      }`}
     >
-      <article className="flex min-h-64 flex-col gap-4 rounded-lg border border-dashboard-border bg-card-2 p-4 transition hover:border-hijau hover:bg-hijau-t/40 dark:hover:bg-claude/5">
+      <article className="relative flex min-h-64 flex-col gap-4 rounded-lg border border-dashboard-border bg-card-2 p-4 transition hover:border-hijau hover:bg-hijau-t/40 dark:hover:bg-claude/5">
+        {isAssigning && (
+          <div className="absolute inset-0 z-10 flex items-center justify-center rounded-lg bg-card-2/80">
+            <Loader2 className="size-5 animate-spin text-gray-500" />
+          </div>
+        )}
         <div className="flex items-start justify-between gap-2">
           <div className="flex flex-wrap items-center gap-2">
             <GeneralLabelAILN variant="red">

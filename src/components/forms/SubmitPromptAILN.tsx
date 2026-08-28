@@ -6,10 +6,9 @@ import GeneralLabelAILN, {
   type GeneralLabelVariantAILN,
 } from "@/components/labels/GeneralLabelAILN";
 import PageContainerAILN from "@/components/pages/PageContainerAILN";
-import AppPageState from "@/components/states/AppPageState";
 import PageHeaderAILN from "@/components/titles/PageHeaderAILN";
 import { useProjectId } from "@/lib/use-project-id";
-import { getPromptAssignmentMock } from "@/mock-data/student";
+import type { PromptDetail } from "@/apis/prompts";
 import dayjs from "dayjs";
 import {
   CalendarClock,
@@ -18,14 +17,13 @@ import {
   Clock,
   FileText,
   Layers,
-  MessageSquare,
   Send,
   Sparkles,
   SquarePen,
   Tag,
 } from "lucide-react";
 import Link from "next/link";
-import React, { useEffect, useMemo, useState } from "react";
+import React, { useMemo, useState } from "react";
 
 type Status =
   | "PENDING_SUBMIT"
@@ -92,12 +90,11 @@ function FieldRow({
 }
 
 export default function SubmitPromptAILN({
-  promptId,
+  prompt,
 }: {
-  promptId: number;
+  prompt: PromptDetail;
 }) {
   const projectId = useProjectId();
-  const a = getPromptAssignmentMock({ prompt_id: promptId });
 
   const [formData, setFormData] = useState<{
     input: string;
@@ -107,54 +104,39 @@ export default function SubmitPromptAILN({
     output: "",
   });
 
-  useEffect(() => {
-    if (!a) return;
-    // eslint-disable-next-line react-hooks/set-state-in-effect
-    setFormData({
-      input: a.input ?? "",
-      output: a.output ?? "",
-    });
-  }, [a]);
-
   const status: Status = useMemo(() => {
-    if (!a) return "PENDING_SUBMIT";
-    if (a.is_accepted) return "ACCEPTED";
-    if (!a.submitted_at) return "PENDING_SUBMIT";
-    if (a.reviewed_at && dayjs(a.reviewed_at).isAfter(dayjs(a.submitted_at)))
+    if (prompt.is_accepted) return "ACCEPTED";
+    if (!prompt.submitted_at) return "PENDING_SUBMIT";
+    if (
+      prompt.reviewed_at &&
+      dayjs(prompt.reviewed_at).isAfter(dayjs(prompt.submitted_at))
+    )
       return "NEEDS_REVISION";
     return "AWAITING_REVIEW";
-  }, [a]);
-
-  if (!a) {
-    return (
-      <PageContainerAILN>
-        <AppPageState variant="NOT_FOUND" />
-      </PageContainerAILN>
-    );
-  }
+  }, [prompt]);
 
   const meta = statusMeta[status];
   const StatusIcon = meta.icon;
   const isLocked = status === "ACCEPTED";
-  const deadline = a.deadline;
+  const deadline = prompt.deadline_at;
   const deadlineDate = deadline ? dayjs(deadline) : null;
   const deadlineOverdue =
-    deadlineDate !== null && !a.is_accepted && deadlineDate.isBefore(dayjs());
+    deadlineDate !== null && !prompt.is_accepted && deadlineDate.isBefore(dayjs());
 
   return (
     <PageContainerAILN>
       <div className="flex w-full flex-col gap-6">
         <div className="flex flex-col gap-3">
-          <PageHeaderAILN title={a.prompt.name} />
+          <PageHeaderAILN title={prompt.name} />
           <div className="mt-1 flex flex-wrap items-center gap-2 text-sm">
             <GeneralLabelAILN
               variant="red"
               icon={<Layers className="h-3 w-3" />}
             >
-              Level {a.prompt.level.level_number}
+              Level {prompt.level_number}
             </GeneralLabelAILN>
 
-            {a.prompt.categories.map((c) => (
+            {prompt.categories.map((c) => (
               <GeneralLabelAILN
                 key={c.id}
                 variant="white"
@@ -171,17 +153,10 @@ export default function SubmitPromptAILN({
               {meta.label}
             </GeneralLabelAILN>
           </div>
-
-          {a.message && (
-            <div className="flex items-start gap-2 text-sm text-gray-600 dark:text-gray-400">
-              <MessageSquare className="size-3.5 shrink-0 mt-0.5" />
-              <span className="italic">&ldquo;{a.message}&rdquo;</span>
-            </div>
-          )}
         </div>
 
         <div className="grid grid-cols-1 gap-4 lg:grid-cols-[1fr_1.8fr] lg:items-start">
-          {/* LEFT: Detail prompt + champion review notes */}
+          {/* LEFT: Detail prompt */}
           <div className="flex flex-col gap-4 lg:sticky lg:top-6 lg:self-start lg:max-h-[calc(100vh-3rem)] lg:overflow-y-auto">
             <div className="ailn-card flex flex-col gap-4 bg-card-1 p-5 border">
               <div className="size-10 rounded-full bg-black flex items-center justify-center text-white dark:bg-white dark:text-black">
@@ -196,7 +171,7 @@ export default function SubmitPromptAILN({
                   Skenario
                 </div>
                 <p className="text-sm whitespace-pre-wrap  text-gray-700 dark:text-gray-200">
-                  {a.prompt.scenario}
+                  {prompt.scenario}
                 </p>
               </div>
 
@@ -205,7 +180,7 @@ export default function SubmitPromptAILN({
                   Expected Output
                 </div>
                 <p className="text-sm whitespace-pre-wrap  text-gray-700 dark:text-gray-200">
-                  {a.prompt.expected_output}
+                  {prompt.expected_output}
                 </p>
               </div>
 
@@ -232,26 +207,11 @@ export default function SubmitPromptAILN({
               )}
             </div>
 
-            {status === "NEEDS_REVISION" && a.comment && (
-              <div className="rounded-lg border border-red-200 bg-red-50 p-4 dark:border-red-500/30 dark:bg-red-500/10">
-                <div className="text-[11px] font-semibold uppercase tracking-wide text-red-700 dark:text-red-300">
-                  Catatan champion · perlu revisi
-                </div>
-                <p className="mt-1 text-sm text-red-700 dark:text-red-200">
-                  {a.comment}
-                </p>
-              </div>
-            )}
             {status === "ACCEPTED" && (
               <div className="rounded-lg border border-emerald-200 bg-emerald-50 p-4 dark:border-emerald-500/30 dark:bg-emerald-500/10">
                 <div className="text-[11px] font-semibold uppercase tracking-wide text-emerald-700 dark:text-emerald-300">
                   Diterima oleh champion
                 </div>
-                {a.comment && (
-                  <p className="mt-1 text-sm text-emerald-700 dark:text-emerald-200">
-                    {a.comment}
-                  </p>
-                )}
               </div>
             )}
           </div>
@@ -323,7 +283,7 @@ export default function SubmitPromptAILN({
                   <Send className="size-4" />
                   {status === "NEEDS_REVISION"
                     ? "Kirim Revisi"
-                    : a.submitted_at
+                    : prompt.submitted_at
                       ? "Update Submission"
                       : "Kirim Tugas"}
                 </DisabledActionButtonAILN>

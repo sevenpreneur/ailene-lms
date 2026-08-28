@@ -1,6 +1,5 @@
 "use client";
 import ButtonAILN from "@/components/buttons/ButtonAILN";
-import DisabledActionButtonAILN from "@/components/buttons/DisabledActionButtonAILN";
 import InputAILN from "@/components/fields/InputAILN";
 import NumberInputAILN from "@/components/fields/NumberInputAILN";
 import SelectAILN from "@/components/fields/SelectAILN";
@@ -23,6 +22,7 @@ import {
   X,
 } from "lucide-react";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import React, {
   ChangeEvent,
   useMemo,
@@ -131,6 +131,7 @@ function FieldRow({
 
 export default function CreateSelfPracticeAILN() {
   const projectId = useProjectId();
+  const router = useRouter();
   const categories = useMemo(() => getCategoriesMock(), []);
   const categoryOptions = useMemo<CategoryOption[]>(
     () => categories.map((c) => ({ value: c.id, label: c.name })),
@@ -160,11 +161,12 @@ export default function CreateSelfPracticeAILN() {
   const [aiToolCustomInput, setAiToolCustomInput] = useState("");
   const [frequency, setFrequency] = useState<AilUseCaseFrequency | "">("");
   const [useCaseType, setUseCaseType] = useState<AilUseCaseType | "">("");
-  const [_outcomeProof, setOutcomeProof] = useState("");
+  const [outcomeProof, setOutcomeProof] = useState("");
   const [outcomeFileName, setOutcomeFileName] = useState<string | null>(null);
   const [outcomeLinkInput, setOutcomeLinkInput] = useState("");
   const [isUploading, setIsUploading] = useState(false);
   const [isDragOver, setIsDragOver] = useState(false);
+  const [isSubmitting, setIsSubmitting] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   const handleUploadFile = async (file: File) => {
@@ -225,6 +227,87 @@ export default function CreateSelfPracticeAILN() {
     setOutcomeProof(val);
     setOutcomeLinkInput(val);
     setOutcomeFileName(null);
+  };
+
+  const handleSubmit = async () => {
+    if (!name.trim()) {
+      toast.error("Judul latihan wajib diisi.");
+      return;
+    }
+    if (selectedCategoryIds.length === 0) {
+      toast.error("Pilih minimal 1 kategori.");
+      return;
+    }
+
+    setIsSubmitting(true);
+    try {
+      if (type === "PROMPT") {
+        if (!scenario.trim() || !promptInput.trim() || !promptOutput.trim()) {
+          toast.error("Lengkapi konteks, prompt, dan output.");
+          return;
+        }
+        const res = await fetch("/api/prompts/self-create", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            project_id: projectId,
+            name: name.trim(),
+            scenario: scenario.trim(),
+            input: promptInput.trim(),
+            output: promptOutput.trim(),
+            category_ids: selectedCategoryIds,
+          }),
+        });
+        const data = await res.json().catch(() => null);
+        if (!res.ok) {
+          toast.error(data?.message ?? "Gagal mengirim latihan.");
+          return;
+        }
+        toast.success("Latihan prompt berhasil dikirim untuk direview.");
+      } else {
+        const hoursWithoutAiNum = Number(hoursWithoutAi);
+        const hoursSavedNum = Number(hoursSaved);
+        if (
+          !description.trim() ||
+          !outcomeProof.trim() ||
+          !Number.isFinite(hoursWithoutAiNum) ||
+          !Number.isFinite(hoursSavedNum) ||
+          aiTools.length === 0 ||
+          !frequency ||
+          !useCaseType
+        ) {
+          toast.error("Lengkapi semua field use case.");
+          return;
+        }
+        const res = await fetch("/api/use-cases/self-create", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            project_id: projectId,
+            name: name.trim(),
+            category_ids: selectedCategoryIds,
+            outcome_proof: outcomeProof.trim(),
+            hours_with_ai: hoursSavedNum,
+            hours_without_ai: hoursWithoutAiNum,
+            description: description.trim(),
+            ai_tool: aiTools.join(", "),
+            frequency: frequency.toLowerCase(),
+            type: useCaseType.toLowerCase(),
+          }),
+        });
+        const data = await res.json().catch(() => null);
+        if (!res.ok) {
+          toast.error(data?.message ?? "Gagal mengirim latihan.");
+          return;
+        }
+        toast.success("Latihan use case berhasil dikirim untuk direview.");
+      }
+      router.push(`/${projectId}/student/skill-practice?tab=history`);
+    } catch {
+      toast.error("Gagal mengirim latihan.");
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   return (
@@ -752,14 +835,20 @@ export default function CreateSelfPracticeAILN() {
               Batal
             </ButtonAILN>
           </Link>
-          <DisabledActionButtonAILN
+          <ButtonAILN
             type="button"
             variant="primary"
             className="w-fit"
+            disabled={isSubmitting}
+            onClick={handleSubmit}
           >
-            <Send className="size-4" />
+            {isSubmitting ? (
+              <Loader2 className="size-4 animate-spin" />
+            ) : (
+              <Send className="size-4" />
+            )}
             Kirim Latihan
-          </DisabledActionButtonAILN>
+          </ButtonAILN>
         </div>
       </form>
     </PageContainerAILN>

@@ -17,6 +17,7 @@ import { BookOpen, Clock, History, Library, Plus } from "lucide-react";
 import Link from "next/link";
 import { useSearchParams } from "next/navigation";
 import { useEffect, type ReactNode, useState } from "react";
+import { toast } from "sonner";
 
 dayjs.locale("id");
 
@@ -51,6 +52,30 @@ interface LibraryItem {
     reviewed_at: string | null;
     is_accepted: boolean;
   } | null;
+}
+
+async function selfAssign(kind: PracticeKind, id: number): Promise<boolean> {
+  const endpoint =
+    kind === "PROMPT" ? "/api/prompts/self-assign" : "/api/use-cases/self-assign";
+  const body =
+    kind === "PROMPT" ? { prompt_id: id } : { use_case_id: id };
+
+  try {
+    const res = await fetch(endpoint, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(body),
+    });
+    if (!res.ok) {
+      const data = await res.json().catch(() => null);
+      toast.error(data?.message ?? "Gagal self-assign latihan.");
+      return false;
+    }
+    return true;
+  } catch {
+    toast.error("Gagal self-assign latihan.");
+    return false;
+  }
 }
 
 function practiceHref(projectId: string, kind: PracticeKind, refId: number) {
@@ -317,6 +342,7 @@ export default function SkillPracticeStudentAILN({
                     message={null}
                     submittedAt={item.submission?.submitted_at ?? null}
                     href={item.href}
+                    onSelfAssign={() => selfAssign(item.kind, item.id)}
                   />
                 ))}
               </div>

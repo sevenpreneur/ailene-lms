@@ -1,4 +1,6 @@
+import { getPromptDetails } from "@/apis/prompts";
 import SubmitPromptAILN from "@/components/forms/SubmitPromptAILN";
+import AppPageState from "@/components/states/AppPageState";
 import { Metadata } from "next";
 
 export const metadata: Metadata = {
@@ -13,5 +15,14 @@ export default async function StudentPromptPracticePage({
   const { prompt_id } = await params;
   const promptIdNum = Number(prompt_id);
 
-  return <SubmitPromptAILN promptId={promptIdNum} />;
+  if (!Number.isInteger(promptIdNum) || promptIdNum <= 0) {
+    return <AppPageState variant="NOT_FOUND" />;
+  }
+
+  const result = await getPromptDetails(promptIdNum);
+  if (result.kind === "not_found") {
+    return <AppPageState variant="NOT_FOUND" />;
+  }
+
+  return <SubmitPromptAILN prompt={result.data} />;
 }

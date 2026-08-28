@@ -41,6 +41,39 @@ export type AssignedPrompt = {
   assigned_by: { id: string; name: string; avatar: string | null };
 };
 
+export type PromptDetail = {
+  id: number;
+  name: string;
+  scenario: string;
+  expected_output: string;
+  level_id: number;
+  level_number: number;
+  categories: PromptCategory[];
+  xp_reward: number;
+  is_self_created: boolean;
+  deadline_at: string | null;
+  submitted_at: string | null;
+  reviewed_at: string | null;
+  is_accepted: boolean | null;
+};
+
+export type PromptDetailResult =
+  | { kind: "ok"; data: PromptDetail }
+  | { kind: "not_found" };
+
+export type SelfCreatePromptInput = {
+  project_id: string;
+  name: string;
+  scenario: string;
+  input: string;
+  output: string;
+  category_ids: number[];
+};
+
+export type PromptMutationResult =
+  | { success: true; data: PromptDetail }
+  | { success: false; code: number; message: string };
+
 async function getSessionToken(): Promise<string | null> {
   const cookieStore = await cookies();
   return cookieStore.get(SESSION_COOKIE_NAME)?.value ?? null;
@@ -94,4 +127,81 @@ export async function getAssignedPrompts(
     return [];
   }
   return result.data ?? [];
+}
+
+// POST /api/v1/prompts/details needs the caller's own session JWT — see docs/api/prompts.md in ailene-lms-backend.
+export async function getPromptDetails(id: number): Promise<PromptDetailResult> {
+  const sessionToken = await getSessionToken();
+  if (!sessionToken) return { kind: "not_found" };
+
+  const result = await callApi<PromptDetail>("/api/v1/prompts/details", {
+    method: "POST",
+    body: { id },
+    token: sessionToken,
+  });
+
+  if (!result.success) {
+    await LogError(
+      "getPromptDetails",
+      result.code,
+      result.status,
+      result.message
+    );
+    return { kind: "not_found" };
+  }
+  return result.data ? { kind: "ok", data: result.data } : { kind: "not_found" };
+}
+
+// POST /api/v1/prompts/self-assign needs the caller's own session JWT — see docs/api/prompts.md in ailene-lms-backend.
+export async function selfAssignPrompt(
+  promptId: number
+): Promise<PromptMutationResult> {
+  const sessionToken = await getSessionToken();
+  if (!sessionToken) {
+    return { success: false, code: 401, message: "Not authenticated" };
+  }
+
+  const result = await callApi<PromptDetail>("/api/v1/prompts/self-assign", {
+    method: "POST",
+    body: { prompt_id: promptId },
+    token: sessionToken,
+  });
+
+  if (!result.success || !result.data) {
+    await LogError(
+      "selfAssignPrompt",
+      result.code,
+      result.status,
+      result.message
+    );
+    return { success: false, code: result.code, message: result.message };
+  }
+  return { success: true, data: result.data };
+}
+
+// POST /api/v1/prompts/self-create needs the caller's own session JWT — see docs/api/prompts.md in ailene-lms-backend.
+export async function selfCreatePrompt(
+  input: SelfCreatePromptInput
+): Promise<PromptMutationResult> {
+  const sessionToken = await getSessionToken();
+  if (!sessionToken) {
+    return { success: false, code: 401, message: "Not authenticated" };
+  }
+
+  const result = await callApi<PromptDetail>("/api/v1/prompts/self-create", {
+    method: "POST",
+    body: input,
+    token: sessionToken,
+  });
+
+  if (!result.success || !result.data) {
+    await LogError(
+      "selfCreatePrompt",
+      result.code,
+      result.status,
+      result.message
+    );
+    return { success: false, code: result.code, message: result.message };
+  }
+  return { success: true, data: result.data };
 }
