@@ -9,7 +9,7 @@ import PageHeaderAILN from "@/components/titles/PageHeaderAILN";
 import SectionContainerAILN from "@/components/cards/SectionContainerAILN";
 import { supabase } from "@/lib/supabase";
 import { useProjectId } from "@/lib/use-project-id";
-import { getCategoriesMock } from "@/mock-data/shared";
+import type { Category } from "@/apis/categories";
 import {
   FileText,
   FileUp,
@@ -129,10 +129,13 @@ function FieldRow({
   );
 }
 
-export default function CreateSelfPracticeAILN() {
+export default function CreateSelfPracticeAILN({
+  categories,
+}: {
+  categories: Category[];
+}) {
   const projectId = useProjectId();
   const router = useRouter();
-  const categories = useMemo(() => getCategoriesMock(), []);
   const categoryOptions = useMemo<CategoryOption[]>(
     () => categories.map((c) => ({ value: c.id, label: c.name })),
     [categories]

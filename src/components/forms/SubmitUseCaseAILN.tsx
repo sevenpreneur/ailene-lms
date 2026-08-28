@@ -1,5 +1,5 @@
 "use client";
-import DisabledActionButtonAILN from "@/components/buttons/DisabledActionButtonAILN";
+import ButtonAILN from "@/components/buttons/ButtonAILN";
 import SectionContainerAILN from "@/components/cards/SectionContainerAILN";
 import InputAILN from "@/components/fields/InputAILN";
 import NumberInputAILN from "@/components/fields/NumberInputAILN";
@@ -29,6 +29,7 @@ import {
   X,
 } from "lucide-react";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import { ChangeEvent, useMemo, useRef, useState } from "react";
 import { toast } from "sonner";
 
@@ -157,6 +158,7 @@ export default function SubmitUseCaseAILN({
 }) {
   const projectId = useProjectId();
   const useCaseId = useCase.id;
+  const router = useRouter();
 
   const [formData, setFormData] = useState<{
     outcomeProof: string;
@@ -183,7 +185,54 @@ export default function SubmitUseCaseAILN({
   });
   const [isUploading, setIsUploading] = useState(false);
   const [isDragOver, setIsDragOver] = useState(false);
+  const [isSubmitting, setIsSubmitting] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
+
+  const handleSubmit = async () => {
+    const hoursWithoutAiNum = Number(formData.hoursWithoutAi);
+    const hoursSavedNum = Number(formData.hoursSaved);
+    if (
+      !formData.outcomeProof.trim() ||
+      !Number.isFinite(hoursWithoutAiNum) ||
+      !Number.isFinite(hoursSavedNum) ||
+      formData.aiTools.length === 0 ||
+      !formData.frequency ||
+      !formData.type ||
+      !formData.description.trim()
+    ) {
+      toast.error("Lengkapi semua field yang wajib diisi.");
+      return;
+    }
+
+    setIsSubmitting(true);
+    try {
+      const res = await fetch("/api/use-cases/submit", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          use_case_id: useCaseId,
+          outcome_proof: formData.outcomeProof.trim(),
+          hours_with_ai: hoursSavedNum,
+          hours_without_ai: hoursWithoutAiNum,
+          description: formData.description.trim(),
+          ai_tool: formData.aiTools.join(", "),
+          frequency: formData.frequency.toLowerCase(),
+          type: formData.type.toLowerCase(),
+        }),
+      });
+      const data = await res.json().catch(() => null);
+      if (!res.ok) {
+        toast.error(data?.message ?? "Gagal mengirim tugas.");
+        return;
+      }
+      toast.success("Tugas berhasil dikirim untuk direview.");
+      router.refresh();
+    } catch {
+      toast.error("Gagal mengirim tugas.");
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
 
   const handleUploadFile = async (file: File) => {
     if (file.size < 1) return;
@@ -699,18 +748,24 @@ export default function SubmitUseCaseAILN({
               </FieldRow>
 
               {!isLocked && (
-                <DisabledActionButtonAILN
+                <ButtonAILN
                   type="button"
                   variant="primary"
                   className="w-fit self-end"
+                  disabled={isSubmitting}
+                  onClick={handleSubmit}
                 >
-                  <Send className="size-4" />
+                  {isSubmitting ? (
+                    <Loader2 className="size-4 animate-spin" />
+                  ) : (
+                    <Send className="size-4" />
+                  )}
                   {status === "NEEDS_REVISION"
                     ? "Kirim Revisi"
                     : useCase.submitted_at
                       ? "Update Submission"
                       : "Kirim Tugas"}
-                </DisabledActionButtonAILN>
+                </ButtonAILN>
               )}
               {isLocked && (
                 <Link

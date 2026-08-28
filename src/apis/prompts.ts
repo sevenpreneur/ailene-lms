@@ -70,6 +70,12 @@ export type SelfCreatePromptInput = {
   category_ids: number[];
 };
 
+export type SubmitPromptInput = {
+  prompt_id: number;
+  input: string;
+  output: string;
+};
+
 export type PromptMutationResult =
   | { success: true; data: PromptDetail }
   | { success: false; code: number; message: string };
@@ -201,6 +207,28 @@ export async function selfCreatePrompt(
       result.status,
       result.message
     );
+    return { success: false, code: result.code, message: result.message };
+  }
+  return { success: true, data: result.data };
+}
+
+// POST /api/v1/prompts/submit needs the caller's own session JWT — see docs/api/prompts.md in ailene-lms-backend.
+export async function submitPrompt(
+  input: SubmitPromptInput
+): Promise<PromptMutationResult> {
+  const sessionToken = await getSessionToken();
+  if (!sessionToken) {
+    return { success: false, code: 401, message: "Not authenticated" };
+  }
+
+  const result = await callApi<PromptDetail>("/api/v1/prompts/submit", {
+    method: "POST",
+    body: input,
+    token: sessionToken,
+  });
+
+  if (!result.success || !result.data) {
+    await LogError("submitPrompt", result.code, result.status, result.message);
     return { success: false, code: result.code, message: result.message };
   }
   return { success: true, data: result.data };

@@ -1,5 +1,5 @@
 "use client";
-import DisabledActionButtonAILN from "@/components/buttons/DisabledActionButtonAILN";
+import ButtonAILN from "@/components/buttons/ButtonAILN";
 import SectionContainerAILN from "@/components/cards/SectionContainerAILN";
 import TextAreaAILN from "@/components/fields/TextAreaAILN";
 import GeneralLabelAILN, {
@@ -17,13 +17,16 @@ import {
   Clock,
   FileText,
   Layers,
+  Loader2,
   Send,
   Sparkles,
   SquarePen,
   Tag,
 } from "lucide-react";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import React, { useMemo, useState } from "react";
+import { toast } from "sonner";
 
 type Status =
   | "PENDING_SUBMIT"
@@ -95,6 +98,7 @@ export default function SubmitPromptAILN({
   prompt: PromptDetail;
 }) {
   const projectId = useProjectId();
+  const router = useRouter();
 
   const [formData, setFormData] = useState<{
     input: string;
@@ -103,6 +107,37 @@ export default function SubmitPromptAILN({
     input: "",
     output: "",
   });
+  const [isSubmitting, setIsSubmitting] = useState(false);
+
+  const handleSubmit = async () => {
+    if (!formData.input.trim() || !formData.output.trim()) {
+      toast.error("Isi prompt dan output terlebih dahulu.");
+      return;
+    }
+    setIsSubmitting(true);
+    try {
+      const res = await fetch("/api/prompts/submit", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          prompt_id: prompt.id,
+          input: formData.input.trim(),
+          output: formData.output.trim(),
+        }),
+      });
+      const data = await res.json().catch(() => null);
+      if (!res.ok) {
+        toast.error(data?.message ?? "Gagal mengirim tugas.");
+        return;
+      }
+      toast.success("Tugas berhasil dikirim untuk direview.");
+      router.refresh();
+    } catch {
+      toast.error("Gagal mengirim tugas.");
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
 
   const status: Status = useMemo(() => {
     if (prompt.is_accepted) return "ACCEPTED";
@@ -275,18 +310,24 @@ export default function SubmitPromptAILN({
               </FieldRow>
 
               {!isLocked && (
-                <DisabledActionButtonAILN
+                <ButtonAILN
                   type="button"
                   variant="primary"
                   className="w-fit self-end"
+                  disabled={isSubmitting}
+                  onClick={handleSubmit}
                 >
-                  <Send className="size-4" />
+                  {isSubmitting ? (
+                    <Loader2 className="size-4 animate-spin" />
+                  ) : (
+                    <Send className="size-4" />
+                  )}
                   {status === "NEEDS_REVISION"
                     ? "Kirim Revisi"
                     : prompt.submitted_at
                       ? "Update Submission"
                       : "Kirim Tugas"}
-                </DisabledActionButtonAILN>
+                </ButtonAILN>
               )}
               {isLocked && (
                 <Link
