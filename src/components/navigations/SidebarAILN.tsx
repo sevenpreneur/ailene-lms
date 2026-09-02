@@ -165,12 +165,14 @@ function NavItem({
 export default function SidebarAILN({
   session,
   variant,
+  projectId: projectIdProp,
 }: {
   session: LmsSession;
   variant: SidebarAILNVariant;
+  projectId?: string;
 }) {
   const config = VARIANT_CONFIG[variant];
-  const projectId = useProjectId();
+  const projectId = useProjectId(projectIdProp);
   const { isCollapsed, toggleSidebar } = useSidebar();
   const [isLoggingOut, setIsLoggingOut] = useState(false);
   const pathname = usePathname();
@@ -358,7 +360,11 @@ export default function SidebarAILN({
                 />
               </div>
 
-              <RoleSwitch variant={variant} memberRole={projectAccess?.role} />
+              <RoleSwitch
+                variant={variant}
+                memberRole={projectAccess?.role}
+                projectId={projectId}
+              />
 
               <ButtonAILN
                 variant="light"
@@ -425,12 +431,12 @@ function IdentityMeta({
 function RoleSwitch({
   variant,
   memberRole,
+  projectId,
 }: {
   variant: SidebarAILNVariant;
   memberRole?: LmsProjectRole;
+  projectId: string;
 }) {
-  const projectId = useProjectId();
-
   if (variant === "STUDENT" && memberRole === "champion") {
     return (
       <Link href={`/${projectId}/champion`} className="mt-2 block">

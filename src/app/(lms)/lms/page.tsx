@@ -1,15 +1,16 @@
-import NoProjectStateAILN from "@/components/states/NoProjectStateAILN";
 import { checkSession } from "@/apis/auth";
+import HomeAILN from "@/components/pages/HomeAILN";
+import NoProjectStateAILN from "@/components/states/NoProjectStateAILN";
 import { LOGIN_URL } from "@/lib/config";
 import { redirect } from "next/navigation";
 
+// Discovery overview — deliberately not tied to any single project.
 export default async function AILNRootPage() {
   const session = await checkSession();
 
   if (!session) redirect(LOGIN_URL);
 
-  const firstProject = session.project_access[0];
-  if (!firstProject) return <NoProjectStateAILN />;
+  if (session.project_access.length === 0) return <NoProjectStateAILN />;
 
-  redirect(`/${firstProject.id}/${firstProject.role}`);
+  return <HomeAILN session={session} />;
 }

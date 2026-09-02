@@ -16,6 +16,16 @@ const nextConfig: NextConfig = {
       },
       {
         protocol: "https",
+        hostname: "img.youtube.com",
+        port: "",
+      },
+      {
+        protocol: "https",
+        hostname: "*.fbcdn.net",
+        port: "",
+      },
+      {
+        protocol: "https",
         hostname: "lh3.googleusercontent.com",
         port: "",
       },
