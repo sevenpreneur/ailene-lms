@@ -1,6 +1,6 @@
 "use client";
 
-import type { LmsProjectRole, LmsSession } from "@/apis/auth";
+import type { LmsSession } from "@/apis/auth";
 import ButtonAILN from "@/components/buttons/ButtonAILN";
 import ThemeSwitcherAILN from "@/components/buttons/ThemeSwitcherAILN";
 import { useSidebar } from "@/contexts/SidebarContext";
@@ -14,6 +14,7 @@ import {
   CalendarDays,
   ClipboardCheck,
   ClipboardList,
+  Compass,
   FileText,
   Gauge,
   LayoutDashboard,
@@ -23,8 +24,6 @@ import {
   PanelLeft,
   PlusCircle,
   Target,
-  UserRound,
-  UserRoundKey,
   type LucideIcon,
 } from "lucide-react";
 import Image from "next/image";
@@ -66,6 +65,11 @@ const VARIANT_CONFIG: Record<SidebarAILNVariant, VariantConfig> = {
     menu: [
       { name: "Hari Ini", url: "/student", icon: CalendarDays, exact: true },
       {
+        name: "Pre Assessment",
+        url: "/student/pre-assessment",
+        icon: Gauge,
+      },
+      {
         name: "Jalur Belajar",
         url: "/student/learning-path",
         icon: BookOpen,
@@ -77,6 +81,7 @@ const VARIANT_CONFIG: Record<SidebarAILNVariant, VariantConfig> = {
         icon: ClipboardList,
       },
       { name: "Progress Saya", url: "/student/my-progress", icon: LineChart },
+      { name: "Explore", url: "/student/explore", icon: Compass },
     ],
   },
   CHAMPION: {
@@ -360,11 +365,7 @@ export default function SidebarAILN({
                 />
               </div>
 
-              <RoleSwitch
-                variant={variant}
-                memberRole={projectAccess?.role}
-                projectId={projectId}
-              />
+              <RoleSwitch variant={variant} projectId={projectId} />
 
               <ButtonAILN
                 variant="light"
@@ -428,36 +429,45 @@ function IdentityMeta({
   );
 }
 
+// Ketiga mode selalu ditampilkan biar gampang pindah-pindah saat review.
+const ROLE_SWITCHES: {
+  label: string;
+  variant: SidebarAILNVariant;
+  path: string;
+}[] = [
+  { label: "Student", variant: "STUDENT", path: "/student" },
+  { label: "Champion", variant: "CHAMPION", path: "/champion" },
+  { label: "Sponsor", variant: "SPONSOR", path: "/sponsor" },
+];
+
 function RoleSwitch({
   variant,
-  memberRole,
   projectId,
 }: {
   variant: SidebarAILNVariant;
-  memberRole?: LmsProjectRole;
   projectId: string;
 }) {
-  if (variant === "STUDENT" && memberRole === "champion") {
-    return (
-      <Link href={`/${projectId}/champion`} className="mt-2 block">
-        <ButtonAILN variant="lime" size="small" className="w-full">
-          <UserRoundKey className="size-4" />
-          Mode Champion
-        </ButtonAILN>
-      </Link>
-    );
-  }
+  return (
+    <div className="mt-2 flex flex-row gap-1.5">
+      {ROLE_SWITCHES.map((role) => {
+        const active = role.variant === variant;
 
-  if (variant === "CHAMPION") {
-    return (
-      <Link href={`/${projectId}/student`} className="mt-2 block">
-        <ButtonAILN variant="lime" size="small" className="w-full">
-          <UserRound className="size-4" />
-          Mode Student
-        </ButtonAILN>
-      </Link>
-    );
-  }
-
-  return null;
+        return (
+          <Link
+            key={role.variant}
+            href={`/${projectId}${role.path}`}
+            className="min-w-0 flex-1"
+          >
+            <ButtonAILN
+              variant={active ? "lime" : "light"}
+              size="small"
+              className="w-full px-1"
+            >
+              {role.label}
+            </ButtonAILN>
+          </Link>
+        );
+      })}
+    </div>
+  );
 }

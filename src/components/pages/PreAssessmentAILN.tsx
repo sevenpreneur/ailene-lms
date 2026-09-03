@@ -2,7 +2,6 @@
 import DisabledActionButtonAILN from "@/components/buttons/DisabledActionButtonAILN";
 import ButtonAILN from "@/components/buttons/ButtonAILN";
 import PageContainerSVP from "@/components/pages/PageContainerSVP";
-import AppLoadingComponents from "@/components/states/AppLoadingComponents";
 import {
   PRE_ASSESSMENT_CATEGORY_COLORS,
   PRE_ASSESSMENT_QUESTIONS,
@@ -10,8 +9,6 @@ import {
   PreAssessmentQuestion,
 } from "@/lib/pre-assessment-questions";
 import { CheckSession } from "@/lib/actions";
-import { useProjectId } from "@/lib/use-project-id";
-import { getPreAssessmentMineMock } from "@/mock-data/student";
 import { useQuery } from "@tanstack/react-query";
 import {
   faChevronLeft,
@@ -21,7 +18,6 @@ import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { ArrowRight, BookOpen, Sparkles } from "lucide-react";
 import { useTheme } from "next-themes";
 import Image from "next/image";
-import { useRouter } from "next/navigation";
 import { useEffect, useMemo, useState } from "react";
 
 type AnswerValue = string | string[] | null;
@@ -34,9 +30,6 @@ function isAnswered(q: PreAssessmentQuestion, v: AnswerValue): boolean {
 }
 
 export default function PreAssessmentAILN() {
-  const router = useRouter();
-  const projectId = useProjectId();
-  const preAssessmentReportPath = `/${projectId}/student/my-progress/pre-assessment-report`;
   const { resolvedTheme } = useTheme();
   const [mounted, setMounted] = useState(false);
   useEffect(() => {
@@ -45,15 +38,6 @@ export default function PreAssessmentAILN() {
   }, []);
   const isDark = mounted && resolvedTheme === "dark";
   const nextVariant = isDark ? "neutral" : "primary";
-
-  const preAssessment = getPreAssessmentMineMock();
-
-  // Sudah pernah mengisi → hasilnya ada di halaman report, bukan di sini.
-  useEffect(() => {
-    if (preAssessment) {
-      router.replace(preAssessmentReportPath);
-    }
-  }, [preAssessment, router, preAssessmentReportPath]);
 
   const [answers, setAnswers] = useState<AnswerMap>(() => {
     const init: AnswerMap = {};
@@ -82,15 +66,6 @@ export default function PreAssessmentAILN() {
       ),
     [answers]
   );
-
-  // Sudah punya hasil → tampilkan loading sembari redirect ke report (effect).
-  if (preAssessment) {
-    return (
-      <PageContainerSVP className="flex min-h-screen justify-center">
-        <AppLoadingComponents />
-      </PageContainerSVP>
-    );
-  }
 
   if (!started) {
     return <PreAssessmentWelcomeAILN onStart={() => setStarted(true)} />;
