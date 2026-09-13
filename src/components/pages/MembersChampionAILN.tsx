@@ -5,17 +5,16 @@ import MemberDetailPanelChampionAILN from "@/components/indexes/MemberDetailPane
 import GeneralLabelAILN from "@/components/labels/GeneralLabelAILN";
 import PageContainerAILN from "@/components/pages/PageContainerAILN";
 import PageHeaderAILN from "@/components/titles/PageHeaderAILN";
-import { getLevelsMock } from "@/mock-data/shared";
-import { getTeamMembersMock } from "@/mock-data/champion";
+import type { MemberDetails, TeamMember, TeamMembers } from "@/apis/champion";
 import { Search } from "lucide-react";
 import Image from "next/image";
-import { usePathname, useRouter, useSearchParams } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
 import { useState } from "react";
 
 const DEFAULT_AVATAR =
   "https://tskubmriuclmbcfmaiur.supabase.co/storage/v1/object/public/sevenpreneur//default-avatar.svg.png";
 
-type Member = ReturnType<typeof getTeamMembersMock>["list"][number];
+type Member = TeamMember;
 
 const STATUS_META: Record<
   Member["status"],
@@ -38,31 +37,43 @@ const STATUS_META: Record<
   },
 };
 
-export default function MembersChampionAILN() {
+export default function MembersChampionAILN({
+  teamMembers,
+  detail,
+  selectedAccessId,
+}: {
+  teamMembers: TeamMembers | null;
+  detail: MemberDetails | null;
+  selectedAccessId: string | null;
+}) {
   const router = useRouter();
   const pathname = usePathname();
-  const searchParams = useSearchParams();
-  const selectedParam = Number(searchParams.get("member_id")) || null;
 
   const [levelFilter, setLevelFilter] = useState<number | "ALL">("ALL");
   const [search, setSearch] = useState("");
 
-  const members = getTeamMembersMock({}).list;
-  const levelTable = getLevelsMock();
+  const members = teamMembers?.list ?? [];
 
-  const selectMember = (id: number) => {
+  const selectMember = (id: string) => {
     router.replace(`${pathname}?member_id=${id}`, { scroll: false });
   };
 
-  // Member count per level — pills themselves come from the level table.
+  // Filter pills come from the levels the team actually sits on.
   const levelCounts = new Map<number, number>();
   for (const m of members) {
-    const lvl = m.current_level.level_number;
+    const lvl = m.current_level?.level_number;
+    if (lvl == null) continue;
     levelCounts.set(lvl, (levelCounts.get(lvl) ?? 0) + 1);
   }
+  const levelTable = [...levelCounts.keys()]
+    .sort((a, b) => a - b)
+    .map((level_number) => ({ id: level_number, level_number }));
 
   const filtered = members.filter((m) => {
-    if (levelFilter !== "ALL" && m.current_level.level_number !== levelFilter)
+    if (
+      levelFilter !== "ALL" &&
+      (m.current_level?.level_number ?? -1) !== levelFilter
+    )
       return false;
     if (search) {
       const q = search.toLowerCase();
@@ -75,11 +86,7 @@ export default function MembersChampionAILN() {
     return true;
   });
 
-  // Default selection: URL param if valid, otherwise first member in the list.
-  const selectedId =
-    selectedParam && members.some((m) => m.member_id === selectedParam)
-      ? selectedParam
-      : (members[0]?.member_id ?? null);
+  const selectedId = selectedAccessId;
 
   return (
     <PageContainerAILN>
@@ -156,10 +163,10 @@ export default function MembersChampionAILN() {
                         <tbody>
                           {filtered.map((m) => (
                             <MemberRow
-                              key={m.member_id}
+                              key={m.access_id}
                               member={m}
-                              selected={m.member_id === selectedId}
-                              onClick={() => selectMember(m.member_id)}
+                              selected={m.access_id === selectedId}
+                              onClick={() => selectMember(m.access_id)}
                             />
                           ))}
                         </tbody>
@@ -174,7 +181,7 @@ export default function MembersChampionAILN() {
                 {selectedId ? (
                   <MemberDetailPanelChampionAILN
                     key={selectedId}
-                    memberId={selectedId}
+                    detail={detail}
                   />
                 ) : (
                   <div className="flex h-64 items-center justify-center rounded-lg border border-dashed border-dashboard-border text-sm text-gray-500 dark:text-gray-400">
@@ -260,7 +267,7 @@ function MemberRow({
       </td>
       <td className="px-3 py-3">
         <GeneralLabelAILN variant="blue">
-          Level {member.current_level.level_number}
+          Level {member.current_level?.level_number ?? 0}
         </GeneralLabelAILN>
       </td>
       <td className="px-3 py-3">

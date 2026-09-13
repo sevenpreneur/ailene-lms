@@ -1,17 +1,21 @@
 "use client";
 import SectionContainerAILN from "@/components/cards/SectionContainerAILN";
 import { useProjectId } from "@/lib/use-project-id";
-import { getUseCaseSubmissionsMock } from "@/mock-data/champion";
+import type { ChampionSubmissions } from "@/apis/champion";
 import dayjs from "dayjs";
 import relativeTime from "dayjs/plugin/relativeTime";
 import Link from "next/link";
 
 dayjs.extend(relativeTime);
 
-export default function RecentUseCasesAILN() {
+export default function RecentUseCasesAILN({
+  submissions,
+}: {
+  submissions: ChampionSubmissions | null;
+}) {
   const projectId = useProjectId();
 
-  const items = getUseCaseSubmissionsMock()
+  const items = (submissions?.list ?? [])
     .filter((r) => r.submitted_at)
     .sort(
       (a, b) =>
@@ -32,12 +36,12 @@ export default function RecentUseCasesAILN() {
             <div key={r.id} className="flex items-start justify-between gap-2">
               <div className="min-w-0 flex-1">
                 <p className="truncate text-xs font-semibold text-gray-900 dark:text-white">
-                  {r.use_case.name}
+                  {r.subject.name}
                 </p>
                 <p className="truncate text-[10px] text-gray-500 dark:text-gray-400">
                   oleh {r.member.full_name}
-                  {r.use_case.level
-                    ? ` · L${r.use_case.level.level_number}`
+                  {r.subject.level
+                    ? ` · L${r.subject.level.level_number}`
                     : ""}
                   {r.is_accepted ? " · diterima" : " · menunggu review"}
                 </p>

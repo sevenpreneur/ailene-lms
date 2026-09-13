@@ -2,7 +2,7 @@
 import SectionContainerAILN from "@/components/cards/SectionContainerAILN";
 import { EmptyHintAILN } from "@/components/states/DataStatesAILN";
 import { formatScore } from "@/lib/format";
-import { getPreAssessmentTeamMock } from "@/mock-data/champion";
+import type { PreAssessmentTeam } from "@/apis/champion";
 
 // Pillar keys → ranking (descriptive) labels; keys mirror buildPreAssessmentReport.
 const PILLAR_LONG: Record<string, string> = {
@@ -18,8 +18,26 @@ const SCORE_MAX = 5;
 // Team pillar ranking: mean baseline per pillar across the champion's members,
 // lowest first — i.e. the coaching priority order, with the maturity target
 // drawn as a line on each bar.
-export default function PillarRankingChampionAILN() {
-  const data = getPreAssessmentTeamMock();
+const EMPTY_TEAM_PRE_ASSESSMENT: PreAssessmentTeam = {
+  department_count: 0,
+  total_members: 0,
+  completed_count: 0,
+  measured_at: null,
+  target: 0,
+  team_avg: 0,
+  ready_count: 0,
+  gap_large_count: 0,
+  departments: [],
+  team_pillars: [],
+  readiness: { ready: 0, developing: 0, basic: 0 },
+};
+
+export default function PillarRankingChampionAILN({
+  data: payload,
+}: {
+  data: PreAssessmentTeam | null;
+}) {
+  const data = payload ?? EMPTY_TEAM_PRE_ASSESSMENT;
 
   return (
     <SectionContainerAILN

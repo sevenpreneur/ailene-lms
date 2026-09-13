@@ -1,3 +1,4 @@
+import { getUseCaseSubmissionDetails } from "@/apis/champion";
 import ReviewUseCaseAILN from "@/components/forms/ReviewUseCaseAILN";
 import { Metadata } from "next";
 
@@ -8,10 +9,14 @@ export const metadata: Metadata = {
 export default async function ChampionUseCaseSubmissionPage({
   params,
 }: {
-  params: Promise<{ submission_id: string }>;
+  params: Promise<{ project_id: string; submission_id: string }>;
 }) {
-  const { submission_id } = await params;
+  const { project_id, submission_id } = await params;
   const submissionId = Number(submission_id);
 
-  return <ReviewUseCaseAILN submissionId={submissionId} />;
+  const detail = Number.isInteger(submissionId)
+    ? await getUseCaseSubmissionDetails(project_id, submissionId)
+    : null;
+
+  return <ReviewUseCaseAILN detail={detail} />;
 }

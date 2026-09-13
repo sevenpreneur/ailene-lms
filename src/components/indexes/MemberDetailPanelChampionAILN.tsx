@@ -8,7 +8,7 @@ import {
   ChartTooltipContent,
   type ChartConfig,
 } from "@/components/ui/chart";
-import { getMemberDetailMock } from "@/mock-data/champion";
+import type { MemberDetails } from "@/apis/champion";
 import dayjs from "dayjs";
 import relativeTime from "dayjs/plugin/relativeTime";
 import { Send } from "lucide-react";
@@ -50,12 +50,10 @@ function targetScoreForDimension(key: string, targetLevelNumber: number) {
 }
 
 export default function MemberDetailPanelChampionAILN({
-  memberId,
+  detail,
 }: {
-  memberId: number;
+  detail: MemberDetails | null;
 }) {
-  const detail = getMemberDetailMock({ member_id: memberId });
-
   const [noteText, setNoteText] = useState("");
 
   if (!detail) {
@@ -90,7 +88,7 @@ export default function MemberDetailPanelChampionAILN({
             {member.full_name}
           </div>
           <div className="mt-0.5 truncate text-xs text-gray-500 dark:text-gray-400">
-            {member.job_title}
+            {member.job_title ?? "-"}
             {member.group ? ` · ${member.group.name}` : ""}
           </div>
         </div>
@@ -104,7 +102,7 @@ export default function MemberDetailPanelChampionAILN({
       >
         <RadarBlock
           dimensions={dimensions}
-          targetLevelNumber={member.current_level.level_number}
+          targetLevelNumber={member.current_level?.level_number ?? 0}
         />
         <div className="flex flex-col gap-3">
           <p className="text-[10px] font-semibold uppercase tracking-[0.18em] text-muted-foreground">

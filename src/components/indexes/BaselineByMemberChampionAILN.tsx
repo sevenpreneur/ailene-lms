@@ -2,7 +2,7 @@
 import SectionContainerAILN from "@/components/cards/SectionContainerAILN";
 import { EmptyHintAILN } from "@/components/states/DataStatesAILN";
 import { formatInt, formatScore } from "@/lib/format";
-import { getPreAssessmentTeamMock } from "@/mock-data/champion";
+import type { PreAssessmentTeam } from "@/apis/champion";
 import Image from "next/image";
 
 // Pillar keys → table header (short) labels; keys mirror buildPreAssessmentReport.
@@ -50,8 +50,26 @@ function getInitials(name: string): string {
 // Team competency baseline matrix: one row per member, six pillar score chips +
 // average, grouped under each department the champion owns. Headline stats
 // summarize the team below the table.
-export default function BaselineByMemberChampionAILN() {
-  const data = getPreAssessmentTeamMock();
+const EMPTY_TEAM_PRE_ASSESSMENT: PreAssessmentTeam = {
+  department_count: 0,
+  total_members: 0,
+  completed_count: 0,
+  measured_at: null,
+  target: 0,
+  team_avg: 0,
+  ready_count: 0,
+  gap_large_count: 0,
+  departments: [],
+  team_pillars: [],
+  readiness: { ready: 0, developing: 0, basic: 0 },
+};
+
+export default function BaselineByMemberChampionAILN({
+  data: payload,
+}: {
+  data: PreAssessmentTeam | null;
+}) {
+  const data = payload ?? EMPTY_TEAM_PRE_ASSESSMENT;
   const multiDept = data.departments.length > 1;
 
   return (
@@ -127,9 +145,7 @@ export default function BaselineByMemberChampionAILN() {
   );
 }
 
-type Department = ReturnType<
-  typeof getPreAssessmentTeamMock
->["departments"][number];
+type Department = PreAssessmentTeam["departments"][number];
 
 function DepartmentRows({
   dept,
@@ -157,7 +173,7 @@ function DepartmentRows({
       )}
       {dept.members.map((m) => (
         <tr
-          key={m.member_id}
+          key={m.access_id}
           className="border-b border-dashboard-border/60 last:border-b-0"
         >
           <td className="py-2.5 pr-3 text-left">

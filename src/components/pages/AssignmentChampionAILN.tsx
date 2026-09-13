@@ -8,40 +8,28 @@ import PageHeaderAILN from "@/components/titles/PageHeaderAILN";
 import InputAILN from "@/components/fields/InputAILN";
 import AssignmentItemChampion from "@/components/items/AssignmentItemChampion";
 import GeneralLabelAILN from "@/components/labels/GeneralLabelAILN";
-import { PROMPT_LIBRARY, USE_CASE_LIBRARY } from "@/mock-data/champion";
+import type { TeamMembers } from "@/apis/champion";
+import type { Category } from "@/apis/categories";
+import type { PromptLibraryItem } from "@/apis/prompts";
+import type { UseCaseLibraryItem } from "@/apis/use-cases";
 import { BookOpen, Plus, Search, Send } from "lucide-react";
 import { useState } from "react";
 
 type AssignmentTab = "PROMPT" | "USE_CASE";
 
-interface CategoryRef {
-  id: number;
-  name: string;
-}
-interface LevelRef {
-  id: number;
-  level_number: number;
-  name: string;
-}
-
-interface PromptItem {
-  id: number;
-  name: string;
-  scenario: string;
-  expected_output: string;
-  level: LevelRef;
-  categories: CategoryRef[];
-}
-
-interface UseCaseItem {
-  id: number;
-  name: string;
-  description: string;
-  level: LevelRef;
-  categories: CategoryRef[];
-}
-
-export default function AssignmentChampionAILN() {
+export default function AssignmentChampionAILN({
+  prompts,
+  useCases,
+  teamMembers,
+  categories,
+  group,
+}: {
+  prompts: PromptLibraryItem[];
+  useCases: UseCaseLibraryItem[];
+  teamMembers: TeamMembers | null;
+  categories: Category[];
+  group: { id: number; name: string } | null;
+}) {
   const [tab, setTab] = useState<AssignmentTab>("PROMPT");
   const [selectedPromptId, setSelectedPromptId] = useState<number | null>(null);
   const [selectedUseCaseId, setSelectedUseCaseId] = useState<number | null>(
@@ -51,8 +39,7 @@ export default function AssignmentChampionAILN() {
   const [createOpen, setCreateOpen] = useState(false);
   const [search, setSearch] = useState("");
 
-  const prompts = PROMPT_LIBRARY as unknown as PromptItem[];
-  const useCases = USE_CASE_LIBRARY as unknown as UseCaseItem[];
+  const members = teamMembers?.list ?? [];
 
   const q = search.trim().toLowerCase();
   const filteredPrompts = q
@@ -128,9 +115,9 @@ export default function AssignmentChampionAILN() {
                     {filteredPrompts.map((p) => (
                       <AssignmentItemChampion
                         key={p.id}
-                        levelNumber={p.level.level_number}
+                        levelNumber={p.level_number}
                         name={p.name}
-                        body={p.scenario}
+                        body={p.description}
                         categories={p.categories}
                         isSelected={selectedPrompt?.id === p.id}
                         onClick={() => setSelectedPromptId(p.id)}
@@ -145,7 +132,7 @@ export default function AssignmentChampionAILN() {
                   {filteredUseCases.map((u) => (
                     <AssignmentItemChampion
                       key={u.id}
-                      levelNumber={u.level.level_number}
+                      levelNumber={u.level_number}
                       name={u.name}
                       body={u.description}
                       categories={u.categories}
@@ -166,14 +153,13 @@ export default function AssignmentChampionAILN() {
                 selectedPrompt ? (
                   <>
                     <PreviewBody
-                      levelNumber={selectedPrompt.level.level_number}
+                      levelNumber={selectedPrompt.level_number}
                       title={selectedPrompt.name}
                       categories={selectedPrompt.categories}
                       sections={[
-                        { label: "Skenario", text: selectedPrompt.scenario },
                         {
-                          label: "Expected Output",
-                          text: selectedPrompt.expected_output,
+                          label: "Skenario",
+                          text: selectedPrompt.description,
                         },
                       ]}
                     />
@@ -195,7 +181,7 @@ export default function AssignmentChampionAILN() {
               ) : selectedUseCase ? (
                 <>
                   <PreviewBody
-                    levelNumber={selectedUseCase.level.level_number}
+                    levelNumber={selectedUseCase.level_number}
                     title={selectedUseCase.name}
                     categories={selectedUseCase.categories}
                     sections={[
@@ -237,11 +223,16 @@ export default function AssignmentChampionAILN() {
               ? { id: selectedUseCase.id, name: selectedUseCase.name }
               : null
         }
+        members={members}
+        group={group}
       />
 
       <CreateAssignmentFormAILN
         isOpen={createOpen}
         onClose={() => setCreateOpen(false)}
+        members={members}
+        group={group}
+        categories={categories}
       />
     </PageContainerAILN>
   );
@@ -288,7 +279,7 @@ function PreviewBody({
 }: {
   levelNumber: number;
   title: string;
-  categories: CategoryRef[];
+  categories: Category[];
   sections: { label: string; text: string }[];
 }) {
   return (

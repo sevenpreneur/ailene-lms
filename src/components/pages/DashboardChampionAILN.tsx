@@ -7,8 +7,7 @@ import ChampionTeamMembersAILN from "@/components/indexes/ChampionTeamMembersAIL
 import MembersLabelChampionAILN from "@/components/labels/MembersLabelChampionAILN";
 import RecentUseCasesAILN from "@/components/indexes/RecentUseCasesAILN";
 import PageContainerAILN from "@/components/pages/PageContainerAILN";
-import { getTeamMembersMock } from "@/mock-data/champion";
-import { getAilMemberMock } from "@/mock-data/shared";
+import type { ChampionSubmissions, TeamMembers } from "@/apis/champion";
 import { useProjectId } from "@/lib/use-project-id";
 import { Activity, Clock, Plus, Send } from "lucide-react";
 import Link from "next/link";
@@ -39,21 +38,40 @@ const ACCENT = {
   },
 };
 
-export default function DashboardChampionAILN() {
+const EMPTY_STATS: TeamMembers["stats"] = {
+  total: 0,
+  on_track: 0,
+  at_risk: 0,
+  behind: 0,
+  active_this_week: 0,
+  submissions_sent: 0,
+  members_submitted: 0,
+  hours_saved: 0,
+};
+
+export default function DashboardChampionAILN({
+  teamMembers,
+  useCaseSubmissions,
+  groupName,
+}: {
+  teamMembers: TeamMembers | null;
+  useCaseSubmissions: ChampionSubmissions | null;
+  groupName: string;
+}) {
   const projectId = useProjectId();
 
-  const { stats, list: allMembers } = getTeamMembersMock({});
-  const ailMember = getAilMemberMock({ projectId, userId: "current" });
+  const stats = teamMembers?.stats ?? EMPTY_STATS;
+  const allMembers = teamMembers?.list ?? [];
 
-  const groupName =
-    ailMember.championed_groups.map((g) => g.name).join(", ") || "Tim";
   const avgLevel =
     allMembers.length > 0
-      ? allMembers.reduce((sum, m) => sum + m.current_level.level_number, 0) /
-        allMembers.length
+      ? allMembers.reduce(
+          (sum, m) => sum + (m.current_level?.level_number ?? 0),
+          0
+        ) / allMembers.length
       : 0;
   const level2Plus = allMembers.filter(
-    (m) => m.current_level.level_number >= 2
+    (m) => (m.current_level?.level_number ?? 0) >= 2
   ).length;
 
   const ratio = (n: number, d: number) => (d > 0 ? n / d : 0);
@@ -135,7 +153,7 @@ export default function DashboardChampionAILN() {
           </div>
           <div className="flex flex-col gap-4">
             <ChampionCoachingAlertAILN members={allMembers} />
-            <RecentUseCasesAILN />
+            <RecentUseCasesAILN submissions={useCaseSubmissions} />
           </div>
         </div>
       </div>

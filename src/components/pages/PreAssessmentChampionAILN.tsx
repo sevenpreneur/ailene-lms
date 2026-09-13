@@ -4,8 +4,13 @@ import BaselineByMemberChampionAILN from "@/components/indexes/BaselineByMemberC
 import PillarRankingChampionAILN from "@/components/indexes/PillarRankingChampionAILN";
 import PageContainerAILN from "@/components/pages/PageContainerAILN";
 import PageHeaderAILN from "@/components/titles/PageHeaderAILN";
+import type { PreAssessmentTeam } from "@/apis/champion";
 
-export default function PreAssessmentChampionAILN() {
+export default function PreAssessmentChampionAILN({
+  data,
+}: {
+  data: PreAssessmentTeam | null;
+}) {
   return (
     <PageContainerAILN>
       <div className="flex w-full flex-col gap-6">
@@ -15,12 +20,12 @@ export default function PreAssessmentChampionAILN() {
         />
 
         {/* Member × pillar baseline matrix — full width */}
-        <BaselineByMemberChampionAILN />
+        <BaselineByMemberChampionAILN data={data} />
 
         {/* Coaching priority ranking + readiness distribution side by side */}
         <div className="grid grid-cols-1 gap-6 lg:grid-cols-2">
-          <PillarRankingChampionAILN />
-          <ReadinessDistributionChampionAILN />
+          <PillarRankingChampionAILN data={data} />
+          <ReadinessDistributionChampionAILN data={data} />
         </div>
       </div>
     </PageContainerAILN>

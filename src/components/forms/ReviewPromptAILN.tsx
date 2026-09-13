@@ -1,5 +1,5 @@
 "use client";
-import DisabledActionButtonAILN from "@/components/buttons/DisabledActionButtonAILN";
+import ButtonAILN from "@/components/buttons/ButtonAILN";
 import SectionContainerAILN from "@/components/cards/SectionContainerAILN";
 import TextAreaAILN from "@/components/fields/TextAreaAILN";
 import GeneralLabelAILN, {
@@ -8,12 +8,15 @@ import GeneralLabelAILN, {
 import PageContainerAILN from "@/components/pages/PageContainerAILN";
 import PageHeaderAILN from "@/components/titles/PageHeaderAILN";
 import AppPageState from "@/components/states/AppPageState";
-import { getPromptSubmissionDetailMock } from "@/mock-data/champion";
+import type { PromptSubmissionDetails } from "@/apis/champion";
 import dayjs from "dayjs";
 import "dayjs/locale/id";
 import { CalendarClock, Clock, RotateCcw } from "lucide-react";
 import Image from "next/image";
+import { useProjectId } from "@/lib/use-project-id";
+import { useRouter } from "next/navigation";
 import { useEffect, useMemo, useState } from "react";
+import { toast } from "sonner";
 
 const DEFAULT_AVATAR =
   "https://tskubmriuclmbcfmaiur.supabase.co/storage/v1/object/public/sevenpreneur//default-avatar.svg.png";
@@ -53,12 +56,15 @@ const fmt = (d: string | Date) =>
   dayjs(d).locale("id").format("ddd, D MMM YYYY · HH:mm");
 
 export default function ReviewPromptAILN({
-  submissionId,
+  detail,
 }: {
-  submissionId: number;
+  detail: PromptSubmissionDetails | null;
 }) {
-  const s = getPromptSubmissionDetailMock({ submission_id: submissionId });
+  const s = detail;
+  const projectId = useProjectId();
+  const router = useRouter();
 
+  const [isSubmitting, setIsSubmitting] = useState(false);
   const [comment, setComment] = useState("");
   const [rubric, setRubric] = useState<Record<RubricKey, number | null>>({
     rubric_specificity: null,
@@ -99,6 +105,46 @@ export default function ReviewPromptAILN({
     );
   }
 
+  const submitReview = async (isAccepted: boolean) => {
+    if (isSubmitting || !s) return;
+    if (!isAccepted && !comment.trim()) {
+      toast.error("Isi catatan revisi dulu.");
+      return;
+    }
+
+    setIsSubmitting(true);
+    try {
+      const response = await fetch("/api/champion/prompts/review", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          project_id: projectId,
+          submission_id: s.id,
+          is_accepted: isAccepted,
+          comment: comment.trim() || null,
+          ...rubric,
+        }),
+      });
+
+      const payload = await response.json().catch(() => null);
+      if (!response.ok) {
+        toast.error(payload?.message ?? "Gagal menyimpan review.");
+        return;
+      }
+
+      toast.success(
+        isAccepted
+          ? `Submission diterima · +${payload?.xp_awarded ?? 0} XP`
+          : "Dikembalikan untuk revisi."
+      );
+      router.refresh();
+    } catch {
+      toast.error("Gagal menyimpan review.");
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
+
   const meta = STATUS_META[status];
   const canReview = status === "AWAITING_REVIEW" || status === "NEEDS_REVISION";
   const deadline = s.deadline;
@@ -113,13 +159,23 @@ export default function ReviewPromptAILN({
         >
           {canReview && (
             <>
-              <DisabledActionButtonAILN type="button" variant="destructive">
+              <ButtonAILN
+                type="button"
+                variant="destructive"
+                onClick={() => submitReview(false)}
+                disabled={isSubmitting}
+              >
                 <RotateCcw className="size-4" />
                 Minta Revisi
-              </DisabledActionButtonAILN>
-              <DisabledActionButtonAILN type="button" variant="champion">
-                Terima Submission
-              </DisabledActionButtonAILN>
+              </ButtonAILN>
+              <ButtonAILN
+                type="button"
+                variant="champion"
+                onClick={() => submitReview(true)}
+                disabled={isSubmitting}
+              >
+                {isSubmitting ? "Menyimpan…" : "Terima Submission"}
+              </ButtonAILN>
             </>
           )}
         </PageHeaderAILN>
@@ -128,9 +184,9 @@ export default function ReviewPromptAILN({
         <div className="flex flex-wrap items-center gap-1.5">
           <GeneralLabelAILN variant="yellow">Prompt</GeneralLabelAILN>
           <GeneralLabelAILN variant="blue">
-            Level {s.prompt.level.level_number}
+            Level {s.prompt.level?.level_number ?? "-"}
           </GeneralLabelAILN>
-          {s.prompt.categories.map((c) => (
+          {s.categories.map((c) => (
             <GeneralLabelAILN key={c.id} variant="white">
               {c.name}
             </GeneralLabelAILN>

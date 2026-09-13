@@ -1,6 +1,6 @@
 "use client";
 import { useProjectId } from "@/lib/use-project-id";
-import type { getTeamMembersMock } from "@/mock-data/champion";
+import type { TeamMember } from "@/apis/champion";
 import dayjs from "dayjs";
 import relativeTime from "dayjs/plugin/relativeTime";
 import { ArrowRight, Eye } from "lucide-react";
@@ -9,7 +9,7 @@ import Link from "next/link";
 
 dayjs.extend(relativeTime);
 
-type Member = ReturnType<typeof getTeamMembersMock>["list"][number];
+type Member = TeamMember;
 
 const AVATAR_GRADIENTS = [
   "from-fuchsia-500 to-pink-500",
@@ -42,7 +42,7 @@ function firstName(name: string): string {
 // Auto-generated talking point from the data we have on the member, plus an
 // optional pairing suggestion with the strongest on-track peer (a "mentor").
 function buildTalkingPoint(m: Member, mentor: Member | null): string {
-  const lvl = m.current_level.level_number;
+  const lvl = (m.current_level?.level_number ?? 0);
   const uc = m.use_case_count;
   const lastActive = m.last_active_at
     ? dayjs(m.last_active_at).fromNow()
@@ -53,10 +53,10 @@ function buildTalkingPoint(m: Member, mentor: Member | null): string {
       ? `Tertahan di L${lvl}, baru ${uc} use case · terakhir aktif ${lastActive}.`
       : `Mulai melambat di L${lvl}, ${uc} use case · terakhir aktif ${lastActive}.`;
 
-  if (mentor && mentor.member_id !== m.member_id) {
+  if (mentor && mentor.access_id !== m.access_id) {
     return `${head} Talking point: pasangkan dengan ${firstName(
       mentor.user.full_name
-    )} (L${mentor.current_level.level_number}).`;
+    )} (L${(mentor.current_level?.level_number ?? 0)}).`;
   }
   return head;
 }
@@ -98,7 +98,7 @@ export default function ChampionCoachingAlertAILN(props: {
       .filter((m) => m.status === "on_track")
       .sort(
         (a, b) =>
-          b.current_level.level_number - a.current_level.level_number ||
+          (b.current_level?.level_number ?? 0) - (a.current_level?.level_number ?? 0) ||
           b.use_case_count - a.use_case_count
       )[0] ?? null;
 
@@ -130,7 +130,7 @@ export default function ChampionCoachingAlertAILN(props: {
         <div className="flex max-h-[560px] flex-col gap-3 overflow-y-auto">
           {alerts.map((m) => (
             <div
-              key={m.member_id}
+              key={m.access_id}
               className="flex flex-col gap-2.5 rounded-lg border border-amber-100 bg-white p-3 dark:border-amber-500/15 dark:bg-card-1"
             >
               <div className="flex items-center gap-2">
@@ -143,7 +143,7 @@ export default function ChampionCoachingAlertAILN(props: {
                 {buildTalkingPoint(m, mentor)}
               </p>
               <Link
-                href={`/${projectId}/champion/members?member_id=${m.member_id}`}
+                href={`/${projectId}/champion/members?member_id=${m.access_id}`}
                 className="flex items-center justify-center gap-1.5 rounded-lg border border-violet-200 px-3 py-1.5 text-xs font-semibold text-violet-700 transition hover:bg-violet-50 dark:border-violet-500/30 dark:text-violet-300 dark:hover:bg-violet-500/10"
               >
                 Buka 1:1 prep brief

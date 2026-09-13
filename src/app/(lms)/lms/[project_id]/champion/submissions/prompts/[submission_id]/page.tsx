@@ -1,3 +1,4 @@
+import { getPromptSubmissionDetails } from "@/apis/champion";
 import ReviewPromptAILN from "@/components/forms/ReviewPromptAILN";
 import { Metadata } from "next";
 
@@ -8,10 +9,14 @@ export const metadata: Metadata = {
 export default async function ChampionPromptSubmissionPage({
   params,
 }: {
-  params: Promise<{ submission_id: string }>;
+  params: Promise<{ project_id: string; submission_id: string }>;
 }) {
-  const { submission_id } = await params;
+  const { project_id, submission_id } = await params;
   const submissionId = Number(submission_id);
 
-  return <ReviewPromptAILN submissionId={submissionId} />;
+  const detail = Number.isInteger(submissionId)
+    ? await getPromptSubmissionDetails(project_id, submissionId)
+    : null;
+
+  return <ReviewPromptAILN detail={detail} />;
 }

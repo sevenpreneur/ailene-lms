@@ -19,11 +19,11 @@ export interface SubmissionRow {
   id: number;
   kind: "PROMPT" | "USE_CASE";
   href: string;
-  level_number: number;
+  level_number: number | null;
   title: string;
-  body: string;
+  body: string | null;
   category: string | null;
-  member: { id: number; full_name: string; avatar: string | null };
+  member: { access_id: string; full_name: string; avatar: string | null };
   deadline: string | null;
   submitted_at: string | null;
   reviewed_at: string | null;

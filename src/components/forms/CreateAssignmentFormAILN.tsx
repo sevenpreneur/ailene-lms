@@ -1,14 +1,16 @@
 "use client";
-import DisabledActionButtonAILN from "@/components/buttons/DisabledActionButtonAILN";
+import ButtonAILN from "@/components/buttons/ButtonAILN";
 import InputAILN from "@/components/fields/InputAILN";
 import TextAreaAILN from "@/components/fields/TextAreaAILN";
 import SheetAILN from "@/components/modals/SheetAILN";
 import { useProjectId } from "@/lib/use-project-id";
-import { getTeamMembersMock } from "@/mock-data/champion";
-import { getAilMemberMock, getCategoriesMock } from "@/mock-data/shared";
+import type { TeamMember } from "@/apis/champion";
+import type { Category } from "@/apis/categories";
 import dayjs from "dayjs";
 import { Plus } from "lucide-react";
+import { useRouter } from "next/navigation";
 import { useMemo, useState } from "react";
+import { toast } from "sonner";
 import Select from "react-select";
 
 type AssignmentKind = "PROMPT" | "USE_CASE";
@@ -18,13 +20,21 @@ type CategoryOption = { value: number; label: string };
 interface CreateAssignmentFormAILNProps {
   isOpen: boolean;
   onClose: () => void;
+  members: TeamMember[];
+  group: { id: number; name: string } | null;
+  categories: Category[];
 }
 
 export default function CreateAssignmentFormAILN({
   isOpen,
   onClose,
+  members,
+  group,
+  categories,
 }: CreateAssignmentFormAILNProps) {
   const projectId = useProjectId();
+  const router = useRouter();
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
   const [formData, setFormData] = useState<{
     kind: AssignmentKind;
@@ -34,7 +44,7 @@ export default function CreateAssignmentFormAILN({
     selectedCategoryIds: number[];
     assignEnabled: boolean;
     mode: TargetMode;
-    selectedMemberIds: number[];
+    selectedMemberIds: string[];
     selectedGroupIds: number[];
     deadlineDate: string;
     deadlineTime: string;
@@ -58,13 +68,8 @@ export default function CreateAssignmentFormAILN({
   const handleInputChange = (fieldName: string) => (value: unknown) =>
     setFormData((prev) => ({ ...prev, [fieldName]: value }));
 
-  const categories = useMemo(() => getCategoriesMock(), []);
-  const ailMember = useMemo(
-    () => getAilMemberMock({ projectId, userId: "current" }),
-    [projectId]
-  );
-  const groups = ailMember.championed_groups;
-  const members = useMemo(() => getTeamMembersMock({}).list, []);
+  // A champion leads exactly one group, so bulk mode targets only that group.
+  const groups = useMemo(() => (group ? [group] : []), [group]);
 
   const categoryOptions = useMemo<CategoryOption[]>(
     () => categories.map((c) => ({ value: c.id, label: c.name })),
@@ -77,7 +82,7 @@ export default function CreateAssignmentFormAILN({
       ),
     [categoryOptions, formData.selectedCategoryIds]
   );
-  const toggleMember = (id: number) =>
+  const toggleMember = (id: string) =>
     setFormData((prev) => ({
       ...prev,
       selectedMemberIds: prev.selectedMemberIds.includes(id)
@@ -91,6 +96,95 @@ export default function CreateAssignmentFormAILN({
         ? prev.selectedGroupIds.filter((x) => x !== id)
         : [...prev.selectedGroupIds, id],
     }));
+
+  const handleCreate = async () => {
+    if (isSubmitting) return;
+
+    const isPrompt = formData.kind === "PROMPT";
+    if (!formData.name.trim() || !formData.description.trim()) {
+      toast.error("Nama dan deskripsi wajib diisi.");
+      return;
+    }
+    if (isPrompt && !formData.expectedOutput.trim()) {
+      toast.error("Expected output wajib diisi.");
+      return;
+    }
+    if (
+      formData.selectedCategoryIds.length < 1 ||
+      formData.selectedCategoryIds.length > 2
+    ) {
+      toast.error("Pilih 1 sampai 2 kategori.");
+      return;
+    }
+
+    let assignment = null;
+    if (formData.assignEnabled) {
+      const deadline = dayjs(
+        `${formData.deadlineDate}T${formData.deadlineTime}`
+      );
+      if (!deadline.isValid() || deadline.isBefore(dayjs())) {
+        toast.error("Deadline harus di masa depan.");
+        return;
+      }
+      const isMember = formData.mode === "INDIVIDUAL";
+      if (isMember && formData.selectedMemberIds.length === 0) {
+        toast.error("Pilih minimal satu anggota.");
+        return;
+      }
+      if (!isMember && formData.selectedGroupIds.length === 0) {
+        toast.error("Pilih minimal satu grup.");
+        return;
+      }
+      assignment = {
+        target_type: isMember ? "MEMBER" : "GROUP",
+        ...(isMember
+          ? { target_access_ids: formData.selectedMemberIds }
+          : { target_group_ids: formData.selectedGroupIds }),
+        deadline: deadline.toISOString(),
+        message: formData.message.trim() || null,
+      };
+    }
+
+    setIsSubmitting(true);
+    try {
+      const endpoint = isPrompt
+        ? "/api/champion/prompts/create-assignment"
+        : "/api/champion/use-cases/create-assignment";
+      const response = await fetch(endpoint, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          project_id: projectId,
+          name: formData.name.trim(),
+          description: formData.description.trim(),
+          ...(isPrompt
+            ? { expected_output: formData.expectedOutput.trim() }
+            : {}),
+          category_ids: formData.selectedCategoryIds,
+          assignment,
+        }),
+      });
+
+      const payload = await response.json().catch(() => null);
+      if (!response.ok) {
+        toast.error(payload?.message ?? "Gagal menyimpan. Coba lagi.");
+        return;
+      }
+
+      toast.success(
+        assignment
+          ? `Dibuat dan di-assign ke ${payload?.assigned_count ?? 0} anggota.`
+          : "Ditambahkan ke library."
+      );
+      resetForm();
+      onClose();
+      router.refresh();
+    } catch {
+      toast.error("Gagal menyimpan. Coba lagi.");
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
 
   const resetForm = () =>
     setFormData({
@@ -335,11 +429,11 @@ export default function CreateAssignmentFormAILN({
                     <div className="flex max-h-64 flex-col gap-1 overflow-y-auto rounded-md border border-dashboard-border p-2">
                       {members.map((m) => {
                         const checked = formData.selectedMemberIds.includes(
-                          m.member_id
+                          m.access_id
                         );
                         return (
                           <label
-                            key={m.member_id}
+                            key={m.access_id}
                             className={`flex cursor-pointer items-center gap-2 rounded px-2 py-1.5 text-sm transition ${
                               checked
                                 ? "bg-hijau-t dark:bg-claude/10"
@@ -349,7 +443,7 @@ export default function CreateAssignmentFormAILN({
                             <input
                               type="checkbox"
                               checked={checked}
-                              onChange={() => toggleMember(m.member_id)}
+                              onChange={() => toggleMember(m.access_id)}
                               className="size-4"
                             />
                             <div className="flex flex-1 flex-col">
@@ -399,7 +493,7 @@ export default function CreateAssignmentFormAILN({
                                 {g.name}
                               </span>
                               <span className="text-xs text-gray-500 dark:text-gray-400">
-                                {g.member_count} anggota
+                                {members.length} anggota
                               </span>
                             </div>
                           </label>
@@ -454,15 +548,20 @@ export default function CreateAssignmentFormAILN({
 
         {/* Footer */}
         <div className="sticky bottom-0 z-40 flex w-full flex-col gap-1 border-t border-dashboard-border bg-sb-bg p-4">
-          <DisabledActionButtonAILN
+          <ButtonAILN
             type="button"
             variant="champion"
             className="w-full"
+            onClick={handleCreate}
+            disabled={isSubmitting}
           >
             <Plus className="size-4" />
-            {formData.assignEnabled ? "Buat & Assign" : "Buat"}{" "}
-            {formData.kind === "PROMPT" ? "Prompt" : "Use Case"}
-          </DisabledActionButtonAILN>
+            {isSubmitting
+              ? "Menyimpan…"
+              : `${formData.assignEnabled ? "Buat & Assign" : "Buat"} ${
+                  formData.kind === "PROMPT" ? "Prompt" : "Use Case"
+                }`}
+          </ButtonAILN>
           <p className="text-center text-[11px] text-gray-500 dark:text-gray-400">
             Item akan ditambahkan ke library{" "}
             {formData.kind === "PROMPT" ? "Prompt (L2)" : "Use Case (L3)"}.

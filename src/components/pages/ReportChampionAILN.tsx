@@ -3,25 +3,46 @@
 import ButtonAILN from "@/components/buttons/ButtonAILN";
 import SectionContainerAILN from "@/components/cards/SectionContainerAILN";
 import PageContainerAILN from "@/components/pages/PageContainerAILN";
-import { getChampionReportMock } from "@/mock-data/champion";
+import AppErrorComponents from "@/components/states/AppErrorComponents";
+import type { ChampionReport, ChampionReportPeriod } from "@/apis/champion";
 import dayjs from "dayjs";
 import "dayjs/locale/id";
 import { Download } from "lucide-react";
+import { usePathname, useRouter } from "next/navigation";
 import { useMemo, useState } from "react";
 
 const ACCENT = "#1a7a52";
-type ChampionReportData = ReturnType<typeof getChampionReportMock>;
+type ChampionReportData = ChampionReport;
 
-export default function ReportChampionAILN() {
-  const [period, setPeriod] = useState<"weekly" | "monthly">("weekly");
-  const data = useMemo(() => getChampionReportMock({ period }), [period]);
+export default function ReportChampionAILN({
+  data,
+  period,
+}: {
+  data: ChampionReport | null;
+  period: ChampionReportPeriod;
+}) {
+  const router = useRouter();
+  const pathname = usePathname();
+
+  // The backend recomputes per period, so the toggle round-trips through the URL.
+  const onPeriodChange = (next: ChampionReportPeriod) => {
+    router.replace(`${pathname}?period=${next}`, { scroll: false });
+  };
+
+  if (!data) {
+    return (
+      <PageContainerAILN>
+        <AppErrorComponents />
+      </PageContainerAILN>
+    );
+  }
 
   return (
     <ReportContent
       key={`${period}-${data.generated_at}`}
       data={data}
       period={period}
-      onPeriodChange={setPeriod}
+      onPeriodChange={onPeriodChange}
     />
   );
 }
@@ -32,8 +53,8 @@ function ReportContent({
   onPeriodChange,
 }: {
   data: ChampionReportData;
-  period: "weekly" | "monthly";
-  onPeriodChange: (period: "weekly" | "monthly") => void;
+  period: ChampionReportPeriod;
+  onPeriodChange: (period: ChampionReportPeriod) => void;
 }) {
   const [narrative, setNarrative] = useState(data.narrative);
   const maxMovement = Math.max(

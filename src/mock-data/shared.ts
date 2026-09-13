@@ -20,10 +20,6 @@ export const LEVELS: LevelMock[] = [
   { id: 5, level_number: 4, name: "Advanced", icon: "🏆", min_xp: 1600, status: "ACTIVE" },
 ];
 
-export function getLevelsMock(): LevelMock[] {
-  return LEVELS;
-}
-
 export function levelByNumber(levelNumber: number): LevelMock {
   return LEVELS.find((l) => l.level_number === levelNumber) ?? LEVELS[0];
 }
@@ -35,10 +31,6 @@ export const CATEGORIES: CategoryRef[] = [
   { id: 4, name: "Marketing" },
   { id: 5, name: "IT & Digital" },
 ];
-
-export function getCategoriesMock(): CategoryRef[] {
-  return CATEGORIES;
-}
 
 export const CHAPTERS: ChapterMock[] = [
   {
@@ -231,10 +223,6 @@ export const MEMBER_ROSTER: MemberRosterEntry[] = [
 export function getMemberRosterMock(input?: { group_id?: number }): MemberRosterEntry[] {
   if (input?.group_id == null) return MEMBER_ROSTER;
   return MEMBER_ROSTER.filter((m) => m.group_id === input.group_id);
-}
-
-export function getMemberByIdMock(memberId: number): MemberRosterEntry | null {
-  return MEMBER_ROSTER.find((m) => m.member_id === memberId) ?? null;
 }
 
 // The signed-in user's own AI-learning business data — role/identity come

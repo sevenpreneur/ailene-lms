@@ -7,10 +7,7 @@ import SubmissionItemChampion, {
 import PageContainerAILN from "@/components/pages/PageContainerAILN";
 import PageHeaderAILN from "@/components/titles/PageHeaderAILN";
 import { useProjectId } from "@/lib/use-project-id";
-import {
-  getPromptSubmissionsMock,
-  getUseCaseSubmissionsMock,
-} from "@/mock-data/champion";
+import type { ChampionSubmissions } from "@/apis/champion";
 import dayjs from "dayjs";
 import { ClipboardList } from "lucide-react";
 import { useState } from "react";
@@ -21,48 +18,42 @@ const FILTERS: { key: ReviewStatus; label: string }[] = [
   { key: "ACCEPTED", label: "Sudah diterima" },
 ];
 
-export default function SubmissionsChampionAILN() {
+export default function SubmissionsChampionAILN({
+  promptSubmissions,
+  useCaseSubmissions,
+}: {
+  promptSubmissions: ChampionSubmissions | null;
+  useCaseSubmissions: ChampionSubmissions | null;
+}) {
   const projectId = useProjectId();
 
   const [filter, setFilter] = useState<ReviewStatus>("AWAITING_REVIEW");
 
+  const toRow = (
+    r: ChampionSubmissions["list"][number],
+    kind: SubmissionRow["kind"]
+  ): SubmissionRow => ({
+    id: r.id,
+    kind,
+    href: `/${projectId}/champion/submissions/${
+      kind === "PROMPT" ? "prompts" : "use-cases"
+    }/${r.id}`,
+    level_number: r.subject.level?.level_number ?? null,
+    title: r.subject.name,
+    body: r.subject.text,
+    category: r.categories[0]?.name ?? null,
+    member: r.member,
+    deadline: r.deadline,
+    submitted_at: r.submitted_at,
+    reviewed_at: r.reviewed_at,
+    is_accepted: r.is_accepted,
+    hours_with_ai: r.hours_with_ai,
+    ai_tool: r.ai_tool,
+  });
+
   const rows: SubmissionRow[] = [
-    ...getPromptSubmissionsMock().map(
-      (r): SubmissionRow => ({
-        id: r.id,
-        kind: "PROMPT",
-        href: `/${projectId}/champion/submissions/prompts/${r.id}`,
-        level_number: r.prompt.level.level_number,
-        title: r.prompt.name,
-        body: r.prompt.scenario,
-        category: r.prompt.categories[0]?.name ?? null,
-        member: r.member,
-        deadline: r.deadline as unknown as string | null,
-        submitted_at: r.submitted_at as unknown as string | null,
-        reviewed_at: r.reviewed_at as unknown as string | null,
-        is_accepted: r.is_accepted,
-        hours_with_ai: null,
-        ai_tool: null,
-      })
-    ),
-    ...getUseCaseSubmissionsMock().map(
-      (r): SubmissionRow => ({
-        id: r.id,
-        kind: "USE_CASE",
-        href: `/${projectId}/champion/submissions/use-cases/${r.id}`,
-        level_number: r.use_case.level.level_number,
-        title: r.use_case.name,
-        body: r.use_case.description,
-        category: r.use_case.categories[0]?.name ?? null,
-        member: r.member,
-        deadline: r.deadline as unknown as string | null,
-        submitted_at: r.submitted_at as unknown as string | null,
-        reviewed_at: r.reviewed_at as unknown as string | null,
-        is_accepted: r.is_accepted,
-        hours_with_ai: r.hours_with_ai,
-        ai_tool: r.ai_tool,
-      })
-    ),
+    ...(promptSubmissions?.list ?? []).map((r) => toRow(r, "PROMPT")),
+    ...(useCaseSubmissions?.list ?? []).map((r) => toRow(r, "USE_CASE")),
   ];
 
   const counts: Record<ReviewStatus, number> = {

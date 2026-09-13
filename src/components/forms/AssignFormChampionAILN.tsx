@@ -1,14 +1,15 @@
 "use client";
-import DisabledActionButtonAILN from "@/components/buttons/DisabledActionButtonAILN";
+import ButtonAILN from "@/components/buttons/ButtonAILN";
 import InputAILN from "@/components/fields/InputAILN";
 import TextAreaAILN from "@/components/fields/TextAreaAILN";
 import SheetAILN from "@/components/modals/SheetAILN";
-import { getTeamMembersMock } from "@/mock-data/champion";
-import { getAilMemberMock } from "@/mock-data/shared";
+import type { TeamMember } from "@/apis/champion";
 import { useProjectId } from "@/lib/use-project-id";
 import dayjs from "dayjs";
 import { Send } from "lucide-react";
+import { useRouter } from "next/navigation";
 import { useState } from "react";
+import { toast } from "sonner";
 
 export type AssignKind = "PROMPT" | "USE_CASE";
 
@@ -17,6 +18,8 @@ interface AssignFormChampionAILNProps {
   onClose: () => void;
   kind: AssignKind;
   item: { id: number; name: string } | null;
+  members: TeamMember[];
+  group: { id: number; name: string } | null;
 }
 
 type TargetMode = "INDIVIDUAL" | "BULK";
@@ -26,22 +29,25 @@ export default function AssignFormChampionAILN({
   onClose,
   kind,
   item,
+  members,
+  group,
 }: AssignFormChampionAILNProps) {
   const projectId = useProjectId();
-  const ailMember = getAilMemberMock({ projectId, userId: "current" });
-  const groups = ailMember.championed_groups;
-  const members = getTeamMembersMock({}).list;
+  const router = useRouter();
+  // A champion leads exactly one group, so bulk mode targets only that group.
+  const groups = group ? [group] : [];
 
   const [mode, setMode] = useState<TargetMode>("INDIVIDUAL");
-  const [selectedMemberIds, setSelectedMemberIds] = useState<number[]>([]);
+  const [selectedMemberIds, setSelectedMemberIds] = useState<string[]>([]);
   const [selectedGroupIds, setSelectedGroupIds] = useState<number[]>([]);
+  const [isSubmitting, setIsSubmitting] = useState(false);
   const [deadlineDate, setDeadlineDate] = useState(
     dayjs().add(7, "day").format("YYYY-MM-DD")
   );
   const [deadlineTime, setDeadlineTime] = useState("23:59");
   const [message, setMessage] = useState("");
 
-  const toggleMember = (id: number) =>
+  const toggleMember = (id: string) =>
     setSelectedMemberIds((prev) =>
       prev.includes(id) ? prev.filter((x) => x !== id) : [...prev, id]
     );
@@ -49,6 +55,66 @@ export default function AssignFormChampionAILN({
     setSelectedGroupIds((prev) =>
       prev.includes(id) ? prev.filter((x) => x !== id) : [...prev, id]
     );
+
+  const handleAssign = async () => {
+    if (isSubmitting || !item) return;
+
+    const deadline = dayjs(`${deadlineDate}T${deadlineTime}`);
+    if (!deadline.isValid() || deadline.isBefore(dayjs())) {
+      toast.error("Deadline harus di masa depan.");
+      return;
+    }
+
+    const isMember = mode === "INDIVIDUAL";
+    if (isMember && selectedMemberIds.length === 0) {
+      toast.error("Pilih minimal satu anggota.");
+      return;
+    }
+    if (!isMember && selectedGroupIds.length === 0) {
+      toast.error("Pilih minimal satu grup.");
+      return;
+    }
+
+    setIsSubmitting(true);
+    try {
+      const endpoint =
+        kind === "PROMPT"
+          ? "/api/champion/prompts/assign"
+          : "/api/champion/use-cases/assign";
+      const response = await fetch(endpoint, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          project_id: projectId,
+          library_id: item.id,
+          target_type: isMember ? "MEMBER" : "GROUP",
+          ...(isMember
+            ? { target_access_ids: selectedMemberIds }
+            : { target_group_ids: selectedGroupIds }),
+          deadline: deadline.toISOString(),
+          message: message.trim() || null,
+        }),
+      });
+
+      const payload = await response.json().catch(() => null);
+      if (!response.ok) {
+        toast.error(payload?.message ?? "Gagal assign. Coba lagi.");
+        return;
+      }
+
+      const skipped = payload?.skipped ?? 0;
+      toast.success(
+        `${payload?.assigned_count ?? 0} anggota di-assign` +
+          (skipped > 0 ? ` · ${skipped} sudah punya tugas ini` : "")
+      );
+      onClose();
+      router.refresh();
+    } catch {
+      toast.error("Gagal assign. Coba lagi.");
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
 
   return (
     <SheetAILN
@@ -101,10 +167,10 @@ export default function AssignFormChampionAILN({
               ) : (
                 <div className="flex max-h-64 flex-col gap-1 overflow-y-auto rounded-md border border-dashboard-border p-2">
                   {members.map((m) => {
-                    const checked = selectedMemberIds.includes(m.member_id);
+                    const checked = selectedMemberIds.includes(m.access_id);
                     return (
                       <label
-                        key={m.member_id}
+                        key={m.access_id}
                         className={`flex cursor-pointer items-center gap-2 rounded px-2 py-1.5 text-sm transition ${
                           checked
                             ? "bg-hijau-t dark:bg-claude/10"
@@ -114,7 +180,7 @@ export default function AssignFormChampionAILN({
                         <input
                           type="checkbox"
                           checked={checked}
-                          onChange={() => toggleMember(m.member_id)}
+                          onChange={() => toggleMember(m.access_id)}
                           className="size-4"
                         />
                         <div className="flex flex-1 flex-col">
@@ -162,7 +228,7 @@ export default function AssignFormChampionAILN({
                             {g.name}
                           </span>
                           <span className="text-xs text-gray-500 dark:text-gray-400">
-                            {g.member_count} anggota
+                            {members.length} anggota
                           </span>
                         </div>
                       </label>
@@ -220,14 +286,18 @@ export default function AssignFormChampionAILN({
 
         {/* Footer */}
         <div className="sticky bottom-0 z-40 flex w-full flex-col gap-1 border-t border-dashboard-border bg-sb-bg p-4">
-          <DisabledActionButtonAILN
+          <ButtonAILN
             type="button"
             variant="champion"
             className="w-full"
+            onClick={handleAssign}
+            disabled={isSubmitting}
           >
             <Send className="size-4" />
-            Assign {kind === "PROMPT" ? "Prompt" : "Use Case"}
-          </DisabledActionButtonAILN>
+            {isSubmitting
+              ? "Mengirim…"
+              : `Assign ${kind === "PROMPT" ? "Prompt" : "Use Case"}`}
+          </ButtonAILN>
           <p className="text-center text-[11px] text-gray-500 dark:text-gray-400">
             Anggota akan menerima notifikasi di dashboard mereka.
           </p>

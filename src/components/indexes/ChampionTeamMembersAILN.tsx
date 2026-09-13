@@ -4,7 +4,7 @@ import GeneralLabelAILN, {
   type GeneralLabelVariantAILN,
 } from "@/components/labels/GeneralLabelAILN";
 import { useProjectId } from "@/lib/use-project-id";
-import type { getTeamMembersMock } from "@/mock-data/champion";
+import type { TeamMember } from "@/apis/champion";
 import dayjs from "dayjs";
 import relativeTime from "dayjs/plugin/relativeTime";
 import { ChevronRight, ListFilter, Search } from "lucide-react";
@@ -14,7 +14,7 @@ import { useEffect, useRef, useState } from "react";
 
 dayjs.extend(relativeTime);
 
-type Member = ReturnType<typeof getTeamMembersMock>["list"][number];
+type Member = TeamMember;
 
 type StatusKey = "on_track" | "at_risk" | "behind";
 
@@ -234,13 +234,13 @@ export default function ChampionTeamMembersAILN(props: { members: Member[] }) {
                 const status = statusMeta[m.status];
                 const levelVariant =
                   LEVEL_VARIANTS[
-                    (m.current_level.level_number - 1 + LEVEL_VARIANTS.length) %
+                    ((m.current_level?.level_number ?? 0) - 1 + LEVEL_VARIANTS.length) %
                       LEVEL_VARIANTS.length
                   ];
-                const href = `/${projectId}/champion/members?member_id=${m.member_id}`;
+                const href = `/${projectId}/champion/members?member_id=${m.access_id}`;
                 return (
                   <tr
-                    key={m.member_id}
+                    key={m.access_id}
                     onClick={() => router.push(href)}
                     className="group cursor-pointer border-b border-dashboard-border transition hover:bg-gray-50 dark:hover:bg-card-2"
                   >
@@ -265,7 +265,7 @@ export default function ChampionTeamMembersAILN(props: { members: Member[] }) {
                     {/* Level */}
                     <td className="px-4 py-3">
                       <GeneralLabelAILN variant={levelVariant}>
-                        L{m.current_level.level_number}
+                        L{(m.current_level?.level_number ?? 0)}
                       </GeneralLabelAILN>
                     </td>
 
