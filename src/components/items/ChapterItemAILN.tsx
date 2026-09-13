@@ -100,9 +100,9 @@ export default function ChapterItemAILN(props: ChapterItemAILNProps) {
         <button
           type="button"
           onClick={props.onToggle}
-          className="flex w-full cursor-pointer items-center justify-between gap-4 p-4 text-left"
+          className="flex w-full cursor-pointer items-center justify-between gap-3 p-4 text-left sm:gap-4"
         >
-          <div className="flex-1">
+          <div className="min-w-0 flex-1">
             <div className="text-xs tracking-widest uppercase text-emphasis dark:text-gray-400">
               Chapter {props.chapterNumber}
             </div>
@@ -115,7 +115,7 @@ export default function ChapterItemAILN(props: ChapterItemAILNProps) {
               </div>
             )}
           </div>
-          <div className="flex items-center gap-3">
+          <div className="flex shrink-0 items-center gap-2 sm:gap-3">
             {props.unlocked ? (
               <GeneralLabelAILN
                 variant={progressMeta[props.chapter.progress].variant}

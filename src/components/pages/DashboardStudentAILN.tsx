@@ -60,7 +60,7 @@ export default function DashboardStudentAILN({
   return (
     <PageContainerAILN>
       <div className="flex w-full flex-col gap-4">
-        <header className="sticky top-0 z-30 -mx-4 -mt-6 flex flex-wrap items-center justify-between gap-3 border-b border-dashboard-border bg-background/80 px-4 py-4 backdrop-blur-md md:-mx-6 md:px-6 xl:-mx-8 xl:px-8">
+        <header className="sticky top-14 z-30 -mx-4 -mt-6 flex flex-wrap items-center justify-between gap-3 border-b lg:top-0 border-dashboard-border bg-background/80 px-4 py-4 backdrop-blur-md md:-mx-6 md:px-6 xl:-mx-8 xl:px-8">
           <h1 className="display-font text-xl font-bold tracking-tight text-foreground dark:text-white">
             {firstName ? (
               `Halo, ${firstName}.`

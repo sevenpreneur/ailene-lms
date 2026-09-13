@@ -1,5 +1,4 @@
 import "@/app/globals.css";
-import AppPageState from "@/components/states/AppPageState";
 import { QueryProvider } from "@/contexts/QueryProvider";
 import { SidebarProvider } from "@/contexts/SidebarContext";
 import { GoogleOAuthProvider } from "@react-oauth/google";
@@ -65,9 +64,6 @@ export default function RootLayout(
               <SidebarProvider>
                 <div className="min-h-screen bg-background">
                   {props.children}
-                  <div className="lg:hidden">
-                    <AppPageState variant="ONLY_MOBILE" />
-                  </div>
                   <Toaster richColors position="top-center" />
                 </div>
               </SidebarProvider>

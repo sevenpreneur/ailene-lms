@@ -51,7 +51,7 @@ export default function LevelDividerAILN(props: LevelDividerAILNProps) {
                 backgroundSize: "16px 16px",
               }}
             />
-            <div className="relative flex items-center justify-between gap-4">
+            <div className="relative flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
               <div className="flex items-center gap-4">
                 <Image
                   src={iconUrl}
@@ -69,7 +69,7 @@ export default function LevelDividerAILN(props: LevelDividerAILNProps) {
                   </div>
                 </div>
               </div>
-              <div className="flex items-center gap-4 border-l border-gray-200 pl-6 dark:border-claude/30">
+              <div className="flex items-center gap-4 border-gray-200 sm:border-l sm:pl-6 dark:border-claude/30">
                 <div>
                   <div className="text-sm font-bold text-claude dark:text-lime-bright">
                     Congrats!
@@ -98,7 +98,7 @@ export default function LevelDividerAILN(props: LevelDividerAILNProps) {
           <FontAwesomeIcon icon={faLock} className="h-4 w-4" />
         </div>
         <div className="rounded-xl border border-gray-950 bg-gray-950 p-4 dark:border-claude/15 dark:bg-claude/[0.03]">
-          <div className="flex items-center justify-between gap-4">
+          <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
             <div className="flex items-center gap-4">
               <Image
                 src={iconUrl}

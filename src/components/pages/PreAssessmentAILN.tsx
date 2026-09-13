@@ -140,9 +140,9 @@ export default function PreAssessmentAILN() {
         </div>
 
         {/* Main body */}
-        <div className="flex flex-1 gap-4">
+        <div className="flex flex-1 flex-col gap-4 lg:flex-row">
           {/* Left: question */}
-          <div className="flex flex-1 flex-col gap-4 rounded-xl border bg-white p-6 dark:border-dashboard-border dark:bg-card-1 dark:shadow-[0_0_18px_rgba(26,122,82,0.08)]">
+          <div className="flex flex-1 flex-col gap-4 rounded-xl border bg-white p-4 sm:p-6 dark:border-dashboard-border dark:bg-card-1 dark:shadow-[0_0_18px_rgba(26,122,82,0.08)]">
             <div className="flex flex-wrap items-center gap-2">
               <span className="text-[11px] font-semibold uppercase tracking-widest text-gray-500 dark:text-gray-400">
                 SOAL {currentIdx + 1}
@@ -200,7 +200,7 @@ export default function PreAssessmentAILN() {
           </div>
 
           {/* Right: navigation panel */}
-          <div className="flex w-80 shrink-0 flex-col gap-4">
+          <div className="order-first flex w-full shrink-0 flex-col gap-4 lg:order-none lg:w-80">
             <div className="flex flex-col gap-3 rounded-xl border bg-white p-4 dark:border-dashboard-border dark:bg-card-1 dark:shadow-[0_0_18px_rgba(26,122,82,0.08)]">
               <span className="text-[11px] font-semibold uppercase tracking-widest text-gray-500 dark:text-gray-400">
                 NAVIGASI

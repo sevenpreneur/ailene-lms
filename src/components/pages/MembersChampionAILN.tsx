@@ -90,7 +90,7 @@ export default function MembersChampionAILN() {
         />
         <>
             {/* Row 2: filter + search (full width) */}
-            <div className="flex w-full justify-between items-center gap-4">
+            <div className="flex w-full flex-col gap-3 sm:flex-row sm:items-center sm:justify-between sm:gap-4">
               {/* Level filter */}
               <div className="flex flex-wrap items-center gap-2">
                 <LevelPill
@@ -136,7 +136,7 @@ export default function MembersChampionAILN() {
                     </div>
                   ) : (
                     <div className="max-h-[calc(100dvh-15rem)] overflow-auto">
-                      <table className="w-full border-collapse text-sm">
+                      <table className="w-full min-w-[34rem] border-collapse text-sm">
                         <thead>
                           <tr className="text-left text-[10px] font-semibold uppercase tracking-wider text-gray-500 dark:text-gray-400">
                             <th className="sticky top-0 z-10 border-y border-dashboard-border bg-card-2 px-5 py-2.5">

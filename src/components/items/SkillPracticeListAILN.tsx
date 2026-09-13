@@ -51,9 +51,9 @@ export default function SkillPracticeListAILN(
         <button
           type="button"
           onClick={props.onToggle}
-          className="flex w-full items-center justify-between gap-4 p-4 text-left"
+          className="flex w-full items-center justify-between gap-3 p-4 text-left sm:gap-4"
         >
-          <div className="flex-1">
+          <div className="min-w-0 flex-1">
             <div className="text-xs tracking-widest uppercase text-emphasis dark:text-gray-400">
               Latihan Skill
             </div>
@@ -65,7 +65,7 @@ export default function SkillPracticeListAILN(
               case
             </div>
           </div>
-          <div className="flex items-center gap-3">
+          <div className="flex shrink-0 items-center gap-2 sm:gap-3">
             {props.unlocked ? (
               <GeneralLabelAILN variant="green">
                 {accepted}/{total} Diterima

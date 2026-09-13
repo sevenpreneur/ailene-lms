@@ -12,9 +12,12 @@ export default function PageContainerAILN(props: PageContainerAILNProps) {
 
   return (
     <div
-      className={`page-root  hidden lg:flex w-full items-center justify-center ${props.className} ${isCollapsed ? "pl-16" : "pl-64"}`}
+      // Rail offset only from lg up; pt-14 clears the fixed mobile top bar.
+      className={`page-root flex w-full items-center justify-center pt-14 lg:pt-0 ${props.className ?? ""} ${
+        isCollapsed ? "lg:pl-16" : "lg:pl-64"
+      }`}
     >
-      <div className="page-container flex h-full w-full gap-5 px-4 py-6 md:px-6 xl:px-8">
+      <div className="page-container flex h-full w-full min-w-0 gap-5 px-4 py-6 md:px-6 xl:px-8">
         {props.children}
       </div>
     </div>

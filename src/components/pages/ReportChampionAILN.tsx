@@ -187,7 +187,7 @@ function ReportContent({
                 {data.level_movements.map((movement) => (
                   <div
                     key={`${movement.from}-${movement.to}`}
-                    className="grid grid-cols-[4rem_1fr_2rem_minmax(8rem,0.55fr)] items-center gap-3 text-sm"
+                    className="grid grid-cols-[3.5rem_1fr_2rem] items-center gap-x-3 gap-y-1 text-sm sm:grid-cols-[4rem_1fr_2rem_minmax(8rem,0.55fr)] sm:gap-y-3"
                   >
                     <span className="font-semibold text-gray-700 dark:text-gray-200">
                       {movement.from} -&gt; {movement.to}
@@ -204,7 +204,7 @@ function ReportContent({
                     <span className="text-right  font-bold text-gray-900 dark:text-white">
                       {movement.count}
                     </span>
-                    <span className="truncate text-xs text-gray-500 dark:text-gray-400">
+                    <span className="col-span-3 truncate text-xs text-gray-500 dark:text-gray-400 sm:col-span-1">
                       {movement.note}
                     </span>
                   </div>

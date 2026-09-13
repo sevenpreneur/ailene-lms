@@ -229,7 +229,7 @@ export default function MaterialDetailsAILN({
                   <iframe
                     src={`${fileUrl}#view=FitH&toolbar=0&navpanes=0`}
                     title={material.title}
-                    className="h-[640px] w-full bg-[#1e1f24]"
+                    className="h-[60vh] min-h-80 w-full bg-[#1e1f24] sm:h-[640px]"
                   />
                 ) : (
                   <div className="px-4 py-6">
@@ -269,7 +269,7 @@ export default function MaterialDetailsAILN({
 
           {/* Sidebar */}
           <aside className="hidden lg:block">
-            <div className="sticky top-6 flex flex-col gap-4">
+            <div className="flex flex-col gap-4 lg:sticky lg:top-6">
               {toc.length > 0 && (
                 <SectionContainerAILN
                   title="Daftar Isi"

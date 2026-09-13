@@ -69,7 +69,7 @@ export default function DashboardChampionAILN() {
   return (
     <PageContainerAILN>
       <div className="flex w-full flex-col gap-6">
-        <header className="sticky top-0 z-30 -mx-4 -mt-6 flex items-center justify-between border-b border-dashboard-border bg-background/80 px-4 py-4 backdrop-blur-md md:-mx-6 md:px-6 xl:-mx-8 xl:px-8">
+        <header className="sticky top-14 z-30 -mx-4 -mt-6 flex flex-wrap items-center justify-between gap-3 border-b lg:top-0 border-dashboard-border bg-background/80 px-4 py-4 backdrop-blur-md md:-mx-6 md:px-6 xl:-mx-8 xl:px-8">
           <h1 className="display-font text-xl font-bold tracking-tight text-foreground">
             Dashboard Team
           </h1>

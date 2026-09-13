@@ -160,7 +160,7 @@ export default function AssignmentChampionAILN() {
             {/* Preview panel */}
             <SectionContainerAILN
               title={`Preview ${tab === "PROMPT" ? "Prompt" : "Use Case"}`}
-              className="sticky top-6 self-start"
+              className="lg:sticky lg:top-6 lg:self-start"
             >
               {tab === "PROMPT" ? (
                 selectedPrompt ? (

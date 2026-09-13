@@ -15,7 +15,7 @@ export default function AppPageLoading({ type }: { type: PageLoadingType }) {
             loop
             autoplay
             speed={1}
-            style={{ width: 900 }}
+            style={{ width: 900, maxWidth: "100%" }}
           />
         </div>
       </PageContainerAILN>
@@ -31,7 +31,7 @@ export default function AppPageLoading({ type }: { type: PageLoadingType }) {
             loop
             autoplay
             speed={1}
-            style={{ width: 200 }}
+            style={{ width: 200, maxWidth: "100%" }}
           />
         </div>
       </PageContainerSVP>
@@ -39,13 +39,13 @@ export default function AppPageLoading({ type }: { type: PageLoadingType }) {
   }
 
   return (
-    <div className="flex">
+    <div className="flex w-full justify-center">
       <DotLottieReact
         src="/animation/robot-arms.lottie"
         loop
         autoplay
         speed={1}
-        style={{ width: 600 }}
+        style={{ width: 600, maxWidth: "100%" }}
       />
     </div>
   );
