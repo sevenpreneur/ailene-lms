@@ -1,5 +1,5 @@
 "use client";
-import { getProficiencyTrendsMock } from "@/mock-data/sponsor";
+import type { ProficiencyTrends } from "@/apis/sponsor";
 import SectionContainerAILN from "@/components/cards/SectionContainerAILN";
 import {
   ChartContainer,
@@ -31,8 +31,12 @@ type ProficiencyWeek = {
   highlight?: boolean;
 };
 
-export default function ProficiencyTrendsSponsorAILN() {
-  const data = getProficiencyTrendsMock();
+export default function ProficiencyTrendsSponsorAILN({
+  data,
+}: {
+  data: ProficiencyTrends | null;
+}) {
+  const weeks = data?.weeks ?? [];
 
   const legend = (
     <div className="flex items-center gap-3 text-xs text-muted-foreground">
@@ -48,7 +52,7 @@ export default function ProficiencyTrendsSponsorAILN() {
       headerRight={legend}
     >
       <div className="h-[220px]">
-        <TrendChart data={data.weeks} />
+        <TrendChart data={weeks} />
       </div>
     </SectionContainerAILN>
   );

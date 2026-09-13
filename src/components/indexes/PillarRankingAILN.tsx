@@ -2,7 +2,7 @@
 import SectionContainerAILN from "@/components/cards/SectionContainerAILN";
 import { EmptyHintAILN } from "@/components/states/DataStatesAILN";
 import { formatScore } from "@/lib/format";
-import { getPreAssessmentOrganizationMock } from "@/mock-data/sponsor";
+import type { PreAssessmentOrganization } from "@/apis/sponsor";
 
 // Pillar keys → ranking (descriptive) labels; keys mirror buildPreAssessmentReport.
 const PILLAR_LONG: Record<string, string> = {
@@ -17,8 +17,26 @@ const SCORE_MAX = 5;
 
 // Org pillar ranking: mean baseline per pillar across departments, lowest first,
 // with the maturity target drawn as a line on each bar.
-export default function PillarRankingAILN() {
-  const data = getPreAssessmentOrganizationMock();
+const EMPTY_ORG_PRE_ASSESSMENT: PreAssessmentOrganization = {
+  department_count: 0,
+  total_members: 0,
+  completed_count: 0,
+  measured_at: null,
+  target: 0,
+  org_avg: 0,
+  ready_count: 0,
+  gap_large_count: 0,
+  departments: [],
+  org_pillars: [],
+  readiness: { ready: 0, developing: 0, basic: 0 },
+};
+
+export default function PillarRankingAILN({
+  data: payload,
+}: {
+  data: PreAssessmentOrganization | null;
+}) {
+  const data = payload ?? EMPTY_ORG_PRE_ASSESSMENT;
 
   return (
     <SectionContainerAILN

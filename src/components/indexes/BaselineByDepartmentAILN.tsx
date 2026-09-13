@@ -2,7 +2,7 @@
 import SectionContainerAILN from "@/components/cards/SectionContainerAILN";
 import { EmptyHintAILN } from "@/components/states/DataStatesAILN";
 import { formatInt, formatScore } from "@/lib/format";
-import { getPreAssessmentOrganizationMock } from "@/mock-data/sponsor";
+import type { PreAssessmentOrganization } from "@/apis/sponsor";
 
 // Pillar keys → table header (short) labels; keys mirror buildPreAssessmentReport.
 const PILLAR_SHORT: Record<string, string> = {
@@ -25,8 +25,26 @@ const orderIndex = (key: string) => PILLAR_ORDER.indexOf(key);
 
 // Org competency baseline matrix: one row per department, six pillar score chips
 // + average + completion. Headline stats summarize the org below the table.
-export default function BaselineByDepartmentAILN() {
-  const data = getPreAssessmentOrganizationMock();
+const EMPTY_ORG_PRE_ASSESSMENT: PreAssessmentOrganization = {
+  department_count: 0,
+  total_members: 0,
+  completed_count: 0,
+  measured_at: null,
+  target: 0,
+  org_avg: 0,
+  ready_count: 0,
+  gap_large_count: 0,
+  departments: [],
+  org_pillars: [],
+  readiness: { ready: 0, developing: 0, basic: 0 },
+};
+
+export default function BaselineByDepartmentAILN({
+  data: payload,
+}: {
+  data: PreAssessmentOrganization | null;
+}) {
+  const data = payload ?? EMPTY_ORG_PRE_ASSESSMENT;
 
   return (
     <SectionContainerAILN

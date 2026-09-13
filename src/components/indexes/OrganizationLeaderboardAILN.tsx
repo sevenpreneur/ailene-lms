@@ -2,7 +2,7 @@
 import SectionContainerAILN from "@/components/cards/SectionContainerAILN";
 import { formatDecimal, formatInt } from "@/lib/format";
 import { useProjectId } from "@/lib/use-project-id";
-import { getOrganizationLeaderboardMock } from "@/mock-data/sponsor";
+import type { OrganizationLeaderboard } from "@/apis/sponsor";
 import { ArrowDown, ArrowUp } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
@@ -59,8 +59,11 @@ function scoreBar(ratio: number): string {
   return "bg-rose-500";
 }
 
-export default function OrganizationLeaderboardAILN() {
-  const data = getOrganizationLeaderboardMock();
+export default function OrganizationLeaderboardAILN({
+  data,
+}: {
+  data: OrganizationLeaderboard | null;
+}) {
   const router = useRouter();
   const projectId = useProjectId();
   const [sortKey, setSortKey] = useState<SortKey>("avg_score");
@@ -82,8 +85,8 @@ export default function OrganizationLeaderboardAILN() {
     </label>
   );
 
-  const maxScore = data.max_score || 4;
-  const list = [...(data.list as Department[])].sort(
+  const maxScore = data?.max_score || 4;
+  const list = [...((data?.list ?? []) as Department[])].sort(
     (a, b) => b[sortKey] - a[sortKey] || a.name.localeCompare(b.name)
   );
 

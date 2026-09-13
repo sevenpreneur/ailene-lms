@@ -3,7 +3,7 @@ import SectionContainerAILN from "@/components/cards/SectionContainerAILN";
 import { levelColorByNumber } from "@/lib/level-colors";
 import { formatInt } from "@/lib/format";
 import { useProjectId } from "@/lib/use-project-id";
-import { getLevelDistributionMock } from "@/mock-data/sponsor";
+import type { LevelDistribution } from "@/apis/sponsor";
 import { ArrowRight } from "lucide-react";
 import Link from "next/link";
 
@@ -44,16 +44,17 @@ const SEGMENTS = [
 ] as const;
 
 export default function LevelDistributionSponsorAILN({
+  data,
   showDetailLink = true,
 }: {
+  data: LevelDistribution | null;
   showDetailLink?: boolean;
 }) {
-  const data = getLevelDistributionMock();
-
-  const total = data.total;
+  const levels = data?.levels ?? [];
+  const total = data?.total ?? 0;
   // Bucket the per-level counts into the three segments by level number (code = "L<n>").
   const segments = SEGMENTS.map((seg) => {
-    const count = data.levels
+    const count = levels
       .filter((level) => seg.test(Number(level.code.slice(1))))
       .reduce((sum, level) => sum + level.count, 0);
     return {

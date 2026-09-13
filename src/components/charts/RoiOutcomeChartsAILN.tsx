@@ -7,7 +7,7 @@ import {
   type ChartConfig,
 } from "@/components/ui/chart";
 import { formatCompactIdr, formatDecimal } from "@/lib/format";
-import { getDepartmentRoiMock, getRoiTrendMock } from "@/mock-data/sponsor";
+import type { DepartmentRoi, RoiTrend } from "@/apis/sponsor";
 import {
   Bar,
   BarChart,
@@ -45,17 +45,22 @@ function formatIdrShort(value: number): string {
   return compact.suffix ? `Rp ${compact.value} ${compact.suffix}` : `Rp ${compact.value}`;
 }
 
-export default function RoiOutcomeChartsAILN() {
+export default function RoiOutcomeChartsAILN({
+  roiTrend,
+  departmentRoi,
+}: {
+  roiTrend: RoiTrend | null;
+  departmentRoi: DepartmentRoi | null;
+}) {
   return (
     <div className="grid grid-cols-1 gap-4 lg:grid-cols-2">
-      <RoiTrendCard />
-      <DepartmentHoursCard />
+      <RoiTrendCard months={roiTrend?.months ?? []} />
+      <DepartmentHoursCard departments={departmentRoi?.departments ?? []} />
     </div>
   );
 }
 
-function RoiTrendCard() {
-  const months = getRoiTrendMock().months;
+function RoiTrendCard({ months }: { months: RoiTrend["months"] }) {
   const first = months[0];
   const lastActual = [...months].reverse().find((month) => !month.projected);
   const target = months[months.length - 1];
@@ -141,8 +146,12 @@ function RoiTrendCard() {
   );
 }
 
-function DepartmentHoursCard() {
-  const data = getDepartmentRoiMock().departments.slice(0, 7).map((department) => ({
+function DepartmentHoursCard({
+  departments,
+}: {
+  departments: DepartmentRoi["departments"];
+}) {
+  const data = departments.slice(0, 7).map((department) => ({
     ...department,
     short_name:
       department.name.length > 14

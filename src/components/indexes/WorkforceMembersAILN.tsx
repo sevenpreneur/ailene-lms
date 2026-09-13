@@ -4,14 +4,15 @@ import GeneralLabelAILN, {
   type GeneralLabelVariantAILN,
 } from "@/components/labels/GeneralLabelAILN";
 import { formatInt } from "@/lib/format";
-import { getWorkforceMembersMock } from "@/mock-data/sponsor";
+import type {
+  WorkforceMember,
+  WorkforceMembers,
+} from "@/apis/sponsor";
 import { Check, ChevronDown, Minus } from "lucide-react";
 import Image from "next/image";
 import type { ReactNode } from "react";
 import { useMemo, useState } from "react";
 
-type WorkforceMembers = ReturnType<typeof getWorkforceMembersMock>;
-type WorkforceMember = WorkforceMembers["list"][number];
 type SortKey = "score" | "hours" | "level" | "name";
 
 const ROW_LIMIT = 12;
@@ -99,14 +100,18 @@ function SegmentLabel({ segment }: { segment: WorkforceMember["segment"] }) {
 }
 
 function StatusLabel({ status }: { status: WorkforceMember["status"] }) {
-  if (status.kind === "on_track") {
+  if (
+    status.kind === "champion" ||
+    status.kind === "up" ||
+    status.kind === "pass"
+  ) {
     return (
       <GeneralLabelAILN variant="green" icon={<Check className="size-4" />}>
         {status.label}
       </GeneralLabelAILN>
     );
   }
-  if (status.kind === "at_risk") {
+  if (status.kind === "idle") {
     return (
       <GeneralLabelAILN variant="yellow" icon={<Minus className="size-4" />}>
         {status.label}
@@ -166,7 +171,8 @@ function sortMembers(members: WorkforceMember[], sort: SortKey) {
     }
     if (sort === "level") {
       return (
-        b.current_level.level_number - a.current_level.level_number ||
+        (b.current_level?.level_number ?? -1) -
+          (a.current_level?.level_number ?? -1) ||
         b.score - a.score ||
         a.user.full_name.localeCompare(b.user.full_name)
       );
@@ -175,8 +181,18 @@ function sortMembers(members: WorkforceMember[], sort: SortKey) {
   });
 }
 
-export default function WorkforceMembersAILN() {
-  const data = getWorkforceMembersMock();
+const EMPTY_MEMBERS: WorkforceMembers = {
+  total: 0,
+  departments: [],
+  list: [],
+};
+
+export default function WorkforceMembersAILN({
+  data: payload,
+}: {
+  data: WorkforceMembers | null;
+}) {
+  const data = payload ?? EMPTY_MEMBERS;
   const [departmentId, setDepartmentId] = useState<number | "ALL">("ALL");
   const [sort, setSort] = useState<SortKey>("score");
 
@@ -283,7 +299,7 @@ export default function WorkforceMembersAILN() {
             ) : (
               visibleRows.map((member) => (
                 <tr
-                  key={member.member_id}
+                  key={member.access_id}
                   className="border-b border-dashboard-border transition hover:bg-muted/40"
                 >
                   <td className="px-8 py-5">
@@ -300,11 +316,15 @@ export default function WorkforceMembersAILN() {
                     {member.department?.name ?? "-"}
                   </td>
                   <td className="px-5 py-5">
-                    <GeneralLabelAILN
-                      variant={levelVariant(member.current_level.level_number)}
-                    >
-                      Level {member.current_level.level_number}
-                    </GeneralLabelAILN>
+                    {member.current_level ? (
+                      <GeneralLabelAILN
+                        variant={levelVariant(member.current_level.level_number)}
+                      >
+                        Level {member.current_level.level_number}
+                      </GeneralLabelAILN>
+                    ) : (
+                      <span className="text-sm text-muted-foreground">-</span>
+                    )}
                   </td>
                   <td className="px-5 py-5 text-[15px] font-bold tabular-nums text-foreground">
                     {formatDecimal(member.score)}

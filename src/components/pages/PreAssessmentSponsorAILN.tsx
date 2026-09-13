@@ -4,8 +4,13 @@ import BaselineByDepartmentAILN from "@/components/indexes/BaselineByDepartmentA
 import PillarRankingAILN from "@/components/indexes/PillarRankingAILN";
 import PageContainerAILN from "@/components/pages/PageContainerAILN";
 import PageHeaderAILN from "@/components/titles/PageHeaderAILN";
+import type { PreAssessmentOrganization } from "@/apis/sponsor";
 
-export default function PreAssessmentSponsorAILN() {
+export default function PreAssessmentSponsorAILN({
+  data,
+}: {
+  data: PreAssessmentOrganization | null;
+}) {
   return (
     <PageContainerAILN>
       <div className="flex w-full flex-col gap-6">
@@ -15,12 +20,12 @@ export default function PreAssessmentSponsorAILN() {
         />
 
         {/* Department × pillar baseline matrix — full width */}
-        <BaselineByDepartmentAILN />
+        <BaselineByDepartmentAILN data={data} />
 
         {/* Pillar ranking + readiness distribution side by side */}
         <div className="grid grid-cols-1 gap-6 lg:grid-cols-2">
-          <PillarRankingAILN />
-          <ReadinessDistributionAILN />
+          <PillarRankingAILN data={data} />
+          <ReadinessDistributionAILN data={data} />
         </div>
       </div>
     </PageContainerAILN>

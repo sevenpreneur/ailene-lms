@@ -4,7 +4,7 @@ import LegendStatAILN from "@/components/items/LegendStatAILN";
 import { EmptyHintAILN } from "@/components/states/DataStatesAILN";
 import { ChartContainer, type ChartConfig } from "@/components/ui/chart";
 import { formatInt, formatScore } from "@/lib/format";
-import { getPreAssessmentOrganizationMock } from "@/mock-data/sponsor";
+import type { PreAssessmentOrganization } from "@/apis/sponsor";
 import { Cell, Pie, PieChart } from "recharts";
 
 // Readiness tier colors (green = good → red = needs basics).
@@ -19,8 +19,26 @@ const donutConfig = {
 } satisfies ChartConfig;
 
 // Department readiness mix as a donut, org average baseline in the center.
-export default function ReadinessDistributionAILN() {
-  const data = getPreAssessmentOrganizationMock();
+const EMPTY_ORG_PRE_ASSESSMENT: PreAssessmentOrganization = {
+  department_count: 0,
+  total_members: 0,
+  completed_count: 0,
+  measured_at: null,
+  target: 0,
+  org_avg: 0,
+  ready_count: 0,
+  gap_large_count: 0,
+  departments: [],
+  org_pillars: [],
+  readiness: { ready: 0, developing: 0, basic: 0 },
+};
+
+export default function ReadinessDistributionAILN({
+  data: payload,
+}: {
+  data: PreAssessmentOrganization | null;
+}) {
+  const data = payload ?? EMPTY_ORG_PRE_ASSESSMENT;
 
   return (
     <SectionContainerAILN

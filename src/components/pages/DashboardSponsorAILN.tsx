@@ -22,16 +22,16 @@ import SponsorStatLabelAILN from "@/components/labels/SponsorStatLabelAILN";
 import PageContainerAILN from "@/components/pages/PageContainerAILN";
 import TransformationJourneyAILN from "@/components/steppers/TransformationJourneyAILN";
 import { formatCompactIdr } from "@/lib/format";
-import {
-  getExecutiveViewMock,
-  getHeadlineMock,
-  getLevelDistributionMock,
-  getOrganizationLeaderboardMock,
-  getOrganizationStatsMock,
-  getProficiencyTrendsMock,
-  getProgramHealthMock,
-  getSponsorRecentActivityMock,
-} from "@/mock-data/sponsor";
+import type {
+  ExecutiveView,
+  LevelDistribution,
+  OrganizationLeaderboard,
+  OrganizationStats,
+  ProficiencyTrends,
+  ProgramHealth,
+  SponsorHeadline,
+  SponsorRecentActivity,
+} from "@/apis/sponsor";
 import dayjs from "dayjs";
 import "dayjs/locale/id";
 import relativeTime from "dayjs/plugin/relativeTime";
@@ -53,21 +53,39 @@ function tierLabel(level: number): string {
   return `Level ${idx} · ${names[idx]}`;
 }
 
+const EMPTY_METRICS: ExecutiveView["metrics"] = {
+  avg_level: 0,
+  member_count: 0,
+  hours_saved_total: 0,
+  roi_cohort_to_date: 0,
+  staff_active_weekly_count: 0,
+  staff_active_weekly_percent: 0,
+};
+
 // ---------- Component ----------
 
-export default function DashboardSponsorAILN() {
+export default function DashboardSponsorAILN({
+  executiveView,
+  headline,
+  orgStats,
+  programHealth,
+  recentActivity,
+  levelDistribution,
+  proficiencyTrends,
+  organizationLeaderboard,
+}: {
+  executiveView: ExecutiveView | null;
+  headline: SponsorHeadline | null;
+  orgStats: OrganizationStats | null;
+  programHealth: ProgramHealth | null;
+  recentActivity: SponsorRecentActivity | null;
+  levelDistribution: LevelDistribution | null;
+  proficiencyTrends: ProficiencyTrends | null;
+  organizationLeaderboard: OrganizationLeaderboard | null;
+}) {
   const pdf = usePdfReport();
-  const executiveData = getExecutiveViewMock();
-  const headlineData = getHeadlineMock();
-  const orgStats = getOrganizationStatsMock();
-  const healthData = getProgramHealthMock();
-  const activityData = getSponsorRecentActivityMock();
-  // For the PDF report: data the on-page charts render via child components.
-  const levelDistData = getLevelDistributionMock();
-  const proficiencyData = getProficiencyTrendsMock();
-  const leaderboardData = getOrganizationLeaderboardMock();
 
-  const metrics = executiveData.metrics;
+  const metrics = executiveView?.metrics ?? EMPTY_METRICS;
   const staffActiveWeeklyValue =
     metrics.member_count === 0
       ? "0"
@@ -76,11 +94,11 @@ export default function DashboardSponsorAILN() {
   const roiUnit = roi.suffix ? `${roi.suffix} Rp` : "Rp";
   const workdaysSaved = Math.round(metrics.hours_saved_total / 8);
 
-  const healthMetrics = healthData.metrics;
-  const activity = activityData.activity;
+  const healthMetrics = programHealth?.metrics ?? [];
+  const activity = recentActivity?.activity ?? [];
   const orgName = ORG_NAME || "Ringkasan Organisasi";
   const activeStaffCount = metrics.staff_active_weekly_count.toLocaleString("id-ID");
-  const departmentCount = orgStats.group_count.toLocaleString("id-ID");
+  const departmentCount = (orgStats?.group_count ?? 0).toLocaleString("id-ID");
 
   // Program week derived from the configured start date (env). No start = week 1.
   const programWeek = PROGRAM_START_ISO
@@ -177,12 +195,12 @@ export default function DashboardSponsorAILN() {
           footer: h.detail,
         })),
       },
-      ...(levelDistData.levels.length > 0
+      ...((levelDistribution?.levels.length ?? 0) > 0
         ? [
             {
               type: "bar" as const,
               title: "Distribusi Level Organisasi",
-              items: levelDistData.levels.map((l) => ({
+              items: (levelDistribution?.levels ?? []).map((l) => ({
                 label: `${l.code} · ${l.name}`,
                 value: l.count,
                 display: `${l.count} (${l.percent}%)`,
@@ -190,14 +208,14 @@ export default function DashboardSponsorAILN() {
             },
           ]
         : []),
-      ...(proficiencyData.weeks.length > 0
+      ...((proficiencyTrends?.weeks.length ?? 0) > 0
         ? [
             {
               type: "trend" as const,
               title: "Tren Skor Kompetensi",
               firstLineName: "Rata-rata XP",
               secondLineName: "Rata-rata Level",
-              points: proficiencyData.weeks.map((w) => ({
+              points: (proficiencyTrends?.weeks ?? []).map((w) => ({
                 label: w.label,
                 firstLine: w.avg_xp,
                 secondLine: w.avg_level,
@@ -205,7 +223,7 @@ export default function DashboardSponsorAILN() {
             },
           ]
         : []),
-      ...(leaderboardData.list.length > 0
+      ...((organizationLeaderboard?.list.length ?? 0) > 0
         ? [
             {
               type: "table" as const,
@@ -215,7 +233,7 @@ export default function DashboardSponsorAILN() {
                 | "left"
                 | "right"
               )[],
-              rows: leaderboardData.list.map((g) => [
+              rows: (organizationLeaderboard?.list ?? []).map((g) => [
                 g.rank,
                 g.name,
                 g.member_count.toLocaleString("id-ID"),
@@ -278,10 +296,10 @@ export default function DashboardSponsorAILN() {
 
         {/* Headline · bulan ini */}
         <HeadlineAILN
-          productivePercent={headlineData.productive_percent}
-          hoursSavedLastWeek={headlineData.hours_saved_last_week}
-          roiAnnualized={headlineData.roi_annualized}
-          trend={headlineData.trend}
+          productivePercent={headline?.productive_percent ?? 0}
+          hoursSavedLastWeek={headline?.hours_saved_last_week ?? 0}
+          roiAnnualized={headline?.roi_annualized ?? 0}
+          trend={headline?.trend ?? []}
           updatedLabel="baru saja"
         />
 
@@ -303,12 +321,12 @@ export default function DashboardSponsorAILN() {
 
         {/* Distribusi Karyawan (kiri, lebih lebar) + Tren Skor Kompetensi (kanan) */}
         <div className="grid grid-cols-1 gap-4 lg:grid-cols-[minmax(0,1.7fr)_minmax(0,1fr)]">
-          <LevelDistributionSponsorAILN />
-          <ProficiencyTrendsSponsorAILN />
+          <LevelDistributionSponsorAILN data={levelDistribution} />
+          <ProficiencyTrendsSponsorAILN data={proficiencyTrends} />
         </div>
 
         {/* Kinerja per Departemen (full width) */}
-        <OrganizationLeaderboardAILN />
+        <OrganizationLeaderboardAILN data={organizationLeaderboard} />
 
         {/* Kesehatan Program + Aktivitas terkini */}
         <div className="grid grid-cols-1 gap-4 lg:grid-cols-2">
@@ -329,7 +347,7 @@ export default function DashboardSponsorAILN() {
               </ul>
             </SectionContainerAILN>
 
-            <RecentActivityAILN />
+            <RecentActivityAILN activity={activity} />
         </div>
       </div>
     </PageContainerAILN>

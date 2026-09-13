@@ -19,30 +19,38 @@ import { EmptyStateAILN } from "@/components/states/DataStatesAILN";
 import PageHeaderAILN from "@/components/titles/PageHeaderAILN";
 import { formatDecimal, formatScore } from "@/lib/format";
 import { useProjectId } from "@/lib/use-project-id";
-import {
-  getGroupAttentionMembersMock,
-  getGroupDepartmentsMock,
-  getGroupLevelDistributionMock,
-  getGroupOverviewMock,
-  getGroupTopUseCasesMock,
-} from "@/mock-data/sponsor";
+import type {
+  GroupAttentionMembers,
+  GroupDepartments,
+  GroupLevelDistribution,
+  GroupOverview,
+  GroupTopUseCases,
+} from "@/apis/sponsor";
 import { ChevronDown, Download } from "lucide-react";
 import { useRouter } from "next/navigation";
 
 export default function GroupDetailsSponsorAILN({
   groupId,
+  departments: departmentsPayload,
+  overview,
+  distribution: distributionPayload,
+  topUseCases: topUseCasesPayload,
+  attention: attentionPayload,
 }: {
   groupId: number;
+  departments: GroupDepartments | null;
+  overview: GroupOverview | null;
+  distribution: GroupLevelDistribution | null;
+  topUseCases: GroupTopUseCases | null;
+  attention: GroupAttentionMembers | null;
 }) {
   const router = useRouter();
   const projectId = useProjectId();
   const pdf = usePdfReport();
-  const input = { group_id: groupId };
-  const departments = getGroupDepartmentsMock();
-  const overview = getGroupOverviewMock(input);
-  const distribution = getGroupLevelDistributionMock(input);
-  const topUseCases = getGroupTopUseCasesMock(input);
-  const attention = getGroupAttentionMembersMock(input);
+  const departments = departmentsPayload ?? { departments: [] };
+  const distribution = distributionPayload ?? { total_members: 0, levels: [] };
+  const topUseCases = topUseCasesPayload ?? { total: 0, use_cases: [] };
+  const attention = attentionPayload ?? { lagging_count: 0, members: [] };
 
   if (!overview) {
     return (
@@ -144,7 +152,7 @@ export default function GroupDetailsSponsorAILN({
         align: ["left", "left", "right", "right"],
         rows: useCases.map((u) => [
           u.name,
-          u.level_name,
+          u.level_name ?? "-",
           formatDecimal(u.count),
           `${u.percent}%`,
         ]),
@@ -159,7 +167,7 @@ export default function GroupDetailsSponsorAILN({
         align: ["left", "left", "right", "left", "right"],
         rows: members.map((m) => [
           m.full_name,
-          m.job_title,
+          m.job_title ?? "-",
           `L${m.level_number}`,
           m.status,
           formatDecimal(m.accepted_use_cases),
@@ -170,7 +178,7 @@ export default function GroupDetailsSponsorAILN({
       org: ORG_NAME || undefined,
       program: PROGRAM_NAME,
       title: `Departemen ${group.name}`,
-      subtitle: `${metrics.total_members} karyawan · Champion ${group.champion.full_name} · ${metrics.beginner_percent}% pemula`,
+      subtitle: `${metrics.total_members} karyawan · Champion ${group.champion?.full_name ?? "-"} · ${metrics.beginner_percent}% pemula`,
       generatedAt: dayjs().format("D MMMM YYYY"),
       sections,
     };
@@ -181,7 +189,7 @@ export default function GroupDetailsSponsorAILN({
       <div className="flex w-full flex-col gap-5">
         <PageHeaderAILN
           title={group.name}
-          desc={`${metrics.total_members} karyawan · Champion ${group.champion.full_name} · ${metrics.beginner_percent}% masih di level pemula.`}
+          desc={`${metrics.total_members} karyawan · Champion ${group.champion?.full_name ?? "-"} · ${metrics.beginner_percent}% masih di level pemula.`}
         >
           {metrics.needs_intervention && (
             <GeneralLabelAILN variant="yellow">Perlu intervensi</GeneralLabelAILN>
@@ -260,7 +268,7 @@ export default function GroupDetailsSponsorAILN({
                     key={useCase.id}
                     rank={index + 1}
                     name={useCase.name}
-                    level={useCase.level_name}
+                    level={useCase.level_name ?? "-"}
                     count={useCase.count}
                     percent={useCase.percent}
                   />
@@ -285,7 +293,7 @@ export default function GroupDetailsSponsorAILN({
             ) : (
               <div className="-mx-5 -mb-5 flex flex-col">
                 {attention.members.map((member) => (
-                  <AttentionMemberRowAILN key={member.id} member={member} />
+                  <AttentionMemberRowAILN key={member.access_id} member={member} />
                 ))}
               </div>
             )}

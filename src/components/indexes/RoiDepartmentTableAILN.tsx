@@ -1,7 +1,7 @@
 "use client";
 import SectionContainerAILN from "@/components/cards/SectionContainerAILN";
 import { formatCompactIdr, formatDecimal, formatInt } from "@/lib/format";
-import { getDepartmentRoiMock } from "@/mock-data/sponsor";
+import type { DepartmentRoi } from "@/apis/sponsor";
 
 const COLORS = [
   "#06b6d4",
@@ -27,8 +27,12 @@ function idrShort(value: number): string {
     : `Rp ${compact.value}`;
 }
 
-export default function RoiDepartmentTableAILN() {
-  const data = getDepartmentRoiMock();
+export default function RoiDepartmentTableAILN({
+  data: payload,
+}: {
+  data: DepartmentRoi | null;
+}) {
+  const data = payload ?? { total_roi_annualized: 0, departments: [] };
 
   return (
     <SectionContainerAILN

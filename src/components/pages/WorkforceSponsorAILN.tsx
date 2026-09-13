@@ -11,15 +11,30 @@ import {
   usePdfReport,
   type ReportProps,
 } from "@/components/pdf/AileneReportPDF";
-import { getLevelDistributionMock } from "@/mock-data/sponsor";
+import type { LevelDistribution, WorkforceMembers } from "@/apis/sponsor";
 import dayjs from "dayjs";
 import { Download } from "lucide-react";
 
 const BRAND_GREEN = "#1f5f4e"; // active / participating
 
-export default function WorkforceSponsorAILN() {
+const EMPTY_DISTRIBUTION: LevelDistribution = {
+  total: 0,
+  active_weekly: 0,
+  participation_percent: 0,
+  levels: [],
+  groups: [],
+  groups_needing_intervention: [],
+};
+
+export default function WorkforceSponsorAILN({
+  levelDistribution,
+  workforceMembers,
+}: {
+  levelDistribution: LevelDistribution | null;
+  workforceMembers: WorkforceMembers | null;
+}) {
   const pdf = usePdfReport();
-  const data = getLevelDistributionMock();
+  const data = levelDistribution ?? EMPTY_DISTRIBUTION;
   const levelNameByCode = new Map(data.levels.map((l) => [l.code, l.name]));
 
   // Report exports the full org snapshot.
@@ -118,9 +133,12 @@ export default function WorkforceSponsorAILN() {
           <LevelCompositionSponsorAILN levels={data.levels} />
         </div>
 
-        <LevelDistributionSponsorAILN showDetailLink={false} />
+        <LevelDistributionSponsorAILN
+          data={levelDistribution}
+          showDetailLink={false}
+        />
 
-        <WorkforceMembersAILN />
+        <WorkforceMembersAILN data={workforceMembers} />
       </div>
     </PageContainerAILN>
   );

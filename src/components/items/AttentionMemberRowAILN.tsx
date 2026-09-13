@@ -3,7 +3,7 @@ import { Users } from "lucide-react";
 type Member = {
   full_name: string;
   avatar: string | null;
-  job_title: string;
+  job_title: string | null;
   level_number: number;
   status: string;
   needs_attention: boolean;
@@ -35,7 +35,7 @@ export default function AttentionMemberRowAILN({
             {member.full_name}
           </div>
           <div className="truncate text-xs text-gray-500 dark:text-gray-400">
-            {member.job_title}
+            {member.job_title ?? "-"}
           </div>
         </div>
       </div>

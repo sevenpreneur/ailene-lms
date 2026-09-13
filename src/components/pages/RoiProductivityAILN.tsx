@@ -18,11 +18,12 @@ import {
   formatInt,
   formatScore,
 } from "@/lib/format";
-import {
-  getDepartmentRoiMock,
-  getOutcomeOverviewMock,
-  getTopPerformersMock,
-} from "@/mock-data/sponsor";
+import type {
+  DepartmentRoi,
+  OutcomeOverview,
+  RoiTrend,
+  TopPerformers,
+} from "@/apis/sponsor";
 import dayjs from "dayjs";
 import { BadgeCheck, Clock, Coins, Download, Gauge } from "lucide-react";
 
@@ -33,9 +34,32 @@ function idrShort(value: number): string {
     : `Rp ${compact.value}`;
 }
 
-export default function RoiProductivityAILN() {
+const EMPTY_OVERVIEW: OutcomeOverview = {
+  member_count: 0,
+  department_count: 0,
+  hours_saved_total: 0,
+  fte_equivalent: 0,
+  roi_total: 0,
+  roi_rate_per_hour: 0,
+  avg_level: 0,
+  max_level_number: 0,
+  certified_count: 0,
+  certified_percent: 0,
+};
+
+export default function RoiProductivityAILN({
+  overview: overviewPayload,
+  roiTrend,
+  departmentRoi,
+  topPerformers,
+}: {
+  overview: OutcomeOverview | null;
+  roiTrend: RoiTrend | null;
+  departmentRoi: DepartmentRoi | null;
+  topPerformers: TopPerformers | null;
+}) {
   const pdf = usePdfReport();
-  const overview = getOutcomeOverviewMock();
+  const overview = overviewPayload ?? EMPTY_OVERVIEW;
   const roi = formatCompactIdr(overview.roi_total);
 
   const buildReport = (): ReportProps => {
@@ -71,7 +95,7 @@ export default function RoiProductivityAILN() {
       ],
     });
 
-    const departments = getDepartmentRoiMock().departments;
+    const departments = departmentRoi?.departments ?? [];
     if (departments.length > 0) {
       sections.push({
         type: "table",
@@ -88,7 +112,7 @@ export default function RoiProductivityAILN() {
       });
     }
 
-    const performers = getTopPerformersMock().list;
+    const performers = topPerformers?.list ?? [];
     if (performers.length > 0) {
       sections.push({
         type: "table",
@@ -107,7 +131,7 @@ export default function RoiProductivityAILN() {
           p.rank,
           p.full_name,
           p.department,
-          p.level_code,
+          p.level_code ?? "-",
           p.composite,
           formatInt(p.use_case_count),
           formatScore(p.hours),
@@ -143,7 +167,10 @@ export default function RoiProductivityAILN() {
           </ButtonAILN>
         </PageHeaderAILN>
 
-        <RoiProductivityBannerAILN />
+        <RoiProductivityBannerAILN
+          overview={overviewPayload}
+          departmentRoi={departmentRoi}
+        />
 
         <div className="grid grid-cols-1 gap-4 md:grid-cols-2 xl:grid-cols-4">
           {[
@@ -221,9 +248,9 @@ export default function RoiProductivityAILN() {
           ))}
         </div>
 
-        <RoiOutcomeChartsAILN />
+        <RoiOutcomeChartsAILN roiTrend={roiTrend} departmentRoi={departmentRoi} />
 
-        <RoiDepartmentTableAILN />
+        <RoiDepartmentTableAILN data={departmentRoi} />
       </div>
     </PageContainerAILN>
   );

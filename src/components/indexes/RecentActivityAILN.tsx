@@ -1,6 +1,6 @@
 "use client";
 import SectionContainerAILN from "@/components/cards/SectionContainerAILN";
-import { getSponsorRecentActivityMock } from "@/mock-data/sponsor";
+import type { SponsorActivityEntry } from "@/apis/sponsor";
 import dayjs from "dayjs";
 import "dayjs/locale/id";
 import relativeTime from "dayjs/plugin/relativeTime";
@@ -45,8 +45,11 @@ const KIND_META: Record<
   },
 };
 
-export default function RecentActivityAILN() {
-  const activity = getSponsorRecentActivityMock().activity;
+export default function RecentActivityAILN({
+  activity,
+}: {
+  activity: SponsorActivityEntry[];
+}) {
 
   return (
     <SectionContainerAILN title="Aktivitas Terkini">

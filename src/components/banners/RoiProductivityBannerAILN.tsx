@@ -1,6 +1,6 @@
 "use client";
 import { formatCompactIdr, formatDecimal, formatInt } from "@/lib/format";
-import { getDepartmentRoiMock, getOutcomeOverviewMock } from "@/mock-data/sponsor";
+import type { DepartmentRoi, OutcomeOverview } from "@/apis/sponsor";
 
 function idrText(value: number): string {
   const compact = formatCompactIdr(value);
@@ -9,11 +9,16 @@ function idrText(value: number): string {
   return `Rp ${compact.value}${suffix ? ` ${suffix}` : ""}`;
 }
 
-export default function RoiProductivityBannerAILN() {
-  const overview = getOutcomeOverviewMock();
-  const dept = getDepartmentRoiMock();
-  const totalAnnualRoi = dept.total_roi_annualized || overview.roi_total;
-  const ratePerHour = overview.roi_rate_per_hour;
+export default function RoiProductivityBannerAILN({
+  overview,
+  departmentRoi,
+}: {
+  overview: OutcomeOverview | null;
+  departmentRoi: DepartmentRoi | null;
+}) {
+  const totalAnnualRoi =
+    departmentRoi?.total_roi_annualized || overview?.roi_total || 0;
+  const ratePerHour = overview?.roi_rate_per_hour || 0;
   const weeklyHours =
     totalAnnualRoi > 0 ? Math.round((totalAnnualRoi / ratePerHour / 52) * 10) / 10 : 0;
   const monthlyHours = Math.round(weeklyHours * 4 * 10) / 10;
