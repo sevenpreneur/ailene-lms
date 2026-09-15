@@ -245,29 +245,6 @@ export function getAilMemberMock(_input?: {
   };
 }
 
-// Singleton announcement row — shared by the student ticker and sponsor's
-// announcement management page (same underlying procedure before).
-export function getAnnouncementMock(): {
-  id: number;
-  title: string;
-  callout: string;
-  status: "ACTIVE" | "INACTIVE";
-  start_date: Date | null;
-  end_date: Date | null;
-  updated_at: Date;
-} | null {
-  return {
-    id: 1,
-    title: "Sesi Live Q&A Minggu Ini",
-    callout:
-      "Jangan lewatkan sesi live Q&A bareng tim AI Champion, Jumat jam 14.00 WIB.",
-    status: "ACTIVE",
-    start_date: daysAgo(2),
-    end_date: daysAgo(-5),
-    updated_at: daysAgo(2),
-  };
-}
-
 // Defaulted to true — the pre-assessment submit action is a disabled mutation
 // now, so a false default would permanently trap students behind a dead end.
 export function getHasPreAssessmentMock(_input: {

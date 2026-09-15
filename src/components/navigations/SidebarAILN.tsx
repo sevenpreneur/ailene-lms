@@ -20,7 +20,6 @@ import {
   LayoutDashboard,
   LineChart,
   LogOut,
-  Megaphone,
   Menu,
   PanelLeft,
   PlusCircle,
@@ -133,7 +132,6 @@ const VARIANT_CONFIG: Record<SidebarAILNVariant, VariantConfig> = {
         icon: BarChart3,
       },
       { name: "ROI Productivity", url: "/sponsor/roi", icon: Target },
-      { name: "Pengumuman", url: "/sponsor/announcement", icon: Megaphone },
     ],
   },
 };
