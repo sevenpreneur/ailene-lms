@@ -40,7 +40,7 @@ Pola pemanggilan: fungsi sinkron biasa (`get<Noun>Mock(input?)`), bukan `useQuer
 
 **Mutasi (submit quiz, assign tugas, review, dll.) di-nonaktifkan** — bukan disimulasikan sukses. Titik mutasi pakai `DisabledActionButtonAILN` (`src/components/buttons/DisabledActionButtonAILN.tsx`), varian `ButtonAILN` yang selalu `disabled` dan menampilkan toast info kalau di-klik. Ganti balik ke `ButtonAILN` + endpoint asli begitu backend Java-nya siap.
 
-`src/lib/pre-assessment-report.ts` (kalkulasi murni, sudah nggak pakai Prisma dari awal) tetap dipertahankan — input-nya sekarang dari mock, bukan DB.
+Repo ini **khusus frontend**. Logika bisnis (skoring, kalkulasi, agregasi) adalah tanggung jawab `ailene-lms-backend` — jangan hitung ulang di sini, konsumsi hasilnya dari endpoint. `src/lib/pre-assessment-report.ts` dulu menghitung skor pillar pre-assessment di client; sudah dihapus setelah `POST /api/v1/pre-assessment/score` mengembalikan angka yang sama. Yang boleh tinggal di FE cuma presentasi murni — mis. `tone` warna pillar yang diturunkan dari `score`.
 
 ### Authentication
 
@@ -117,7 +117,6 @@ File-file penting di `src/lib/`:
 | `level-colors.ts`            | Mapping level (`L0`–`L4`) ke warna UI                                |
 | `log-error.ts`               | Helper log error yang konsisten (console-only)                      |
 | `optional-type.ts`           | TypeScript helper untuk optional/nullable types                     |
-| `pre-assessment-report.ts`   | Kalkulasi murni pre-assessment report (input dari mock data)          |
 | `status_code.ts`             | HTTP status code constants                                           |
 | `supabase.ts`                | Supabase Storage upload                                              |
 | `utils.ts`                   | General utilities — `cn()` class merger, dll                        |

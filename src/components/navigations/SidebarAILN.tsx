@@ -14,7 +14,6 @@ import {
   CalendarDays,
   ClipboardCheck,
   ClipboardList,
-  Compass,
   FileText,
   Gauge,
   LayoutDashboard,
@@ -82,7 +81,6 @@ const VARIANT_CONFIG: Record<SidebarAILNVariant, VariantConfig> = {
         icon: ClipboardList,
       },
       { name: "Progress Saya", url: "/student/my-progress", icon: LineChart },
-      { name: "Explore", url: "/student/explore", icon: Compass },
     ],
   },
   CHAMPION: {
@@ -185,7 +183,7 @@ export default function SidebarAILN({
   const router = useRouter();
   const user = session.user;
   const projectAccess = session.project_access.find(
-    (project) => project.id === projectId,
+    (project) => project.id === projectId
   );
 
   // Navigating away should never leave the drawer covering the new page.
@@ -400,10 +398,10 @@ export default function SidebarAILN({
                   />
                 </div>
                 <div className="min-w-0">
-                  <div className="truncate text-sm font-bold text-sb-text-strong">
+                  <div className="truncate text-sm font-medium text-sb-text-strong">
                     {projectAccess?.name ?? "Project"}
                   </div>
-                  <div className="text-[9px] font-semibold uppercase tracking-wider text-sb-text/60">
+                  <div className="text-[9px] font-light uppercase tracking-wider text-sb-text/60">
                     Powered by Ailene
                   </div>
                 </div>

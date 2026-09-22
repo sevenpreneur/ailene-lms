@@ -1,6 +1,5 @@
 "use client";
 import ButtonAILN from "@/components/buttons/ButtonAILN";
-import FirstWinCardAILN from "@/components/cards/FirstWinCardAILN";
 import TodayFocusCardAILN from "@/components/cards/TodayFocusCardAILN";
 import AchievementsCardAILN from "@/components/charts/AchievementsCardAILN";
 import CompetencyProfileAILN from "@/components/charts/CompetencyProfileAILN";
@@ -89,7 +88,6 @@ export default function DashboardStudentAILN({
         </header>
 
         <AnnouncementTickerAILN announcement={announcement} />
-        <FirstWinCardAILN />
         <TodayFocusCardAILN focus={todayFocus} />
         <div className="grid grid-cols-1 gap-4 xl:grid-cols-[minmax(0,3fr)_minmax(0,2fr)]">
           <CompetencyProfileAILN

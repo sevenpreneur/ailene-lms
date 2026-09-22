@@ -1,154 +1,8 @@
-// Student-facing mock data — learning path, skill-practice, quizzes, my-progress, and pre-assessment (student view).
+import { LEVELS, PILLAR_DEFS, levelByNumber } from "./shared";
+import { daysAgo, relativeDayStrip, round1 } from "./utils";
 
-import { buildPreAssessmentReport } from "@/lib/pre-assessment-report";
-import {
-  CATEGORIES,
-  GROUPS,
-  LEVELS,
-  MEMBER_ROSTER,
-  PILLAR_DEFS,
-  levelByNumber,
-} from "./shared";
-import { daysAgo, daysFromNow, relativeDayStrip, round1 } from "./utils";
-
-// The signed-in student is L3 (Advanced Practitioner), 1050 XP — matches
-// shared.ts's getAilMemberMock so every widget tells the same story.
 const CURRENT_LEVEL_NUMBER = 3;
 const CURRENT_XP = 1050;
-
-
-export function getAssignedPromptsMock() {
-  return [
-    {
-      id: 1,
-      prompt: {
-        id: 3,
-        name: "Draft Kebijakan Internal",
-        scenario: "Susun draft kebijakan WFH berdasarkan poin-poin diskusi.",
-        expected_output: "Draft kebijakan siap review, format formal.",
-        xp_reward: 30,
-        level: levelByNumber(3),
-        categories: [CATEGORIES[0]],
-      },
-      assigned_by: { id: 101, full_name: "Andra Wicaksono", avatar: null },
-      deadline: daysFromNow(3),
-      message: "Tolong selesaikan sebelum sprint review.",
-      submitted_at: null as Date | null,
-      reviewed_at: null as Date | null,
-      comment: null as string | null,
-      is_accepted: false,
-    },
-  ];
-}
-
-export function getAssignedUseCasesMock() {
-  return [
-    {
-      id: 1,
-      use_case: {
-        id: 2,
-        name: "Chatbot FAQ Internal",
-        description: "Bangun prototipe chatbot untuk menjawab pertanyaan HR umum.",
-        xp_reward: 35,
-        level: levelByNumber(3),
-        categories: [CATEGORIES[0], CATEGORIES[4]],
-      },
-      assigned_by: { id: 101, full_name: "Andra Wicaksono", avatar: null },
-      deadline: daysFromNow(5),
-      message: null as string | null,
-      submitted_at: null as Date | null,
-      reviewed_at: null as Date | null,
-      comment: null as string | null,
-      is_accepted: false,
-    },
-  ];
-}
-
-export function getPracticeSubmissionsMock() {
-  return [
-    {
-      id: 10,
-      kind: "PROMPT" as const,
-      ref_id: 1,
-      title: "Ringkasan Notulen Rapat",
-      body: "Ubah transkrip rapat panjang jadi ringkasan poin aksi.",
-      level: levelByNumber(1),
-      categories: [CATEGORIES[0]],
-      assigned_by: null as { id: number; full_name: string; avatar: string | null } | null,
-      reviewed_by: { id: 101, full_name: "Andra Wicaksono", avatar: null },
-      deadline: null as Date | null,
-      message: null as string | null,
-      submitted_at: daysAgo(35),
-      reviewed_at: daysAgo(33),
-      comment: "Sudah bagus, poin aksinya jelas.",
-      is_accepted: true,
-    },
-    {
-      id: 11,
-      kind: "USE_CASE" as const,
-      ref_id: 1,
-      title: "Otomatisasi Laporan Mingguan",
-      body: "Pakai AI untuk menyusun laporan mingguan dari data mentah.",
-      level: levelByNumber(2),
-      categories: [CATEGORIES[2]],
-      assigned_by: null as { id: number; full_name: string; avatar: string | null } | null,
-      reviewed_by: { id: 101, full_name: "Andra Wicaksono", avatar: null },
-      deadline: null as Date | null,
-      message: null as string | null,
-      submitted_at: daysAgo(20),
-      reviewed_at: daysAgo(18),
-      comment: "Hemat waktu signifikan, lanjutkan.",
-      is_accepted: true,
-    },
-  ];
-}
-
-export function getPromptAssignmentMock(input: { prompt_id: number }) {
-  const assigned = getAssignedPromptsMock().find((a) => a.prompt.id === input.prompt_id);
-  if (assigned) {
-    return { id: assigned.id, prompt: assigned.prompt, assigned_by: assigned.assigned_by, reviewed_by: null, deadline: assigned.deadline, message: assigned.message, input: "", output: "", submitted_at: null, reviewed_at: null, comment: null, is_accepted: false };
-  }
-  return {
-    id: 99,
-    prompt: { id: input.prompt_id, name: "Ringkasan Notulen Rapat", scenario: "Ubah transkrip rapat panjang jadi ringkasan poin aksi.", expected_output: "Daftar poin aksi.", level: levelByNumber(1), categories: [CATEGORIES[0]] },
-    assigned_by: null,
-    reviewed_by: null,
-    deadline: null as Date | null,
-    message: null as string | null,
-    input: "",
-    output: "",
-    submitted_at: null as Date | null,
-    reviewed_at: null as Date | null,
-    comment: null as string | null,
-    is_accepted: false,
-  };
-}
-
-export function getUseCaseAssignmentMock(input: { use_case_id: number }) {
-  const assigned = getAssignedUseCasesMock().find((a) => a.use_case.id === input.use_case_id);
-  if (assigned) {
-    return { id: assigned.id, use_case: assigned.use_case, assigned_by: assigned.assigned_by, reviewed_by: null, deadline: assigned.deadline, message: assigned.message, outcome_proof: null, hours_with_ai: null, hours_without_ai: null, description: "", ai_tool: "", frequency: null, type: null, submitted_at: null, reviewed_at: null, comment: null, is_accepted: false };
-  }
-  return {
-    id: 98,
-    use_case: { id: input.use_case_id, name: "Otomatisasi Laporan Mingguan", description: "Pakai AI untuk menyusun laporan mingguan.", level: levelByNumber(2), categories: [CATEGORIES[2]] },
-    assigned_by: null,
-    reviewed_by: null,
-    deadline: null as Date | null,
-    message: null as string | null,
-    outcome_proof: null as string | null,
-    hours_with_ai: null as number | null,
-    hours_without_ai: null as number | null,
-    description: "",
-    ai_tool: "",
-    frequency: null as string | null,
-    type: null as string | null,
-    submitted_at: null as Date | null,
-    reviewed_at: null as Date | null,
-    comment: null as string | null,
-    is_accepted: false,
-  };
-}
 
 export function getLevelProgressMock() {
   const nextLevel = levelByNumber(Math.min(4, CURRENT_LEVEL_NUMBER + 1));
@@ -169,7 +23,9 @@ export function getCompetencyProfileMock() {
     name: p.name,
     score: Math.min(5, round1(2.6 + (i % 3) * 0.4)),
   }));
-  const avg = round1(dimensions.reduce((s, d) => s + d.score, 0) / dimensions.length);
+  const avg = round1(
+    dimensions.reduce((s, d) => s + d.score, 0) / dimensions.length,
+  );
   return {
     dimensions,
     avg,
@@ -187,8 +43,20 @@ export function getRecommendationsMock() {
     role: "Digital Product Analyst",
     department: "Digital Transformation",
     items: [
-      { id: 1, title: "Otomatisasi Laporan Mingguan", description: "Pakai AI untuk menyusun laporan dari data mentah.", category: "Operations", level_number: CURRENT_LEVEL_NUMBER },
-      { id: 2, title: "Ringkasan Notulen Rapat", description: "Ubah transkrip rapat jadi poin aksi.", category: "Human Capital", level_number: CURRENT_LEVEL_NUMBER },
+      {
+        id: 1,
+        title: "Otomatisasi Laporan Mingguan",
+        description: "Pakai AI untuk menyusun laporan dari data mentah.",
+        category: "Operations",
+        level_number: CURRENT_LEVEL_NUMBER,
+      },
+      {
+        id: 2,
+        title: "Ringkasan Notulen Rapat",
+        description: "Ubah transkrip rapat jadi poin aksi.",
+        category: "Human Capital",
+        level_number: CURRENT_LEVEL_NUMBER,
+      },
     ],
   };
 }
@@ -210,94 +78,10 @@ export function getStreakMock() {
   return {
     from: relativeDayStrip(pattern)[0].date,
     to: relativeDayStrip(pattern)[pattern.length - 1].date,
-    days: relativeDayStrip(pattern).map((d) => ({ date: d.date, count: d.value ? 1 : 0 })),
+    days: relativeDayStrip(pattern).map((d) => ({
+      date: d.date,
+      count: d.value ? 1 : 0,
+    })),
     current_streak: 4,
-  };
-}
-
-const PRE_ASSESSMENT_MOCK = {
-  id: 1,
-  ai_use_frequency: "DAILY",
-  ai_tools_used: ["ChatGPT", "Claude"],
-  ai_limitations: ["Kadang jawaban kurang akurat untuk data internal"],
-  output_review: "ALWAYS",
-  use_cases: ["Ringkasan rapat", "Analisis data penjualan"],
-  team_adoption: "PILOT",
-  concrete_example:
-    "Tiap akhir bulan saya merangkum sekitar 30 exit interview jadi satu laporan untuk manajer, biasanya makan waktu hampir seharian.",
-  model_selection: "SOMETIMES",
-  multimodal_use: "RARELY",
-  workflow_reuse: "OFTEN",
-  prompt_comfort: "DECENT",
-  prompt_iteration: "OFTEN",
-  refine_scenario: "MANUAL",
-  professional_attitude: "SUPPORTIVE",
-  data_safety_check: "OFTEN",
-  publish_unchecked: "RARELY",
-  biggest_challenge: "Menyusun prompt yang konsisten untuk laporan berulang.",
-  submitted_at: daysAgo(14),
-};
-
-export function getPreAssessmentMineMock() {
-  return PRE_ASSESSMENT_MOCK;
-}
-
-export function getPreAssessmentReportMock() {
-  return {
-    pre_assessment: PRE_ASSESSMENT_MOCK,
-    report: buildPreAssessmentReport(PRE_ASSESSMENT_MOCK),
-  };
-}
-
-type PreAssessmentRecStatus = "pending" | "processing" | "completed" | "failed";
-
-export function getPreAssessmentRecommendationsMock() {
-  const status: PreAssessmentRecStatus = "completed";
-  return {
-    status: status as PreAssessmentRecStatus,
-    recommendations: {
-      time_saved_label: "~4,9 Jam/minggu",
-      items: [
-        {
-          source: "Merangkum notulen rapat dan exit interview",
-          title: "Otomatisasi ringkasan rapat & interview",
-          impact: "Tinggi",
-          speed: "~70% lebih cepat",
-          description: "Gunakan AI untuk merangkum transkrip panjang jadi poin aksi siap kirim.",
-          lessons: ["Pengenalan AI & Prompting Dasar", "AI untuk Produktivitas Kerja"],
-        },
-        {
-          source: "Analisis data penjualan mingguan",
-          title: "Dashboard insight otomatis",
-          impact: "Sedang",
-          speed: "~50% lebih cepat",
-          description: "Minta AI membaca tabel data dan menyorot tren utama tiap minggu.",
-          lessons: ["AI untuk Produktivitas Kerja"],
-        },
-      ],
-    },
-    error_message: null as string | null,
-    generated_at: daysAgo(13),
-  };
-}
-
-export function getGroupLeaderboardMock() {
-  const group = GROUPS[0];
-  const members = MEMBER_ROSTER.filter((m) => m.group_id === group.id)
-    .slice()
-    .sort((a, b) => b.total_xp - a.total_xp);
-  const leaderboard = members.map((m, i) => ({
-    rank: i + 1,
-    member_id: m.member_id,
-    full_name: m.user.full_name,
-    avatar: m.user.avatar,
-    total_xp: m.total_xp,
-    is_me: m.member_id === 1,
-  }));
-  return {
-    group: { id: group.id, name: group.name },
-    my_rank: leaderboard.find((l) => l.is_me)?.rank ?? 1,
-    total: leaderboard.length,
-    leaderboard,
   };
 }

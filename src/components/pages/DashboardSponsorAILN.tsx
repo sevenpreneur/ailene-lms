@@ -1,10 +1,5 @@
 "use client";
-import {
-  ORG_NAME,
-  PROGRAM_NAME,
-  PROGRAM_START_ISO,
-  PROGRAM_TOTAL_WEEKS,
-} from "@/lib/config";
+import { PROGRAM_START_ISO, PROGRAM_TOTAL_WEEKS } from "@/lib/config";
 import {
   usePdfReport,
   type ReportProps,
@@ -73,6 +68,8 @@ export default function DashboardSponsorAILN({
   levelDistribution,
   proficiencyTrends,
   organizationLeaderboard,
+  org,
+  program,
 }: {
   executiveView: ExecutiveView | null;
   headline: SponsorHeadline | null;
@@ -82,6 +79,8 @@ export default function DashboardSponsorAILN({
   levelDistribution: LevelDistribution | null;
   proficiencyTrends: ProficiencyTrends | null;
   organizationLeaderboard: OrganizationLeaderboard | null;
+  org: string | null;
+  program: string;
 }) {
   const pdf = usePdfReport();
 
@@ -96,7 +95,7 @@ export default function DashboardSponsorAILN({
 
   const healthMetrics = programHealth?.metrics ?? [];
   const activity = recentActivity?.activity ?? [];
-  const orgName = ORG_NAME || "Ringkasan Organisasi";
+  const orgName = org ?? "Ringkasan Organisasi";
   const activeStaffCount = metrics.staff_active_weekly_count.toLocaleString("id-ID");
   const departmentCount = (orgStats?.group_count ?? 0).toLocaleString("id-ID");
 
@@ -168,8 +167,8 @@ export default function DashboardSponsorAILN({
   ];
 
   const report: ReportProps = {
-    org: ORG_NAME || undefined,
-    program: PROGRAM_NAME,
+    org: org ?? undefined,
+    program,
     title: "Ringkasan Eksekutif",
     subtitle: orgStats
       ? `${orgStats.member_count.toLocaleString("id-ID")} staff · ${orgStats.group_count.toLocaleString("id-ID")} departemen`

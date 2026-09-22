@@ -1,3 +1,4 @@
+import { getProjectAccess } from "@/apis/auth";
 import {
   getExecutiveView,
   getLevelDistribution,
@@ -30,6 +31,7 @@ export default async function SponsorPage({
     levelDistribution,
     proficiencyTrends,
     organizationLeaderboard,
+    access,
   ] = await Promise.all([
     getExecutiveView(project_id),
     getSponsorHeadline(project_id),
@@ -39,6 +41,7 @@ export default async function SponsorPage({
     getLevelDistribution(project_id),
     getProficiencyTrends(project_id),
     getOrganizationLeaderboard(project_id),
+    getProjectAccess(project_id),
   ]);
 
   return (
@@ -51,6 +54,8 @@ export default async function SponsorPage({
       levelDistribution={levelDistribution}
       proficiencyTrends={proficiencyTrends}
       organizationLeaderboard={organizationLeaderboard}
+      org={access?.company_name ?? null}
+      program={access?.name ?? ""}
     />
   );
 }

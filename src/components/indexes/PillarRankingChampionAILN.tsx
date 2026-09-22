@@ -4,7 +4,7 @@ import { EmptyHintAILN } from "@/components/states/DataStatesAILN";
 import { formatScore } from "@/lib/format";
 import type { PreAssessmentTeam } from "@/apis/champion";
 
-// Pillar keys → ranking (descriptive) labels; keys mirror buildPreAssessmentReport.
+// Pillar keys → ranking (descriptive) labels; keys mirror the API's pillar keys.
 const PILLAR_LONG: Record<string, string> = {
   ai_foundation: "AI Foundation",
   prompting: "Prompting Quality",
@@ -15,9 +15,7 @@ const PILLAR_LONG: Record<string, string> = {
 };
 const SCORE_MAX = 5;
 
-// Team pillar ranking: mean baseline per pillar across the champion's members,
-// lowest first — i.e. the coaching priority order, with the maturity target
-// drawn as a line on each bar.
+// Team pillar ranking: mean baseline per pillar, lowest first — the coaching priority order.
 const EMPTY_TEAM_PRE_ASSESSMENT: PreAssessmentTeam = {
   department_count: 0,
   total_members: 0,

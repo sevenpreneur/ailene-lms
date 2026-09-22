@@ -4,7 +4,7 @@ import NoProjectStateAILN from "@/components/states/NoProjectStateAILN";
 import { LOGIN_URL } from "@/lib/config";
 import { redirect } from "next/navigation";
 
-// Discovery overview — deliberately not tied to any single project.
+// Landing after login: who you are, and which programs you're on.
 export default async function AILNRootPage() {
   const session = await checkSession();
 

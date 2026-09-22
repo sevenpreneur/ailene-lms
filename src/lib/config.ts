@@ -1,6 +1,4 @@
-// Single-tenant deployment identity and program window.
-// One deployment serves one company running one program, so these values live
-// in deployment-level config instead of row-level database state.
+// Program window only; tenant identity is per-project via getProjectAccess().
 
 // Login page now lives in this app (src/app/(lms)/lms/auth/login).
 export const LOGIN_URL = "/auth/login";
@@ -14,11 +12,6 @@ export function getProgramPeriod(): {
 } {
   return { startIso: PROGRAM_START_ISO, endIso: PROGRAM_END_ISO };
 }
-
-export const ORG_NAME = process.env.NEXT_PUBLIC_ORG_NAME?.trim() || "";
-
-export const PROGRAM_NAME =
-  process.env.NEXT_PUBLIC_PROGRAM_NAME?.trim() || "Program AI Adoption";
 
 export const PROGRAM_TOTAL_WEEKS = (() => {
   const start = new Date(PROGRAM_START_ISO);

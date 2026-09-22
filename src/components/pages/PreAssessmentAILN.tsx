@@ -1,5 +1,4 @@
 "use client";
-import DisabledActionButtonAILN from "@/components/buttons/DisabledActionButtonAILN";
 import ButtonAILN from "@/components/buttons/ButtonAILN";
 import PageContainerSVP from "@/components/pages/PageContainerSVP";
 import {
@@ -9,6 +8,10 @@ import {
   PreAssessmentQuestion,
 } from "@/lib/pre-assessment-questions";
 import { CheckSession } from "@/lib/actions";
+import { useProjectId } from "@/lib/use-project-id";
+import type { PreAssessmentAnswers } from "@/apis/pre-assessment";
+import { useRouter } from "next/navigation";
+import { toast } from "sonner";
 import { useQuery } from "@tanstack/react-query";
 import {
   faChevronLeft,
@@ -27,6 +30,24 @@ function isAnswered(q: PreAssessmentQuestion, v: AnswerValue): boolean {
   if (v == null) return false;
   if (q.type === "multi") return Array.isArray(v) && v.length > 0;
   return typeof v === "string" && v.trim().length > 0;
+}
+
+// valueCodes are the backend's enum constants verbatim, so nothing is translated here.
+function toPayload(answers: AnswerMap): PreAssessmentAnswers {
+  const payload: Record<string, string | string[]> = {};
+
+  for (const q of PRE_ASSESSMENT_QUESTIONS) {
+    const value = answers[q.field];
+    if (q.type === "multi") {
+      payload[q.field] = Array.isArray(value) ? value : [];
+      continue;
+    }
+    const text = typeof value === "string" ? value.trim() : "";
+    if (text.length === 0 && !q.required) continue;
+    payload[q.field] = text;
+  }
+
+  return payload as unknown as PreAssessmentAnswers;
 }
 
 export default function PreAssessmentAILN() {
@@ -48,6 +69,10 @@ export default function PreAssessmentAILN() {
   });
   const [currentIdx, setCurrentIdx] = useState(0);
   const [started, setStarted] = useState(false);
+  const [isSubmitting, setIsSubmitting] = useState(false);
+
+  const projectId = useProjectId();
+  const router = useRouter();
 
   const totalQuestions = PRE_ASSESSMENT_QUESTIONS.length;
   const currentQ = PRE_ASSESSMENT_QUESTIONS[currentIdx];
@@ -56,15 +81,15 @@ export default function PreAssessmentAILN() {
     () =>
       PRE_ASSESSMENT_QUESTIONS.filter((q) => isAnswered(q, answers[q.field]))
         .length,
-    [answers]
+    [answers],
   );
 
   const missingRequired = useMemo(
     () =>
       PRE_ASSESSMENT_QUESTIONS.filter(
-        (q) => q.required && !isAnswered(q, answers[q.field])
+        (q) => q.required && !isAnswered(q, answers[q.field]),
       ),
-    [answers]
+    [answers],
   );
 
   if (!started) {
@@ -90,6 +115,41 @@ export default function PreAssessmentAILN() {
       ...prev,
       [currentQ.field]: value.length > 0 ? value : null,
     }));
+  };
+
+  const handleSubmit = async () => {
+    if (isSubmitting) return;
+    if (missingRequired.length > 0) {
+      toast.error(
+        `Masih ada ${missingRequired.length} pertanyaan wajib yang belum diisi.`,
+      );
+      setCurrentIdx(PRE_ASSESSMENT_QUESTIONS.indexOf(missingRequired[0]));
+      return;
+    }
+
+    setIsSubmitting(true);
+    try {
+      const res = await fetch("/api/pre-assessment/create", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          project_id: projectId,
+          answers: toPayload(answers),
+        }),
+      });
+      const data = await res.json().catch(() => null);
+      if (!res.ok) {
+        toast.error(data?.message ?? "Gagal mengirim pre-assessment.");
+        return;
+      }
+      toast.success("Pre-assessment berhasil dikirim.");
+      router.replace(`/${projectId}/student`);
+      router.refresh();
+    } catch {
+      toast.error("Gagal menghubungi server. Coba lagi.");
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   const handlePrev = () => setCurrentIdx((i) => Math.max(0, i - 1));
@@ -279,13 +339,15 @@ export default function PreAssessmentAILN() {
               </div>
             </div>
 
-            <DisabledActionButtonAILN
+            <ButtonAILN
               type="button"
               variant="primary"
               className="w-full"
+              onClick={handleSubmit}
+              disabled={isSubmitting || missingRequired.length > 0}
             >
-              Kirim Jawaban
-            </DisabledActionButtonAILN>
+              {isSubmitting ? "Mengirim..." : "Kirim Jawaban"}
+            </ButtonAILN>
           </div>
         </div>
       </div>

@@ -1,7 +1,6 @@
 import { checkSession } from "@/apis/auth";
 import SidebarAILN from "@/components/navigations/SidebarAILN";
 import { LOGIN_URL } from "@/lib/config";
-import { getHasPreAssessmentMock } from "@/mock-data/shared";
 import { redirect } from "next/navigation";
 import { ReactNode } from "react";
 
@@ -16,12 +15,11 @@ export default async function GatedStudentLayout({
   const session = await checkSession();
   if (!session) redirect(LOGIN_URL);
 
-  // Force pre-assessment completion before accessing any other student route.
-  const hasPreAssessment = getHasPreAssessmentMock({
-    projectId: project_id,
-    userId: session.user.id,
-  });
-  if (!hasPreAssessment) {
+  // Force pre-assessment completion first; a missing access is the parent layout's call, not ours.
+  const projectAccess = session.project_access.find(
+    (project) => project.id === project_id
+  );
+  if (projectAccess && !projectAccess.has_pre_assessment) {
     redirect(`/${project_id}/student/pre-assessment`);
   }
 

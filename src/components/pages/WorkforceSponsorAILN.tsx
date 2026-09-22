@@ -6,7 +6,6 @@ import WorkforceLevelByDeptAILN from "@/components/charts/WorkforceLevelByDeptAI
 import WorkforceMembersAILN from "@/components/indexes/WorkforceMembersAILN";
 import PageContainerAILN from "@/components/pages/PageContainerAILN";
 import PageHeaderAILN from "@/components/titles/PageHeaderAILN";
-import { ORG_NAME, PROGRAM_NAME } from "@/lib/config";
 import {
   usePdfReport,
   type ReportProps,
@@ -29,9 +28,13 @@ const EMPTY_DISTRIBUTION: LevelDistribution = {
 export default function WorkforceSponsorAILN({
   levelDistribution,
   workforceMembers,
+  org,
+  program,
 }: {
   levelDistribution: LevelDistribution | null;
   workforceMembers: WorkforceMembers | null;
+  org: string | null;
+  program: string;
 }) {
   const pdf = usePdfReport();
   const data = levelDistribution ?? EMPTY_DISTRIBUTION;
@@ -39,8 +42,8 @@ export default function WorkforceSponsorAILN({
 
   // Report exports the full org snapshot.
   const buildReport = (): ReportProps => ({
-    org: ORG_NAME || undefined,
-    program: PROGRAM_NAME,
+    org: org ?? undefined,
+    program,
     title: "Distribusi Level Organisasi",
     subtitle: `${data.total.toLocaleString("id-ID")} karyawan · ${data.groups.length} departemen · partisipasi ${data.participation_percent}%`,
     generatedAt: dayjs().format("D MMMM YYYY"),

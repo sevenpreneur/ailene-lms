@@ -84,7 +84,7 @@ function PreAssessmentReportGateway() {
   const projectId = useProjectId();
   return (
     <Link
-      href={`/${projectId}/student/my-progress/pre-assessment-report`}
+      href={`/${projectId}/student/pre-assessment`}
       className="ailn-card group flex flex-col items-start gap-4 border bg-gray-950 p-5 transition sm:flex-row sm:items-center sm:justify-between dark:bg-card-1"
     >
       <span className="flex min-w-0 items-center gap-4">

@@ -1,3 +1,4 @@
+import { getProjectAccess } from "@/apis/auth";
 import {
   getGroupAttentionMembers,
   getGroupDepartments,
@@ -25,13 +26,14 @@ export default async function SponsorGroupPage({
     return <AppPageState variant="NOT_FOUND" />;
   }
 
-  const [departments, overview, distribution, topUseCases, attention] =
+  const [departments, overview, distribution, topUseCases, attention, access] =
     await Promise.all([
       getGroupDepartments(project_id),
       getGroupOverview(project_id, groupId),
       getGroupLevelDistribution(project_id, groupId),
       getGroupTopUseCases(project_id, groupId),
       getGroupAttentionMembers(project_id, groupId),
+      getProjectAccess(project_id),
     ]);
 
   return (
@@ -42,6 +44,8 @@ export default async function SponsorGroupPage({
       distribution={distribution}
       topUseCases={topUseCases}
       attention={attention}
+      org={access?.company_name ?? null}
+      program={access?.name ?? ""}
     />
   );
 }

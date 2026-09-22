@@ -1,7 +1,5 @@
 // Explore/discovery catalog for the Home page — mocked, no backend for this yet.
 
-import { daysAgo } from "./utils";
-
 export type ExploreLevel = "Beginner" | "Intermediate" | "Advanced";
 
 export type ExploreVendorMock = {
@@ -144,56 +142,6 @@ export function getExploreVendorsMock(): ExploreVendorMock[] {
 
 export function getExploreCoursesMock(): ExploreCourseMock[] {
   return EXPLORE_COURSES;
-}
-
-export function getHomeRecommendedCoursesMock(): (ExploreCourseMock & {
-  vendor: ExploreVendorMock | undefined;
-})[] {
-  return EXPLORE_COURSES.slice(2).map((course) => ({
-    ...course,
-    vendor: EXPLORE_VENDORS.find((v) => v.id === course.vendorId),
-  }));
-}
-
-export type HomeNewsItemMock = {
-  id: number;
-  title: string;
-  body: string;
-  time: Date;
-};
-
-export function getHomeNewsMock(): HomeNewsItemMock[] {
-  return [
-    {
-      id: 1,
-      title: "How teams are shipping faster with Ailene Cowork",
-      body: "Ailene customers are pairing our agent workflows with their own tools to cut delivery time across support and ops.",
-      time: daysAgo(1),
-    },
-    {
-      id: 2,
-      title: "Introducing the Admin console for teams",
-      body: "New workspace analysis, member management, and permission controls for Ailene Business admins.",
-      time: daysAgo(3),
-    },
-  ];
-}
-
-export type HomeLeaderboardEntryMock = {
-  rank: number;
-  name: string;
-  score: number;
-  avatar?: string;
-};
-
-export function getHomeLeaderboardMock(): HomeLeaderboardEntryMock[] {
-  return [
-    { rank: 1, name: "Tania Andriichuk", score: 2900, avatar: "/images/avatar-tania.webp" },
-    { rank: 2, name: "Aivie Anders", score: 2743, avatar: "/images/avatar-generic.jpg" },
-    { rank: 3, name: "Tak Ping Poon", score: 1450 },
-    { rank: 4, name: "Login Ahmed", score: 1185 },
-    { rank: 5, name: "Abdullah Ibne Shaban", score: 1080 },
-  ];
 }
 
 // Programs you're not enrolled in yet — links to a read-only details page.
@@ -342,20 +290,36 @@ export const PROGRAM_PREVIEWS: ProgramPreviewMock[] = [
       },
     ],
     modules: [
-      { id: "m1", title: "Pembukaan Program & Orientasi", duration: "15 menit", status: "done" },
-      { id: "m2", title: "Kenapa AI Sekarang & Dasar Prompting", duration: "20 menit", status: "current" },
-      { id: "m3", title: "Use Case Operasional Pelabuhan", duration: "25 menit", status: "locked" },
-      { id: "m4", title: "Tata Kelola & Keamanan Data", duration: "18 menit", status: "locked" },
+      {
+        id: "m1",
+        title: "Pembukaan Program & Orientasi",
+        duration: "15 menit",
+        status: "done",
+      },
+      {
+        id: "m2",
+        title: "Kenapa AI Sekarang & Dasar Prompting",
+        duration: "20 menit",
+        status: "current",
+      },
+      {
+        id: "m3",
+        title: "Use Case Operasional Pelabuhan",
+        duration: "25 menit",
+        status: "locked",
+      },
+      {
+        id: "m4",
+        title: "Tata Kelola & Keamanan Data",
+        duration: "18 menit",
+        status: "locked",
+      },
     ],
   },
 ];
 
-export function getProgramPreviewsMock(): ProgramPreviewMock[] {
-  return PROGRAM_PREVIEWS;
-}
-
 export function getProgramPreviewBySlugMock(
-  slug: string
+  slug: string,
 ): ProgramPreviewMock | null {
   return PROGRAM_PREVIEWS.find((p) => p.slug === slug) ?? null;
 }

@@ -5,7 +5,7 @@ import { formatInt, formatScore } from "@/lib/format";
 import type { PreAssessmentTeam } from "@/apis/champion";
 import Image from "next/image";
 
-// Pillar keys → table header (short) labels; keys mirror buildPreAssessmentReport.
+// Pillar keys → table header (short) labels; keys mirror the API's pillar keys.
 const PILLAR_SHORT: Record<string, string> = {
   ai_foundation: "AI Foundation",
   prompting: "Prompting",
@@ -47,9 +47,7 @@ function getInitials(name: string): string {
   return (parts[0][0] + parts[parts.length - 1][0]).toUpperCase();
 }
 
-// Team competency baseline matrix: one row per member, six pillar score chips +
-// average, grouped under each department the champion owns. Headline stats
-// summarize the team below the table.
+// Team competency baseline matrix: one row per member, grouped by department.
 const EMPTY_TEAM_PRE_ASSESSMENT: PreAssessmentTeam = {
   department_count: 0,
   total_members: 0,
@@ -234,8 +232,7 @@ function MemberAvatar({ name, src }: { name: string; src: string | null }) {
   );
 }
 
-// One score chip; green once it clears the 3.2 maturity threshold, amber below.
-// A ring marks the member's weakest pillar — the first thing to coach.
+// One score chip: green above the 3.2 threshold, amber below; a ring marks the weakest pillar.
 function PillarCell({ score, weakest }: { score: number; weakest: boolean }) {
   const green = score >= 3.2;
   return (

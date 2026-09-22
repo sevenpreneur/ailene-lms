@@ -1,157 +1,111 @@
 "use client";
-import { HomeRecommendedCourseCardAILN } from "@/components/cards/HomeCourseCardAILN";
-import ProgramPreviewCardAILN from "@/components/cards/ProgramPreviewCardAILN";
-import ProjectJumpBackInCardAILN from "@/components/cards/ProjectJumpBackInCardAILN";
-import HeroHomeAILN from "@/components/heroes/HeroHomeAILN";
-import DiscoverySidebarAILN from "@/components/navigations/DiscoverySidebarAILN";
-import PageContainerAILN from "@/components/pages/PageContainerAILN";
 import type { LmsSession } from "@/apis/auth";
-import {
-  getHomeLeaderboardMock,
-  getHomeNewsMock,
-  getHomeRecommendedCoursesMock,
-  getProgramPreviewsMock,
-} from "@/mock-data/explore";
+import ProjectJumpBackInCardAILN from "@/components/cards/ProjectJumpBackInCardAILN";
+import ThemeSwitcherAILN from "@/components/buttons/ThemeSwitcherAILN";
+import { LogoAileneAILN } from "@/components/elements/LogoAileneAILN";
+import { DeleteSession } from "@/lib/actions";
+import { LOGIN_URL } from "@/lib/config";
 import dayjs from "dayjs";
 import "dayjs/locale/id";
-import relativeTime from "dayjs/plugin/relativeTime";
-import { ArrowRight, Newspaper } from "lucide-react";
+import { LogOut } from "lucide-react";
 import Image from "next/image";
-import Link from "next/link";
+import { useRouter } from "next/navigation";
+import { useState } from "react";
+import { toast } from "sonner";
 
 dayjs.locale("id");
-dayjs.extend(relativeTime);
 
-const RANK_TINT: Record<number, string> = {
-  1: "bg-lime-bright text-forest-deep",
-  2: "bg-hijau-t text-claude",
-  3: "bg-dashboard-bg text-foreground",
-};
+const DEFAULT_AVATAR =
+  "https://tskubmriuclmbcfmaiur.supabase.co/storage/v1/object/public/sevenpreneur//default-avatar.svg.png";
+
+// Greeting follows the viewer's own clock, so it has to be picked on the client.
+function greetingFor(hour: number): string {
+  if (hour < 11) return "Selamat pagi";
+  if (hour < 15) return "Selamat siang";
+  if (hour < 19) return "Selamat sore";
+  return "Selamat malam";
+}
 
 export default function HomeAILN({ session }: { session: LmsSession }) {
-  const recommendedCourses = getHomeRecommendedCoursesMock();
-  const news = getHomeNewsMock();
-  const leaderboard = getHomeLeaderboardMock();
-  const programPreviews = getProgramPreviewsMock();
+  const router = useRouter();
+  const [isLoggingOut, setIsLoggingOut] = useState(false);
+
+  const user = session.user;
+  const firstName = user.full_name.split(" ")[0];
+  const projects = session.project_access;
+
+  const handleLogout = async () => {
+    if (isLoggingOut) return;
+    setIsLoggingOut(true);
+    try {
+      await DeleteSession();
+      router.push(LOGIN_URL);
+    } catch {
+      toast.error("Gagal logout. Coba lagi.");
+      setIsLoggingOut(false);
+    }
+  };
 
   return (
-    <>
-      <DiscoverySidebarAILN session={session} />
-      <PageContainerAILN>
-        <div className="flex w-full flex-col gap-6">
-          <HeroHomeAILN />
-
-          <div className="grid grid-cols-1 gap-6 lg:grid-cols-3">
-            <div className="flex min-w-0 flex-col gap-6 lg:col-span-2">
-              <section className="rounded-2xl border border-dashboard-border bg-card-1 p-6">
-                <h2 className="mb-4 text-lg font-semibold text-foreground">
-                  Jump back in
-                </h2>
-                <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
-                  {session.project_access.map((project) => (
-                    <ProjectJumpBackInCardAILN key={project.id} project={project} />
-                  ))}
-                  {programPreviews.map((program) => (
-                    <ProgramPreviewCardAILN key={program.slug} program={program} />
-                  ))}
-                </div>
-              </section>
-
-              <section className="min-w-0 rounded-2xl border border-dashboard-border bg-card-1 p-6">
-                <div className="mb-4 flex items-center justify-between">
-                  <h2 className="text-lg font-semibold text-foreground">
-                    Recommended Courses
-                  </h2>
-                  <Link
-                    href="/explore"
-                    className="inline-flex items-center gap-1 text-sm font-semibold text-claude hover:underline dark:text-lime-bright"
-                  >
-                    Browse all
-                    <ArrowRight size={14} />
-                  </Link>
-                </div>
-                <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
-                  {recommendedCourses.map((course) => (
-                    <HomeRecommendedCourseCardAILN
-                      key={course.id}
-                      course={course}
-                    />
-                  ))}
-                </div>
-              </section>
-            </div>
-
-            <div className="flex min-w-0 flex-col gap-5">
-              <div className="rounded-2xl border border-dashboard-border bg-card-1 p-5">
-                <h2 className="mb-3 flex items-center gap-2 text-lg font-semibold text-foreground">
-                  <Newspaper size={16} />
-                  News
-                </h2>
-                <div className="flex flex-col gap-4">
-                  {news.map((item) => (
-                    <div key={item.id}>
-                      <p className="text-sm font-semibold text-foreground">
-                        {item.title}
-                      </p>
-                      <p className="mt-1 line-clamp-2 text-xs text-muted-foreground">
-                        {item.body}
-                      </p>
-                      <p className="mt-1 text-xs text-muted-foreground/70">
-                        {dayjs(item.time).fromNow()}
-                      </p>
-                    </div>
-                  ))}
-                </div>
-              </div>
-
-              <div className="rounded-2xl border border-dashboard-border bg-card-1 p-5">
-                <h2 className="mb-3 text-lg font-semibold text-foreground">
-                  Weekly Leaderboard
-                </h2>
-                <div className="flex flex-col gap-3">
-                  {leaderboard.map((entry) => (
-                    <div key={entry.rank} className="flex items-center gap-3">
-                      <span
-                        className={`flex h-6 w-6 shrink-0 items-center justify-center rounded-full text-xs font-bold ${
-                          RANK_TINT[entry.rank] ??
-                          "bg-dashboard-bg text-muted-foreground"
-                        }`}
-                      >
-                        {entry.rank}
-                      </span>
-                      {entry.avatar ? (
-                        <div className="relative h-7 w-7 shrink-0 overflow-hidden rounded-full">
-                          <Image
-                            src={entry.avatar}
-                            alt=""
-                            fill
-                            unoptimized
-                            className="object-cover"
-                          />
-                        </div>
-                      ) : (
-                        <div className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-hijau-t text-xs font-semibold text-claude">
-                          {entry.name
-                            .split(" ")
-                            .slice(0, 2)
-                            .map((n) => n[0])
-                            .join("")}
-                        </div>
-                      )}
-                      <p className="flex-1 truncate text-sm text-foreground">
-                        {entry.name}
-                      </p>
-                      <p className="text-sm font-semibold text-foreground">
-                        {entry.score}
-                      </p>
-                    </div>
-                  ))}
-                </div>
-              </div>
-            </div>
-          </div>
+    <div className="flex min-h-screen w-full flex-col bg-dashboard-bg">
+      <header className="sticky top-0 z-10 border-b border-dashboard-border bg-card-1/85 backdrop-blur">
+        <div className="mx-auto flex w-full max-w-5xl items-center gap-3 px-4 py-3 md:px-6">
+          <LogoAileneAILN className="h-7 w-auto text-foreground" />
+          <div className="flex-1" />
+          <ThemeSwitcherAILN />
+          <button
+            type="button"
+            onClick={handleLogout}
+            disabled={isLoggingOut}
+            aria-label="Logout"
+            className="inline-flex items-center gap-2 rounded-lg px-2.5 py-2 text-sm font-medium text-muted-foreground transition-colors hover:bg-dashboard-bg hover:text-foreground disabled:opacity-60"
+          >
+            <LogOut size={16} />
+            <span className="hidden sm:inline">
+              {isLoggingOut ? "Keluar..." : "Keluar"}
+            </span>
+          </button>
         </div>
-      </PageContainerAILN>
-    </>
+      </header>
+
+      <main className="mx-auto w-full max-w-5xl flex-1 px-4 py-10 md:px-6 md:py-14">
+        <section className="flex items-center gap-4">
+          <div className="relative h-14 w-14 shrink-0 overflow-hidden rounded-full border border-dashboard-border bg-card-1 sm:h-16 sm:w-16">
+            <Image
+              src={user.avatar || DEFAULT_AVATAR}
+              alt=""
+              fill
+              unoptimized
+              className="object-cover"
+            />
+          </div>
+          <div className="min-w-0">
+            <h1 className="text-2xl font-bold tracking-tight text-foreground sm:text-3xl">
+              {greetingFor(dayjs().hour())}, {firstName}
+            </h1>
+            <p className="mt-1 text-sm capitalize text-muted-foreground">
+              {dayjs().format("dddd, D MMMM YYYY")}
+            </p>
+          </div>
+        </section>
+
+        <section className="mt-10">
+          <div className="flex items-baseline justify-between gap-3">
+            <h2 className="text-lg font-semibold text-foreground">
+              Program yang sedang berjalan
+            </h2>
+            <span className="shrink-0 text-sm text-muted-foreground">
+              {projects.length} program
+            </span>
+          </div>
+
+          <div className="mt-4 grid grid-cols-1 gap-4 sm:grid-cols-2">
+            {projects.map((project) => (
+              <ProjectJumpBackInCardAILN key={project.id} project={project} />
+            ))}
+          </div>
+        </section>
+      </main>
+    </div>
   );
 }

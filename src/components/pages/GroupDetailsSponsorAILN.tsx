@@ -1,6 +1,5 @@
 "use client";
 
-import { ORG_NAME, PROGRAM_NAME } from "@/lib/config";
 import {
   usePdfReport,
   type ReportProps,
@@ -36,6 +35,8 @@ export default function GroupDetailsSponsorAILN({
   distribution: distributionPayload,
   topUseCases: topUseCasesPayload,
   attention: attentionPayload,
+  org,
+  program,
 }: {
   groupId: number;
   departments: GroupDepartments | null;
@@ -43,6 +44,8 @@ export default function GroupDetailsSponsorAILN({
   distribution: GroupLevelDistribution | null;
   topUseCases: GroupTopUseCases | null;
   attention: GroupAttentionMembers | null;
+  org: string | null;
+  program: string;
 }) {
   const router = useRouter();
   const projectId = useProjectId();
@@ -175,8 +178,8 @@ export default function GroupDetailsSponsorAILN({
       });
     }
     return {
-      org: ORG_NAME || undefined,
-      program: PROGRAM_NAME,
+      org: org ?? undefined,
+      program,
       title: `Departemen ${group.name}`,
       subtitle: `${metrics.total_members} karyawan · Champion ${group.champion?.full_name ?? "-"} · ${metrics.beginner_percent}% pemula`,
       generatedAt: dayjs().format("D MMMM YYYY"),

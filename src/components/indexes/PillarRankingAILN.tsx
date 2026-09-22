@@ -4,7 +4,7 @@ import { EmptyHintAILN } from "@/components/states/DataStatesAILN";
 import { formatScore } from "@/lib/format";
 import type { PreAssessmentOrganization } from "@/apis/sponsor";
 
-// Pillar keys → ranking (descriptive) labels; keys mirror buildPreAssessmentReport.
+// Pillar keys → ranking (descriptive) labels; keys mirror the API's pillar keys.
 const PILLAR_LONG: Record<string, string> = {
   ai_foundation: "AI Foundation",
   prompting: "Prompting Quality",
@@ -15,8 +15,7 @@ const PILLAR_LONG: Record<string, string> = {
 };
 const SCORE_MAX = 5;
 
-// Org pillar ranking: mean baseline per pillar across departments, lowest first,
-// with the maturity target drawn as a line on each bar.
+// Org pillar ranking: mean baseline per pillar, lowest first, with the maturity target on each bar.
 const EMPTY_ORG_PRE_ASSESSMENT: PreAssessmentOrganization = {
   department_count: 0,
   total_members: 0,

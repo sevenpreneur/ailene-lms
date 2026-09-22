@@ -1,7 +1,4 @@
-// Question definitions for the Ailene pre-assessment.
-// `field` matches the column name on ail_pre_assessments.
-// For single-choice, `valueCodes` lines up with `options` (same length, same order)
-// and stores the enum literal sent to the server.
+// Pre-assessment questions; `valueCodes` lines up with `options` and holds the enum literal sent to the server.
 
 export type PreAssessmentCategory =
   | "Profil Dasar"
@@ -51,7 +48,7 @@ export type PreAssessmentQuestion =
 
 // Reusable 5-point frequency scale (single-choice).
 const FREQ_OPTIONS = ["Tidak pernah", "Jarang", "Kadang", "Sering", "Selalu"];
-const FREQ_CODES = ["NEVER", "RARELY", "SOMETIMES", "OFTEN", "ALWAYS"];
+const FREQ_CODES = ["never", "rarely", "sometimes", "often", "always"];
 
 export const PRE_ASSESSMENT_QUESTIONS: PreAssessmentQuestion[] = [
   {
@@ -69,7 +66,7 @@ export const PRE_ASSESSMENT_QUESTIONS: PreAssessmentQuestion[] = [
       "Hampir setiap hari",
       "Beberapa kali dalam sehari",
     ],
-    valueCodes: ["NEVER", "TRIED", "WEEKLY", "DAILY", "INTENSIVE"],
+    valueCodes: ["never", "tried", "weekly", "daily", "intensive"],
   },
   {
     id: 2,
@@ -123,7 +120,7 @@ export const PRE_ASSESSMENT_QUESTIONS: PreAssessmentQuestion[] = [
       "Saya cross-check dengan sumber lain sebelum menggunakan",
       "Saya belum pernah menggunakan output AI",
     ],
-    valueCodes: ["NO_CHECK", "SOMETIMES", "ALWAYS", "CROSS_CHECK", "NO_USE"],
+    valueCodes: ["no_check", "sometimes", "always", "cross_check", "no_use"],
   },
   {
     id: 5,
@@ -159,7 +156,7 @@ export const PRE_ASSESSMENT_QUESTIONS: PreAssessmentQuestion[] = [
       "Ada kebijakan dan tools AI yang sudah disetujui kantor",
       "Tim kami sudah rutin mengintegrasikan AI dalam workflow",
     ],
-    valueCodes: ["NONE", "PERSONAL", "PILOT", "POLICY", "INTEGRATED"],
+    valueCodes: ["none", "personal", "pilot", "policy", "integrated"],
   },
   {
     id: 7,
@@ -220,7 +217,7 @@ export const PRE_ASSESSMENT_QUESTIONS: PreAssessmentQuestion[] = [
       "Terbiasa menggunakan teknik seperti konteks, persona, atau format output",
       "Mahir — bisa membuat prompt kompleks dengan hasil yang konsisten",
     ],
-    valueCodes: ["NONE", "BASIC", "DECENT", "STRUCTURED", "EXPERT"],
+    valueCodes: ["none", "basic", "decent", "structured", "expert"],
   },
   {
     id: 12,
@@ -247,7 +244,7 @@ export const PRE_ASSESSMENT_QUESTIONS: PreAssessmentQuestion[] = [
       "Buka paragrafnya, baca ulang kalimat per kalimat, lalu rapikan sendiri frasa yang kaku itu secara manual sampai nadanya pas — tanpa repot menjelaskan ke AI.",
       "Buang hasil yang ada, lalu minta AI menyusun ulang seluruh dokumen dari nol pakai brief nada yang lebih panjang dan rinci supaya hasilnya lebih konsisten dari awal sampai akhir.",
     ],
-    valueCodes: ["TARGETED", "SWITCH_TOOL", "MANUAL", "RESTART"],
+    valueCodes: ["targeted", "switch_tool", "manual", "restart"],
   },
   {
     id: 14,
@@ -264,7 +261,7 @@ export const PRE_ASSESSMENT_QUESTIONS: PreAssessmentQuestion[] = [
       "Sangat mendukung, asal ada panduan yang jelas",
       "AI adalah keharusan — yang tidak pakai akan tertinggal",
     ],
-    valueCodes: ["TOO_RISKY", "CAUTIOUS", "NEUTRAL", "SUPPORTIVE", "ESSENTIAL"],
+    valueCodes: ["too_risky", "cautious", "neutral", "supportive", "essential"],
   },
   {
     id: 15,
@@ -325,7 +322,7 @@ export const PRE_ASSESSMENT_QUESTIONS: PreAssessmentQuestion[] = [
       "Tinggi — saya siap langsung mencoba setelah pelatihan",
       "Sangat tinggi — saya sudah tidak sabar untuk mulai!",
     ],
-    valueCodes: ["MANDATORY", "CURIOUS", "TENTATIVE", "READY", "EAGER"],
+    valueCodes: ["mandatory", "curious", "tentative", "ready", "eager"],
   },
 ];
 

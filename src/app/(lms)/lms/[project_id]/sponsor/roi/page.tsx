@@ -1,3 +1,4 @@
+import { getProjectAccess } from "@/apis/auth";
 import {
   getDepartmentRoi,
   getOutcomeOverview,
@@ -17,12 +18,14 @@ export default async function RoiPage({
   params: Promise<{ project_id: string }>;
 }) {
   const { project_id } = await params;
-  const [overview, roiTrend, departmentRoi, topPerformers] = await Promise.all([
-    getOutcomeOverview(project_id),
-    getRoiTrend(project_id),
-    getDepartmentRoi(project_id),
-    getTopPerformers(project_id),
-  ]);
+  const [overview, roiTrend, departmentRoi, topPerformers, access] =
+    await Promise.all([
+      getOutcomeOverview(project_id),
+      getRoiTrend(project_id),
+      getDepartmentRoi(project_id),
+      getTopPerformers(project_id),
+      getProjectAccess(project_id),
+    ]);
 
   return (
     <RoiProductivityAILN
@@ -30,6 +33,8 @@ export default async function RoiPage({
       roiTrend={roiTrend}
       departmentRoi={departmentRoi}
       topPerformers={topPerformers}
+      org={access?.company_name ?? null}
+      program={access?.name ?? ""}
     />
   );
 }

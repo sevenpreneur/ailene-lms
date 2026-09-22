@@ -18,10 +18,14 @@ export type LmsProjectRole = "champion" | "student" | "sponsor";
 export type LmsProjectAccess = {
   id: string;
   name: string;
+  company_name: string | null;
+  company_slug: string | null;
   avatar: string | null;
-  group_id: number | null;
-  group_name: string | null;
+  // Always present: group_id is NOT NULL and a composite FK makes the backend's LEFT JOIN always match.
+  group_id: number;
+  group_name: string;
   role: LmsProjectRole;
+  has_pre_assessment: boolean;
 };
 
 export type LmsSession = {
@@ -31,7 +35,7 @@ export type LmsSession = {
 
 const SESSION_MAX_AGE = 60 * 60 * 24 * 365;
 
-// POST /api/v1/auth/login/google is gated by a static shared bearer, not per-user auth — see docs/auth.md in ailene-lms-backend.
+// POST /api/v1/auth/login/google is gated by a static shared bearer, not per-user auth — see docs/api/auth.md in ailene-lms-api.
 export async function loginWithGoogleAccessToken(
   accessToken: string
 ): Promise<
@@ -87,6 +91,16 @@ export const checkSession = cache(async (): Promise<LmsSession | null> => {
 
   return result.success && result.data ? result.data : null;
 });
+
+// Tenant identity is per-project, never deployment config; checkSession() is cached so this adds no call.
+export async function getProjectAccess(
+  projectId: string
+): Promise<LmsProjectAccess | null> {
+  const session = await checkSession();
+  return (
+    session?.project_access.find((project) => project.id === projectId) ?? null
+  );
+}
 
 export async function logoutSession(): Promise<void> {
   const cookieStore = await cookies();

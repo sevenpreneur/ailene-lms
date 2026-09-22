@@ -3,7 +3,7 @@
 import type { LmsSession } from "@/apis/auth";
 import ButtonAILN from "@/components/buttons/ButtonAILN";
 import ThemeSwitcherAILN from "@/components/buttons/ThemeSwitcherAILN";
-import { LogoAileneStrokeAILN } from "@/components/elements/LogoAileneStrokeAILN";
+import { LogoAileneAILN } from "@/components/elements/LogoAileneAILN";
 import { useSidebar } from "@/contexts/SidebarContext";
 import { DeleteSession } from "@/lib/actions";
 import { LOGIN_URL } from "@/lib/config";
@@ -183,7 +183,7 @@ export default function DiscoverySidebarAILN({
           <Menu size={18} />
         </button>
 
-        <LogoAileneStrokeAILN className="h-7 w-auto shrink-0 -rotate-3" />
+        <LogoAileneAILN className="h-7 w-auto shrink-0 text-sb-text-strong" />
 
         <div className="flex-1" />
 
@@ -217,7 +217,7 @@ export default function DiscoverySidebarAILN({
         >
           <div className="flex h-full w-full flex-col p-4">
             <div className="flex shrink-0 items-center justify-between gap-2 pb-4">
-              <LogoAileneStrokeAILN className="h-9 w-auto shrink-0 -rotate-3" />
+              <LogoAileneAILN className="h-9 w-auto shrink-0 text-sb-text-strong" />
 
               <button
                 onClick={closeMobile}
@@ -254,8 +254,8 @@ export default function DiscoverySidebarAILN({
               isCollapsed ? "justify-center" : "justify-between"
             }`}
           >
-            <LogoAileneStrokeAILN
-              className={`w-auto shrink-0 -rotate-3 ${isCollapsed ? "h-7" : "h-9"}`}
+            <LogoAileneAILN
+              className={`w-auto shrink-0 text-sb-text-strong ${isCollapsed ? "h-7" : "h-9"}`}
             />
 
             <button

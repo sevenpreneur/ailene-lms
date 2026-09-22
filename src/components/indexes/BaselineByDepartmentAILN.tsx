@@ -4,7 +4,7 @@ import { EmptyHintAILN } from "@/components/states/DataStatesAILN";
 import { formatInt, formatScore } from "@/lib/format";
 import type { PreAssessmentOrganization } from "@/apis/sponsor";
 
-// Pillar keys → table header (short) labels; keys mirror buildPreAssessmentReport.
+// Pillar keys → table header (short) labels; keys mirror the API's pillar keys.
 const PILLAR_SHORT: Record<string, string> = {
   ai_foundation: "AI Foundation",
   prompting: "Prompting",
@@ -23,8 +23,7 @@ const PILLAR_ORDER = [
 ];
 const orderIndex = (key: string) => PILLAR_ORDER.indexOf(key);
 
-// Org competency baseline matrix: one row per department, six pillar score chips
-// + average + completion. Headline stats summarize the org below the table.
+// Org competency baseline matrix: one row per department, six pillar chips + average + completion.
 const EMPTY_ORG_PRE_ASSESSMENT: PreAssessmentOrganization = {
   department_count: 0,
   total_members: 0,

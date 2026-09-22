@@ -11,7 +11,6 @@ import {
   type ReportProps,
 } from "@/components/pdf/AileneReportPDF";
 import PageHeaderAILN from "@/components/titles/PageHeaderAILN";
-import { ORG_NAME, PROGRAM_NAME } from "@/lib/config";
 import {
   formatCompactIdr,
   formatDecimal,
@@ -52,11 +51,15 @@ export default function RoiProductivityAILN({
   roiTrend,
   departmentRoi,
   topPerformers,
+  org,
+  program,
 }: {
   overview: OutcomeOverview | null;
   roiTrend: RoiTrend | null;
   departmentRoi: DepartmentRoi | null;
   topPerformers: TopPerformers | null;
+  org: string | null;
+  program: string;
 }) {
   const pdf = usePdfReport();
   const overview = overviewPayload ?? EMPTY_OVERVIEW;
@@ -140,8 +143,8 @@ export default function RoiProductivityAILN({
     }
 
     return {
-      org: ORG_NAME || undefined,
-      program: PROGRAM_NAME,
+      org: org ?? undefined,
+      program,
       title: "ROI Productivity",
       subtitle: `${formatInt(overview.member_count)} karyawan · ${overview.department_count} departemen`,
       generatedAt: dayjs().format("D MMMM YYYY"),
@@ -154,7 +157,7 @@ export default function RoiProductivityAILN({
       <div className="flex w-full flex-col gap-6">
         <PageHeaderAILN
           title="ROI Productivity"
-          desc={`${PROGRAM_NAME} · ${formatInt(overview.member_count)} karyawan · ${overview.department_count} departemen`}
+          desc={`${program} · ${formatInt(overview.member_count)} karyawan · ${overview.department_count} departemen`}
         >
           <ButtonAILN
             variant="light"

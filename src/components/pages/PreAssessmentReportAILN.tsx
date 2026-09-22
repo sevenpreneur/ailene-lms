@@ -8,9 +8,12 @@ import AppErrorComponents from "@/components/states/AppErrorComponents";
 import PageHeaderAILN from "@/components/titles/PageHeaderAILN";
 import { CheckSession } from "@/lib/actions";
 import { useProjectId } from "@/lib/use-project-id";
-import { getPreAssessmentRecommendationsMock, getPreAssessmentReportMock } from "@/mock-data/student";
 import { useQuery } from "@tanstack/react-query";
-import type { PreAssessmentRecommendation } from "@/lib/pre-assessment-report";
+import type {
+  PreAssessmentRecommendation,
+  PreAssessmentRecommendationsResult,
+  PreAssessmentReportSummary,
+} from "@/apis/pre-assessment";
 import {
   AlertTriangle,
   ArrowRight,
@@ -20,25 +23,46 @@ import {
   TrendingUp,
 } from "lucide-react";
 import { useRouter } from "next/navigation";
-import { useEffect } from "react";
 
-type PreAssessmentReportData = ReturnType<
-  typeof getPreAssessmentReportMock
->["report"];
+// Generated asynchronously, so poll from the server snapshot until the status settles.
+function usePreAssessmentRecommendations(
+  projectId: string,
+  initial: PreAssessmentRecommendationsResult | null,
+): PreAssessmentRecommendationsResult | null {
+  const settled =
+    initial?.status === "completed" || initial?.status === "failed";
 
-export default function PreAssessmentReportAILN() {
-  const router = useRouter();
-  const projectId = useProjectId();
+  const { data } = useQuery({
+    queryKey: ["pre-assessment-recommendations", projectId],
+    enabled: !settled,
+    initialData: initial ?? undefined,
+    refetchInterval: (query) => {
+      const status = query.state.data?.status;
+      return status === "completed" || status === "failed" ? false : 5000;
+    },
+    queryFn: async (): Promise<PreAssessmentRecommendationsResult> => {
+      const res = await fetch("/api/pre-assessment/recommendations", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ project_id: projectId }),
+      });
+      if (!res.ok) throw new Error("Failed to load recommendations");
+      return res.json();
+    },
+  });
 
-  const data = getPreAssessmentReportMock();
+  return data ?? initial;
+}
 
-  useEffect(() => {
-    if (!data.report) {
-      router.replace(`/${projectId}/student/pre-assessment`);
-    }
-  }, [data.report, router, projectId]);
-
-  if (!data.report) {
+export default function PreAssessmentReportAILN({
+  report,
+  initialRecommendations,
+}: {
+  report: PreAssessmentReportSummary | null;
+  initialRecommendations: PreAssessmentRecommendationsResult | null;
+}) {
+  // Renders *at* /student/pre-assessment, so a missing report shows an error rather than redirecting.
+  if (!report) {
     return (
       <PageContainerAILN className="min-h-screen items-start">
         <AppErrorComponents />
@@ -46,22 +70,32 @@ export default function PreAssessmentReportAILN() {
     );
   }
 
-  return <PreAssessmentReportContent report={data.report} />;
+  return (
+    <PreAssessmentReportContent
+      report={report}
+      initialRecommendations={initialRecommendations}
+    />
+  );
 }
 
 function PreAssessmentReportContent({
   report,
+  initialRecommendations,
 }: {
-  report: PreAssessmentReportData;
+  report: PreAssessmentReportSummary;
+  initialRecommendations: PreAssessmentRecommendationsResult | null;
 }) {
   const router = useRouter();
   const projectId = useProjectId();
   const userQ = useQuery({ queryKey: ["session"], queryFn: CheckSession });
   const firstName = userQ.data?.user?.full_name?.split(" ")[0] ?? "teman";
 
-  const recData = getPreAssessmentRecommendationsMock();
-  const status = recData.status;
-  const recommendations = recData.recommendations;
+  const recData = usePreAssessmentRecommendations(
+    projectId,
+    initialRecommendations,
+  );
+  const status = recData?.status ?? "pending";
+  const recommendations = recData?.recommendations ?? null;
   const items = recommendations?.items ?? [];
 
   return (
@@ -110,7 +144,10 @@ function PreAssessmentReportContent({
             </div>
             {report.pillars.map((pillar) => (
               <div key={pillar.key} className="flex justify-center">
-                <PillarScore score={pillar.score} tone={pillar.tone} />
+                <PillarScore
+                  score={pillar.score}
+                  tone={pillar.score >= 3.2 ? "green" : "yellow"}
+                />
               </div>
             ))}
             <div className="text-sm font-black text-gray-950 dark:text-white">
@@ -188,7 +225,9 @@ function PreAssessmentReportContent({
         </SectionContainerAILN>
 
         <div className="flex justify-end">
-          <ButtonAILN onClick={() => router.push(`/${projectId}/student/learning-path`)}>
+          <ButtonAILN
+            onClick={() => router.push(`/${projectId}/student/learning-path`)}
+          >
             Mulai Belajar
             <ArrowRight className="size-4" />
           </ButtonAILN>
@@ -224,8 +263,7 @@ function formatDecimal(value: number) {
     : value.toFixed(1).replace(".", ",");
 }
 
-// Shown while the worker is still generating (status pending/processing).
-// Polling in the parent flips this to the real cards once it's done.
+// Shown while the worker is still generating; polling in the parent swaps in the real cards.
 function RecommendationsLoading() {
   return (
     <div className="flex flex-col gap-3">
@@ -256,8 +294,7 @@ function RecommendationsLoading() {
   );
 }
 
-// Shown when generation failed — retry re-queues the worker
-// (create.regeneratePreAssessmentReport), now disabled pending Java backend.
+// Shown when generation failed; retry is disabled until the backend exposes a regenerate endpoint.
 function RecommendationsFailed() {
   return (
     <div className="flex flex-col items-start gap-3 rounded-lg border border-amber-200 bg-amber-50 px-4 py-4 text-amber-800 dark:border-amber-500/30 dark:bg-amber-500/10 dark:text-amber-200">
