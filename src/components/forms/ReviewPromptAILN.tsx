@@ -8,10 +8,21 @@ import GeneralLabelAILN, {
 import PageContainerAILN from "@/components/pages/PageContainerAILN";
 import PageHeaderAILN from "@/components/titles/PageHeaderAILN";
 import AppPageState from "@/components/states/AppPageState";
-import type { PromptSubmissionDetails } from "@/apis/champion";
+import type {
+  PromptEvaluation,
+  PromptSubmissionDetails,
+} from "@/apis/champion";
 import dayjs from "dayjs";
 import "dayjs/locale/id";
-import { CalendarClock, Clock, RotateCcw } from "lucide-react";
+import {
+  AlertTriangle,
+  CalendarClock,
+  Clock,
+  Loader2,
+  Pencil,
+  RotateCcw,
+  Sparkles,
+} from "lucide-react";
 import Image from "next/image";
 import { useProjectId } from "@/lib/use-project-id";
 import { useRouter } from "next/navigation";
@@ -38,22 +49,38 @@ const STATUS_META: Record<
 };
 
 type RubricKey =
-  | "rubric_specificity"
-  | "rubric_context"
-  | "rubric_constraints"
-  | "rubric_examples"
-  | "rubric_iteration";
+  | "specificity"
+  | "context"
+  | "constraints"
+  | "examples"
+  | "iteration";
 
 const RUBRIC: { key: RubricKey; label: string }[] = [
-  { key: "rubric_specificity", label: "Spesifik" },
-  { key: "rubric_context", label: "Konteks" },
-  { key: "rubric_constraints", label: "Batasan (Constraints)" },
-  { key: "rubric_examples", label: "Contoh (Few-shot)" },
-  { key: "rubric_iteration", label: "Iterasi" },
+  { key: "specificity", label: "Spesifik" },
+  { key: "context", label: "Konteks" },
+  { key: "constraints", label: "Batasan (Constraints)" },
+  { key: "examples", label: "Contoh (Few-shot)" },
+  { key: "iteration", label: "Iterasi" },
 ];
+
+const NO_OVERRIDES: Record<RubricKey, number | null> = {
+  specificity: null,
+  context: null,
+  constraints: null,
+  examples: null,
+  iteration: null,
+};
+
+// AI grading usually lands within seconds; the cap keeps a stuck job from refreshing forever.
+const AI_POLL_INTERVAL_MS = 3000;
+const AI_POLL_MAX_ATTEMPTS = 20;
 
 const fmt = (d: string | Date) =>
   dayjs(d).locale("id").format("ddd, D MMM YYYY · HH:mm");
+
+function hasScores(evaluation: PromptEvaluation | null) {
+  return RUBRIC.some((r) => evaluation?.[r.key] != null);
+}
 
 export default function ReviewPromptAILN({
   detail,
@@ -65,28 +92,33 @@ export default function ReviewPromptAILN({
   const router = useRouter();
 
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const [comment, setComment] = useState("");
-  const [rubric, setRubric] = useState<Record<RubricKey, number | null>>({
-    rubric_specificity: null,
-    rubric_context: null,
-    rubric_constraints: null,
-    rubric_examples: null,
-    rubric_iteration: null,
-  });
+  const [comment, setComment] = useState(s?.comment ?? "");
+  const [overrides, setOverrides] = useState(NO_OVERRIDES);
+  const [isEditingScores, setIsEditingScores] = useState(false);
+  const [pollAttempts, setPollAttempts] = useState(0);
+
+  // Polling refreshes `detail`, so only reset the form for a new submission or review.
+  const formKey = s ? `${s.id}:${s.submitted_at}:${s.reviewed_at}` : "";
+  const [prevFormKey, setPrevFormKey] = useState(formKey);
+  if (formKey !== prevFormKey) {
+    setPrevFormKey(formKey);
+    setComment(s?.comment ?? "");
+    setOverrides(NO_OVERRIDES);
+    setIsEditingScores(false);
+    setPollAttempts(0);
+  }
+
+  const evaluation = s?.evaluation ?? null;
+  const isAiPending = evaluation?.ai_status === "pending";
 
   useEffect(() => {
-    if (!s) return;
-    queueMicrotask(() => {
-      setComment(s.comment ?? "");
-      setRubric({
-        rubric_specificity: s.rubric_specificity ?? null,
-        rubric_context: s.rubric_context ?? null,
-        rubric_constraints: s.rubric_constraints ?? null,
-        rubric_examples: s.rubric_examples ?? null,
-        rubric_iteration: s.rubric_iteration ?? null,
-      });
-    });
-  }, [s]);
+    if (!isAiPending || pollAttempts >= AI_POLL_MAX_ATTEMPTS) return;
+    const timer = setTimeout(() => {
+      setPollAttempts((n) => n + 1);
+      router.refresh();
+    }, AI_POLL_INTERVAL_MS);
+    return () => clearTimeout(timer);
+  }, [isAiPending, pollAttempts, router]);
 
   const status: Status = useMemo(() => {
     if (!s) return "PENDING_SUBMIT";
@@ -122,7 +154,13 @@ export default function ReviewPromptAILN({
           submission_id: s.id,
           is_accepted: isAccepted,
           comment: comment.trim() || null,
-          ...rubric,
+          // Only corrected dimensions are sent; the backend keeps the AI's score for the rest.
+          ...Object.fromEntries(
+            RUBRIC.filter((r) => overrides[r.key] !== null).map((r) => [
+              `rubric_${r.key}`,
+              overrides[r.key],
+            ]),
+          ),
         }),
       });
 
@@ -135,7 +173,7 @@ export default function ReviewPromptAILN({
       toast.success(
         isAccepted
           ? `Submission diterima · +${payload?.xp_awarded ?? 0} XP`
-          : "Dikembalikan untuk revisi."
+          : "Dikembalikan untuk revisi.",
       );
       router.refresh();
     } catch {
@@ -266,23 +304,32 @@ export default function ReviewPromptAILN({
           {/* Right: assessment */}
           <SectionContainerAILN
             title="Penilaian"
-            desc="Skor rubric 1–5 dan catatan untuk student."
+            desc="Skor rubric 1–5 dari AI. Keputusan terima atau revisi tetap di tangan Anda."
             className="self-start xl:sticky xl:top-6"
             contentClassName="flex flex-col gap-5"
           >
-            <div className="flex flex-col gap-3">
-              {RUBRIC.map((r) => (
-                <RubricRow
-                  key={r.key}
-                  label={r.label}
-                  value={rubric[r.key]}
-                  disabled={!canReview}
-                  onChange={(n) =>
-                    setRubric((prev) => ({ ...prev, [r.key]: n }))
-                  }
-                />
-              ))}
-            </div>
+            {submittedAt ? (
+              <AiAssessment
+                evaluation={evaluation}
+                overrides={overrides}
+                isEditing={isEditingScores || !hasScores(evaluation)}
+                canEdit={canReview}
+                pollTimedOut={pollAttempts >= AI_POLL_MAX_ATTEMPTS}
+                onStartEditing={() => setIsEditingScores(true)}
+                onResetOverrides={() => {
+                  setOverrides(NO_OVERRIDES);
+                  setIsEditingScores(false);
+                }}
+                onChange={(key, n) =>
+                  setOverrides((prev) => ({ ...prev, [key]: n }))
+                }
+                onUseFeedback={setComment}
+              />
+            ) : (
+              <p className="text-sm text-muted-foreground">
+                Penilaian AI muncul setelah student submit.
+              </p>
+            )}
 
             <div className="border-t border-dashboard-border pt-4">
               <div className="mb-1.5 text-[11px] font-semibold uppercase tracking-wide text-gray-500 dark:text-gray-400">
@@ -322,6 +369,155 @@ export default function ReviewPromptAILN({
   );
 }
 
+function AiAssessment({
+  evaluation,
+  overrides,
+  isEditing,
+  canEdit,
+  pollTimedOut,
+  onStartEditing,
+  onResetOverrides,
+  onChange,
+  onUseFeedback,
+}: {
+  evaluation: PromptEvaluation | null;
+  overrides: Record<RubricKey, number | null>;
+  isEditing: boolean;
+  canEdit: boolean;
+  pollTimedOut: boolean;
+  onStartEditing: () => void;
+  onResetOverrides: () => void;
+  onChange: (key: RubricKey, n: number) => void;
+  onUseFeedback: (text: string) => void;
+}) {
+  const aiStatus = evaluation?.ai_status ?? null;
+
+  if (aiStatus === "pending") {
+    return (
+      <div className="flex items-start gap-3 rounded-md border border-dashboard-border bg-card-2 p-3 text-sm text-muted-foreground">
+        {pollTimedOut ? (
+          <Clock className="mt-0.5 size-4 shrink-0" />
+        ) : (
+          <Loader2 className="mt-0.5 size-4 shrink-0 animate-spin" />
+        )}
+        {pollTimedOut
+          ? "AI belum selesai menilai. Muat ulang halaman sebentar lagi."
+          : "AI sedang menilai prompt student…"}
+      </div>
+    );
+  }
+
+  const hasOverrides = RUBRIC.some((r) => overrides[r.key] !== null);
+  const scores = RUBRIC.map(
+    (r) => overrides[r.key] ?? evaluation?.[r.key] ?? null,
+  );
+  const isComplete = scores.every((n) => n !== null);
+  // Backend's average is authoritative; only recompute locally while the champion is correcting.
+  const average = hasOverrides
+    ? isComplete
+      ? Math.round(
+          (scores.reduce<number>((sum, n) => sum + (n ?? 0), 0) /
+            scores.length) *
+            10,
+        ) / 10
+      : null
+    : (evaluation?.average ?? null);
+
+  return (
+    <div className="flex flex-col gap-4">
+      {aiStatus === "failed" && (
+        <div className="flex items-start gap-2 rounded-md border border-amber-200 bg-amber-50 p-3 text-sm text-amber-800 dark:border-amber-500/30 dark:bg-amber-500/10 dark:text-amber-200">
+          <AlertTriangle className="mt-0.5 size-4 shrink-0" />
+          AI gagal menilai submission ini. Isi skornya secara manual.
+        </div>
+      )}
+
+      <div className="flex items-end justify-between gap-3">
+        <div className="flex flex-col gap-1">
+          <div className="text-[11px] font-semibold uppercase tracking-wide text-muted-foreground">
+            Rata-rata
+          </div>
+          <div className="text-3xl font-bold text-foreground">
+            {average !== null ? average.toFixed(1) : "–"}
+            <span className="text-base font-medium text-muted-foreground">
+              {" "}
+              / 5
+            </span>
+          </div>
+        </div>
+        {aiStatus === "completed" && (
+          <GeneralLabelAILN
+            variant={hasOverrides ? "yellow" : "blue"}
+            icon={<Sparkles className="size-3" />}
+          >
+            {hasOverrides ? "AI + koreksi Anda" : "Dinilai AI"}
+          </GeneralLabelAILN>
+        )}
+        {aiStatus === null && hasScores(evaluation) && (
+          <GeneralLabelAILN variant="white">Dinilai manual</GeneralLabelAILN>
+        )}
+      </div>
+
+      <div className="flex flex-col gap-3">
+        {RUBRIC.map((r) => (
+          <RubricRow
+            key={r.key}
+            label={r.label}
+            value={overrides[r.key] ?? evaluation?.[r.key] ?? null}
+            isOverridden={overrides[r.key] !== null}
+            disabled={!canEdit || !isEditing}
+            onChange={(n) => onChange(r.key, n)}
+          />
+        ))}
+      </div>
+
+      {canEdit && hasScores(evaluation) && (
+        <div className="flex justify-end">
+          {isEditing ? (
+            <button
+              type="button"
+              onClick={onResetOverrides}
+              className="text-xs font-medium text-muted-foreground underline-offset-2 hover:text-foreground hover:underline"
+            >
+              {hasOverrides ? "Kembalikan ke skor AI" : "Batal koreksi"}
+            </button>
+          ) : (
+            <button
+              type="button"
+              onClick={onStartEditing}
+              className="inline-flex items-center gap-1 text-xs font-medium text-claude underline-offset-2 hover:underline dark:text-lime-bright"
+            >
+              <Pencil className="size-3" />
+              Koreksi skor AI
+            </button>
+          )}
+        </div>
+      )}
+
+      {evaluation?.ai_feedback && (
+        <div className="flex flex-col gap-2 rounded-md border border-dashboard-border bg-card-2 p-3">
+          <div className="flex items-center gap-1.5 text-[11px] font-semibold uppercase tracking-wide text-muted-foreground">
+            <Sparkles className="size-3" />
+            Feedback AI untuk student
+          </div>
+          <p className="whitespace-pre-wrap text-sm text-foreground">
+            {evaluation.ai_feedback}
+          </p>
+          {canEdit && (
+            <button
+              type="button"
+              onClick={() => onUseFeedback(evaluation.ai_feedback ?? "")}
+              className="self-start text-xs font-medium text-claude underline-offset-2 hover:underline dark:text-lime-bright"
+            >
+              Pakai sebagai catatan
+            </button>
+          )}
+        </div>
+      )}
+    </div>
+  );
+}
+
 function Field({
   label,
   text,
@@ -350,17 +546,26 @@ function Field({
 function RubricRow({
   label,
   value,
+  isOverridden,
   disabled,
   onChange,
 }: {
   label: string;
   value: number | null;
+  isOverridden: boolean;
   disabled: boolean;
   onChange: (n: number) => void;
 }) {
   return (
     <div className="flex items-center justify-between gap-3">
-      <span className="text-sm text-gray-700 dark:text-gray-200">{label}</span>
+      <span className="text-sm text-foreground">
+        {label}
+        {isOverridden && (
+          <span className="ml-1 text-[11px] font-medium text-amber-600 dark:text-amber-300">
+            · dikoreksi
+          </span>
+        )}
+      </span>
       <div className="flex gap-1">
         {[1, 2, 3, 4, 5].map((n) => (
           <button
@@ -372,7 +577,7 @@ function RubricRow({
               value === n
                 ? "border-claude bg-claude text-white"
                 : "border-dashboard-border text-gray-500 hover:border-claude dark:text-gray-400"
-            } ${disabled ? "cursor-not-allowed opacity-60" : ""}`}
+            } ${disabled ? "cursor-default" : ""}`}
           >
             {n}
           </button>

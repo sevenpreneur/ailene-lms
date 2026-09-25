@@ -170,6 +170,21 @@ export type ChampionReport = {
   previous_period_start: string | null;
 };
 
+export type PromptEvaluationStatus = "pending" | "completed" | "failed";
+
+// Scores are the AI's unless the champion overrode that dimension; ai_status null means graded by hand before AI existed.
+export type PromptEvaluation = {
+  ai_status: PromptEvaluationStatus | null;
+  ai_feedback: string | null;
+  ai_evaluated_at: string | null;
+  specificity: number | null;
+  context: number | null;
+  constraints: number | null;
+  examples: number | null;
+  iteration: number | null;
+  average: number | null;
+};
+
 // Prompt and use case queues share one row shape; hours_with_ai / ai_tool stay null for prompts.
 export type ChampionSubmissionRow = {
   id: number;
@@ -190,6 +205,7 @@ export type ChampionSubmissionRow = {
   is_accepted: boolean;
   hours_with_ai: number | null;
   ai_tool: string | null;
+  evaluation: PromptEvaluation | null;
   categories: ChampionCategory[];
 };
 
@@ -225,11 +241,7 @@ export type PromptSubmissionDetails = {
   reviewed_at: string | null;
   comment: string | null;
   is_accepted: boolean;
-  rubric_specificity: number | null;
-  rubric_context: number | null;
-  rubric_constraints: number | null;
-  rubric_examples: number | null;
-  rubric_iteration: number | null;
+  evaluation: PromptEvaluation | null;
   categories: ChampionCategory[];
 };
 
