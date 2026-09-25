@@ -35,26 +35,25 @@ export type LmsSession = {
 
 const SESSION_MAX_AGE = 60 * 60 * 24 * 365;
 
-// POST /api/v1/auth/login/google is gated by a static shared bearer, not per-user auth — see docs/api/auth.md in ailene-lms-api.
-export async function loginWithGoogleAccessToken(
-  accessToken: string
-): Promise<
+type LoginResult =
   | { success: true; user: LmsBackendUser }
-  | { success: false; code: number; message: string }
-> {
+  | { success: false; code: number; message: string };
+
+// Both login endpoints are gated by a static shared bearer, not per-user auth — see docs/api/auth.md in ailene-lms-api.
+async function loginWith(
+  path: string,
+  body: Record<string, unknown>,
+): Promise<LoginResult> {
   const clientSecret = process.env.CLIENT_SECRET;
   if (!clientSecret) {
     throw new Error("CLIENT_SECRET is not configured");
   }
 
-  const result = await callApi<{ token: string; user: LmsBackendUser }>(
-    "/api/v1/auth/login/google",
-    {
-      method: "POST",
-      body: { access_token: accessToken },
-      token: clientSecret,
-    }
-  );
+  const result = await callApi<{ token: string; user: LmsBackendUser }>(path, {
+    method: "POST",
+    body,
+    token: clientSecret,
+  });
 
   if (!result.success || !result.data) {
     return {
@@ -76,6 +75,14 @@ export async function loginWithGoogleAccessToken(
   return { success: true, user: result.data.user };
 }
 
+export function loginWithGoogleAccessToken(accessToken: string) {
+  return loginWith("/api/v1/auth/login/google", { access_token: accessToken });
+}
+
+export function loginWithPassword(email: string, password: string) {
+  return loginWith("/api/v1/auth/login/password", { email, password });
+}
+
 export const checkSession = cache(async (): Promise<LmsSession | null> => {
   const cookieStore = await cookies();
   const sessionToken = cookieStore.get(SESSION_COOKIE_NAME)?.value;
@@ -94,7 +101,7 @@ export const checkSession = cache(async (): Promise<LmsSession | null> => {
 
 // Tenant identity is per-project, never deployment config; checkSession() is cached so this adds no call.
 export async function getProjectAccess(
-  projectId: string
+  projectId: string,
 ): Promise<LmsProjectAccess | null> {
   const session = await checkSession();
   return (
