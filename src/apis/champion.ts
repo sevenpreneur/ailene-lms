@@ -104,6 +104,7 @@ export type PreAssessmentTeamMember = {
   avg: number;
   pillars: ChampionPillar[];
   weakest_key: string | null;
+  is_me: boolean;
 };
 
 export type PreAssessmentTeam = {

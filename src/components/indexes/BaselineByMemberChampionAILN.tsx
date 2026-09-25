@@ -179,6 +179,11 @@ function DepartmentRows({
               <MemberAvatar name={m.name} src={m.avatar} />
               <span className="truncate font-semibold text-foreground">
                 {m.name}
+                {m.is_me && (
+                  <span className="ml-1 font-normal text-muted-foreground">
+                    (Anda)
+                  </span>
+                )}
               </span>
             </div>
           </td>
