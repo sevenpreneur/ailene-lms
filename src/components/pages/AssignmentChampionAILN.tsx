@@ -1,5 +1,6 @@
 "use client";
 import AssignFormChampionAILN from "@/components/forms/AssignFormChampionAILN";
+import AiAssignmentComposerAILN from "@/components/forms/AiAssignmentComposerAILN";
 import CreateAssignmentFormAILN from "@/components/forms/CreateAssignmentFormAILN";
 import SectionContainerAILN from "@/components/cards/SectionContainerAILN";
 import PageContainerAILN from "@/components/pages/PageContainerAILN";
@@ -8,38 +9,74 @@ import PageHeaderAILN from "@/components/titles/PageHeaderAILN";
 import InputAILN from "@/components/fields/InputAILN";
 import AssignmentItemChampion from "@/components/items/AssignmentItemChampion";
 import GeneralLabelAILN from "@/components/labels/GeneralLabelAILN";
-import type { TeamMembers } from "@/apis/champion";
+import AiDraftBatchesAILN from "@/components/indexes/AiDraftBatchesAILN";
+import type {
+  AssignmentDraft,
+  AssignmentDraftBatch,
+  TeamMembers,
+} from "@/apis/champion";
 import type { Category } from "@/apis/categories";
 import type { PromptLibraryItem } from "@/apis/prompts";
 import type { UseCaseLibraryItem } from "@/apis/use-cases";
-import { BookOpen, Plus, Search, Send } from "lucide-react";
+import { BookOpen, Plus, Search, Send, Sparkles } from "lucide-react";
 import { useState } from "react";
 
-type AssignmentTab = "PROMPT" | "USE_CASE";
+type AssignmentTab = "AI" | "PROMPT" | "USE_CASE";
 
 export default function AssignmentChampionAILN({
   prompts,
   useCases,
   teamMembers,
   categories,
+  draftBatches,
   group,
 }: {
   prompts: PromptLibraryItem[];
   useCases: UseCaseLibraryItem[];
   teamMembers: TeamMembers | null;
   categories: Category[];
+  draftBatches: AssignmentDraftBatch[];
   group: { id: number; name: string } | null;
 }) {
-  const [tab, setTab] = useState<AssignmentTab>("PROMPT");
+  const [tab, setTab] = useState<AssignmentTab>("AI");
+  const [batches, setBatches] = useState(draftBatches);
+  const [prevDraftBatches, setPrevDraftBatches] = useState(draftBatches);
+  const [freshBatchIds, setFreshBatchIds] = useState<string[]>([]);
   const [selectedPromptId, setSelectedPromptId] = useState<number | null>(null);
   const [selectedUseCaseId, setSelectedUseCaseId] = useState<number | null>(
-    null
+    null,
   );
   const [assignOpen, setAssignOpen] = useState(false);
   const [createOpen, setCreateOpen] = useState(false);
+  const [draft, setDraft] = useState<AssignmentDraft | null>(null);
+  const [formKey, setFormKey] = useState(0);
   const [search, setSearch] = useState("");
 
+  // Re-sync after router.refresh() (e.g. a draft just got marked as used).
+  if (draftBatches !== prevDraftBatches) {
+    setPrevDraftBatches(draftBatches);
+    setBatches(draftBatches);
+  }
+
   const members = teamMembers?.list ?? [];
+
+  const handleGenerated = (batch: AssignmentDraftBatch) => {
+    setBatches((prev) => [
+      batch,
+      ...prev.filter((b) => b.batch_id !== batch.batch_id),
+    ]);
+    setFreshBatchIds((prev) => [...prev, batch.batch_id]);
+  };
+
+  const handleDraftDeleted = (draftId: number) =>
+    setBatches((prev) =>
+      prev
+        .map((b) => ({
+          ...b,
+          drafts: b.drafts.filter((d) => d.id !== draftId),
+        }))
+        .filter((b) => b.drafts.length > 0),
+    );
 
   const q = search.trim().toLowerCase();
   const filteredPrompts = q
@@ -48,6 +85,13 @@ export default function AssignmentChampionAILN({
   const filteredUseCases = q
     ? useCases.filter((u) => u.name.toLowerCase().includes(q))
     : useCases;
+
+  // Remount the sheet so it re-seeds from the new draft (or a blank form).
+  const openCreate = (next: AssignmentDraft | null) => {
+    setDraft(next);
+    setFormKey((k) => k + 1);
+    setCreateOpen(true);
+  };
 
   const selectedPrompt =
     selectedPromptId !== null
@@ -68,16 +112,23 @@ export default function AssignmentChampionAILN({
           <ButtonAILN
             type="button"
             variant="champion"
-            onClick={() => setCreateOpen(true)}
+            onClick={() => openCreate(null)}
           >
             <Plus className="size-4" />
-            Buat Assignment
+            Buat Manual
           </ButtonAILN>
         </PageHeaderAILN>
 
         {/* Tabs + search */}
         <div className="flex flex-wrap items-center justify-between gap-3 border-b border-dashboard-border">
           <div className="flex items-center">
+            <TabButton
+              active={tab === "AI"}
+              label="Generate AI"
+              icon={<Sparkles className="size-4" />}
+              count={batches.length}
+              onClick={() => setTab("AI")}
+            />
             <TabButton
               active={tab === "PROMPT"}
               label="Prompt"
@@ -91,20 +142,34 @@ export default function AssignmentChampionAILN({
               onClick={() => setTab("USE_CASE")}
             />
           </div>
-          <div className="w-full pb-2 sm:w-64">
-            <InputAILN
-              inputId="assignment-search"
-              inputType="text"
-              variant="CHAMPION"
-              inputIcon={<Search className="size-4" />}
-              inputPlaceholder="Cari assignment…"
-              value={search}
-              onInputChange={setSearch}
-            />
-          </div>
+          {tab !== "AI" && (
+            <div className="w-full pb-2 sm:w-64">
+              <InputAILN
+                inputId="assignment-search"
+                inputType="text"
+                variant="CHAMPION"
+                inputIcon={<Search className="size-4" />}
+                inputPlaceholder="Cari assignment…"
+                value={search}
+                onInputChange={setSearch}
+              />
+            </div>
+          )}
         </div>
 
-        <div className="grid grid-cols-1 gap-6 xl:grid-cols-[1fr_360px]">
+        {tab === "AI" ? (
+          <div className="flex flex-col gap-6">
+            <AiAssignmentComposerAILN onGenerated={handleGenerated} />
+            <AiDraftBatchesAILN
+              batches={batches}
+              freshBatchIds={freshBatchIds}
+              categories={categories}
+              onUse={openCreate}
+              onDeleted={handleDraftDeleted}
+            />
+          </div>
+        ) : (
+          <div className="grid grid-cols-1 gap-6 xl:grid-cols-[1fr_360px]">
             {/* Grid of items */}
             <div className="flex flex-col gap-3">
               {tab === "PROMPT" ? (
@@ -208,12 +273,13 @@ export default function AssignmentChampionAILN({
               )}
             </SectionContainerAILN>
           </div>
+        )}
       </div>
 
       <AssignFormChampionAILN
         isOpen={assignOpen}
         onClose={() => setAssignOpen(false)}
-        kind={tab}
+        kind={tab === "USE_CASE" ? "USE_CASE" : "PROMPT"}
         item={
           tab === "PROMPT"
             ? selectedPrompt
@@ -228,11 +294,13 @@ export default function AssignmentChampionAILN({
       />
 
       <CreateAssignmentFormAILN
+        key={formKey}
         isOpen={createOpen}
         onClose={() => setCreateOpen(false)}
         members={members}
         group={group}
         categories={categories}
+        draft={draft}
       />
     </PageContainerAILN>
   );
@@ -241,11 +309,13 @@ export default function AssignmentChampionAILN({
 function TabButton({
   active,
   label,
+  icon,
   count,
   onClick,
 }: {
   active: boolean;
   label: string;
+  icon?: React.ReactNode;
   count: number;
   onClick: () => void;
 }) {
@@ -259,7 +329,8 @@ function TabButton({
           : "border-transparent text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200"
       }`}
     >
-      <span>{label}</span>
+      {icon}
+      <span className="whitespace-nowrap">{label}</span>
       <span
         className={`inline-flex min-w-5 items-center justify-center rounded-md px-1.5 py-0.5 text-[11px] font-bold text-white ${
           active ? "bg-claude" : "bg-gray-400 dark:bg-gray-600"

@@ -285,7 +285,7 @@ export default function AssignFormChampionAILN({
         </div>
 
         {/* Footer */}
-        <div className="sticky bottom-0 z-40 flex w-full flex-col gap-1 border-t border-dashboard-border bg-sb-bg p-4">
+        <div className="sticky bottom-0 z-40 flex w-full flex-col gap-1 border-t border-dashboard-border bg-background p-4">
           <ButtonAILN
             type="button"
             variant="champion"

@@ -1,6 +1,6 @@
 import { checkSession } from "@/apis/auth";
 import { getCategories } from "@/apis/categories";
-import { getTeamMembers } from "@/apis/champion";
+import { getAssignmentDrafts, getTeamMembers } from "@/apis/champion";
 import { getPrompts } from "@/apis/prompts";
 import { getUseCases } from "@/apis/use-cases";
 import AssignmentChampionAILN from "@/components/pages/AssignmentChampionAILN";
@@ -16,13 +16,14 @@ export default async function ChampionAssignmentPage({
   params: Promise<{ project_id: string }>;
 }) {
   const { project_id } = await params;
-  const [session, prompts, useCases, teamMembers, categories] =
+  const [session, prompts, useCases, teamMembers, categories, drafts] =
     await Promise.all([
       checkSession(),
       getPrompts(project_id),
       getUseCases(project_id),
       getTeamMembers(project_id),
       getCategories(),
+      getAssignmentDrafts(project_id),
     ]);
 
   const access = session?.project_access.find(
@@ -39,6 +40,7 @@ export default async function ChampionAssignmentPage({
       useCases={useCases.list}
       teamMembers={teamMembers}
       categories={categories}
+      draftBatches={drafts?.batches ?? []}
       group={group}
     />
   );

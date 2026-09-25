@@ -31,6 +31,7 @@ export async function POST(request: Request) {
     expected_output: expectedOutput,
     category_ids: categoryIds,
     assignment: body?.assignment ?? null,
+    draft_id: typeof body?.draft_id === "number" ? body.draft_id : null,
   });
 
   if (!result.success) {

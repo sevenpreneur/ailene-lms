@@ -96,7 +96,7 @@ export default function TextAreaAILN({
       {textAreaName && (
         <label
           htmlFor={textAreaId}
-          className={`label-text-area flex pl-1 gap-0.5 text-sm text-sb-text-strong font-semibold`}
+          className={`label-text-area flex pl-1 gap-0.5 text-sm text-foreground font-semibold`}
         >
           {textAreaName}
           {required && (

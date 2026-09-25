@@ -94,7 +94,7 @@ export default function InputAILN({
       {inputName && (
         <label
           htmlFor={inputId}
-          className={`label-input flex pl-1 gap-0.5 text-sm text-sb-text-strong font-semibold`}
+          className={`label-input flex pl-1 gap-0.5 text-sm text-foreground font-semibold`}
         >
           {inputName}
           {required && (

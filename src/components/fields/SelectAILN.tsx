@@ -119,7 +119,7 @@ export default function SelectAILN({
       {selectName && (
         <label
           htmlFor={selectId}
-          className={`select-label flex pl-1 gap-0.5 text-sm text-sb-text-strong font-semibold`}
+          className={`select-label flex pl-1 gap-0.5 text-sm text-foreground font-semibold`}
         >
           {selectName}
           {required && (

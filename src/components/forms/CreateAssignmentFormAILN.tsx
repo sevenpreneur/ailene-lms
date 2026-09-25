@@ -4,7 +4,7 @@ import InputAILN from "@/components/fields/InputAILN";
 import TextAreaAILN from "@/components/fields/TextAreaAILN";
 import SheetAILN from "@/components/modals/SheetAILN";
 import { useProjectId } from "@/lib/use-project-id";
-import type { TeamMember } from "@/apis/champion";
+import type { AssignmentDraft, TeamMember } from "@/apis/champion";
 import type { Category } from "@/apis/categories";
 import dayjs from "dayjs";
 import { Plus } from "lucide-react";
@@ -17,12 +17,50 @@ type AssignmentKind = "PROMPT" | "USE_CASE";
 type TargetMode = "INDIVIDUAL" | "BULK";
 type CategoryOption = { value: number; label: string };
 
+type FormState = {
+  kind: AssignmentKind;
+  name: string;
+  description: string;
+  expectedOutput: string;
+  selectedCategoryIds: number[];
+  assignEnabled: boolean;
+  mode: TargetMode;
+  selectedMemberIds: string[];
+  selectedGroupIds: number[];
+  deadlineDate: string;
+  deadlineTime: string;
+  message: string;
+};
+
+// An AI draft defaults to assigning the champion's whole group.
+function buildInitialForm(
+  draft: AssignmentDraft | null,
+  group: { id: number; name: string } | null
+): FormState {
+  const assignToGroup = draft !== null && group !== null;
+  return {
+    kind: draft?.kind ?? "PROMPT",
+    name: draft?.name ?? "",
+    description: draft?.description ?? "",
+    expectedOutput: draft?.expected_output ?? "",
+    selectedCategoryIds: draft?.category_ids.slice(0, 2) ?? [],
+    assignEnabled: assignToGroup,
+    mode: assignToGroup ? "BULK" : "INDIVIDUAL",
+    selectedMemberIds: [],
+    selectedGroupIds: assignToGroup ? [group.id] : [],
+    deadlineDate: dayjs().add(7, "day").format("YYYY-MM-DD"),
+    deadlineTime: "23:59",
+    message: "",
+  };
+}
+
 interface CreateAssignmentFormAILNProps {
   isOpen: boolean;
   onClose: () => void;
   members: TeamMember[];
   group: { id: number; name: string } | null;
   categories: Category[];
+  draft?: AssignmentDraft | null;
 }
 
 export default function CreateAssignmentFormAILN({
@@ -31,38 +69,15 @@ export default function CreateAssignmentFormAILN({
   members,
   group,
   categories,
+  draft = null,
 }: CreateAssignmentFormAILNProps) {
   const projectId = useProjectId();
   const router = useRouter();
   const [isSubmitting, setIsSubmitting] = useState(false);
 
-  const [formData, setFormData] = useState<{
-    kind: AssignmentKind;
-    name: string;
-    description: string;
-    expectedOutput: string;
-    selectedCategoryIds: number[];
-    assignEnabled: boolean;
-    mode: TargetMode;
-    selectedMemberIds: string[];
-    selectedGroupIds: number[];
-    deadlineDate: string;
-    deadlineTime: string;
-    message: string;
-  }>({
-    kind: "PROMPT",
-    name: "",
-    description: "",
-    expectedOutput: "",
-    selectedCategoryIds: [],
-    assignEnabled: false,
-    mode: "INDIVIDUAL",
-    selectedMemberIds: [],
-    selectedGroupIds: [],
-    deadlineDate: dayjs().add(7, "day").format("YYYY-MM-DD"),
-    deadlineTime: "23:59",
-    message: "",
-  });
+  const [formData, setFormData] = useState<FormState>(() =>
+    buildInitialForm(draft, group)
+  );
 
   // Curried single-field updater: handleInputChange("name")(value)
   const handleInputChange = (fieldName: string) => (value: unknown) =>
@@ -162,6 +177,8 @@ export default function CreateAssignmentFormAILN({
             : {}),
           category_ids: formData.selectedCategoryIds,
           assignment,
+          // Backend rejects a draft whose kind no longer matches, so drop the link if it was switched.
+          draft_id: draft?.kind === formData.kind ? draft.id : null,
         }),
       });
 
@@ -186,21 +203,7 @@ export default function CreateAssignmentFormAILN({
     }
   };
 
-  const resetForm = () =>
-    setFormData({
-      kind: "PROMPT",
-      name: "",
-      description: "",
-      expectedOutput: "",
-      selectedCategoryIds: [],
-      assignEnabled: false,
-      mode: "INDIVIDUAL",
-      selectedMemberIds: [],
-      selectedGroupIds: [],
-      deadlineDate: dayjs().add(7, "day").format("YYYY-MM-DD"),
-      deadlineTime: "23:59",
-      message: "",
-    });
+  const resetForm = () => setFormData(buildInitialForm(null, group));
 
   const handleClose = () => {
     resetForm();
@@ -211,8 +214,12 @@ export default function CreateAssignmentFormAILN({
     <SheetAILN
       isOpen={isOpen}
       onClose={handleClose}
-      sheetName="Buat Assignment Baru"
-      sheetDescription="Tambah prompt atau use case ke library, lalu (opsional) assign ke anggota."
+      sheetName={draft ? "Review Draft dari AI" : "Buat Assignment Baru"}
+      sheetDescription={
+        draft
+          ? "Cek dan edit draft dari AI. Item baru tersimpan ke library setelah Anda klik tombol di bawah."
+          : "Tambah prompt atau use case ke library, lalu (opsional) assign ke anggota."
+      }
     >
       <form className="relative flex h-full w-full flex-col">
         <div className="flex h-full flex-col gap-5 overflow-y-auto px-6 pb-28">
@@ -272,6 +279,7 @@ export default function CreateAssignmentFormAILN({
             value={formData.description}
             onTextAreaChange={handleInputChange("description")}
             textAreaHeight="h-28"
+            characterLength={4000}
             textAreaPlaceholder={
               formData.kind === "PROMPT"
                 ? "Jelaskan skenario / konteks prompt-nya…"
@@ -289,6 +297,7 @@ export default function CreateAssignmentFormAILN({
               value={formData.expectedOutput}
               onTextAreaChange={handleInputChange("expectedOutput")}
               textAreaHeight="h-28"
+              characterLength={4000}
               textAreaPlaceholder="Deskripsikan output yang diharapkan dari prompt ini…"
               required
             />
@@ -547,7 +556,7 @@ export default function CreateAssignmentFormAILN({
         </div>
 
         {/* Footer */}
-        <div className="sticky bottom-0 z-40 flex w-full flex-col gap-1 border-t border-dashboard-border bg-sb-bg p-4">
+        <div className="sticky bottom-0 z-40 flex w-full flex-col gap-1 border-t border-dashboard-border bg-background p-4">
           <ButtonAILN
             type="button"
             variant="champion"
