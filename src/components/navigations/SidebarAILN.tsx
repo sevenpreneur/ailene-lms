@@ -1,6 +1,6 @@
 "use client";
 
-import type { LmsSession } from "@/apis/auth";
+import type { LmsProjectRole, LmsSession } from "@/apis/auth";
 import ButtonAILN from "@/components/buttons/ButtonAILN";
 import ThemeSwitcherAILN from "@/components/buttons/ThemeSwitcherAILN";
 import { useSidebar } from "@/contexts/SidebarContext";
@@ -14,7 +14,6 @@ import {
   CalendarDays,
   ClipboardCheck,
   ClipboardList,
-  FileText,
   Gauge,
   LayoutDashboard,
   LineChart,
@@ -23,6 +22,8 @@ import {
   PanelLeft,
   PlusCircle,
   Target,
+  UserRound,
+  UserRoundKey,
   X,
   type LucideIcon,
 } from "lucide-react";
@@ -49,11 +50,15 @@ type VariantConfig = {
   dotPulseColor: string;
 };
 
-// Sidebar chrome is always dark forest, so only the light-on-dark logo variant is ever shown.
-const HUTAMA_KARYA_LOGO_DARK =
+// OnDark logos are white; the champion light surface needs the regular ones.
+const HUTAMA_KARYA_LOGO_ON_DARK =
   "https://tskubmriuclmbcfmaiur.supabase.co/storage/v1/object/public/sevenpreneur/logo-hk-danantara-white.webp";
-const HUTAMA_KARYA_LOGO_SQUARE_DARK =
+const HUTAMA_KARYA_LOGO_ON_LIGHT =
+  "https://tskubmriuclmbcfmaiur.supabase.co/storage/v1/object/public/sevenpreneur/logo-hk-danantara.webp";
+const HUTAMA_KARYA_LOGO_SQUARE_ON_DARK =
   "https://tskubmriuclmbcfmaiur.supabase.co/storage/v1/object/public/sevenpreneur/logo-hk-white-square.webp";
+const HUTAMA_KARYA_LOGO_SQUARE_ON_LIGHT =
+  "https://tskubmriuclmbcfmaiur.supabase.co/storage/v1/object/public/sevenpreneur/logo-hk-square.webp";
 const DEFAULT_AVATAR =
   "https://tskubmriuclmbcfmaiur.supabase.co/storage/v1/object/public/sevenpreneur//default-avatar.svg.png";
 
@@ -85,7 +90,7 @@ const VARIANT_CONFIG: Record<SidebarAILNVariant, VariantConfig> = {
   },
   CHAMPION: {
     dashboardName: "Dashboard Champion",
-    dotClassName: "bg-lime-bright",
+    dotClassName: "bg-claude dark:bg-lime-bright",
     dotPulseColor: "rgba(214,238,48,0.55)",
     menu: [
       {
@@ -95,7 +100,7 @@ const VARIANT_CONFIG: Record<SidebarAILNVariant, VariantConfig> = {
         exact: true,
       },
       {
-        name: "Pre Assessment",
+        name: "Pre Assessment Report",
         url: "/champion/pre-assessment",
         icon: Gauge,
       },
@@ -105,7 +110,6 @@ const VARIANT_CONFIG: Record<SidebarAILNVariant, VariantConfig> = {
         url: "/champion/submissions",
         icon: ClipboardCheck,
       },
-      { name: "Reports", url: "/champion/report", icon: FileText },
     ],
   },
   SPONSOR: {
@@ -155,8 +159,8 @@ function NavItem({
         collapsed ? "justify-center px-2 py-2" : "gap-2 px-3 py-2.5 lg:py-1.5"
       } ${
         active
-          ? "bg-linear-to-r from-[rgba(214,238,48,0.18)] to-transparent text-sb-item-active-text"
-          : "text-sb-text hover:bg-linear-to-r hover:from-[rgba(214,238,48,0.1)] hover:to-transparent hover:text-sb-text-strong"
+          ? "bg-linear-to-r from-sb-glow to-transparent text-sb-item-active-text"
+          : "text-sb-text hover:bg-linear-to-r hover:from-sb-glow-soft hover:to-transparent hover:text-sb-text-strong"
       }`}
     >
       <Icon className="h-4 w-4 shrink-0" />
@@ -183,7 +187,7 @@ export default function SidebarAILN({
   const router = useRouter();
   const user = session.user;
   const projectAccess = session.project_access.find(
-    (project) => project.id === projectId
+    (project) => project.id === projectId,
   );
 
   // Navigating away should never leave the drawer covering the new page.
@@ -202,10 +206,22 @@ export default function SidebarAILN({
     return () => window.removeEventListener("keydown", onKeyDown);
   }, [isMobileOpen, closeMobile]);
 
-  const logoUrl =
-    projectAccess?.avatar ||
-    (isCollapsed ? HUTAMA_KARYA_LOGO_SQUARE_DARK : HUTAMA_KARYA_LOGO_DARK);
-  const mobileLogoUrl = projectAccess?.avatar || HUTAMA_KARYA_LOGO_SQUARE_DARK;
+  // Only the champion sidebar follows the app theme; student and sponsor stay forest.
+  const onLightSurface = variant === "CHAMPION";
+  const squareLogo: LogoPair = projectAccess?.avatar
+    ? { onDark: projectAccess.avatar, onLight: projectAccess.avatar }
+    : {
+        onDark: HUTAMA_KARYA_LOGO_SQUARE_ON_DARK,
+        onLight: HUTAMA_KARYA_LOGO_SQUARE_ON_LIGHT,
+      };
+  const wideLogo: LogoPair = projectAccess?.avatar
+    ? squareLogo
+    : {
+        onDark: HUTAMA_KARYA_LOGO_ON_DARK,
+        onLight: HUTAMA_KARYA_LOGO_ON_LIGHT,
+      };
+  const logo = isCollapsed ? squareLogo : wideLogo;
+  const projectName = projectAccess?.name ?? "Project";
 
   const handleLogout = async () => {
     if (isLoggingOut) return;
@@ -261,7 +277,7 @@ export default function SidebarAILN({
 
   const modeBadge = (collapsed: boolean) => (
     <div
-      className={`mb-4 flex items-center rounded-full bg-white/10 border border-white/20 ${
+      className={`mb-4 flex items-center rounded-full border border-sb-chip-border bg-sb-chip-bg ${
         collapsed ? "justify-center p-2" : "gap-2 px-3 py-2"
       }`}
     >
@@ -270,7 +286,7 @@ export default function SidebarAILN({
         style={{ "--pulse-color": config.dotPulseColor } as React.CSSProperties}
       />
       {!collapsed && (
-        <span className="text-xs font-semibold text-white">
+        <span className="text-xs font-semibold text-sb-chip-text">
           {config.dashboardName}
         </span>
       )}
@@ -304,7 +320,11 @@ export default function SidebarAILN({
         />
       </div>
 
-      <RoleSwitch variant={variant} projectId={projectId} />
+      <RoleSwitch
+        variant={variant}
+        memberRole={projectAccess?.role}
+        projectId={projectId}
+      />
 
       <ButtonAILN
         variant="light"
@@ -320,7 +340,7 @@ export default function SidebarAILN({
   );
 
   return (
-    <>
+    <div className={onLightSurface ? "sidebar-champion contents" : "contents"}>
       {/* ---------- Mobile top bar (<lg) ---------- */}
       <header className="fixed inset-x-0 top-0 z-50 flex h-14 items-center gap-3 border-b border-sb-border bg-sb-bg px-4 lg:hidden">
         <button
@@ -333,13 +353,11 @@ export default function SidebarAILN({
         </button>
 
         <div className="flex min-w-0 flex-1 items-center gap-2.5">
-          <div className="relative size-8 shrink-0 overflow-hidden rounded-sm bg-white/5 ring-1 ring-sb-border-soft">
-            <Image
-              src={mobileLogoUrl}
-              alt={projectAccess?.name ?? "Project"}
-              fill
-              unoptimized
-              className="object-cover"
+          <div className="relative size-8 shrink-0 overflow-hidden rounded-sm bg-sb-logo-frame ring-1 ring-sb-border-soft">
+            <SidebarLogo
+              logo={squareLogo}
+              onLightSurface={onLightSurface}
+              alt={projectName}
             />
           </div>
           <div className="min-w-0">
@@ -388,13 +406,11 @@ export default function SidebarAILN({
           <div className="flex h-full w-full flex-col p-4">
             <div className="flex shrink-0 items-center justify-between gap-2 pb-4">
               <div className="flex min-w-0 items-center gap-2.5">
-                <div className="relative size-9 shrink-0 overflow-hidden rounded-sm bg-white/5 ring-2 ring-sb-border-soft">
-                  <Image
-                    src={mobileLogoUrl}
-                    alt={projectAccess?.name ?? "Project"}
-                    fill
-                    unoptimized
-                    className="object-cover"
+                <div className="relative size-9 shrink-0 overflow-hidden rounded-sm bg-sb-logo-frame ring-2 ring-sb-border-soft">
+                  <SidebarLogo
+                    logo={squareLogo}
+                    onLightSurface={onLightSurface}
+                    alt={projectName}
                   />
                 </div>
                 <div className="min-w-0">
@@ -446,13 +462,11 @@ export default function SidebarAILN({
           >
             {!isCollapsed && (
               <div className="flex min-w-0 items-center gap-2.5">
-                <div className="relative size-9 shrink-0 overflow-hidden rounded-sm bg-white/5 ring-2 ring-sb-border-soft">
-                  <Image
-                    src={logoUrl}
-                    alt={projectAccess?.name ?? "Project"}
-                    fill
-                    unoptimized
-                    className="object-cover"
+                <div className="relative size-9 shrink-0 overflow-hidden rounded-sm bg-sb-logo-frame ring-2 ring-sb-border-soft">
+                  <SidebarLogo
+                    logo={logo}
+                    onLightSurface={onLightSurface}
+                    alt={projectName}
                   />
                 </div>
                 <div className="min-w-0">
@@ -467,13 +481,11 @@ export default function SidebarAILN({
             )}
 
             {isCollapsed && (
-              <div className="relative size-9 shrink-0 overflow-hidden rounded bg-white/5 ring-1 ring-sb-border-soft">
-                <Image
-                  src={logoUrl}
-                  alt={projectAccess?.name ?? "Project"}
-                  fill
-                  unoptimized
-                  className="object-cover"
+              <div className="relative size-9 shrink-0 overflow-hidden rounded bg-sb-logo-frame ring-1 ring-sb-border-soft">
+                <SidebarLogo
+                  logo={logo}
+                  onLightSurface={onLightSurface}
+                  alt={projectName}
                 />
               </div>
             )}
@@ -523,6 +535,50 @@ export default function SidebarAILN({
           </div>
         </div>
       </div>
+    </div>
+  );
+}
+
+type LogoPair = { onDark: string; onLight: string };
+
+// On the champion themed surface, swap to the white logo only in dark mode.
+function SidebarLogo({
+  logo,
+  onLightSurface,
+  alt,
+}: {
+  logo: LogoPair;
+  onLightSurface: boolean;
+  alt: string;
+}) {
+  if (!onLightSurface || logo.onDark === logo.onLight) {
+    return (
+      <Image
+        src={logo.onDark}
+        alt={alt}
+        fill
+        unoptimized
+        className="object-cover"
+      />
+    );
+  }
+
+  return (
+    <>
+      <Image
+        src={logo.onLight}
+        alt={alt}
+        fill
+        unoptimized
+        className="object-cover dark:hidden"
+      />
+      <Image
+        src={logo.onDark}
+        alt={alt}
+        fill
+        unoptimized
+        className="hidden object-cover dark:block"
+      />
     </>
   );
 }
@@ -562,45 +618,37 @@ function IdentityMeta({
   );
 }
 
-// Ketiga mode selalu ditampilkan biar gampang pindah-pindah saat review.
-const ROLE_SWITCHES: {
-  label: string;
-  variant: SidebarAILNVariant;
-  path: string;
-}[] = [
-  { label: "Student", variant: "STUDENT", path: "/student" },
-  { label: "Champion", variant: "CHAMPION", path: "/champion" },
-  { label: "Sponsor", variant: "SPONSOR", path: "/sponsor" },
-];
-
+// Only a champion gets a switch: into their student view, and back out of it.
 function RoleSwitch({
   variant,
+  memberRole,
   projectId,
 }: {
   variant: SidebarAILNVariant;
+  memberRole?: LmsProjectRole;
   projectId: string;
 }) {
-  return (
-    <div className="mt-2 flex flex-row gap-1.5">
-      {ROLE_SWITCHES.map((role) => {
-        const active = role.variant === variant;
+  if (variant === "STUDENT" && memberRole === "champion") {
+    return (
+      <Link href={`/${projectId}/champion`} className="mt-2 block">
+        <ButtonAILN variant="lime" size="small" className="w-full">
+          <UserRoundKey className="size-4" />
+          Mode Champion
+        </ButtonAILN>
+      </Link>
+    );
+  }
 
-        return (
-          <Link
-            key={role.variant}
-            href={`/${projectId}${role.path}`}
-            className="min-w-0 flex-1"
-          >
-            <ButtonAILN
-              variant={active ? "lime" : "light"}
-              size="small"
-              className="w-full px-1"
-            >
-              {role.label}
-            </ButtonAILN>
-          </Link>
-        );
-      })}
-    </div>
-  );
+  if (variant === "CHAMPION") {
+    return (
+      <Link href={`/${projectId}/student`} className="mt-2 block">
+        <ButtonAILN variant="lime" size="small" className="w-full">
+          <UserRound className="size-4" />
+          Mode Student
+        </ButtonAILN>
+      </Link>
+    );
+  }
+
+  return null;
 }

@@ -3,7 +3,7 @@ import PreAssessmentChampionAILN from "@/components/pages/PreAssessmentChampionA
 import { Metadata } from "next";
 
 export const metadata: Metadata = {
-  title: "Champion",
+  title: "Pre Assessment Report",
 };
 
 export default async function PreAssessmentPage({
