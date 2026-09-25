@@ -138,6 +138,41 @@ export async function getPreAssessmentRecommendations(
   );
 }
 
+export type RegenerateRecommendationsResult =
+  | { success: true; data: PreAssessmentRecommendationsResult }
+  | { success: false; code: number; message: string };
+
+// Keeps the backend's message so the student learns why a retry was refused.
+export async function regeneratePreAssessmentRecommendations(
+  projectId: string,
+): Promise<RegenerateRecommendationsResult> {
+  const cookieStore = await cookies();
+  const sessionToken = cookieStore.get(SESSION_COOKIE_NAME)?.value;
+  if (!sessionToken) {
+    return { success: false, code: 401, message: "Sesi kamu sudah berakhir." };
+  }
+
+  const result = await callApi<PreAssessmentRecommendationsResult>(
+    "/api/v1/pre-assessment/recommendations/regenerate",
+    { method: "POST", body: { project_id: projectId }, token: sessionToken },
+  );
+
+  if (!result.success || !result.data) {
+    await LogError(
+      "regeneratePreAssessmentRecommendations",
+      result.code,
+      result.status,
+      result.message,
+    );
+    return {
+      success: false,
+      code: result.code || 502,
+      message: result.message || "Gagal membuat ulang rekomendasi.",
+    };
+  }
+  return { success: true, data: result.data };
+}
+
 // Both read endpoints take the same { project_id } body and session JWT.
 async function preAssessmentCall<T>(
   name: string,

@@ -1,5 +1,4 @@
 "use client";
-import DisabledActionButtonAILN from "@/components/buttons/DisabledActionButtonAILN";
 import ButtonAILN from "@/components/buttons/ButtonAILN";
 import SectionContainerAILN from "@/components/cards/SectionContainerAILN";
 import GeneralLabelAILN from "@/components/labels/GeneralLabelAILN";
@@ -8,7 +7,7 @@ import AppErrorComponents from "@/components/states/AppErrorComponents";
 import PageHeaderAILN from "@/components/titles/PageHeaderAILN";
 import { CheckSession } from "@/lib/actions";
 import { useProjectId } from "@/lib/use-project-id";
-import { useQuery } from "@tanstack/react-query";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
 import type {
   PreAssessmentRecommendation,
   PreAssessmentRecommendationsResult,
@@ -20,22 +19,28 @@ import {
   BookOpen,
   Clock3,
   Loader2,
+  RotateCcw,
   TrendingUp,
 } from "lucide-react";
 import { useRouter } from "next/navigation";
+import { useState } from "react";
+import { toast } from "sonner";
+
+const recommendationsKey = (projectId: string) => [
+  "pre-assessment-recommendations",
+  projectId,
+];
 
 // Generated asynchronously, so poll from the server snapshot until the status settles.
 function usePreAssessmentRecommendations(
   projectId: string,
   initial: PreAssessmentRecommendationsResult | null,
 ): PreAssessmentRecommendationsResult | null {
-  const settled =
-    initial?.status === "completed" || initial?.status === "failed";
-
+  // Stays enabled so a regenerate can restart polling; staleTime keeps a settled snapshot from refetching.
   const { data } = useQuery({
-    queryKey: ["pre-assessment-recommendations", projectId],
-    enabled: !settled,
+    queryKey: recommendationsKey(projectId),
     initialData: initial ?? undefined,
+    staleTime: Infinity,
     refetchInterval: (query) => {
       const status = query.state.data?.status;
       return status === "completed" || status === "failed" ? false : 5000;
@@ -97,6 +102,34 @@ function PreAssessmentReportContent({
   const status = recData?.status ?? "pending";
   const recommendations = recData?.recommendations ?? null;
   const items = recommendations?.items ?? [];
+
+  const queryClient = useQueryClient();
+  const [isRegenerating, setIsRegenerating] = useState(false);
+  const regenerate = async () => {
+    if (isRegenerating) return;
+    setIsRegenerating(true);
+    try {
+      const res = await fetch(
+        "/api/pre-assessment/recommendations/regenerate",
+        {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ project_id: projectId }),
+        },
+      );
+      const payload = await res.json().catch(() => null);
+      if (!res.ok || !payload) {
+        toast.error(payload?.message ?? "Gagal membuat ulang rekomendasi.");
+        return;
+      }
+      // A pending status turns polling back on through refetchInterval.
+      queryClient.setQueryData(recommendationsKey(projectId), payload);
+    } catch {
+      toast.error("Gagal membuat ulang rekomendasi.");
+    } finally {
+      setIsRegenerating(false);
+    }
+  };
 
   return (
     <PageContainerAILN className="min-h-screen items-start justify-start">
@@ -216,7 +249,10 @@ function PreAssessmentReportContent({
                   ))}
                 </div>
               ) : status === "failed" ? (
-                <RecommendationsFailed />
+                <RecommendationsFailed
+                  onRetry={regenerate}
+                  isRetrying={isRegenerating}
+                />
               ) : (
                 <RecommendationsLoading />
               )}
@@ -257,6 +293,11 @@ function PillarScore({
   );
 }
 
+// The backend fills a missing source/speed with "-".
+function hasValue(text: string) {
+  return text.trim() !== "" && text.trim() !== "-";
+}
+
 function formatDecimal(value: number) {
   return Number.isInteger(value)
     ? String(value)
@@ -294,8 +335,13 @@ function RecommendationsLoading() {
   );
 }
 
-// Shown when generation failed; retry is disabled until the backend exposes a regenerate endpoint.
-function RecommendationsFailed() {
+function RecommendationsFailed({
+  onRetry,
+  isRetrying,
+}: {
+  onRetry: () => void;
+  isRetrying: boolean;
+}) {
   return (
     <div className="flex flex-col items-start gap-3 rounded-lg border border-amber-200 bg-amber-50 px-4 py-4 text-amber-800 dark:border-amber-500/30 dark:bg-amber-500/10 dark:text-amber-200">
       <div className="flex items-center gap-2 text-sm font-semibold">
@@ -306,9 +352,14 @@ function RecommendationsFailed() {
         Skill mapping di atas tetap valid. Rekomendasi personalmu belum sempat
         tersusun — coba buat ulang sebentar lagi.
       </p>
-      <DisabledActionButtonAILN variant="neutral">
+      <ButtonAILN variant="neutral" onClick={onRetry} disabled={isRetrying}>
+        {isRetrying ? (
+          <Loader2 className="size-4 animate-spin" />
+        ) : (
+          <RotateCcw className="size-4" />
+        )}
         Coba generate ulang
-      </DisabledActionButtonAILN>
+      </ButtonAILN>
     </div>
   );
 }
@@ -328,16 +379,20 @@ function RecommendationCard({
         </div>
         <div className="min-w-0 flex-1">
           <div className="flex flex-wrap items-center gap-2">
-            <GeneralLabelAILN
-              variant="white"
-              icon={<Clock3 className="size-3 text-amber-500" />}
-            >
-              {item.source}
-            </GeneralLabelAILN>
+            {hasValue(item.source) && (
+              <GeneralLabelAILN
+                variant="white"
+                icon={<Clock3 className="size-3 text-amber-500" />}
+              >
+                {item.source}
+              </GeneralLabelAILN>
+            )}
             <GeneralLabelAILN variant="red">
               Impact: {item.impact}
             </GeneralLabelAILN>
-            <GeneralLabelAILN variant="green">{item.speed}</GeneralLabelAILN>
+            {hasValue(item.speed) && (
+              <GeneralLabelAILN variant="green">{item.speed}</GeneralLabelAILN>
+            )}
           </div>
 
           <h3 className="mt-3 text-base font-bold text-gray-950 dark:text-white">
@@ -347,21 +402,23 @@ function RecommendationCard({
             {item.description}
           </p>
 
-          <div className="mt-3 flex flex-wrap items-center gap-2">
-            <span className="text-xs font-semibold text-gray-500 dark:text-gray-400">
-              Dipelajari di:
-            </span>
-            {item.lessons.map((lesson) => (
-              <GeneralLabelAILN
-                key={lesson}
-                variant="white"
-                icon={<BookOpen className="size-3 text-blue-500" />}
-              >
-                {lesson}
-                <ArrowRight className="size-3" />
-              </GeneralLabelAILN>
-            ))}
-          </div>
+          {item.lessons.length > 0 && (
+            <div className="mt-3 flex flex-wrap items-center gap-2">
+              <span className="text-xs font-semibold text-gray-500 dark:text-gray-400">
+                Dipelajari di:
+              </span>
+              {item.lessons.map((lesson) => (
+                <GeneralLabelAILN
+                  key={lesson}
+                  variant="white"
+                  icon={<BookOpen className="size-3 text-blue-500" />}
+                >
+                  {lesson}
+                  <ArrowRight className="size-3" />
+                </GeneralLabelAILN>
+              ))}
+            </div>
+          )}
         </div>
       </div>
     </article>

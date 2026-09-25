@@ -37,30 +37,6 @@ export function getCompetencyProfileMock() {
   };
 }
 
-export function getRecommendationsMock() {
-  return {
-    level_number: CURRENT_LEVEL_NUMBER,
-    role: "Digital Product Analyst",
-    department: "Digital Transformation",
-    items: [
-      {
-        id: 1,
-        title: "Otomatisasi Laporan Mingguan",
-        description: "Pakai AI untuk menyusun laporan dari data mentah.",
-        category: "Operations",
-        level_number: CURRENT_LEVEL_NUMBER,
-      },
-      {
-        id: 2,
-        title: "Ringkasan Notulen Rapat",
-        description: "Ubah transkrip rapat jadi poin aksi.",
-        category: "Human Capital",
-        level_number: CURRENT_LEVEL_NUMBER,
-      },
-    ],
-  };
-}
-
 export function getFirstWinMock() {
   return {
     first_win: {
