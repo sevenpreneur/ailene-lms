@@ -40,7 +40,7 @@ export default function AchievementsCardAILN({
       contentClassName="flex flex-col"
     >
       {/* Level + XP hero */}
-      <div className="flex items-center justify-between gap-3 rounded-xl border border-dashboard-border bg-gradient-to-br from-hijau-t via-white to-hijau-t/40 p-4 dark:border-claude/20 dark:from-claude/10 dark:via-card-1 dark:to-claude/5">
+      <div className="flex items-center justify-between gap-3 rounded-lg border border-dashboard-border bg-gradient-to-br from-hijau-t via-white to-hijau-t/40 p-4 dark:border-claude/20 dark:from-claude/10 dark:via-card-1 dark:to-claude/5">
         <div className="flex min-w-0 items-center gap-3">
           <div className="flex size-11 shrink-0 items-center justify-center rounded-full bg-lime-bright shadow-[0_0_0_3px_rgba(255,255,255,0.6)] dark:shadow-[0_0_0_3px_rgba(0,0,0,0.3)]">
             <Trophy className="size-5 text-forest-deep" />
@@ -128,7 +128,7 @@ function StatTile({
   color: keyof typeof TILE_COLORS;
 }) {
   return (
-    <div className="flex flex-col items-center gap-1.5 rounded-xl border border-dashboard-border bg-white py-3 dark:bg-card-2">
+    <div className="flex flex-col items-center gap-1.5 rounded-lg border border-dashboard-border bg-white py-3 dark:bg-card-2">
       <div
         className={`flex size-8 items-center justify-center rounded-full ${TILE_COLORS[color]}`}
       >

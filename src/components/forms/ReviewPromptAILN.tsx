@@ -351,7 +351,7 @@ export default function ReviewPromptAILN({
             </div>
 
             {!canReview && s.comment && (
-              <div className="rounded-md border border-hijau-t bg-hijau-t p-3 text-sm text-gray-700 dark:border-claude/30 dark:bg-claude/10 dark:text-gray-200">
+              <div className="rounded-lg border border-hijau-t bg-hijau-t p-3 text-sm text-gray-700 dark:border-claude/30 dark:bg-claude/10 dark:text-gray-200">
                 <div className="mb-1 text-[11px] font-medium uppercase tracking-wide text-claude dark:text-lime-bright">
                   Catatan terakhir
                   {s.reviewed_at &&
@@ -394,7 +394,7 @@ function AiAssessment({
 
   if (aiStatus === "pending") {
     return (
-      <div className="flex items-start gap-3 rounded-md border border-dashboard-border bg-card-2 p-3 text-sm text-muted-foreground">
+      <div className="flex items-start gap-3 rounded-lg border border-dashboard-border bg-card-2 p-3 text-sm text-muted-foreground">
         {pollTimedOut ? (
           <Clock className="mt-0.5 size-4 shrink-0" />
         ) : (
@@ -426,7 +426,7 @@ function AiAssessment({
   return (
     <div className="flex flex-col gap-4">
       {aiStatus === "failed" && (
-        <div className="flex items-start gap-2 rounded-md border border-amber-200 bg-amber-50 p-3 text-sm text-amber-800 dark:border-amber-500/30 dark:bg-amber-500/10 dark:text-amber-200">
+        <div className="flex items-start gap-2 rounded-lg border border-amber-200 bg-amber-50 p-3 text-sm text-amber-800 dark:border-amber-500/30 dark:bg-amber-500/10 dark:text-amber-200">
           <AlertTriangle className="mt-0.5 size-4 shrink-0" />
           AI gagal menilai submission ini. Isi skornya secara manual.
         </div>
@@ -495,7 +495,7 @@ function AiAssessment({
       )}
 
       {evaluation?.ai_feedback && (
-        <div className="flex flex-col gap-2 rounded-md border border-dashboard-border bg-card-2 p-3">
+        <div className="flex flex-col gap-2 rounded-lg border border-dashboard-border bg-card-2 p-3">
           <div className="flex items-center gap-1.5 text-[11px] font-medium uppercase tracking-wide text-muted-foreground">
             <Sparkles className="size-3" />
             Feedback AI untuk student
@@ -534,7 +534,7 @@ function Field({
       </div>
       <p
         className={`whitespace-pre-wrap text-sm text-gray-700 dark:text-gray-200 ${
-          boxed ? "rounded-md border border-dashboard-border bg-card-2 p-3" : ""
+          boxed ? "rounded-lg border border-dashboard-border bg-card-2 p-3" : ""
         }`}
       >
         {text ?? "—"}
@@ -573,7 +573,7 @@ function RubricRow({
             type="button"
             disabled={disabled}
             onClick={() => onChange(n)}
-            className={`size-7 rounded-md border text-xs font-medium transition ${
+            className={`size-7 rounded-lg border text-xs font-medium transition ${
               value === n
                 ? "border-claude bg-claude text-white"
                 : "border-dashboard-border text-gray-500 hover:border-claude dark:text-gray-400"

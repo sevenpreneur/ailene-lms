@@ -35,7 +35,7 @@ export default function QuizSummaryBannerAILN({
   const passed = score >= PASS_THRESHOLD;
 
   return (
-    <section className="relative overflow-hidden rounded-xl border border-dashboard-border bg-gradient-to-br from-white via-hijau-t/35 to-amber-50/40 p-5 dark:bg-card-1 dark:from-card-1 dark:via-claude/10 dark:to-amber-500/10">
+    <section className="relative overflow-hidden rounded-lg border border-dashboard-border bg-gradient-to-br from-white via-hijau-t/35 to-amber-50/40 p-5 dark:bg-card-1 dark:from-card-1 dark:via-claude/10 dark:to-amber-500/10">
       <div className="pointer-events-none absolute left-0 top-0 h-32 w-56 bg-gradient-to-br from-amber-300/25 via-hijau/15 to-transparent blur-2xl" />
       <div className="pointer-events-none absolute bottom-0 left-0 h-32 w-64 bg-gradient-to-tr from-hijau/20 via-amber-200/15 to-transparent blur-2xl" />
 

@@ -254,7 +254,7 @@ export default function ReviewUseCaseAILN({
                     <div className="text-[11px] font-medium uppercase tracking-wide text-gray-500 dark:text-gray-400">
                       Deskripsi penerapan
                     </div>
-                    <p className="whitespace-pre-wrap rounded-md border border-dashboard-border bg-card-2 p-3 text-sm text-gray-700 dark:text-gray-200">
+                    <p className="whitespace-pre-wrap rounded-lg border border-dashboard-border bg-card-2 p-3 text-sm text-gray-700 dark:text-gray-200">
                       {s.description ?? "—"}
                     </p>
                   </div>
@@ -294,7 +294,7 @@ export default function ReviewUseCaseAILN({
             </div>
 
             {!canReview && s.comment && (
-              <div className="rounded-md border border-hijau-t bg-hijau-t p-3 text-sm text-gray-700 dark:border-claude/30 dark:bg-claude/10 dark:text-gray-200">
+              <div className="rounded-lg border border-hijau-t bg-hijau-t p-3 text-sm text-gray-700 dark:border-claude/30 dark:bg-claude/10 dark:text-gray-200">
                 <div className="mb-1 text-[11px] font-medium uppercase tracking-wide text-claude dark:text-lime-bright">
                   Catatan terakhir
                   {s.reviewed_at &&
@@ -314,7 +314,7 @@ export default function ReviewUseCaseAILN({
 
 function Metric({ label, value }: { label: string; value: string }) {
   return (
-    <div className="flex flex-col gap-0.5 rounded-md border border-dashboard-border bg-card-2 p-2">
+    <div className="flex flex-col gap-0.5 rounded-lg border border-dashboard-border bg-card-2 p-2">
       <div className="text-[10px] font-medium uppercase tracking-wide text-gray-500 dark:text-gray-400">
         {label}
       </div>
@@ -328,7 +328,7 @@ function OutcomeProof({ value }: { value: string | null | undefined }) {
 
   if (!proof) {
     return (
-      <p className="rounded-md border border-dashboard-border bg-card-2 p-3 text-sm text-gray-700 dark:text-gray-200">
+      <p className="rounded-lg border border-dashboard-border bg-card-2 p-3 text-sm text-gray-700 dark:text-gray-200">
         —
       </p>
     );
@@ -346,7 +346,7 @@ function OutcomeProof({ value }: { value: string | null | undefined }) {
           href={proof}
           target="_blank"
           rel="noopener noreferrer"
-          className="block overflow-hidden rounded-md border border-dashboard-border bg-card-2"
+          className="block overflow-hidden rounded-lg border border-dashboard-border bg-card-2"
         >
           <Image
             src={proof}
@@ -375,7 +375,7 @@ function OutcomeProof({ value }: { value: string | null | undefined }) {
       <video
         src={proof}
         controls
-        className="max-h-[480px] w-full rounded-md border border-dashboard-border bg-black"
+        className="max-h-[480px] w-full rounded-lg border border-dashboard-border bg-black"
       />
     );
   }
@@ -386,7 +386,7 @@ function OutcomeProof({ value }: { value: string | null | undefined }) {
         href={proof}
         target="_blank"
         rel="noopener noreferrer"
-        className="inline-flex w-fit items-center gap-1.5 break-all rounded-md border border-dashboard-border bg-card-2 px-3 py-2 text-sm font-medium text-claude hover:underline dark:text-lime-bright"
+        className="inline-flex w-fit items-center gap-1.5 break-all rounded-lg border border-dashboard-border bg-card-2 px-3 py-2 text-sm font-medium text-claude hover:underline dark:text-lime-bright"
       >
         <FileText className="size-4 shrink-0" />
         {proof}
@@ -395,7 +395,7 @@ function OutcomeProof({ value }: { value: string | null | undefined }) {
   }
 
   return (
-    <p className="break-words rounded-md border border-dashboard-border bg-card-2 p-3 text-sm text-gray-700 dark:text-gray-200">
+    <p className="break-words rounded-lg border border-dashboard-border bg-card-2 p-3 text-sm text-gray-700 dark:text-gray-200">
       {proof}
     </p>
   );

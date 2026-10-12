@@ -1,7 +1,7 @@
 "use client";
-import ReadinessDistributionAILN from "@/components/charts/ReadinessDistributionAILN";
+import BandDistributionAILN from "@/components/charts/BandDistributionAILN";
 import BaselineByDepartmentAILN from "@/components/indexes/BaselineByDepartmentAILN";
-import PillarRankingAILN from "@/components/indexes/PillarRankingAILN";
+import ClusterRankingAILN from "@/components/indexes/ClusterRankingAILN";
 import PageContainerAILN from "@/components/pages/PageContainerAILN";
 import PageHeaderAILN from "@/components/titles/PageHeaderAILN";
 import type { PreAssessmentOrganization } from "@/apis/sponsor";
@@ -16,16 +16,27 @@ export default function PreAssessmentSponsorAILN({
       <div className="flex w-full flex-col gap-6">
         <PageHeaderAILN
           title="Baseline kompetensi seluruh organisasi"
-          desc="Hasil pre-assessment awal tiap departemen di 6 pillar kompetensi AI"
+          desc="Hasil pre-assessment awal tiap departemen: band AI Proficiency dan skor per area kompetensi"
         />
 
-        {/* Department × pillar baseline matrix — full width */}
         <BaselineByDepartmentAILN data={data} />
 
-        {/* Pillar ranking + readiness distribution side by side */}
         <div className="grid grid-cols-1 gap-6 lg:grid-cols-2">
-          <PillarRankingAILN data={data} />
-          <ReadinessDistributionAILN data={data} />
+          <ClusterRankingAILN
+            title="Prioritas per Area Kompetensi"
+            desc="Rata-rata skor seluruh karyawan · diurut dari skor terendah"
+            clusters={data?.org_clusters ?? []}
+          />
+          {data && (
+            <BandDistributionAILN
+              title="Distribusi Band Karyawan"
+              unit="karyawan"
+              bands={data.bands}
+              targetBand={data.target_band}
+              meetsTargetCount={data.meets_target_count}
+              scoredCount={data.scored_count}
+            />
+          )}
         </div>
       </div>
     </PageContainerAILN>

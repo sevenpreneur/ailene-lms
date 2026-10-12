@@ -10,7 +10,7 @@ import { ReactNode } from "react";
 /** A single pulsing block. Size it via `className` (e.g. "h-56", "h-24 w-full"). */
 export function SkeletonBlockAILN({ className }: { className?: string }) {
   return (
-    <div className={`animate-pulse rounded-md bg-muted ${className ?? ""}`} />
+    <div className={`animate-pulse rounded-lg bg-muted ${className ?? ""}`} />
   );
 }
 
@@ -53,7 +53,7 @@ export function EmptyHintAILN({
 /** Boxed muted empty state (used inside list sections). */
 export function EmptyStateAILN({ children }: { children: ReactNode }) {
   return (
-    <div className="rounded-md bg-muted px-4 py-8 text-center text-sm text-muted-foreground">
+    <div className="rounded-lg bg-muted px-4 py-8 text-center text-sm text-muted-foreground">
       {children}
     </div>
   );

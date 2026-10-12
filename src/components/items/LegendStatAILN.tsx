@@ -17,7 +17,7 @@ export default function LegendStatAILN({
   return (
     <div className="flex items-center gap-2">
       <span
-        className="size-2.5 shrink-0 rounded-sm"
+        className="size-2.5 shrink-0 rounded-lg"
         style={{ backgroundColor: color }}
       />
       <span className="text-sm text-muted-foreground dark:text-gray-200">

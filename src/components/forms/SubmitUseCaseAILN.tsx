@@ -550,7 +550,7 @@ export default function SubmitUseCaseAILN({
                     const saved = without - withAi;
                     const pct = Math.round((saved / without) * 100);
                     return (
-                      <span className="inline-flex items-center gap-1.5 rounded-md bg-emerald-100 px-2.5 py-1 text-xs font-medium text-emerald-700 dark:bg-emerald-500/15 dark:text-emerald-300">
+                      <span className="inline-flex items-center gap-1.5 rounded-lg bg-emerald-100 px-2.5 py-1 text-xs font-medium text-emerald-700 dark:bg-emerald-500/15 dark:text-emerald-300">
                         Jam dihemat: {saved.toFixed(saved % 1 === 0 ? 0 : 1)}{" "}
                         jam · {pct}% lebih cepat
                       </span>
@@ -645,7 +645,7 @@ export default function SubmitUseCaseAILN({
                                 }
                           );
                         }}
-                        className="rounded-md border border-dashboard-border bg-white px-3 py-2 text-xs font-medium  text-foreground hover:border-foreground/40 disabled:cursor-not-allowed disabled:opacity-60 dark:bg-card-2 dark:text-gray-200"
+                        className="rounded-lg border border-dashboard-border bg-white px-3 py-2 text-xs font-medium  text-foreground hover:border-foreground/40 disabled:cursor-not-allowed disabled:opacity-60 dark:bg-card-2 dark:text-gray-200"
                       >
                         Tambah
                       </button>
@@ -673,7 +673,7 @@ export default function SubmitUseCaseAILN({
                       if (!isLocked && !isUploading)
                         fileInputRef.current?.click();
                     }}
-                    className={`relative flex flex-col items-center justify-center gap-1.5 rounded-md border-2 border-dashed px-4 py-6 text-center transition ${
+                    className={`relative flex flex-col items-center justify-center gap-1.5 rounded-lg border-2 border-dashed px-4 py-6 text-center transition ${
                       isLocked || isUploading
                         ? "cursor-not-allowed opacity-60 border-dashboard-border bg-card-2"
                         : isDragOver
@@ -727,7 +727,7 @@ export default function SubmitUseCaseAILN({
 
                 {/* Uploaded file chip */}
                 {formData.outcomeFileName && (
-                  <div className="flex items-center justify-between gap-2 rounded-md border border-dashboard-border bg-card-2 px-3 py-2">
+                  <div className="flex items-center justify-between gap-2 rounded-lg border border-dashboard-border bg-card-2 px-3 py-2">
                     <div className="flex items-center gap-2 min-w-0">
                       <FileUp className="size-4 shrink-0 text-foreground dark:text-gray-300" />
                       <span className="truncate text-xs font-medium  text-foreground dark:text-gray-200">
@@ -738,7 +738,7 @@ export default function SubmitUseCaseAILN({
                       <button
                         type="button"
                         onClick={handleClearOutcomeFile}
-                        className="rounded p-1 text-gray-500 hover:bg-black/5 hover:text-foreground dark:hover:bg-white/5 dark:hover:text-white"
+                        className="rounded-lg p-1 text-gray-500 hover:bg-black/5 hover:text-foreground dark:hover:bg-white/5 dark:hover:text-white"
                       >
                         <X className="size-3.5" />
                       </button>

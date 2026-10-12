@@ -35,7 +35,7 @@ export default function ExploreAILN() {
     <PageContainerAILN>
       <div className="flex w-full flex-col gap-6">
         {/* Header */}
-        <div className="rounded-2xl bg-linear-to-b from-hijau-t to-white p-6 dark:from-claude/10 dark:to-card-1 sm:p-8">
+        <div className="rounded-lg bg-linear-to-b from-hijau-t to-white p-6 dark:from-claude/10 dark:to-card-1 sm:p-8">
           <span className="mb-4 flex h-11 w-11 shrink-0 items-center justify-center rounded-full bg-white text-forest-deep shadow-sm dark:bg-card-1 dark:text-lime-bright">
             <Compass size={20} />
           </span>
@@ -51,7 +51,7 @@ export default function ExploreAILN() {
         {/* Filters di kiri, katalog di kanan */}
         <div className="flex flex-col gap-6 lg:flex-row">
           <aside className="w-full shrink-0 lg:sticky lg:top-6 lg:w-60 lg:self-start xl:w-64">
-            <div className="flex flex-col gap-4 rounded-2xl border border-dashboard-border bg-card-1 p-5">
+            <div className="flex flex-col gap-4 rounded-lg border border-dashboard-border bg-card-1 p-5">
               <div className="flex flex-col gap-2">
                 <p className="text-xs font-medium uppercase tracking-wide text-muted-foreground">
                   Vendor
@@ -104,7 +104,7 @@ export default function ExploreAILN() {
           </aside>
 
           {/* Catalog */}
-          <section className="min-w-0 flex-1 rounded-2xl border border-dashboard-border bg-card-1 p-6">
+          <section className="min-w-0 flex-1 rounded-lg border border-dashboard-border bg-card-1 p-6">
             <div className="mb-4 flex items-center justify-between">
               <h2 className="text-lg font-medium text-foreground">
                 Semua Kursus

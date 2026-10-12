@@ -14,7 +14,7 @@ export default function LevelLegendAILN({
       {levels.map((level) => (
         <span key={level.id} className="inline-flex items-center gap-1.5">
           <span
-            className="inline-block size-2 rounded-sm"
+            className="inline-block size-2 rounded-lg"
             style={{ backgroundColor: levelColorByCode(level.code) }}
           />
           {level.label ?? level.code} {level.name}

@@ -61,7 +61,7 @@ export default function LevelUnlockSuccessModalAILN({
       onClick={onClose}
     >
       <div
-        className="relative flex w-full max-w-4xl flex-col gap-5 rounded-2xl bg-white p-6 shadow-2xl ring-1 ring-black/5 dark:bg-card-1 dark:ring-dashboard-border md:p-8"
+        className="relative flex w-full max-w-4xl flex-col gap-5 rounded-lg bg-white p-6 shadow-2xl ring-1 ring-black/5 dark:bg-card-1 dark:ring-dashboard-border md:p-8"
         onClick={(event) => event.stopPropagation()}
       >
         <button
@@ -73,7 +73,7 @@ export default function LevelUnlockSuccessModalAILN({
         </button>
 
         <div className="flex flex-col items-center text-center">
-          <div className="flex size-16 items-center justify-center rounded-2xl bg-claude text-white shadow-[0_18px_40px_rgba(26,122,82,0.35)]">
+          <div className="flex size-16 items-center justify-center rounded-lg bg-claude text-white shadow-[0_18px_40px_rgba(26,122,82,0.35)]">
             <Check className="size-9" strokeWidth={3} />
           </div>
           <div className="mt-5 text-[11px] font-medium uppercase tracking-widest text-claude dark:text-lime-bright">
@@ -136,7 +136,7 @@ export default function LevelUnlockSuccessModalAILN({
         {/* 
         <section className="grid grid-cols-1 overflow-hidden rounded-lg border border-dashboard-border bg-white dark:bg-card-1 md:grid-cols-[12rem_1fr]">
           <div className="flex items-center justify-center border-b border-dashboard-border bg-gray-50 p-5 dark:bg-card-2 md:border-b-0 md:border-r">
-            <div className="flex h-28 w-36 flex-col items-center justify-center rounded-sm border border-dashboard-border bg-white text-center shadow-sm dark:bg-card-1">
+            <div className="flex h-28 w-36 flex-col items-center justify-center rounded-lg border border-dashboard-border bg-white text-center shadow-sm dark:bg-card-1">
               <div className="text-[10px] font-medium uppercase tracking-widest text-gray-400">
                 Sertifikat
               </div>

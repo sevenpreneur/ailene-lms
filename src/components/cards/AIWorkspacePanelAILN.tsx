@@ -102,7 +102,7 @@ export default function AIWorkspacePanelAILN({
   }
 
   return (
-    <div className="flex h-140 flex-col overflow-hidden rounded-2xl border border-dashboard-border bg-card-1">
+    <div className="flex h-140 flex-col overflow-hidden rounded-lg border border-dashboard-border bg-card-1">
       <div className="flex shrink-0 items-center justify-between border-b border-dashboard-border px-5 py-4">
         <div className="flex items-center gap-2">
           <Bot size={17} className="text-claude dark:text-lime-bright" />
@@ -160,8 +160,8 @@ export default function AIWorkspacePanelAILN({
                 key={message.id}
                 className={
                   message.role === "assistant"
-                    ? "max-w-[92%] whitespace-pre-line rounded-2xl rounded-tl-sm bg-dashboard-bg px-4 py-3 text-sm text-foreground"
-                    : "ml-auto max-w-[85%] whitespace-pre-line rounded-2xl rounded-tr-sm bg-claude px-4 py-3 text-sm text-white"
+                    ? "max-w-[92%] whitespace-pre-line rounded-lg rounded-tl-lg bg-dashboard-bg px-4 py-3 text-sm text-foreground"
+                    : "ml-auto max-w-[85%] whitespace-pre-line rounded-lg rounded-tr-lg bg-claude px-4 py-3 text-sm text-white"
                 }
               >
                 {message.text}
@@ -169,7 +169,7 @@ export default function AIWorkspacePanelAILN({
             ))}
 
             {isThinking && (
-              <div className="flex w-fit items-center gap-1 rounded-2xl rounded-tl-sm bg-dashboard-bg px-4 py-3">
+              <div className="flex w-fit items-center gap-1 rounded-lg rounded-tl-lg bg-dashboard-bg px-4 py-3">
                 <span className="h-1.5 w-1.5 animate-bounce rounded-full bg-foreground/40 [animation-delay:-0.2s]" />
                 <span className="h-1.5 w-1.5 animate-bounce rounded-full bg-foreground/40 [animation-delay:-0.1s]" />
                 <span className="h-1.5 w-1.5 animate-bounce rounded-full bg-foreground/40" />
@@ -203,7 +203,7 @@ export default function AIWorkspacePanelAILN({
                 e.preventDefault();
                 sendMessage(draft);
               }}
-              className="flex items-center gap-2 rounded-xl border border-dashboard-border bg-background px-3 py-2"
+              className="flex items-center gap-2 rounded-lg border border-dashboard-border bg-background px-3 py-2"
             >
               <input
                 value={draft}

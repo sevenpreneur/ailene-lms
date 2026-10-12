@@ -59,7 +59,7 @@ function ActionTileAILN({
       href={href}
       className="group flex items-start gap-3 rounded-lg border border-dashboard-border bg-gray-50/60 p-4 transition hover:border-hijau hover:bg-white dark:bg-card-2 dark:hover:border-claude/40"
     >
-      <span className="flex size-9 shrink-0 items-center justify-center rounded-md bg-white text-claude shadow-sm dark:bg-card-1 dark:text-lime-bright">
+      <span className="flex size-9 shrink-0 items-center justify-center rounded-lg bg-white text-claude shadow-sm dark:bg-card-1 dark:text-lime-bright">
         <Icon className="size-4" />
       </span>
       <span className="min-w-0">

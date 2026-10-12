@@ -1,4 +1,4 @@
-import { regeneratePreAssessmentRecommendations } from "@/apis/pre-assessment";
+import { getPreAssessmentScore } from "@/apis/pre-assessment";
 import { NextResponse } from "next/server";
 
 export async function POST(request: Request) {
@@ -12,11 +12,11 @@ export async function POST(request: Request) {
     );
   }
 
-  const result = await regeneratePreAssessmentRecommendations(projectId);
+  const result = await getPreAssessmentScore(projectId);
   if (!result.success) {
     return NextResponse.json(
       { message: result.message },
-      { status: result.code || 502 },
+      { status: result.code },
     );
   }
 

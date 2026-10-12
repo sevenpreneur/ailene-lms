@@ -100,7 +100,7 @@ export default function LevelCompositionSponsorAILN({
           {data.map((d) => (
             <li key={d.key} className="flex items-center gap-2">
               <span
-                className="size-2.5 shrink-0 rounded-sm"
+                className="size-2.5 shrink-0 rounded-lg"
                 style={{ backgroundColor: d.fill }}
               />
               <span className="min-w-0 flex-1 truncate text-muted-foreground">

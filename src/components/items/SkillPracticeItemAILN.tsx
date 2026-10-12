@@ -151,12 +151,12 @@ export default function SkillPracticeItemAILN(
 
   return (
     <div
-      className={`flex items-center gap-3 rounded-xl border border-dashboard-border p-3 ${
+      className={`flex items-center gap-3 rounded-lg border border-dashboard-border p-3 ${
         locked ? "bg-card-2 opacity-60" : "bg-card-2"
       }`}
     >
       <div
-        className={`flex h-10 w-10 shrink-0 items-center justify-center rounded-md ${
+        className={`flex h-10 w-10 shrink-0 items-center justify-center rounded-lg ${
           locked
             ? "bg-gray-100 text-gray-400 dark:bg-claude/5 dark:text-claude/40"
             : "bg-rose-100 text-rose-600 dark:bg-rose-500/15 dark:text-rose-300"
@@ -212,7 +212,7 @@ export default function SkillPracticeItemAILN(
           )}
         </div>
         {item.message && (
-          <div className="mt-2 flex items-start gap-1.5 rounded bg-gray-50 px-2 py-1.5 text-xs text-gray-600 dark:bg-white/5 dark:text-gray-300">
+          <div className="mt-2 flex items-start gap-1.5 rounded-lg bg-gray-50 px-2 py-1.5 text-xs text-gray-600 dark:bg-white/5 dark:text-gray-300">
             <MessageSquare className="mt-0.5 size-3.5 shrink-0 text-gray-400" />
             <span className="italic line-clamp-2">{item.message}</span>
           </div>

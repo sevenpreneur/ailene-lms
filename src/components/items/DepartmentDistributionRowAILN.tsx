@@ -43,7 +43,7 @@ export default function DepartmentDistributionRowAILN({
   return (
     <Link
       href={`/${projectId}/sponsor/groups/${group.id}`}
-      className={`grid grid-cols-[minmax(7rem,10rem)_minmax(0,1fr)_3.5rem] items-center gap-3 rounded-md px-2 py-1 text-sm transition hover:bg-muted dark:hover:bg-card-2 ${
+      className={`grid grid-cols-[minmax(7rem,10rem)_minmax(0,1fr)_3.5rem] items-center gap-3 rounded-lg px-2 py-1 text-sm transition hover:bg-muted dark:hover:bg-card-2 ${
         dimmed ? "opacity-40" : ""
       } ${
         showFlag && isUnderperform
@@ -56,14 +56,14 @@ export default function DepartmentDistributionRowAILN({
           {group.name}
         </span>
         {showFlag && isUnderperform && (
-          <span className="shrink-0 rounded-sm bg-amber-200 px-1 text-[10px] font-medium text-amber-800 dark:bg-amber-500/20 dark:text-amber-300">
+          <span className="shrink-0 rounded-lg bg-amber-200 px-1 text-[10px] font-medium text-amber-800 dark:bg-amber-500/20 dark:text-amber-300">
             ⚠
           </span>
         )}
       </div>
       {/* 100% stacked bar — each segment's width = that level's share of the dept */}
       <TooltipProvider delayDuration={80}>
-        <div className="flex h-7 w-full overflow-hidden rounded-sm bg-muted">
+        <div className="flex h-7 w-full overflow-hidden rounded-lg bg-muted">
           {group.levels.map((level) => {
             const pct = group.total > 0 ? (level.count / group.total) * 100 : 0;
             if (pct <= 0) return null;

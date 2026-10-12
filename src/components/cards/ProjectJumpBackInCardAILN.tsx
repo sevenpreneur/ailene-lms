@@ -16,10 +16,10 @@ export default function ProjectJumpBackInCardAILN({
   return (
     <Link
       href={`/${project.id}/${project.role}`}
-      className="group relative flex flex-col overflow-hidden rounded-2xl border border-dashboard-border bg-card-1 transition-all hover:-translate-y-0.5 hover:border-claude/40 hover:shadow-lg focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-claude"
+      className="group relative flex flex-col overflow-hidden rounded-lg border border-dashboard-border bg-card-1 transition-all hover:-translate-y-0.5 hover:border-claude/40 hover:shadow-lg focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-claude"
     >
       <div className="flex items-start gap-4 p-5">
-        <div className="relative h-12 w-12 shrink-0 overflow-hidden rounded-xl border border-dashboard-border bg-white">
+        <div className="relative h-12 w-12 shrink-0 overflow-hidden rounded-lg border border-dashboard-border bg-white">
           <Image
             src={project.avatar || DEFAULT_PROJECT_LOGO}
             alt=""

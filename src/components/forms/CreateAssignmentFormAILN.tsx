@@ -232,7 +232,7 @@ export default function CreateAssignmentFormAILN({
               <button
                 type="button"
                 onClick={() => handleInputChange("kind")("PROMPT")}
-                className={`rounded-md border px-3 py-2 text-sm font-medium transition ${
+                className={`rounded-lg border px-3 py-2 text-sm font-medium transition ${
                   formData.kind === "PROMPT"
                     ? "border-claude bg-hijau-t text-claude dark:bg-claude/10 dark:text-lime-bright"
                     : "border-dashboard-border text-gray-600 hover:border-gray-400 dark:text-gray-300"
@@ -243,7 +243,7 @@ export default function CreateAssignmentFormAILN({
               <button
                 type="button"
                 onClick={() => handleInputChange("kind")("USE_CASE")}
-                className={`rounded-md border px-3 py-2 text-sm font-medium transition ${
+                className={`rounded-lg border px-3 py-2 text-sm font-medium transition ${
                   formData.kind === "USE_CASE"
                     ? "border-claude bg-hijau-t text-claude dark:bg-claude/10 dark:text-lime-bright"
                     : "border-dashboard-border text-gray-600 hover:border-gray-400 dark:text-gray-300"
@@ -336,14 +336,14 @@ export default function CreateAssignmentFormAILN({
               unstyled
               classNames={{
                 control: ({ isFocused }) =>
-                  `rounded-md border bg-card-2 px-2 py-1 text-sm transition ${
+                  `rounded-lg border bg-card-2 px-2 py-1 text-sm transition ${
                     isFocused ? "border-claude" : "border-dashboard-border"
                   }`,
                 valueContainer: () => "flex flex-wrap gap-1 py-0.5",
                 placeholder: () => "px-1 text-gray-400 dark:text-gray-500",
                 input: () => "px-1 text-sm dark:text-gray-200",
                 multiValue: () =>
-                  "inline-flex items-center overflow-hidden rounded-md bg-hijau-t text-xs font-medium text-claude dark:bg-claude/10 dark:text-lime-bright",
+                  "inline-flex items-center overflow-hidden rounded-lg bg-hijau-t text-xs font-medium text-claude dark:bg-claude/10 dark:text-lime-bright",
                 multiValueLabel: () => "py-0.5 pl-2",
                 multiValueRemove: () =>
                   "flex items-center px-1 hover:bg-hijau/40 hover:text-claude dark:hover:bg-claude/20",
@@ -352,10 +352,10 @@ export default function CreateAssignmentFormAILN({
                 dropdownIndicator: () => "px-1 hover:text-gray-600",
                 clearIndicator: () => "px-1 hover:text-gray-600",
                 menu: () =>
-                  "z-50 mt-1 overflow-hidden rounded-md border border-dashboard-border bg-card-1 shadow-lg",
+                  "z-50 mt-1 overflow-hidden rounded-lg border border-dashboard-border bg-card-1 shadow-lg",
                 menuList: () => "max-h-60 overflow-y-auto p-1",
                 option: ({ isFocused, isDisabled }) =>
-                  `rounded px-2 py-1.5 text-sm ${
+                  `rounded-lg px-2 py-1.5 text-sm ${
                     isDisabled
                       ? "cursor-not-allowed text-gray-300 dark:text-gray-600"
                       : isFocused
@@ -369,7 +369,7 @@ export default function CreateAssignmentFormAILN({
           </div>
 
           {/* Assign toggle */}
-          <div className="flex flex-col gap-2 rounded-md border border-dashboard-border p-3">
+          <div className="flex flex-col gap-2 rounded-lg border border-dashboard-border p-3">
             <label className="flex cursor-pointer items-start gap-3">
               <input
                 type="checkbox"
@@ -402,7 +402,7 @@ export default function CreateAssignmentFormAILN({
                   <button
                     type="button"
                     onClick={() => handleInputChange("mode")("INDIVIDUAL")}
-                    className={`rounded-md border px-3 py-2 text-sm font-medium transition ${
+                    className={`rounded-lg border px-3 py-2 text-sm font-medium transition ${
                       formData.mode === "INDIVIDUAL"
                         ? "border-claude bg-hijau-t text-claude dark:bg-claude/10 dark:text-lime-bright"
                         : "border-dashboard-border text-gray-600 hover:border-gray-400 dark:text-gray-300"
@@ -413,7 +413,7 @@ export default function CreateAssignmentFormAILN({
                   <button
                     type="button"
                     onClick={() => handleInputChange("mode")("BULK")}
-                    className={`rounded-md border px-3 py-2 text-sm font-medium transition ${
+                    className={`rounded-lg border px-3 py-2 text-sm font-medium transition ${
                       formData.mode === "BULK"
                         ? "border-claude bg-hijau-t text-claude dark:bg-claude/10 dark:text-lime-bright"
                         : "border-dashboard-border text-gray-600 hover:border-gray-400 dark:text-gray-300"
@@ -435,7 +435,7 @@ export default function CreateAssignmentFormAILN({
                       Belum ada anggota.
                     </div>
                   ) : (
-                    <div className="flex max-h-64 flex-col gap-1 overflow-y-auto rounded-md border border-dashboard-border p-2">
+                    <div className="flex max-h-64 flex-col gap-1 overflow-y-auto rounded-lg border border-dashboard-border p-2">
                       {members.map((m) => {
                         const checked = formData.selectedMemberIds.includes(
                           m.access_id
@@ -443,7 +443,7 @@ export default function CreateAssignmentFormAILN({
                         return (
                           <label
                             key={m.access_id}
-                            className={`flex cursor-pointer items-center gap-2 rounded px-2 py-1.5 text-sm transition ${
+                            className={`flex cursor-pointer items-center gap-2 rounded-lg px-2 py-1.5 text-sm transition ${
                               checked
                                 ? "bg-hijau-t dark:bg-claude/10"
                                 : "hover:bg-gray-50 dark:hover:bg-white/5"
@@ -477,7 +477,7 @@ export default function CreateAssignmentFormAILN({
                   {groups.length === 0 ? (
                     <div className="text-sm text-gray-500">Belum ada grup.</div>
                   ) : (
-                    <div className="flex flex-col gap-1 rounded-md border border-dashboard-border p-2">
+                    <div className="flex flex-col gap-1 rounded-lg border border-dashboard-border p-2">
                       {groups.map((g) => {
                         const checked = formData.selectedGroupIds.includes(
                           g.id
@@ -485,7 +485,7 @@ export default function CreateAssignmentFormAILN({
                         return (
                           <label
                             key={g.id}
-                            className={`flex cursor-pointer items-center gap-2 rounded px-2 py-1.5 text-sm transition ${
+                            className={`flex cursor-pointer items-center gap-2 rounded-lg px-2 py-1.5 text-sm transition ${
                               checked
                                 ? "bg-hijau-t dark:bg-claude/10"
                                 : "hover:bg-gray-50 dark:hover:bg-white/5"

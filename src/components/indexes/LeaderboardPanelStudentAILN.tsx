@@ -47,14 +47,14 @@ export default function LeaderboardPanelStudentAILN({
     >
       <div className="flex flex-col">
         {/* Tabs */}
-        <div className="inline-flex w-fit rounded-md border border-dashboard-border p-0.5">
+        <div className="inline-flex w-fit rounded-lg border border-dashboard-border p-0.5">
           {tabs.map((t) => (
             <button
               key={t.key}
               type="button"
               disabled={!t.enabled}
               onClick={() => t.enabled && setTab(t.key)}
-              className={`flex items-center gap-1 rounded px-3 py-1.5 text-xs font-medium transition ${
+              className={`flex items-center gap-1 rounded-lg px-3 py-1.5 text-xs font-medium transition ${
                 tab === t.key
                   ? "bg-black text-white dark:bg-claude/20 dark:text-lime-bright"
                   : t.enabled
@@ -80,7 +80,7 @@ export default function LeaderboardPanelStudentAILN({
               {data.leaderboard.map((entry) => (
                 <div
                   key={entry.access_id}
-                  className={`flex items-center gap-3 rounded-md px-2.5 py-2 ${
+                  className={`flex items-center gap-3 rounded-lg px-2.5 py-2 ${
                     entry.is_me
                       ? "bg-hijau-t font-medium text-gray-900 dark:bg-claude/15 dark:text-white dark:shadow-[inset_0_0_0_1px_rgba(26,122,82,0.4)]"
                       : "text-gray-700 dark:text-gray-300"
@@ -107,7 +107,7 @@ export default function LeaderboardPanelStudentAILN({
                   <span className="flex-1 truncate text-sm">
                     {entry.full_name}
                     {entry.is_me && (
-                      <span className="ml-1.5 rounded bg-claude px-1.5 py-0.5 text-[10px] font-medium text-white">
+                      <span className="ml-1.5 rounded-lg bg-claude px-1.5 py-0.5 text-[10px] font-medium text-white">
                         ANDA
                       </span>
                     )}

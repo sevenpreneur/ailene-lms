@@ -41,7 +41,7 @@ export default function LevelDividerAILN(props: LevelDividerAILNProps) {
           <div className="absolute left-0 top-6 flex h-8 w-8 items-center justify-center rounded-full border-2 border-gray-300 bg-white text-sm font-medium text-gray-700 dark:border-dashboard-border dark:bg-black dark:text-gray-200">
             {props.level.level_number}
           </div>
-          <div className="relative overflow-hidden rounded-xl border-2 border-hijau bg-gradient-to-r from-hijau-t to-white p-4 dark:border-claude/70 dark:bg-gradient-to-r dark:from-claude/15 dark:via-claude/5 dark:to-black">
+          <div className="relative overflow-hidden rounded-lg border-2 border-hijau bg-gradient-to-r from-hijau-t to-white p-4 dark:border-claude/70 dark:bg-gradient-to-r dark:from-claude/15 dark:via-claude/5 dark:to-black">
             {/* Neon glitch dot pattern overlay (dark mode only) */}
             <div
               className="pointer-events-none absolute inset-0 hidden opacity-40 dark:block"
@@ -97,7 +97,7 @@ export default function LevelDividerAILN(props: LevelDividerAILNProps) {
         <div className="absolute left-0 top-6 flex h-8 w-8 items-center justify-center rounded-full border-2 border-gray-300 bg-gray-100 text-gray-400 dark:border-dashboard-border dark:bg-black dark:text-gray-500">
           <FontAwesomeIcon icon={faLock} className="h-4 w-4" />
         </div>
-        <div className="rounded-xl border border-gray-950 bg-gray-950 p-4 dark:border-claude/15 dark:bg-claude/[0.03]">
+        <div className="rounded-lg border border-gray-950 bg-gray-950 p-4 dark:border-claude/15 dark:bg-claude/[0.03]">
           <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
             <div className="flex items-center gap-4">
               <Image

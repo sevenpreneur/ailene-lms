@@ -4,6 +4,11 @@ import { cookies } from "next/headers";
 import { callApi } from "./api";
 import { SESSION_COOKIE_NAME } from "@/lib/constants";
 import LogError from "@/lib/log-error";
+import type {
+  PreAssessmentBand,
+  PreAssessmentBaselineBandCount,
+  PreAssessmentBaselineCluster,
+} from "./pre-assessment";
 
 // ---------- Organization dashboard ----------
 
@@ -156,30 +161,31 @@ export type OrganizationLeaderboard = {
   list: OrganizationLeaderboardRow[];
 };
 
-export type PreAssessmentPillar = { key: string; score: number };
-
 export type PreAssessmentDepartment = {
   id: number;
   name: string;
   member_count: number;
-  completed_count: number;
+  submitted_count: number;
+  scored_count: number;
   completion_percent: number;
-  pillars: PreAssessmentPillar[];
-  avg: number;
+  meets_target_count: number;
+  avg: number | null;
+  clusters: PreAssessmentBaselineCluster[];
+  bands: PreAssessmentBaselineBandCount[];
 };
 
 export type PreAssessmentOrganization = {
   department_count: number;
   total_members: number;
-  completed_count: number;
+  submitted_count: number;
+  scored_count: number;
   measured_at: string | null;
-  target: number;
-  org_avg: number;
-  ready_count: number;
-  gap_large_count: number;
+  target_band: PreAssessmentBand;
+  meets_target_count: number;
+  org_avg: number | null;
+  org_clusters: PreAssessmentBaselineCluster[];
+  bands: PreAssessmentBaselineBandCount[];
   departments: PreAssessmentDepartment[];
-  org_pillars: PreAssessmentPillar[];
-  readiness: { ready: number; developing: number; basic: number };
 };
 
 // ---------- Department detail ----------

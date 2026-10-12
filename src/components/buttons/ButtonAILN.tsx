@@ -81,12 +81,12 @@ const ButtonAILN = forwardRef<HTMLButtonElement, ButtonAILNProps>(
     };
 
     const sizeClasses: Record<SizeType, string> = {
-      large: "py-3 px-7 h-[52px] text-lg rounded-xl",
+      large: "py-3 px-7 h-[52px] text-lg rounded-lg",
       default: "py-2 px-4 h-10 text-sm rounded-lg",
-      medium: "py-1.5 px-3 h-9 text-sm rounded-md",
-      small: "py-1 px-2 h-8 text-xs rounded-md",
-      icon: "size-9 rounded-md",
-      mediumIcon: "size-7 rounded-md",
+      medium: "py-1.5 px-3 h-9 text-sm rounded-lg",
+      small: "py-1 px-2 h-8 text-xs rounded-lg",
+      icon: "size-9 rounded-lg",
+      mediumIcon: "size-7 rounded-lg",
       largeRounded: "py-3 px-7 h-[52px] text-lg rounded-full",
       defaultRounded: "py-2 px-4 h-10 text-sm rounded-full",
       mediumRounded: "py-1.5 px-3 h-9 text-sm rounded-full",

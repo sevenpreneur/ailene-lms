@@ -74,7 +74,7 @@ export default function VideoDetailsAILN({ video }: VideoDetailsAILNProps) {
           </div>
         </div>
 
-        <div className="flex flex-col items-center gap-4 rounded-xl border border-dashboard-border bg-card-1 px-4 py-16 text-center dark:shadow-[0_0_18px_rgba(26,122,82,0.08)]">
+        <div className="flex flex-col items-center gap-4 rounded-lg border border-dashboard-border bg-card-1 px-4 py-16 text-center dark:shadow-[0_0_18px_rgba(26,122,82,0.08)]">
           <FontAwesomeIcon
             icon={faCirclePlay}
             className="h-12 w-12 text-claude dark:text-lime-bright"

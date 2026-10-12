@@ -134,7 +134,7 @@ export default function AssignFormChampionAILN({
               <button
                 type="button"
                 onClick={() => setMode("INDIVIDUAL")}
-                className={`rounded-md border px-3 py-2 text-sm font-medium transition ${
+                className={`rounded-lg border px-3 py-2 text-sm font-medium transition ${
                   mode === "INDIVIDUAL"
                     ? "border-claude bg-hijau-t text-claude dark:bg-claude/10 dark:text-lime-bright"
                     : "border-dashboard-border text-gray-600 hover:border-gray-400 dark:text-gray-300"
@@ -145,7 +145,7 @@ export default function AssignFormChampionAILN({
               <button
                 type="button"
                 onClick={() => setMode("BULK")}
-                className={`rounded-md border px-3 py-2 text-sm font-medium transition ${
+                className={`rounded-lg border px-3 py-2 text-sm font-medium transition ${
                   mode === "BULK"
                     ? "border-claude bg-hijau-t text-claude dark:bg-claude/10 dark:text-lime-bright"
                     : "border-dashboard-border text-gray-600 hover:border-gray-400 dark:text-gray-300"
@@ -165,13 +165,13 @@ export default function AssignFormChampionAILN({
               {members.length === 0 ? (
                 <div className="text-sm text-gray-500">Belum ada anggota.</div>
               ) : (
-                <div className="flex max-h-64 flex-col gap-1 overflow-y-auto rounded-md border border-dashboard-border p-2">
+                <div className="flex max-h-64 flex-col gap-1 overflow-y-auto rounded-lg border border-dashboard-border p-2">
                   {members.map((m) => {
                     const checked = selectedMemberIds.includes(m.access_id);
                     return (
                       <label
                         key={m.access_id}
-                        className={`flex cursor-pointer items-center gap-2 rounded px-2 py-1.5 text-sm transition ${
+                        className={`flex cursor-pointer items-center gap-2 rounded-lg px-2 py-1.5 text-sm transition ${
                           checked
                             ? "bg-hijau-t dark:bg-claude/10"
                             : "hover:bg-gray-50 dark:hover:bg-white/5"
@@ -205,13 +205,13 @@ export default function AssignFormChampionAILN({
               {groups.length === 0 ? (
                 <div className="text-sm text-gray-500">Belum ada grup.</div>
               ) : (
-                <div className="flex flex-col gap-1 rounded-md border border-dashboard-border p-2">
+                <div className="flex flex-col gap-1 rounded-lg border border-dashboard-border p-2">
                   {groups.map((g) => {
                     const checked = selectedGroupIds.includes(g.id);
                     return (
                       <label
                         key={g.id}
-                        className={`flex cursor-pointer items-center gap-2 rounded px-2 py-1.5 text-sm transition ${
+                        className={`flex cursor-pointer items-center gap-2 rounded-lg px-2 py-1.5 text-sm transition ${
                           checked
                             ? "bg-hijau-t dark:bg-claude/10"
                             : "hover:bg-gray-50 dark:hover:bg-white/5"

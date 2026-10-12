@@ -129,7 +129,7 @@ export default function SelectAILN({
       )}
 
       <div
-        className={`select-container relative flex w-full p-2 font-medium text-sm rounded-md transform transition-all ${styles.border} ${
+        className={`select-container relative flex w-full p-2 font-medium text-sm rounded-lg transform transition-all ${styles.border} ${
           isOpen ? styles.focus : ""
         } ${
           disabled
@@ -174,7 +174,7 @@ export default function SelectAILN({
 
         {isOpen && !disabled && (
           <div
-            className={`dropdown-container absolute top-full mt-2 left-0 w-full z-30 rounded-md shadow-md overflow-hidden ${styles.dropdown}`}
+            className={`dropdown-container absolute top-full mt-2 left-0 w-full z-30 rounded-lg shadow-md overflow-hidden ${styles.dropdown}`}
           >
             <ul
               className={`dropdown-options flex flex-col text-sm font-medium max-h-60 overflow-auto`}

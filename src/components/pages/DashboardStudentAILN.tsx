@@ -66,7 +66,7 @@ export default function DashboardStudentAILN({
             ) : (
               <span className="inline-flex items-center gap-2">
                 Halo,
-                <span className="inline-block h-5 w-28 animate-pulse rounded bg-gray-200 dark:bg-dashboard-border" />
+                <span className="inline-block h-5 w-28 animate-pulse rounded-lg bg-gray-200 dark:bg-dashboard-border" />
               </span>
             )}
           </h1>

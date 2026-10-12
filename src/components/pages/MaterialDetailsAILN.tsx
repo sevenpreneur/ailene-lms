@@ -203,7 +203,7 @@ export default function MaterialDetailsAILN({
           {/* Main content */}
           <div className="flex flex-col gap-6 min-w-0">
             {fileUrl && (
-              <div className="overflow-hidden rounded-xl border border-dashboard-border bg-white dark:bg-card-1 dark:shadow-[0_0_18px_rgba(26,122,82,0.08)]">
+              <div className="overflow-hidden rounded-lg border border-dashboard-border bg-white dark:bg-card-1 dark:shadow-[0_0_18px_rgba(26,122,82,0.08)]">
                 <div className="flex items-center justify-between gap-3 border-b border-dashboard-border px-4 py-3">
                   <div className="flex items-center gap-2 text-sm font-medium text-sevenpreneur-coal dark:text-white">
                     <FontAwesomeIcon
@@ -260,7 +260,7 @@ export default function MaterialDetailsAILN({
               />
             ) : (
               !fileUrl && (
-                <div className="rounded-xl border border-dashed border-dashboard-border bg-white px-4 py-8 text-center text-sm text-gray-500 dark:bg-card-1 dark:text-gray-400">
+                <div className="rounded-lg border border-dashed border-dashboard-border bg-white px-4 py-8 text-center text-sm text-gray-500 dark:bg-card-1 dark:text-gray-400">
                   Materi ini belum memiliki konten artikel.
                 </div>
               )
@@ -281,7 +281,7 @@ export default function MaterialDetailsAILN({
                         key={entry.id}
                         href={`#${entry.id}`}
                         className={[
-                          "block rounded-md px-2.5 py-1.5 text-sm leading-relaxed transition-colors",
+                          "block rounded-lg px-2.5 py-1.5 text-sm leading-relaxed transition-colors",
                           entry.level === 1
                             ? "font-medium"
                             : entry.level === 2
@@ -308,7 +308,7 @@ export default function MaterialDetailsAILN({
                       m.locked ? (
                         <div
                           key={m.id}
-                          className="flex items-start gap-2 rounded-md px-2 py-2 opacity-60"
+                          className="flex items-start gap-2 rounded-lg px-2 py-2 opacity-60"
                         >
                           <span className="w-7 shrink-0 text-xs text-gray-400 dark:text-gray-500">
                             {levelNumber}.{m.index}
@@ -326,7 +326,7 @@ export default function MaterialDetailsAILN({
                         <Link
                           key={m.id}
                           href={`/${projectId}/student/materials/${m.id}`}
-                          className="flex items-start gap-2 rounded-md px-2 py-2 transition-colors hover:bg-gray-50 dark:hover:bg-card-2"
+                          className="flex items-start gap-2 rounded-lg px-2 py-2 transition-colors hover:bg-gray-50 dark:hover:bg-card-2"
                         >
                           <span className="w-7 shrink-0 text-xs text-gray-400 dark:text-gray-500">
                             {levelNumber}.{m.index}
@@ -356,7 +356,7 @@ export default function MaterialDetailsAILN({
               )}
 
               {updatedAt && (
-                <div className="rounded-xl border border-dashboard-border bg-white p-4 dark:bg-card-1 dark:shadow-[0_0_18px_rgba(26,122,82,0.08)]">
+                <div className="rounded-lg border border-dashboard-border bg-white p-4 dark:bg-card-1 dark:shadow-[0_0_18px_rgba(26,122,82,0.08)]">
                   <div className="mb-2 text-sm font-medium text-sevenpreneur-coal dark:text-white">
                     Di halaman ini
                   </div>
@@ -379,7 +379,7 @@ export default function MaterialDetailsAILN({
             {prevMaterial ? (
               <Link
                 href={`/${projectId}/student/materials/${prevMaterial.id}`}
-                className="group flex w-[35%] items-center gap-3 rounded-xl border border-dashboard-border bg-white p-3 transition-colors hover:border-black/30 hover:bg-black/[0.02] dark:bg-card-1 dark:hover:border-white/30 dark:hover:bg-white/10"
+                className="group flex w-[35%] items-center gap-3 rounded-lg border border-dashboard-border bg-white p-3 transition-colors hover:border-black/30 hover:bg-black/[0.02] dark:bg-card-1 dark:hover:border-white/30 dark:hover:bg-white/10"
               >
                 <FontAwesomeIcon
                   icon={faChevronLeft}
@@ -399,7 +399,7 @@ export default function MaterialDetailsAILN({
             )}
             {nextMaterial ? (
               nextMaterial.locked ? (
-                <span className="flex w-[35%] items-center justify-end gap-3 rounded-xl border border-dashboard-border bg-white p-3 text-right opacity-60 dark:bg-card-1">
+                <span className="flex w-[35%] items-center justify-end gap-3 rounded-lg border border-dashboard-border bg-white p-3 text-right opacity-60 dark:bg-card-1">
                   <span className="flex min-w-0 flex-col items-end">
                     <span className="text-[11px] uppercase tracking-wide text-gray-400 dark:text-gray-500">
                       Materi Selanjutnya
@@ -417,7 +417,7 @@ export default function MaterialDetailsAILN({
               ) : (
                 <Link
                   href={`/${projectId}/student/materials/${nextMaterial.id}`}
-                  className="group flex w-[35%] items-center justify-end gap-3 rounded-xl border border-dashboard-border bg-white p-3 text-right transition-colors hover:border-black/30 hover:bg-black/[0.02] dark:bg-card-1 dark:hover:border-white/30 dark:hover:bg-white/10"
+                  className="group flex w-[35%] items-center justify-end gap-3 rounded-lg border border-dashboard-border bg-white p-3 text-right transition-colors hover:border-black/30 hover:bg-black/[0.02] dark:bg-card-1 dark:hover:border-white/30 dark:hover:bg-white/10"
                 >
                   <span className="flex min-w-0 flex-col items-end">
                     <span className="text-[11px] uppercase tracking-wide text-gray-400 dark:text-gray-500">

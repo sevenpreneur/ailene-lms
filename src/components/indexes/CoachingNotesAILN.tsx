@@ -60,7 +60,7 @@ function CoachingNoteCard({ note }: { note: CoachingNote }) {
           <span className="text-sm font-medium text-foreground dark:text-white">
             {champion.name}
           </span>
-          <span className="rounded-md border border-hijau-t bg-hijau-t px-1.5 py-0.5 text-[10px] font-medium uppercase tracking-wide text-claude dark:border-claude/30 dark:bg-claude/10 dark:text-lime-bright">
+          <span className="rounded-lg border border-hijau-t bg-hijau-t px-1.5 py-0.5 text-[10px] font-medium uppercase tracking-wide text-claude dark:border-claude/30 dark:bg-claude/10 dark:text-lime-bright">
             Champion
           </span>
           <span className="text-xs text-muted-foreground">

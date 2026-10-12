@@ -73,7 +73,7 @@ function LegendLine({ color, label }: { color: string; label: string }) {
 function TrendChart({ data }: { data: ProficiencyWeek[] }) {
   if (data.length === 0) {
     return (
-      <div className="flex h-64 items-center justify-center rounded-md bg-muted text-sm text-muted-foreground">
+      <div className="flex h-64 items-center justify-center rounded-lg bg-muted text-sm text-muted-foreground">
         Belum ada data penguasaan.
       </div>
     );

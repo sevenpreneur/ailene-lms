@@ -26,7 +26,7 @@ export default function GroupLevelDistributionAILN({
   return (
     <div className="grid grid-cols-1 gap-5 xl:grid-cols-[minmax(0,1fr)_minmax(18rem,0.45fr)]">
       <div className="flex flex-col gap-4">
-        <div className="flex h-5 overflow-hidden rounded-sm bg-gray-100 dark:bg-dashboard-border">
+        <div className="flex h-5 overflow-hidden rounded-lg bg-gray-100 dark:bg-dashboard-border">
           {levels.map((level, index) => (
             <div
               key={level.id}
@@ -46,7 +46,7 @@ export default function GroupLevelDistributionAILN({
           {levels.map((level, index) => (
             <div key={level.id} className="flex items-start gap-2">
               <span
-                className="mt-1 inline-block size-2.5 shrink-0 rounded-sm"
+                className="mt-1 inline-block size-2.5 shrink-0 rounded-lg"
                 style={{ backgroundColor: levelColor(index) }}
               />
               <div className="min-w-0">

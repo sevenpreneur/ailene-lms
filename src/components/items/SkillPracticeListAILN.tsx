@@ -44,7 +44,7 @@ export default function SkillPracticeListAILN(
       </div>
 
       <div
-        className={`rounded-xl bg-card-1 border border-dashboard-border ${
+        className={`rounded-lg bg-card-1 border border-dashboard-border ${
           !props.unlocked ? "opacity-60 dark:opacity-50" : ""
         }`}
       >

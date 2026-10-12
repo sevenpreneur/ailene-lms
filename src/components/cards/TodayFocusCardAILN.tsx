@@ -167,7 +167,7 @@ export default function TodayFocusCardAILN({
         </div>
 
         {/* Kanan — detail tugas */}
-        <aside className="h-fit rounded-xl border border-hijau-t bg-white/70 p-4 dark:border-claude/20 dark:bg-card-1/60">
+        <aside className="h-fit rounded-lg border border-hijau-t bg-white/70 p-4 dark:border-claude/20 dark:bg-card-1/60">
           <div className="mono text-[10px] font-medium uppercase tracking-widest text-gray-400 dark:text-gray-500">
             Detail Tugas
           </div>

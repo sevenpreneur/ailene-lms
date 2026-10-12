@@ -9,7 +9,7 @@ export function HomeRecommendedCourseCardAILN({
   course: ExploreCourseMock & { vendor: ExploreVendorMock | undefined };
 }) {
   return (
-    <div className="rounded-xl border border-dashboard-border p-3">
+    <div className="rounded-lg border border-dashboard-border p-3">
       <div className="relative h-32 w-full overflow-hidden rounded-lg bg-dashboard-bg">
         <Image
           src={course.image}
@@ -18,7 +18,7 @@ export function HomeRecommendedCourseCardAILN({
           unoptimized
           className="object-cover"
         />
-        <div className="absolute left-2 top-2 flex items-center gap-1.5 rounded-md bg-black/50 px-2 py-1 text-[11px] font-medium text-white backdrop-blur-sm">
+        <div className="absolute left-2 top-2 flex items-center gap-1.5 rounded-lg bg-black/50 px-2 py-1 text-[11px] font-medium text-white backdrop-blur-sm">
           <Layers size={12} />
           {course.level}
           <span className="opacity-60">|</span>

@@ -165,7 +165,7 @@ export default function MemberDetailPanelChampionAILN({
             {notes.map((note) => (
               <div
                 key={note.id}
-                className="rounded-md border border-hijau-t bg-hijau-t px-3 py-2 text-sm dark:border-claude/30 dark:bg-claude/10"
+                className="rounded-lg border border-hijau-t bg-hijau-t px-3 py-2 text-sm dark:border-claude/30 dark:bg-claude/10"
               >
                 <p className="text-gray-800 dark:text-gray-200">{note.text}</p>
                 <p className="mt-1 text-[11px] text-claude/80 dark:text-lime-bright/70">

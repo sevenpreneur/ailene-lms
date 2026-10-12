@@ -74,7 +74,7 @@ export default function OrganizationLeaderboardAILN({
       <select
         value={sortKey}
         onChange={(e) => setSortKey(e.target.value as SortKey)}
-        className="cursor-pointer rounded-md border border-dashboard-border bg-white px-2 py-1 text-xs font-medium text-foreground outline-none dark:bg-card-1"
+        className="cursor-pointer rounded-lg border border-dashboard-border bg-white px-2 py-1 text-xs font-medium text-foreground outline-none dark:bg-card-1"
       >
         {SORT_OPTIONS.map((o) => (
           <option key={o.key} value={o.key}>
@@ -93,7 +93,7 @@ export default function OrganizationLeaderboardAILN({
   return (
     <Section sortControl={sortControl}>
       {list.length === 0 ? (
-        <div className="flex h-40 items-center justify-center rounded-md bg-muted text-sm text-muted-foreground">
+        <div className="flex h-40 items-center justify-center rounded-lg bg-muted text-sm text-muted-foreground">
           Belum ada departemen.
         </div>
       ) : (

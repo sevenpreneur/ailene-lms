@@ -24,7 +24,7 @@ export default function RoiProductivityBannerAILN({
   const monthlyHours = Math.round(weeklyHours * 4 * 10) / 10;
 
   return (
-    <section className="relative overflow-hidden rounded-2xl border border-stakeholder-sponsor/20 bg-gradient-to-br from-stakeholder-sponsor-soft via-white to-sky-50 px-8 py-8 dark:via-card-1 dark:to-blue-950/20">
+    <section className="relative overflow-hidden rounded-lg border border-stakeholder-sponsor/20 bg-gradient-to-br from-stakeholder-sponsor-soft via-white to-sky-50 px-8 py-8 dark:via-card-1 dark:to-blue-950/20">
       <div className="relative z-10 max-w-5xl lg:max-w-[56rem] lg:pr-72">
         <div className="mb-4 text-[11px] font-medium uppercase tracking-[0.35em] text-stakeholder-sponsor">
           ★ Nilai Program · Annualized

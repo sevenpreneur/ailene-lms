@@ -124,7 +124,7 @@ export default function SubmissionItemChampion({ row }: { row: SubmissionRow }) 
       </div>
 
       {/* Body */}
-      <div className="rounded-md bg-card-2 p-3 text-xs text-gray-500 dark:text-gray-400">
+      <div className="rounded-lg bg-card-2 p-3 text-xs text-gray-500 dark:text-gray-400">
         <p className="line-clamp-2">{row.body}</p>
       </div>
 

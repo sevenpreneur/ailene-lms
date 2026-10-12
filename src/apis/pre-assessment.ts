@@ -5,193 +5,146 @@ import { callApi } from "./api";
 import { SESSION_COOKIE_NAME } from "@/lib/constants";
 import LogError from "@/lib/log-error";
 
-// The 19 answer fields per docs/api/pre-assessment.md; only concrete_example is optional.
-export type PreAssessmentAnswers = {
-  ai_use_frequency: string;
-  ai_tools_used: string[];
-  ai_limitations: string[];
-  output_review: string;
-  use_cases: string[];
-  team_adoption: string;
-  concrete_example?: string;
-  model_selection: string;
-  multimodal_use: string;
-  workflow_reuse: string;
-  prompt_comfort: string;
-  prompt_iteration: string;
-  refine_scenario: string;
-  professional_attitude: string;
-  data_safety_check: string;
-  publish_unchecked: string;
-  biggest_challenge: string;
-  training_expectation: string;
-  motivation: string;
+// Shapes follow ailene-lms-api docs/api/pre-assessment.md (the CFTE AIPF item bank).
+export type PreAssessmentSection =
+  | "profile"
+  | "scenario"
+  | "practice"
+  | "behaviour";
+
+export type PreAssessmentItemType = "single_choice" | "text";
+
+export type PreAssessmentAttemptStatus = "submitted" | "scored";
+
+export type PreAssessmentOption = { id: number; text: string };
+
+export type PreAssessmentItem = {
+  id: number;
+  item_code: string;
+  section: PreAssessmentSection;
+  type: PreAssessmentItemType;
+  question: string;
+  options: PreAssessmentOption[];
 };
 
-export type CreatePreAssessmentResult =
-  | { success: true; id: number }
-  | { success: false; code: number; message: string };
-
-// One-shot: a repeat call is rejected with 400, so this returns the failure message instead of null.
-export async function createPreAssessment(
-  projectId: string,
-  answers: PreAssessmentAnswers,
-): Promise<CreatePreAssessmentResult> {
-  const cookieStore = await cookies();
-  const sessionToken = cookieStore.get(SESSION_COOKIE_NAME)?.value;
-
-  if (!sessionToken) {
-    return { success: false, code: 401, message: "Sesi kamu sudah berakhir." };
-  }
-
-  const result = await callApi<{ id: number }>(
-    "/api/v1/pre-assessment/create",
-    {
-      method: "POST",
-      body: { project_id: projectId, ...answers },
-      token: sessionToken,
-    },
-  );
-
-  if (!result.success || !result.data) {
-    await LogError(
-      "createPreAssessment",
-      result.code,
-      result.status,
-      result.message,
-    );
-    return {
-      success: false,
-      code: result.code || 500,
-      message: result.message || "Gagal mengirim pre-assessment.",
-    };
-  }
-
-  return { success: true, id: result.data.id };
-}
-
-export type PreAssessmentPillarRef = { key: string; label: string };
-
-// One AI-generated use-case recommendation, rendered verbatim by PreAssessmentReportAILN.
-export type PreAssessmentRecommendation = {
-  source: string; // the routine/task the user described that this addresses
-  title: string; // the concrete AI use case proposed
-  impact: string; // "Tinggi" | "Sedang" | "Rendah"
-  speed: string; // e.g. "~70% lebih cepat"
-  description: string; // 1-2 sentence actionable explanation
-  lessons: string[]; // referenced curriculum chapter names (verbatim)
+export type PreAssessmentQuestions = {
+  // The item-bank version assigned to the caller's project.
+  version: {
+    id: number;
+    code: string;
+    version: number;
+    name: string;
+    duration_minutes: number;
+  };
+  attempt: {
+    id: number;
+    status: PreAssessmentAttemptStatus;
+    submitted_at: string;
+  } | null;
+  items: PreAssessmentItem[];
 };
 
-// Computed by the backend; `tone` is presentation and is derived from `score` on the client.
-export type PreAssessmentReportSummary = {
-  pillars: { key: string; label: string; score: number }[];
-  avg: number;
-  strongest: PreAssessmentPillarRef;
-  weakest: PreAssessmentPillarRef;
-  quote: string;
+export type PreAssessmentAnswer =
+  | { item_id: number; option_id: number }
+  | { item_id: number; text: string };
+
+export type PreAssessmentBand = { band: number; name: string; level: number };
+
+// Shared by the champion and sponsor baselines; a cluster nobody has a score in is null.
+export type PreAssessmentBaselineCluster = {
+  code: string;
+  name: string;
+  score: number | null;
+};
+
+export type PreAssessmentBaselineBandCount = PreAssessmentBand & {
+  count: number;
 };
 
 export type PreAssessmentScore = {
-  // Every column of the caller's lms_pre_assessments row; null before submit.
-  pre_assessment: Record<string, unknown> | null;
-  report: PreAssessmentReportSummary | null;
+  attempt_id: number;
+  status: PreAssessmentAttemptStatus;
+  submitted_at: string;
+  scored_at: string | null;
+  band: PreAssessmentBand;
+  raw_band: PreAssessmentBand;
+  target_band: PreAssessmentBand;
+  gap: number;
+  meets_target: boolean;
+  dimensions: { knowledge: number; skills: number; behaviours: number };
+  level_mastery: { p1: number; p2: number; p3: number };
+  gates: { security_passed: boolean; behaviour_passed: boolean };
+  flags: { overclaim: boolean; shadow_ai: boolean; sensitive_data: boolean };
+  clusters: { code: string; name: string; score: number }[];
+  domains: { code: string; name: string; cluster_code: string; score: number }[];
+  feedback: { item_code: string; text: string }[];
 };
 
-export type PreAssessmentReportStatus =
-  | "pending"
-  | "processing"
-  | "completed"
-  | "failed";
-
-// Passed through unvalidated by the endpoint, so every field here is optional.
-export type PreAssessmentRecommendationsBlob = {
-  time_saved_label?: string;
-  items?: PreAssessmentRecommendation[];
-};
-
-export type PreAssessmentRecommendationsResult = {
-  status: PreAssessmentReportStatus;
-  recommendations: PreAssessmentRecommendationsBlob | null;
-  error_message: string | null;
-  generated_at: string | null;
-};
-
-// POST /api/v1/pre-assessment/score needs the caller's own session JWT.
-export async function getPreAssessmentScore(
-  projectId: string,
-): Promise<PreAssessmentScore | null> {
-  return preAssessmentCall<PreAssessmentScore>(
-    "getPreAssessmentScore",
-    "/api/v1/pre-assessment/score",
-    projectId,
-  );
-}
-
-// Generated asynchronously, so the caller polls while status is pending/processing.
-export async function getPreAssessmentRecommendations(
-  projectId: string,
-): Promise<PreAssessmentRecommendationsResult | null> {
-  return preAssessmentCall<PreAssessmentRecommendationsResult>(
-    "getPreAssessmentRecommendations",
-    "/api/v1/pre-assessment/recommendations",
-    projectId,
-  );
-}
-
-export type RegenerateRecommendationsResult =
-  | { success: true; data: PreAssessmentRecommendationsResult }
+export type PreAssessmentResult<T> =
+  | { success: true; data: T }
   | { success: false; code: number; message: string };
 
-// Keeps the backend's message so the student learns why a retry was refused.
-export async function regeneratePreAssessmentRecommendations(
+export async function getPreAssessmentQuestions(
   projectId: string,
-): Promise<RegenerateRecommendationsResult> {
+): Promise<PreAssessmentResult<PreAssessmentQuestions>> {
+  return preAssessmentCall<PreAssessmentQuestions>(
+    "getPreAssessmentQuestions",
+    "/api/v1/pre-assessment/questions",
+    { project_id: projectId },
+    "Gagal memuat pertanyaan pre-assessment.",
+  );
+}
+
+// One-shot: a repeat call is rejected with 400, and the backend's message says why. The version comes from the project.
+export async function submitPreAssessment(
+  projectId: string,
+  answers: PreAssessmentAnswer[],
+): Promise<PreAssessmentResult<{ attempt_id: number; status: string }>> {
+  return preAssessmentCall(
+    "submitPreAssessment",
+    "/api/v1/pre-assessment/submit",
+    { project_id: projectId, answers },
+    "Gagal mengirim pre-assessment.",
+  );
+}
+
+// The first call after submit grades the written answers with DeepSeek, so it can take a few seconds or 502.
+export async function getPreAssessmentScore(
+  projectId: string,
+): Promise<PreAssessmentResult<PreAssessmentScore | null>> {
+  return preAssessmentCall<PreAssessmentScore | null>(
+    "getPreAssessmentScore",
+    "/api/v1/pre-assessment/score",
+    { project_id: projectId },
+    "Gagal menghitung hasil pre-assessment.",
+  );
+}
+
+async function preAssessmentCall<T>(
+  name: string,
+  path: string,
+  body: unknown,
+  fallbackMessage: string,
+): Promise<PreAssessmentResult<T>> {
   const cookieStore = await cookies();
   const sessionToken = cookieStore.get(SESSION_COOKIE_NAME)?.value;
   if (!sessionToken) {
     return { success: false, code: 401, message: "Sesi kamu sudah berakhir." };
   }
 
-  const result = await callApi<PreAssessmentRecommendationsResult>(
-    "/api/v1/pre-assessment/recommendations/regenerate",
-    { method: "POST", body: { project_id: projectId }, token: sessionToken },
-  );
-
-  if (!result.success || !result.data) {
-    await LogError(
-      "regeneratePreAssessmentRecommendations",
-      result.code,
-      result.status,
-      result.message,
-    );
-    return {
-      success: false,
-      code: result.code || 502,
-      message: result.message || "Gagal membuat ulang rekomendasi.",
-    };
-  }
-  return { success: true, data: result.data };
-}
-
-// Both read endpoints take the same { project_id } body and session JWT.
-async function preAssessmentCall<T>(
-  name: string,
-  path: string,
-  projectId: string,
-): Promise<T | null> {
-  const cookieStore = await cookies();
-  const sessionToken = cookieStore.get(SESSION_COOKIE_NAME)?.value;
-  if (!sessionToken) return null;
-
   const result = await callApi<T>(path, {
     method: "POST",
-    body: { project_id: projectId },
+    body,
     token: sessionToken,
   });
 
   if (!result.success) {
     await LogError(name, result.code, result.status, result.message);
-    return null;
+    return {
+      success: false,
+      code: result.code || 500,
+      message: result.message || fallbackMessage,
+    };
   }
-  return result.data ?? null;
+  return { success: true, data: (result.data ?? null) as T };
 }

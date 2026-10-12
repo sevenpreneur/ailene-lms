@@ -105,7 +105,7 @@ export default function ChampionCoachingAlertAILN(props: {
   const hasAlerts = alerts.length > 0;
 
   return (
-    <section className="flex flex-col gap-4 rounded-xl border border-amber-200 bg-amber-50/70 p-4 dark:border-amber-500/25 dark:bg-amber-500/5">
+    <section className="flex flex-col gap-4 rounded-lg border border-amber-200 bg-amber-50/70 p-4 dark:border-amber-500/25 dark:bg-amber-500/5">
       {/* Header */}
       <div className="flex items-start gap-2.5">
         <div className="flex size-8 shrink-0 items-center justify-center rounded-full bg-amber-100 text-amber-600 dark:bg-amber-500/15 dark:text-amber-300">

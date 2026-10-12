@@ -1,86 +1,54 @@
 "use client";
 import SectionContainerAILN from "@/components/cards/SectionContainerAILN";
+import ClusterScoreChipAILN from "@/components/labels/ClusterScoreChipAILN";
 import { EmptyHintAILN } from "@/components/states/DataStatesAILN";
 import { formatInt, formatScore } from "@/lib/format";
 import type { PreAssessmentOrganization } from "@/apis/sponsor";
 
-// Pillar keys → table header (short) labels; keys mirror the API's pillar keys.
-const PILLAR_SHORT: Record<string, string> = {
-  ai_foundation: "AI Foundation",
-  prompting: "Prompting",
-  tool_fluency: "Tool Fluency",
-  use_case_diversity: "Use Case",
-  ai_habit: "AI Habit",
-  agentic: "Agentic",
-};
-const PILLAR_ORDER = [
-  "ai_foundation",
-  "prompting",
-  "tool_fluency",
-  "use_case_diversity",
-  "ai_habit",
-  "agentic",
-];
-const orderIndex = (key: string) => PILLAR_ORDER.indexOf(key);
-
-// Org competency baseline matrix: one row per department, six pillar chips + average + completion.
-const EMPTY_ORG_PRE_ASSESSMENT: PreAssessmentOrganization = {
-  department_count: 0,
-  total_members: 0,
-  completed_count: 0,
-  measured_at: null,
-  target: 0,
-  org_avg: 0,
-  ready_count: 0,
-  gap_large_count: 0,
-  departments: [],
-  org_pillars: [],
-  readiness: { ready: 0, developing: 0, basic: 0 },
-};
-
+// Department baseline matrix: cluster averages 0-100 over scored members, weakest department first.
 export default function BaselineByDepartmentAILN({
-  data: payload,
+  data,
 }: {
   data: PreAssessmentOrganization | null;
 }) {
-  const data = payload ?? EMPTY_ORG_PRE_ASSESSMENT;
+  const departments = data?.departments ?? [];
+  const columns = departments[0]?.clusters ?? [];
 
   return (
     <SectionContainerAILN
-      title="Baseline per Departemen (6 pillar)"
-      desc={`${formatInt(data.department_count)} departemen · ${formatInt(
-        data.total_members
-      )} karyawan · skor baseline per pillar (skala 1–5)`}
+      title="Baseline per Departemen"
+      desc={
+        data
+          ? `${formatInt(data.department_count)} departemen · ${formatInt(
+              data.submitted_count,
+            )} dari ${formatInt(data.total_members)} karyawan sudah mengisi · skor per area (0–100)`
+          : "Skor per area (0–100)"
+      }
       contentClassName="flex flex-col gap-5"
     >
-      {data.departments.length === 0 ? (
+      {!data || departments.length === 0 ? (
         <EmptyHintAILN className="h-48">
-          Belum ada departemen yang menyelesaikan pre-assessment.
+          Belum ada departemen dengan anggota.
         </EmptyHintAILN>
       ) : (
         <>
           <div className="overflow-x-auto">
-            <table className="w-full min-w-[760px] border-collapse text-sm">
+            <table className="w-full min-w-[820px] border-collapse text-sm">
               <thead>
                 <tr className="border-b border-dashboard-border text-[11px] font-medium uppercase tracking-wider text-gray-500 dark:text-gray-400">
-                  <th className="py-2 pr-3 text-left font-medium">Departemen</th>
-                  {data.org_pillars
-                    .slice()
-                    .sort((a, b) => orderIndex(a.key) - orderIndex(b.key))
-                    .map((p) => (
-                      <th
-                        key={p.key}
-                        className="px-2 py-2 text-center font-medium"
-                      >
-                        {PILLAR_SHORT[p.key]}
-                      </th>
-                    ))}
-                  <th className="px-2 py-2 text-center font-medium">Avg</th>
-                  <th className="py-2 pl-2 text-right font-medium">Selesai</th>
+                  <th className="py-2 pr-3 text-left">Departemen</th>
+                  {columns.map((c) => (
+                    <th key={c.code} className="px-2 py-2 text-center">
+                      {c.name}
+                    </th>
+                  ))}
+                  <th className="px-2 py-2 text-center">Avg</th>
+                  <th className="px-2 py-2 text-center">Capai target</th>
+                  <th className="py-2 pl-2 text-right">Mengisi</th>
                 </tr>
               </thead>
               <tbody>
-                {data.departments.map((dept) => (
+                {departments.map((dept) => (
                   <tr
                     key={dept.id}
                     className="border-b border-dashboard-border/60 last:border-b-0"
@@ -93,23 +61,18 @@ export default function BaselineByDepartmentAILN({
                         {formatInt(dept.member_count)}
                       </span>
                     </td>
-                    {dept.pillars.map((p) => (
-                      <td key={p.key} className="px-2 py-2.5 text-center">
-                        <PillarCell score={p.score} />
+                    {dept.clusters.map((c) => (
+                      <td key={c.code} className="px-2 py-2.5 text-center">
+                        <ClusterScoreChipAILN score={c.score} />
                       </td>
                     ))}
-                    <td className="px-2 py-2.5 text-center">
-                      <span
-                        className={`font-medium tabular-nums ${
-                          dept.avg >= 2.5
-                            ? "text-emerald-700 dark:text-emerald-300"
-                            : dept.avg < 2.0
-                              ? "text-amber-700 dark:text-amber-300"
-                              : "text-foreground"
-                        }`}
-                      >
-                        {formatScore(dept.avg)}
-                      </span>
+                    <td className="px-2 py-2.5 text-center font-medium tabular-nums text-foreground">
+                      {dept.avg === null ? "–" : formatScore(dept.avg)}
+                    </td>
+                    <td className="px-2 py-2.5 text-center text-xs tabular-nums text-gray-600 dark:text-gray-300">
+                      {dept.scored_count === 0
+                        ? "–"
+                        : `${formatInt(dept.meets_target_count)}/${formatInt(dept.scored_count)}`}
                     </td>
                     <td className="py-2.5 pl-2">
                       <CompletionBar percent={dept.completion_percent} />
@@ -123,40 +86,24 @@ export default function BaselineByDepartmentAILN({
           {/* Headline stats */}
           <div className="grid grid-cols-3 gap-3 border-t border-dashboard-border pt-4 text-center">
             <Stat
-              value={formatScore(data.org_avg)}
-              label="Avg baseline org"
+              value={data.org_avg === null ? "–" : formatScore(data.org_avg)}
+              label="Avg skor organisasi (0–100)"
               tone="neutral"
             />
             <Stat
-              value={formatInt(data.gap_large_count)}
-              label="Departemen gap besar (<2,0)"
+              value={formatInt(data.scored_count - data.meets_target_count)}
+              label={`Karyawan di bawah target (band ${data.target_band.band})`}
               tone="warn"
             />
             <Stat
-              value={formatInt(data.ready_count)}
-              label="Departemen siap (≥2,5)"
+              value={formatInt(data.meets_target_count)}
+              label="Karyawan capai target"
               tone="good"
             />
           </div>
         </>
       )}
     </SectionContainerAILN>
-  );
-}
-
-// One score chip; green once it clears the 3.2 maturity threshold, amber below.
-function PillarCell({ score }: { score: number }) {
-  const green = score >= 3.2;
-  return (
-    <span
-      className={`inline-flex size-8 items-center justify-center rounded-md text-sm font-medium tabular-nums ${
-        green
-          ? "bg-emerald-200 text-emerald-800 dark:bg-emerald-400/25 dark:text-emerald-200"
-          : "bg-amber-200 text-amber-800 dark:bg-amber-400/25 dark:text-amber-200"
-      }`}
-    >
-      {formatScore(score)}
-    </span>
   );
 }
 

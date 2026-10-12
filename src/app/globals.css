@@ -49,21 +49,14 @@
   --card-1: #ffffff;
   --card-2: #f8faf7;
   --dashboard-border: #dde6d8;
-  /* Sidebar chrome is dark forest in light mode (matches ailene-os); dark mode swaps it to neutral. */
-  --sb-bg: #062319;
-  --sb-border: #0f4a34;
-  --sb-border-soft: #0c3b29;
-  --sb-text: #a9c2b3;
-  --sb-text-strong: #f4faf1;
-  --sb-item-hover: #103d2d;
-  --sb-item-active-bg: #103d2d;
-  --sb-item-active-text: #d6ee30;
-  --sb-glow: rgba(214, 238, 48, 0.18);
-  --sb-glow-soft: rgba(214, 238, 48, 0.1);
-  --sb-chip-bg: rgba(255, 255, 255, 0.1);
-  --sb-chip-border: rgba(255, 255, 255, 0.2);
-  --sb-chip-text: #ffffff;
-  --sb-logo-frame: rgba(255, 255, 255, 0.05);
+  /* Quiet neutral sidebar (Linear-style): only the active item's icon carries the brand green. */
+  --sb-bg: #f8f8f7;
+  --sb-border: #ebebea;
+  --sb-text: #5f5f5c;
+  --sb-text-strong: #18181b;
+  --sb-item-hover: rgba(0, 0, 0, 0.04);
+  --sb-item-active-bg: rgba(0, 0, 0, 0.06);
+  --sb-item-active-text: var(--claude);
 
   /* Ailene sponsor chart palette — explicit level categories. */
   --ailn-level-0: #e2e8f0; /* L0 Awareness */
@@ -134,13 +127,12 @@
   --card-2: #1a1a1a;
   --dashboard-border: #262626;
   --sb-bg: #0f0f0f;
-  --sb-border: #262626;
-  --sb-border-soft: #1f1f1f;
-  --sb-text: #a3a3a3;
-  --sb-text-strong: #f5f5f5;
-  --sb-item-hover: #1f1f1f;
-  --sb-item-active-bg: #1f1f1f;
-  --sb-item-active-text: #d6ee30;
+  --sb-border: #1f1f1f;
+  --sb-text: #a1a1aa;
+  --sb-text-strong: #fafafa;
+  --sb-item-hover: rgba(255, 255, 255, 0.05);
+  --sb-item-active-bg: rgba(255, 255, 255, 0.08);
+  --sb-item-active-text: var(--lime-bright);
   --color-destructive-muted: var(--color-sevenpreneur-red-midnight);
 
   /* --- Default Shadcn ---*/
@@ -192,35 +184,6 @@
   --state-info-foreground: oklch(0.82 0.1 252);
 }
 
-/* The champion sidebar sits on the root LMS page surface instead of forest. */
-.sidebar-champion {
-  --sb-bg: var(--dashboard-bg);
-  --sb-border: var(--dashboard-border);
-  --sb-border-soft: var(--dashboard-border);
-  --sb-text: #4b6357;
-  --sb-text-strong: var(--foreground);
-  --sb-item-hover: var(--hijau-t);
-  --sb-item-active-bg: var(--hijau-t);
-  --sb-item-active-text: var(--claude);
-  --sb-glow: rgba(26, 122, 82, 0.14);
-  --sb-glow-soft: rgba(26, 122, 82, 0.07);
-  --sb-chip-bg: var(--card-1);
-  --sb-chip-border: var(--dashboard-border);
-  --sb-chip-text: var(--foreground);
-  --sb-logo-frame: var(--card-1);
-}
-
-.dark .sidebar-champion {
-  --sb-text: #a3a3a3;
-  --sb-item-hover: #1f1f1f;
-  --sb-item-active-bg: #1f1f1f;
-  --sb-item-active-text: var(--lime-bright);
-  --sb-glow: rgba(214, 238, 48, 0.18);
-  --sb-glow-soft: rgba(214, 238, 48, 0.1);
-  --sb-chip-bg: rgba(255, 255, 255, 0.06);
-  --sb-logo-frame: rgba(255, 255, 255, 0.05);
-}
-
 @theme inline {
   /* --- Default Shadcn --- */
 
@@ -251,18 +214,11 @@
   /* --- sidebar --- */
   --color-sb-bg: var(--sb-bg);
   --color-sb-border: var(--sb-border);
-  --color-sb-border-soft: var(--sb-border-soft);
   --color-sb-text: var(--sb-text);
   --color-sb-text-strong: var(--sb-text-strong);
   --color-sb-item-hover: var(--sb-item-hover);
   --color-sb-item-active-bg: var(--sb-item-active-bg);
   --color-sb-item-active-text: var(--sb-item-active-text);
-  --color-sb-glow: var(--sb-glow);
-  --color-sb-glow-soft: var(--sb-glow-soft);
-  --color-sb-chip-bg: var(--sb-chip-bg);
-  --color-sb-chip-border: var(--sb-chip-border);
-  --color-sb-chip-text: var(--sb-chip-text);
-  --color-sb-logo-frame: var(--sb-logo-frame);
   /* --- brand accent --- */
   --color-claude: var(--claude);
   --color-lime-bright: var(--lime-bright);
@@ -362,33 +318,12 @@
   }
 }
 
-/* Sidebar mode-badge dot — same expanding-ring pulse, color set per role via --pulse-color. */
-@keyframes ailn-dot-pulse {
-  0% {
-    box-shadow: 0 0 0 0 var(--pulse-color, rgba(214, 238, 48, 0.55));
-  }
-  70% {
-    box-shadow: 0 0 0 6px rgba(0, 0, 0, 0);
-  }
-  100% {
-    box-shadow: 0 0 0 0 rgba(0, 0, 0, 0);
-  }
-}
-.ailn-dot-pulse {
-  animation: ailn-dot-pulse 1.8s ease-out infinite;
-}
-@media (prefers-reduced-motion: reduce) {
-  .ailn-dot-pulse {
-    animation: none;
-  }
-}
-
 /* --- Card surface --- */
 @layer base {
   /* Flat dashboard surface — no shadow in either mode. Dark mode keeps a
      hairline border to separate the card from the background. */
   .ailn-card {
-    border-radius: var(--radius-xl);
+    border-radius: var(--radius);
     background-color: var(--card-1);
   }
   .dark .ailn-card {

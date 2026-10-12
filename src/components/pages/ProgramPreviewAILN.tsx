@@ -27,7 +27,7 @@ function formatTime(totalSeconds: number) {
 
 function Section({ title, children }: { title: string; children: ReactNode }) {
   return (
-    <section className="flex flex-col gap-3 rounded-2xl border border-dashboard-border bg-card-1 p-6">
+    <section className="flex flex-col gap-3 rounded-lg border border-dashboard-border bg-card-1 p-6">
       <h2 className="text-lg font-medium text-foreground">{title}</h2>
       {children}
     </section>
@@ -68,7 +68,7 @@ function SessionMedia({ program }: { program: ProgramPreviewMock }) {
 
   return (
     <div className="flex flex-col gap-5">
-      <section className="flex flex-col gap-4 rounded-2xl border border-dashboard-border bg-card-1 p-6">
+      <section className="flex flex-col gap-4 rounded-lg border border-dashboard-border bg-card-1 p-6">
         <div>
           <h2 className="text-lg font-medium text-foreground">
             Video sesi
@@ -78,7 +78,7 @@ function SessionMedia({ program }: { program: ProgramPreviewMock }) {
           </p>
         </div>
 
-        <div className="relative aspect-video w-full overflow-hidden rounded-xl bg-black">
+        <div className="relative aspect-video w-full overflow-hidden rounded-lg bg-black">
           <iframe
             className="h-full w-full"
             src={`https://www.youtube.com/embed/${program.videoId}`}
@@ -109,7 +109,7 @@ function SessionMedia({ program }: { program: ProgramPreviewMock }) {
         </div>
       </section>
 
-      <section className="rounded-2xl border border-dashboard-border bg-card-1 p-6">
+      <section className="rounded-lg border border-dashboard-border bg-card-1 p-6">
         <div className="mb-4 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
           <h2 className="text-lg font-medium text-foreground">Transcript</h2>
           <div className="relative">
@@ -149,7 +149,7 @@ function SessionMedia({ program }: { program: ProgramPreviewMock }) {
                 type="button"
                 aria-label="Salin link timestamp"
                 onClick={() => copyTimestampLink(line.time, line.id)}
-                className="flex h-7 w-7 shrink-0 items-center justify-center rounded-md text-muted-foreground opacity-0 transition-opacity hover:bg-dashboard-border/60 hover:text-foreground group-hover/row:opacity-100"
+                className="flex h-7 w-7 shrink-0 items-center justify-center rounded-lg text-muted-foreground opacity-0 transition-opacity hover:bg-dashboard-border/60 hover:text-foreground group-hover/row:opacity-100"
               >
                 {copiedId === line.id ? (
                   <Check size={15} className="text-claude dark:text-lime-bright" />
@@ -276,7 +276,7 @@ export default function ProgramPreviewAILN({
             <div className="flex min-w-0 flex-col gap-5 lg:sticky lg:top-6">
               <AIWorkspacePanelAILN firstName={firstName} />
 
-              <div className="rounded-2xl border border-dashboard-border bg-card-1 p-5">
+              <div className="rounded-lg border border-dashboard-border bg-card-1 p-5">
                 <h2 className="mb-1 text-sm font-medium text-foreground">
                   Materi lainnya
                 </h2>

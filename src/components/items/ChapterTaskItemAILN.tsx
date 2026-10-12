@@ -255,7 +255,7 @@ export default function ChapterTaskItemAILN(props: ChapterTaskItemAILNProps) {
 
   return (
     <div
-      className={`flex items-center gap-3 rounded-xl border p-3 ${
+      className={`flex items-center gap-3 rounded-lg border p-3 ${
         locked
           ? "border-dashboard-border bg-card-2 opacity-60"
           : isNext
@@ -264,7 +264,7 @@ export default function ChapterTaskItemAILN(props: ChapterTaskItemAILNProps) {
       }`}
     >
       <div
-        className={`flex h-10 w-10 items-center justify-center rounded-md ${
+        className={`flex h-10 w-10 items-center justify-center rounded-lg ${
           locked
             ? "bg-gray-100 text-gray-400 dark:bg-claude/5 dark:text-claude/40"
             : "bg-hijau-t text-claude dark:bg-claude/15 dark:text-lime-bright"

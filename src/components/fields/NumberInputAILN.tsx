@@ -198,7 +198,7 @@ export default function NumberInputAILN({
       <div
         className={`input-container relative flex ${
           isPhone
-            ? `rounded-md ${styles.border} focus-within:outline-4 ${
+            ? `rounded-lg ${styles.border} focus-within:outline-4 ${
                 computedError
                   ? "border-destructive focus-within:outline-semi-destructive"
                   : styles.focusWithin
@@ -213,7 +213,7 @@ export default function NumberInputAILN({
               type="button"
               disabled={disabled as boolean}
               onClick={() => setCountryOpen((p) => !p)}
-              className={`flex items-center gap-1.5 h-full px-3 border-r border-dashboard-border text-sm font-medium rounded-l-md transition hover:bg-card-2 hover:cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed`}
+              className={`flex items-center gap-1.5 h-full px-3 border-r border-dashboard-border text-sm font-medium rounded-l-lg transition hover:bg-card-2 hover:cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed`}
             >
               {selectedCountry?.icon ? (
                 <Image
@@ -235,7 +235,7 @@ export default function NumberInputAILN({
             </button>
 
             {countryOpen && (
-              <div className="absolute top-full left-0 z-50 mt-1 w-60 max-h-56 overflow-y-auto rounded-md border border-dashboard-border bg-card-1 shadow-lg">
+              <div className="absolute top-full left-0 z-50 mt-1 w-60 max-h-56 overflow-y-auto rounded-lg border border-dashboard-border bg-card-1 shadow-lg">
                 {countryCodes.map((c) => (
                   <button
                     key={c.id}
@@ -290,8 +290,8 @@ export default function NumberInputAILN({
           placeholder={inputPlaceholder}
           className={`input-placeholder flex w-full p-2 font-medium text-sm transform transition-all placeholder:text-emphasis/60 placeholder:font-medium placeholder:text-sm ${
             isPhone
-              ? "flex-1 rounded-r-md border-0 focus:outline-none bg-transparent"
-              : `rounded-md focus:outline-4 invalid:border-destructive required:border-destructive ${styles.border} ${
+              ? "flex-1 rounded-r-lg border-0 focus:outline-none bg-transparent"
+              : `rounded-lg focus:outline-4 invalid:border-destructive required:border-destructive ${styles.border} ${
                   computedError
                     ? "border-destructive focus:outline-semi-destructive"
                     : styles.focus

@@ -4,6 +4,11 @@ import { cookies } from "next/headers";
 import { callApi } from "./api";
 import { SESSION_COOKIE_NAME } from "@/lib/constants";
 import LogError from "@/lib/log-error";
+import type {
+  PreAssessmentBand,
+  PreAssessmentBaselineBandCount,
+  PreAssessmentBaselineCluster,
+} from "./pre-assessment";
 
 export type ChampionLevel = {
   id: number;
@@ -95,39 +100,34 @@ export type MemberDetails = {
   }[];
 };
 
-export type ChampionPillar = { key: string; score: number };
+export type PreAssessmentMemberStatus = "not_started" | "submitted" | "scored";
 
 export type PreAssessmentTeamMember = {
   access_id: string;
   name: string;
   avatar: string | null;
-  avg: number;
-  pillars: ChampionPillar[];
-  weakest_key: string | null;
+  status: PreAssessmentMemberStatus;
+  band: PreAssessmentBand | null;
+  avg: number | null;
+  meets_target: boolean;
+  clusters: PreAssessmentBaselineCluster[];
+  weakest_code: string | null;
   is_me: boolean;
 };
 
 export type PreAssessmentTeam = {
-  department_count: number;
+  group_id: number;
+  group_name: string;
   total_members: number;
-  completed_count: number;
+  submitted_count: number;
+  scored_count: number;
   measured_at: string | null;
-  target: number;
-  team_avg: number;
-  ready_count: number;
-  gap_large_count: number;
-  departments: {
-    id: number;
-    name: string;
-    member_count: number;
-    completed_count: number;
-    completion_percent: number;
-    avg: number;
-    pillars: ChampionPillar[];
-    members: PreAssessmentTeamMember[];
-  }[];
-  team_pillars: ChampionPillar[];
-  readiness: { ready: number; developing: number; basic: number };
+  target_band: PreAssessmentBand;
+  meets_target_count: number;
+  team_avg: number | null;
+  team_clusters: PreAssessmentBaselineCluster[];
+  bands: PreAssessmentBaselineBandCount[];
+  members: PreAssessmentTeamMember[];
 };
 
 export type ChampionReportPeriod = "weekly" | "monthly";

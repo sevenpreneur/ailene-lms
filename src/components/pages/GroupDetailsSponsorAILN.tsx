@@ -203,7 +203,7 @@ export default function GroupDetailsSponsorAILN({
               onChange={(event) =>
                 router.push(`/${projectId}/sponsor/groups/${event.target.value}`)
               }
-              className="h-9 appearance-none rounded-md border border-dashboard-border bg-white pl-3 pr-8 text-xs font-medium text-gray-700 outline-none transition hover:bg-gray-50 dark:bg-card-1 dark:text-gray-200 dark:hover:bg-card-2"
+              className="h-9 appearance-none rounded-lg border border-dashboard-border bg-white pl-3 pr-8 text-xs font-medium text-gray-700 outline-none transition hover:bg-gray-50 dark:bg-card-1 dark:text-gray-200 dark:hover:bg-card-2"
             >
               {departments.departments.map((department) => (
                 <option key={department.id} value={department.id}>

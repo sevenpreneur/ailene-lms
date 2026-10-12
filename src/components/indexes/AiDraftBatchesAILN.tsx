@@ -97,7 +97,7 @@ export default function AiDraftBatchesAILN({
     <div className="grid grid-cols-1 gap-6 xl:grid-cols-[1fr_360px]">
       <div className="flex flex-col gap-6">
         {/* Newest batch, kept apart so it never blends into older runs */}
-        <div className="flex flex-col gap-3 rounded-xl border-2 border-claude/40 bg-hijau-t/40 p-4 dark:border-claude/50 dark:bg-claude/[0.06]">
+        <div className="flex flex-col gap-3 rounded-lg border-2 border-claude/40 bg-hijau-t/40 p-4 dark:border-claude/50 dark:bg-claude/[0.06]">
           <BatchHeader
             batch={latest}
             title="Hasil Generate Terbaru"
@@ -127,7 +127,7 @@ export default function AiDraftBatchesAILN({
               history.map((batch) => (
                 <div
                   key={batch.batch_id}
-                  className="flex flex-col gap-3 rounded-xl border border-dashboard-border p-4"
+                  className="flex flex-col gap-3 rounded-lg border border-dashboard-border p-4"
                 >
                   <BatchHeader
                     batch={batch}
@@ -180,7 +180,7 @@ export default function AiDraftBatchesAILN({
               />
             )}
             {selectedBatch && (
-              <p className="rounded-md bg-card-2 p-2 text-xs text-muted-foreground">
+              <p className="rounded-lg bg-card-2 p-2 text-xs text-muted-foreground">
                 Dari instruksi: “{selectedBatch.instruction}”
               </p>
             )}

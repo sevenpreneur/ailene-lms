@@ -75,7 +75,7 @@ function FieldRow({
 }) {
   return (
     <div className="flex gap-3">
-      <div className="size-9 shrink-0 rounded-md border border-dashboard-border bg-card-2 flex items-center justify-center text-foreground dark:text-gray-300">
+      <div className="size-9 shrink-0 rounded-lg border border-dashboard-border bg-card-2 flex items-center justify-center text-foreground dark:text-gray-300">
         {icon}
       </div>
       <div className="flex-1 flex flex-col gap-1.5 min-w-0">

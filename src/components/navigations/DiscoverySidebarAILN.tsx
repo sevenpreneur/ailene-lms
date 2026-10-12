@@ -1,30 +1,19 @@
 "use client";
 
 import type { LmsSession } from "@/apis/auth";
-import ButtonAILN from "@/components/buttons/ButtonAILN";
-import ThemeSwitcherAILN from "@/components/buttons/ThemeSwitcherAILN";
 import { LogoAileneAILN } from "@/components/elements/LogoAileneAILN";
-import { useSidebar } from "@/contexts/SidebarContext";
-import { DeleteSession } from "@/lib/actions";
-import { LOGIN_URL } from "@/lib/config";
+import SidebarNavItemAILN from "@/components/navigations/SidebarNavItemAILN";
+import SidebarShellAILN, {
+  SidebarGroupLabelAILN,
+} from "@/components/navigations/SidebarShellAILN";
+import SidebarUserMenuAILN from "@/components/navigations/SidebarUserMenuAILN";
 import {
   Compass,
   GraduationCap,
   LayoutGrid,
-  LogOut,
-  Menu,
-  PanelLeft,
-  X,
   type LucideIcon,
 } from "lucide-react";
-import Image from "next/image";
-import Link from "next/link";
-import { usePathname, useRouter } from "next/navigation";
-import { useEffect, useState } from "react";
-import { toast } from "sonner";
-
-const DEFAULT_AVATAR =
-  "https://tskubmriuclmbcfmaiur.supabase.co/storage/v1/object/public/sevenpreneur//default-avatar.svg.png";
+import { usePathname } from "next/navigation";
 
 type MenuItem = {
   name: string;
@@ -40,266 +29,49 @@ const MENU: MenuItem[] = [
   { name: "My Learning", url: "/my-learning", icon: GraduationCap },
 ];
 
-function NavItem({
-  href,
-  label,
-  icon: Icon,
-  active,
-  collapsed,
-}: {
-  href: string;
-  label: string;
-  icon: LucideIcon;
-  active: boolean;
-  collapsed: boolean;
-}) {
-  return (
-    <Link
-      href={href}
-      title={collapsed ? label : undefined}
-      className={`flex items-center rounded-md text-sm transition-colors ${
-        collapsed ? "justify-center px-2 py-2" : "gap-2 px-3 py-2.5 lg:py-1.5"
-      } ${
-        active
-          ? "bg-linear-to-r from-[rgba(214,238,48,0.18)] to-transparent text-sb-item-active-text"
-          : "text-sb-text hover:bg-linear-to-r hover:from-[rgba(214,238,48,0.1)] hover:to-transparent hover:text-sb-text-strong"
-      }`}
-    >
-      <Icon className="h-4 w-4 shrink-0" />
-      {!collapsed && <span className="truncate font-medium">{label}</span>}
-    </Link>
-  );
-}
-
 export default function DiscoverySidebarAILN({
   session,
 }: {
   session: LmsSession;
 }) {
-  const { isCollapsed, toggleSidebar, isMobileOpen, openMobile, closeMobile } =
-    useSidebar();
-  const [isLoggingOut, setIsLoggingOut] = useState(false);
   const pathname = usePathname();
-  const router = useRouter();
-  const user = session.user;
-
-  // Navigating away should never leave the drawer covering the new page.
-  useEffect(() => {
-    closeMobile();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [pathname]);
-
-  // Escape closes the drawer, matching every other overlay in the app.
-  useEffect(() => {
-    if (!isMobileOpen) return;
-    const onKeyDown = (event: KeyboardEvent) => {
-      if (event.key === "Escape") closeMobile();
-    };
-    window.addEventListener("keydown", onKeyDown);
-    return () => window.removeEventListener("keydown", onKeyDown);
-  }, [isMobileOpen, closeMobile]);
-
-  const handleLogout = async () => {
-    if (isLoggingOut) return;
-    setIsLoggingOut(true);
-    try {
-      const res = await DeleteSession();
-      if (res.code === "NO_CONTENT") {
-        router.push(LOGIN_URL);
-      } else {
-        toast.error("Gagal logout. Coba lagi.");
-        setIsLoggingOut(false);
-      }
-    } catch {
-      toast.error("Gagal logout. Coba lagi.");
-      setIsLoggingOut(false);
-    }
-  };
-
-  const navLinks = (collapsed: boolean) =>
-    MENU.map((item) => {
-      const active = item.exact
-        ? pathname === item.url
-        : pathname.startsWith(item.url);
-
-      return (
-        <NavItem
-          key={item.url}
-          href={item.url}
-          label={item.name}
-          icon={item.icon}
-          active={active}
-          collapsed={collapsed}
-        />
-      );
-    });
-
-  const footerCard = (
-    <div className="rounded-lg border border-sb-border-soft bg-sb-item-active-bg/40 p-3">
-      <div className="flex items-center gap-3">
-        <Image
-          src={user.avatar || DEFAULT_AVATAR}
-          alt={user.full_name}
-          width={36}
-          height={36}
-          unoptimized
-          className="size-9 shrink-0 rounded-full object-cover"
-        />
-        <div className="min-w-0 flex-1">
-          <div className="truncate text-sm font-medium text-sb-text-strong">
-            {user.full_name}
-          </div>
-          <div className="truncate text-xs text-sb-text">{user.email}</div>
-        </div>
-      </div>
-
-      <div className="mt-2 flex items-center justify-end border-t border-sb-border-soft pt-2">
-        <ThemeSwitcherAILN />
-      </div>
-
-      <ButtonAILN
-        variant="light"
-        size="small"
-        onClick={handleLogout}
-        disabled={isLoggingOut}
-        className="mt-2 w-full"
-      >
-        <LogOut className="size-4" />
-        {isLoggingOut ? "Logging out..." : "Logout"}
-      </ButtonAILN>
-    </div>
-  );
 
   return (
-    <>
-      {/* ---------- Mobile top bar (<lg) ---------- */}
-      <header className="fixed inset-x-0 top-0 z-50 flex h-14 items-center gap-3 border-b border-sb-border bg-sb-bg px-4 lg:hidden">
-        <button
-          onClick={openMobile}
-          aria-label="Buka menu"
-          aria-expanded={isMobileOpen}
-          className="flex size-9 shrink-0 items-center justify-center rounded-md border border-sb-border-soft text-sb-text transition-colors hover:bg-sb-item-hover hover:text-sb-text-strong"
-        >
-          <Menu size={18} />
-        </button>
-
+    <SidebarShellAILN
+      mobileBrand={
         <LogoAileneAILN className="h-7 w-auto shrink-0 text-sb-text-strong" />
-
-        <div className="flex-1" />
-
-        <ThemeSwitcherAILN />
-      </header>
-
-      {/* ---------- Mobile drawer (<lg) ---------- */}
-      <div
-        inert={!isMobileOpen}
-        className={`fixed inset-0 z-[60] lg:hidden ${
-          isMobileOpen ? "" : "pointer-events-none"
-        }`}
-      >
-        <button
-          type="button"
-          tabIndex={-1}
-          aria-label="Tutup menu"
-          onClick={closeMobile}
-          className={`absolute inset-0 bg-black/60 transition-opacity duration-200 ${
-            isMobileOpen ? "opacity-100" : "opacity-0"
-          }`}
-        />
-
-        <div
-          role="dialog"
-          aria-modal="true"
-          aria-label="Menu navigasi"
-          className={`absolute inset-y-0 left-0 flex w-[17rem] max-w-[85vw] flex-col border-r border-sb-border bg-sb-bg transition-transform duration-200 ease-out ${
-            isMobileOpen ? "translate-x-0" : "-translate-x-full"
-          }`}
-        >
-          <div className="flex h-full w-full flex-col p-4">
-            <div className="flex shrink-0 items-center justify-between gap-2 pb-4">
-              <LogoAileneAILN className="h-9 w-auto shrink-0 text-sb-text-strong" />
-
-              <button
-                onClick={closeMobile}
-                aria-label="Tutup menu"
-                className="flex size-8 shrink-0 items-center justify-center rounded-md border border-sb-border-soft text-sb-text transition-colors hover:bg-sb-item-hover hover:text-sb-text-strong"
-              >
-                <X size={16} />
-              </button>
-            </div>
-
-            <nav className="flex flex-1 flex-col gap-1.5 overflow-y-auto">
-              {navLinks(false)}
-            </nav>
-
-            <div className="mt-3 shrink-0">{footerCard}</div>
-          </div>
+      }
+      header={(collapsed) => (
+        <div className={`flex items-center ${collapsed ? "py-1" : "px-1.5 py-1"}`}>
+          <LogoAileneAILN
+            className={`w-auto shrink-0 text-sb-text-strong ${collapsed ? "h-6" : "h-8"}`}
+          />
         </div>
-      </div>
-
-      {/* ---------- Desktop rail (lg+) ---------- */}
-      <div
-        className={`fixed left-0 z-50 hidden h-full w-full flex-col border-r border-sb-border bg-sb-bg transition-[max-width] duration-150 lg:flex ${
-          isCollapsed ? "max-w-16" : "max-w-64"
-        }`}
-      >
-        <div
-          className={`flex h-full w-full flex-col ${
-            isCollapsed ? "px-2 py-4" : "p-4"
-          }`}
-        >
-          {/* Logo + collapse toggle */}
-          <div
-            className={`flex shrink-0 items-center pb-4 ${
-              isCollapsed ? "justify-center" : "justify-between"
-            }`}
-          >
-            <LogoAileneAILN
-              className={`w-auto shrink-0 text-sb-text-strong ${isCollapsed ? "h-7" : "h-9"}`}
+      )}
+      nav={(collapsed) => (
+        <>
+          <SidebarGroupLabelAILN collapsed={collapsed}>
+            Jelajah
+          </SidebarGroupLabelAILN>
+          {MENU.map((item) => (
+            <SidebarNavItemAILN
+              key={item.url}
+              href={item.url}
+              label={item.name}
+              icon={item.icon}
+              active={
+                item.exact
+                  ? pathname === item.url
+                  : pathname.startsWith(item.url)
+              }
+              collapsed={collapsed}
             />
-
-            <button
-              onClick={toggleSidebar}
-              aria-label="Toggle sidebar"
-              className={`flex size-8 shrink-0 items-center justify-center rounded-md border border-sb-border-soft text-sb-text transition-colors hover:bg-sb-item-hover hover:text-sb-text-strong ${
-                isCollapsed ? "hidden" : ""
-              }`}
-            >
-              <PanelLeft size={16} />
-            </button>
-          </div>
-
-          {isCollapsed && (
-            <button
-              onClick={toggleSidebar}
-              aria-label="Toggle sidebar"
-              className="mb-4 flex size-8 shrink-0 items-center justify-center self-center rounded-md border border-sb-border-soft text-sb-text transition-colors hover:bg-sb-item-hover hover:text-sb-text-strong"
-            >
-              <PanelLeft size={16} />
-            </button>
-          )}
-
-          <nav className="flex flex-1 flex-col gap-2 overflow-y-auto">
-            {navLinks(isCollapsed)}
-          </nav>
-
-          {/* Footer — signed-in user identity + theme + logout (no project state here) */}
-          <div className="mt-3 shrink-0">
-            {!isCollapsed ? (
-              footerCard
-            ) : (
-              <Image
-                src={user.avatar || DEFAULT_AVATAR}
-                alt={user.full_name}
-                width={36}
-                height={36}
-                unoptimized
-                className="mx-auto size-9 rounded-full object-cover"
-              />
-            )}
-          </div>
-        </div>
-      </div>
-    </>
+          ))}
+        </>
+      )}
+      footer={(collapsed) => (
+        <SidebarUserMenuAILN user={session.user} collapsed={collapsed} />
+      )}
+    />
   );
 }

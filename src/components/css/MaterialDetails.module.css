@@ -108,7 +108,7 @@
     var(--card-1) 0%,
     var(--sb-item-hover) 100%
   );
-  border-radius: 0 0.75rem 0.75rem 0;
+  border-radius: 0 var(--radius) var(--radius) 0;
   margin: 1.75em 0;
   padding: 1rem 1.25rem;
   box-shadow: 0 1px 6px 0 rgba(0, 0, 0, 0.05);
@@ -136,7 +136,7 @@
 .prose pre {
   background: linear-gradient(160deg, #16192a 0%, #0d1017 100%);
   border: 1px solid rgba(255, 255, 255, 0.07);
-  border-radius: 0.75rem;
+  border-radius: var(--radius);
   padding: 1.25rem 1.5rem;
   overflow-x: auto;
   margin: 1.75em 0;
@@ -167,7 +167,7 @@
   font-size: 0.875em;
   margin: 1.75em 0;
   border: 1px solid var(--dashboard-border);
-  border-radius: 0.5rem;
+  border-radius: var(--radius);
   overflow: hidden;
 }
 
@@ -209,7 +209,7 @@
 
 .prose img {
   max-width: 100%;
-  border-radius: 0.75rem;
+  border-radius: var(--radius);
   margin: 1.25em 0;
   border: 1px solid var(--dashboard-border);
 }

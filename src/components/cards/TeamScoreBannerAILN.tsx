@@ -18,7 +18,7 @@ export default function TeamScoreBannerAILN({
   const fmt = (n: number) => n.toFixed(1).replace(".", ",");
 
   return (
-    <section className="overflow-hidden rounded-2xl border border-hijau-t bg-gradient-to-br from-hijau-t to-white p-6 dark:border-claude/25 dark:from-claude/10 dark:to-transparent">
+    <section className="overflow-hidden rounded-lg border border-hijau-t bg-gradient-to-br from-hijau-t to-white p-6 dark:border-claude/25 dark:from-claude/10 dark:to-transparent">
       <div className="flex items-center gap-1.5 text-xs font-medium uppercase tracking-widest text-claude dark:text-lime-bright">
         <Star className="size-3.5 fill-claude text-claude dark:fill-lime-bright dark:text-lime-bright" />
         Tim Saya · {groupName}

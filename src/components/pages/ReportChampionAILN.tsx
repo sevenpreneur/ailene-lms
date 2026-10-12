@@ -138,7 +138,7 @@ function ReportContent({
           <div className="inline-flex h-10 rounded-lg border border-dashboard-border bg-white p-1 dark:bg-card-1">
             <button
               onClick={() => onPeriodChange("weekly")}
-              className={`rounded-md px-4 text-sm font-medium ${
+              className={`rounded-lg px-4 text-sm font-medium ${
                 period === "weekly"
                   ? "bg-black text-white dark:bg-white dark:text-black"
                   : "text-gray-500 dark:text-gray-400"
@@ -148,7 +148,7 @@ function ReportContent({
             </button>
             <button
               onClick={() => onPeriodChange("monthly")}
-              className={`rounded-md px-4 text-sm font-medium ${
+              className={`rounded-lg px-4 text-sm font-medium ${
                 period === "monthly"
                   ? "bg-black text-white dark:bg-white dark:text-black"
                   : "text-gray-500 dark:text-gray-400"
@@ -246,7 +246,7 @@ function ReportContent({
                 value={narrative}
                 onChange={(event) => setNarrative(event.target.value)}
                 rows={5}
-                className="w-full resize-none rounded-md border border-dashboard-border bg-gray-50 px-4 py-3 text-sm leading-6 text-gray-900 outline-none focus:border-claude dark:bg-card-2 dark:text-white"
+                className="w-full resize-none rounded-lg border border-dashboard-border bg-gray-50 px-4 py-3 text-sm leading-6 text-gray-900 outline-none focus:border-claude dark:bg-card-2 dark:text-white"
               />
             </div>
           </section>

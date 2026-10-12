@@ -1,15 +1,17 @@
 "use client";
 import ButtonAILN from "@/components/buttons/ButtonAILN";
 import PageContainerSVP from "@/components/pages/PageContainerSVP";
-import {
-  PRE_ASSESSMENT_CATEGORY_COLORS,
-  PRE_ASSESSMENT_QUESTIONS,
-  PRE_ASSESSMENT_TYPE_LABELS,
-  PreAssessmentQuestion,
-} from "@/lib/pre-assessment-questions";
 import { CheckSession } from "@/lib/actions";
 import { useProjectId } from "@/lib/use-project-id";
-import type { PreAssessmentAnswers } from "@/apis/pre-assessment";
+import {
+  PRE_ASSESSMENT_SECTIONS,
+  PRE_ASSESSMENT_TEXT_MAX,
+} from "@/lib/pre-assessment";
+import type {
+  PreAssessmentAnswer,
+  PreAssessmentItem,
+  PreAssessmentQuestions,
+} from "@/apis/pre-assessment";
 import { useRouter } from "next/navigation";
 import { toast } from "sonner";
 import { useQuery } from "@tanstack/react-query";
@@ -18,139 +20,164 @@ import {
   faChevronRight,
 } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { ArrowRight, BookOpen, Sparkles } from "lucide-react";
+import { ArrowRight, BookOpen, Clock3, Loader2 } from "lucide-react";
 import { useTheme } from "next-themes";
 import Image from "next/image";
 import { useEffect, useMemo, useState } from "react";
 
-type AnswerValue = string | string[] | null;
-type AnswerMap = Record<string, AnswerValue>;
+// Keyed by item id: an option id for single_choice, the typed text for text items.
+type AnswerMap = Record<number, number | string>;
 
-function isAnswered(q: PreAssessmentQuestion, v: AnswerValue): boolean {
-  if (v == null) return false;
-  if (q.type === "multi") return Array.isArray(v) && v.length > 0;
-  return typeof v === "string" && v.trim().length > 0;
+// The version name carries internal labels ("Form A"), so learners see one fixed title.
+const PRE_ASSESSMENT_TITLE = "Pre-Assessment AI Proficiency";
+
+function isAnswered(item: PreAssessmentItem, answers: AnswerMap): boolean {
+  const value = answers[item.id];
+  if (item.type === "single_choice") return typeof value === "number";
+  return typeof value === "string" && value.trim().length > 0;
 }
 
-// valueCodes are the backend's enum constants verbatim, so nothing is translated here.
-function toPayload(answers: AnswerMap): PreAssessmentAnswers {
-  const payload: Record<string, string | string[]> = {};
+function toPayload(
+  items: PreAssessmentItem[],
+  answers: AnswerMap,
+): PreAssessmentAnswer[] {
+  return items.map((item) =>
+    item.type === "single_choice"
+      ? { item_id: item.id, option_id: answers[item.id] as number }
+      : { item_id: item.id, text: String(answers[item.id]).trim() },
+  );
+}
 
-  for (const q of PRE_ASSESSMENT_QUESTIONS) {
-    const value = answers[q.field];
-    if (q.type === "multi") {
-      payload[q.field] = Array.isArray(value) ? value : [];
-      continue;
-    }
-    const text = typeof value === "string" ? value.trim() : "";
-    if (text.length === 0 && !q.required) continue;
-    payload[q.field] = text;
+// No server autosave exists, so an unsent draft lives in this browser only.
+function draftKey(projectId: string, versionId: number) {
+  return `ailene-pre-assessment-draft:${projectId}:${versionId}`;
+}
+
+function readDraft(key: string): AnswerMap {
+  try {
+    const raw = window.localStorage.getItem(key);
+    const parsed = raw ? JSON.parse(raw) : null;
+    return parsed && typeof parsed === "object" ? parsed : {};
+  } catch {
+    return {};
   }
-
-  return payload as unknown as PreAssessmentAnswers;
 }
 
-export default function PreAssessmentAILN() {
+function writeDraft(key: string, answers: AnswerMap | null) {
+  try {
+    if (answers) window.localStorage.setItem(key, JSON.stringify(answers));
+    else window.localStorage.removeItem(key);
+  } catch {}
+}
+
+export default function PreAssessmentAILN({
+  questions,
+}: {
+  questions: PreAssessmentQuestions;
+}) {
+  const { version, items } = questions;
   const { resolvedTheme } = useTheme();
   const [mounted, setMounted] = useState(false);
+  const projectId = useProjectId();
+  const router = useRouter();
+  const key = draftKey(projectId, version.id);
+
+  const [answers, setAnswers] = useState<AnswerMap>({});
+  const [currentIdx, setCurrentIdx] = useState(0);
+  const [started, setStarted] = useState(false);
+  const [phase, setPhase] = useState<"idle" | "submitting" | "scoring">(
+    "idle",
+  );
+
   useEffect(() => {
     // eslint-disable-next-line react-hooks/set-state-in-effect
     setMounted(true);
-  }, []);
+    setAnswers(readDraft(key));
+  }, [key]);
+
+  useEffect(() => {
+    if (mounted) writeDraft(key, answers);
+  }, [mounted, key, answers]);
+
   const isDark = mounted && resolvedTheme === "dark";
   const nextVariant = isDark ? "neutral" : "primary";
 
-  const [answers, setAnswers] = useState<AnswerMap>(() => {
-    const init: AnswerMap = {};
-    for (const q of PRE_ASSESSMENT_QUESTIONS) {
-      init[q.field] = q.type === "multi" ? [] : null;
-    }
-    return init;
-  });
-  const [currentIdx, setCurrentIdx] = useState(0);
-  const [started, setStarted] = useState(false);
-  const [isSubmitting, setIsSubmitting] = useState(false);
-
-  const projectId = useProjectId();
-  const router = useRouter();
-
-  const totalQuestions = PRE_ASSESSMENT_QUESTIONS.length;
-  const currentQ = PRE_ASSESSMENT_QUESTIONS[currentIdx];
+  const totalQuestions = items.length;
+  const currentItem = items[currentIdx];
 
   const answeredCount = useMemo(
-    () =>
-      PRE_ASSESSMENT_QUESTIONS.filter((q) => isAnswered(q, answers[q.field]))
-        .length,
-    [answers],
+    () => items.filter((item) => isAnswered(item, answers)).length,
+    [items, answers],
   );
-
-  const missingRequired = useMemo(
-    () =>
-      PRE_ASSESSMENT_QUESTIONS.filter(
-        (q) => q.required && !isAnswered(q, answers[q.field]),
-      ),
-    [answers],
+  const missing = useMemo(
+    () => items.filter((item) => !isAnswered(item, answers)),
+    [items, answers],
   );
 
   if (!started) {
-    return <PreAssessmentWelcomeAILN onStart={() => setStarted(true)} />;
+    return (
+      <PreAssessmentWelcomeAILN
+        questions={questions}
+        hasDraft={answeredCount > 0}
+        onStart={() => {
+          const firstOpen = items.findIndex((i) => !isAnswered(i, answers));
+          setCurrentIdx(firstOpen === -1 ? 0 : firstOpen);
+          setStarted(true);
+        }}
+      />
+    );
   }
 
-  const handleSelectSingle = (code: string) => {
-    setAnswers((prev) => ({ ...prev, [currentQ.field]: code }));
-  };
-
-  const handleToggleMulti = (label: string) => {
+  const setAnswer = (value: number | string | null) => {
     setAnswers((prev) => {
-      const cur = (prev[currentQ.field] as string[] | null) ?? [];
-      const next = cur.includes(label)
-        ? cur.filter((x) => x !== label)
-        : [...cur, label];
-      return { ...prev, [currentQ.field]: next };
+      const next = { ...prev };
+      if (value === null || value === "") delete next[currentItem.id];
+      else next[currentItem.id] = value;
+      return next;
     });
   };
 
-  const handleTextChange = (value: string) => {
-    setAnswers((prev) => ({
-      ...prev,
-      [currentQ.field]: value.length > 0 ? value : null,
-    }));
-  };
-
   const handleSubmit = async () => {
-    if (isSubmitting) return;
-    if (missingRequired.length > 0) {
-      toast.error(
-        `Masih ada ${missingRequired.length} pertanyaan wajib yang belum diisi.`,
-      );
-      setCurrentIdx(PRE_ASSESSMENT_QUESTIONS.indexOf(missingRequired[0]));
+    if (phase !== "idle") return;
+    if (missing.length > 0) {
+      toast.error(`Masih ada ${missing.length} pertanyaan yang belum dijawab.`);
+      setCurrentIdx(items.indexOf(missing[0]));
       return;
     }
 
-    setIsSubmitting(true);
+    setPhase("submitting");
     try {
-      const res = await fetch("/api/pre-assessment/create", {
+      const res = await fetch("/api/pre-assessment/submit", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           project_id: projectId,
-          answers: toPayload(answers),
+          answers: toPayload(items, answers),
         }),
       });
       const data = await res.json().catch(() => null);
       if (!res.ok) {
         toast.error(data?.message ?? "Gagal mengirim pre-assessment.");
+        setPhase("idle");
         return;
       }
-      toast.success("Pre-assessment berhasil dikirim.");
-      router.replace(`/${projectId}/student`);
+      writeDraft(key, null);
+
+      // Grading runs on the first score call; a failure here is retried from the report page.
+      setPhase("scoring");
+      await fetch("/api/pre-assessment/score", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ project_id: projectId }),
+      }).catch(() => null);
       router.refresh();
     } catch {
       toast.error("Gagal menghubungi server. Coba lagi.");
-    } finally {
-      setIsSubmitting(false);
+      setPhase("idle");
     }
   };
+
+  if (phase === "scoring") return <PreAssessmentScoringAILN />;
 
   const handlePrev = () => setCurrentIdx((i) => Math.max(0, i - 1));
   const handleNext = () =>
@@ -158,21 +185,21 @@ export default function PreAssessmentAILN() {
 
   const isLast = currentIdx === totalQuestions - 1;
   const progressPct = Math.round((answeredCount / totalQuestions) * 100);
+  const section = PRE_ASSESSMENT_SECTIONS[currentItem.section];
 
   return (
     <PageContainerSVP className="flex min-h-screen justify-center">
       <div className="flex w-full flex-col gap-4 my-10">
         {/* Header */}
-        <div className="flex flex-col gap-3 rounded-xl border bg-white p-4 dark:border-dashboard-border dark:bg-card-1 dark:shadow-[0_0_18px_rgba(26,122,82,0.08)]">
+        <div className="flex flex-col gap-3 rounded-lg border bg-white p-4 dark:border-dashboard-border dark:bg-card-1">
           <div className="flex flex-wrap items-center gap-3">
             <div className="flex-1">
               <h1 className="text-base font-medium dark:text-white">
-                Pre-Assessment AI Readiness
+                {PRE_ASSESSMENT_TITLE}
               </h1>
               <p className="text-xs text-gray-500 dark:text-gray-400">
-                Bantu kami memahami posisi awalmu sebelum pelatihan. Jawaban
-                kamu hanya disimpan satu kali — tidak bisa diubah setelah
-                dikirim.
+                Jawab sesuai kebiasaanmu sekarang, bukan jawaban yang menurutmu
+                ideal. Jawaban hanya bisa dikirim satu kali.
               </p>
             </div>
             <span className="rounded-full bg-gray-100 px-3 py-1 text-xs font-medium text-gray-700 dark:bg-dashboard-border dark:text-gray-300">
@@ -183,60 +210,43 @@ export default function PreAssessmentAILN() {
             </span>
           </div>
           <div className="flex h-1.5 w-full gap-0.5 overflow-hidden rounded-full">
-            {PRE_ASSESSMENT_QUESTIONS.map((q, idx) => {
-              const ans = isAnswered(q, answers[q.field]);
-              return (
-                <div
-                  key={idx}
-                  className={`h-full flex-1 ${
-                    ans
-                      ? "bg-claude dark:bg-claude dark:shadow-[0_0_6px_rgba(26,122,82,0.6)]"
-                      : "bg-gray-200 dark:bg-dashboard-border"
-                  }`}
-                />
-              );
-            })}
+            {items.map((item) => (
+              <div
+                key={item.id}
+                className={`h-full flex-1 ${
+                  isAnswered(item, answers)
+                    ? "bg-claude"
+                    : "bg-gray-200 dark:bg-dashboard-border"
+                }`}
+              />
+            ))}
           </div>
         </div>
 
         {/* Main body */}
         <div className="flex flex-1 flex-col gap-4 lg:flex-row">
           {/* Left: question */}
-          <div className="flex flex-1 flex-col gap-4 rounded-xl border bg-white p-4 sm:p-6 dark:border-dashboard-border dark:bg-card-1 dark:shadow-[0_0_18px_rgba(26,122,82,0.08)]">
+          <div className="flex flex-1 flex-col gap-4 rounded-lg border bg-white p-4 sm:p-6 dark:border-dashboard-border dark:bg-card-1">
             <div className="flex flex-wrap items-center gap-2">
               <span className="text-[11px] font-medium uppercase tracking-widest text-gray-500 dark:text-gray-400">
                 SOAL {currentIdx + 1}
               </span>
               <span
-                className={`rounded-full px-2.5 py-0.5 text-[11px] font-medium ${
-                  PRE_ASSESSMENT_CATEGORY_COLORS[currentQ.category]
-                }`}
+                className={`rounded-full px-2.5 py-0.5 text-[11px] font-medium ${section.badge}`}
               >
-                {currentQ.category}
+                {section.label}
               </span>
-              <span className="rounded-full border border-dashboard-border bg-gray-50 px-2.5 py-0.5 text-[11px] font-medium text-gray-600 dark:bg-card-1 dark:text-gray-300">
-                {PRE_ASSESSMENT_TYPE_LABELS[currentQ.type]}
-              </span>
-              {!currentQ.required && (
-                <span className="rounded-full border border-dashboard-border bg-white px-2.5 py-0.5 text-[11px] font-medium text-gray-500 dark:bg-card-1 dark:text-gray-400">
-                  Opsional
-                </span>
-              )}
             </div>
 
-            <p className="text-[17px] font-medium leading-snug text-gray-900 dark:text-white">
-              {currentQ.question}
-              {currentQ.required && (
-                <span className="ml-1 text-red-500 dark:text-red-400">*</span>
-              )}
+            <p className="whitespace-pre-line text-[17px] font-medium leading-snug text-gray-900 dark:text-white">
+              {currentItem.question}
             </p>
 
             <QuestionBody
-              question={currentQ}
-              value={answers[currentQ.field]}
-              onSelectSingle={handleSelectSingle}
-              onToggleMulti={handleToggleMulti}
-              onTextChange={handleTextChange}
+              item={currentItem}
+              value={answers[currentItem.id]}
+              hint={section.hint}
+              onChange={setAnswer}
             />
 
             <div className="mt-auto flex items-center justify-between border-t pt-4 dark:border-dashboard-border">
@@ -261,19 +271,18 @@ export default function PreAssessmentAILN() {
 
           {/* Right: navigation panel */}
           <div className="order-first flex w-full shrink-0 flex-col gap-4 lg:order-none lg:w-80">
-            <div className="flex flex-col gap-3 rounded-xl border bg-white p-4 dark:border-dashboard-border dark:bg-card-1 dark:shadow-[0_0_18px_rgba(26,122,82,0.08)]">
+            <div className="flex flex-col gap-3 rounded-lg border bg-white p-4 dark:border-dashboard-border dark:bg-card-1">
               <span className="text-[11px] font-medium uppercase tracking-widest text-gray-500 dark:text-gray-400">
                 NAVIGASI
               </span>
-              <div className="grid grid-cols-5 gap-2">
-                {PRE_ASSESSMENT_QUESTIONS.map((q, idx) => {
+              <div className="grid grid-cols-7 gap-1.5">
+                {items.map((item, idx) => {
                   const isCurrent = idx === currentIdx;
-                  const ans = isAnswered(q, answers[q.field]);
+                  const ans = isAnswered(item, answers);
 
                   let cls = "";
                   if (isCurrent) {
-                    cls =
-                      "bg-claude text-white dark:shadow-[0_0_10px_rgba(26,122,82,0.7)]";
+                    cls = "bg-claude text-white";
                   } else if (ans) {
                     cls =
                       "bg-black text-white dark:bg-claude/20 dark:text-lime-bright dark:border dark:border-claude/40";
@@ -284,11 +293,11 @@ export default function PreAssessmentAILN() {
 
                   return (
                     <button
-                      key={q.id}
+                      key={item.id}
                       type="button"
                       onClick={() => setCurrentIdx(idx)}
-                      className={`flex aspect-square items-center justify-center rounded-md text-xs font-medium transition hover:opacity-80 ${cls}`}
-                      title={q.question}
+                      className={`flex aspect-square items-center justify-center rounded-lg text-xs font-medium transition hover:opacity-80 ${cls}`}
+                      title={PRE_ASSESSMENT_SECTIONS[item.section].label}
                     >
                       {idx + 1}
                     </button>
@@ -300,10 +309,7 @@ export default function PreAssessmentAILN() {
                   color="bg-black dark:bg-claude/20 dark:border dark:border-claude/40"
                   label="Terjawab"
                 />
-                <LegendItem
-                  color="bg-claude dark:shadow-[0_0_6px_rgba(26,122,82,0.6)]"
-                  label="Saat ini"
-                />
+                <LegendItem color="bg-claude" label="Saat ini" />
                 <LegendItem
                   color="bg-gray-100 border border-dashboard-border dark:bg-card-2"
                   label="Belum"
@@ -311,7 +317,7 @@ export default function PreAssessmentAILN() {
               </div>
             </div>
 
-            <div className="flex flex-col gap-2 rounded-xl border bg-white p-4 dark:border-dashboard-border dark:bg-card-1 dark:shadow-[0_0_18px_rgba(26,122,82,0.08)]">
+            <div className="flex flex-col gap-2 rounded-lg border bg-white p-4 dark:border-dashboard-border dark:bg-card-1">
               <span className="text-[11px] font-medium uppercase tracking-widest text-gray-500 dark:text-gray-400">
                 STATUS
               </span>
@@ -325,16 +331,16 @@ export default function PreAssessmentAILN() {
               </div>
               <div className="flex items-center justify-between text-sm">
                 <span className="text-gray-600 dark:text-gray-400">
-                  Wajib belum diisi
+                  Belum dijawab
                 </span>
                 <span
                   className={`font-medium ${
-                    missingRequired.length === 0
+                    missing.length === 0
                       ? "text-emerald-600 dark:text-emerald-400"
                       : "text-red-600 dark:text-red-400"
                   }`}
                 >
-                  {missingRequired.length}
+                  {missing.length}
                 </span>
               </div>
             </div>
@@ -344,9 +350,9 @@ export default function PreAssessmentAILN() {
               variant="primary"
               className="w-full"
               onClick={handleSubmit}
-              disabled={isSubmitting || missingRequired.length > 0}
+              disabled={phase !== "idle" || missing.length > 0}
             >
-              {isSubmitting ? "Mengirim..." : "Kirim Jawaban"}
+              {phase === "submitting" ? "Mengirim..." : "Kirim Jawaban"}
             </ButtonAILN>
           </div>
         </div>
@@ -355,21 +361,29 @@ export default function PreAssessmentAILN() {
   );
 }
 
-function PreAssessmentWelcomeAILN({ onStart }: { onStart: () => void }) {
+function PreAssessmentWelcomeAILN({
+  questions,
+  hasDraft,
+  onStart,
+}: {
+  questions: PreAssessmentQuestions;
+  hasDraft: boolean;
+  onStart: () => void;
+}) {
   const userQ = useQuery({ queryKey: ["session"], queryFn: CheckSession });
   const firstName = userQ.data?.user?.full_name?.split(" ")[0] ?? "teman";
-  const totalQuestions = PRE_ASSESSMENT_QUESTIONS.length;
+  const { version, items } = questions;
 
   const points = [
     {
       icon: <BookOpen className="size-4" />,
-      title: `${totalQuestions} pertanyaan singkat`,
-      desc: "Pilihan ganda, isian singkat, dan beberapa cerita pengalamanmu.",
+      title: `${items.length} pertanyaan`,
+      desc: "Profil singkat, skenario kerja, satu latihan menulis prompt, dan kebiasaanmu memakai AI.",
     },
     {
-      icon: <Sparkles className="size-4" />,
-      title: "6 pillar AI Readiness",
-      desc: "Hasilnya kami pakai untuk menyusun fokus belajar yang pas buatmu.",
+      icon: <Clock3 className="size-4" />,
+      title: `Sekitar ${version.duration_minutes} menit`,
+      desc: "Tidak ada batas waktu. Jawabanmu tersimpan di browser ini sampai kamu kirim.",
     },
   ];
 
@@ -391,37 +405,40 @@ function PreAssessmentWelcomeAILN({ onStart }: { onStart: () => void }) {
       />
 
       <div className="relative z-10 mx-auto flex w-full max-w-2xl flex-col py-12">
-        <div className="rounded-2xl border bg-white p-8 shadow-xl dark:border-dashboard-border dark:bg-card-1 dark:shadow-[0_0_18px_rgba(26,122,82,0.08)]">
-          <div className="mb-7 flex justify-center">
-            <Image
-              src="https://tskubmriuclmbcfmaiur.supabase.co/storage/v1/object/public/sevenpreneur/logo-hk-danantara.webp"
-              alt="Hutama Karya × Danantara"
-              width={400}
-              height={120}
-              className="h-12 w-auto object-contain dark:hidden"
-            />
-            <Image
-              src="https://tskubmriuclmbcfmaiur.supabase.co/storage/v1/object/public/sevenpreneur/logo-hk-danantara-white.webp"
-              alt="Hutama Karya × Danantara"
-              width={400}
-              height={120}
-              className="hidden h-12 w-auto object-contain dark:block"
-            />
-          </div>
+        <div className="rounded-lg border bg-white p-8 shadow-xl dark:border-dashboard-border dark:bg-card-1">
           <h1 className="text-center text-3xl font-medium leading-tight text-gray-900 dark:text-white">
             Halo {firstName}, selamat datang 👋
           </h1>
           <p className="mt-3 text-center text-base leading-7 text-gray-600 dark:text-gray-300">
-            Sebelum mulai belajar, isi dulu <b>AI Readiness Pre-Assessment</b>{" "}
-            ini supaya kami paham titik berangkatmu dan bisa menyiapkan jalur
-            belajar yang paling relevan.
+            Sebelum mulai belajar, isi dulu <b>{PRE_ASSESSMENT_TITLE}</b> supaya kami
+            paham titik berangkatmu dan bisa menyiapkan jalur belajar yang
+            paling relevan.
           </p>
 
-          <div className="mt-6 flex flex-col gap-3">
+          <div className="mt-6 flex items-center gap-4 rounded-lg border border-dashboard-border p-4">
+            <Image
+              src="/images/logo-cfte.webp"
+              alt="CFTE"
+              width={56}
+              height={56}
+              className="size-14 shrink-0 rounded-lg"
+            />
+            <div className="min-w-0">
+              <div className="text-sm font-medium text-gray-900 dark:text-white">
+                Berstandar CFTE AI Proficiency Framework
+              </div>
+              <p className="mt-0.5 text-sm leading-6 text-gray-500 dark:text-gray-400">
+                Soal dan penilaiannya mengacu pada kerangka AI Proficiency dari
+                CFTE: 10 domain kompetensi, dengan hasil berupa band 0–5.
+              </p>
+            </div>
+          </div>
+
+          <div className="mt-3 flex flex-col gap-3">
             {points.map((point) => (
               <div
                 key={point.title}
-                className="flex items-start gap-3 rounded-xl border border-dashboard-border bg-gray-50/60 p-4 dark:bg-card-2"
+                className="flex items-start gap-3 rounded-lg border border-dashboard-border bg-gray-50/60 p-4 dark:bg-card-2"
               >
                 <div className="flex size-9 shrink-0 items-center justify-center rounded-lg bg-hijau-t text-claude dark:bg-claude/15 dark:text-lime-bright">
                   {point.icon}
@@ -438,9 +455,9 @@ function PreAssessmentWelcomeAILN({ onStart }: { onStart: () => void }) {
             ))}
           </div>
 
-          <div className="mt-6 rounded-xl border border-amber-200 bg-amber-50 px-4 py-3 text-sm text-amber-800 dark:border-amber-500/40 dark:bg-amber-500/10 dark:text-amber-300">
-            Jawaban hanya bisa dikirim <b>satu kali</b> dan tidak bisa diubah
-            setelahnya
+          <div className="mt-6 rounded-lg border border-amber-200 bg-amber-50 px-4 py-3 text-sm text-amber-800 dark:border-amber-500/40 dark:bg-amber-500/10 dark:text-amber-300">
+            Semua pertanyaan wajib dijawab, dan jawaban hanya bisa dikirim{" "}
+            <b>satu kali</b>.
           </div>
 
           <ButtonAILN
@@ -448,7 +465,7 @@ function PreAssessmentWelcomeAILN({ onStart }: { onStart: () => void }) {
             onClick={onStart}
             className="mt-6 w-full"
           >
-            Mulai Assessment
+            {hasDraft ? "Lanjutkan Assessment" : "Mulai Assessment"}
             <ArrowRight className="size-4" />
           </ButtonAILN>
         </div>
@@ -457,49 +474,61 @@ function PreAssessmentWelcomeAILN({ onStart }: { onStart: () => void }) {
   );
 }
 
+function PreAssessmentScoringAILN() {
+  return (
+    <PageContainerSVP className="flex min-h-screen items-center justify-center">
+      <div className="mx-auto flex w-full max-w-md flex-col items-center gap-3 rounded-lg border bg-white p-8 text-center dark:border-dashboard-border dark:bg-card-1">
+        <Loader2 className="size-6 animate-spin text-claude dark:text-lime-bright" />
+        <h1 className="text-lg font-medium text-gray-900 dark:text-white">
+          Jawabanmu sudah terkirim
+        </h1>
+        <p className="text-sm leading-6 text-gray-500 dark:text-gray-400">
+          Kami sedang menilai jawaban tertulismu dan menyusun hasilnya. Biasanya
+          hanya beberapa detik.
+        </p>
+      </div>
+    </PageContainerSVP>
+  );
+}
+
 function QuestionBody({
-  question,
+  item,
   value,
-  onSelectSingle,
-  onToggleMulti,
-  onTextChange,
+  hint,
+  onChange,
 }: {
-  question: PreAssessmentQuestion;
-  value: AnswerValue;
-  onSelectSingle: (code: string) => void;
-  onToggleMulti: (label: string) => void;
-  onTextChange: (value: string) => void;
+  item: PreAssessmentItem;
+  value: number | string | undefined;
+  hint: string;
+  onChange: (value: number | string | null) => void;
 }) {
-  if (question.type === "single") {
+  if (item.type === "single_choice") {
     return (
       <div className="flex flex-col gap-2">
-        <p className="text-sm text-gray-500 dark:text-gray-400">
-          Pilih satu jawaban yang paling tepat.
-        </p>
-        {question.options.map((opt, idx) => {
-          const code = question.valueCodes[idx];
-          const selected = value === code;
+        <p className="text-sm text-gray-500 dark:text-gray-400">{hint}</p>
+        {item.options.map((opt, idx) => {
+          const selected = value === opt.id;
           return (
             <button
-              key={code}
+              key={opt.id}
               type="button"
-              onClick={() => onSelectSingle(code)}
+              onClick={() => onChange(opt.id)}
               className={`flex items-center gap-3 rounded-lg border-[1.5px] px-4 py-3 text-left text-sm transition ${
                 selected
-                  ? "border-claude bg-hijau-t dark:border-claude/60 dark:bg-claude/10 dark:text-white dark:shadow-[0_0_10px_rgba(26,122,82,0.25)]"
+                  ? "border-claude bg-hijau-t dark:border-claude/60 dark:bg-claude/10 dark:text-white"
                   : "border-dashboard-border bg-white hover:border-black/30 hover:bg-gray-50 dark:bg-card-1 dark:text-gray-200 dark:hover:border-claude/30 dark:hover:bg-card-2"
               }`}
             >
               <div
                 className={`flex size-6 shrink-0 items-center justify-center rounded-full text-xs font-medium ${
                   selected
-                    ? "bg-claude text-white dark:shadow-[0_0_8px_rgba(26,122,82,0.6)]"
+                    ? "bg-claude text-white"
                     : "bg-gray-200 text-gray-700 dark:bg-dashboard-border dark:text-gray-300"
                 }`}
               >
                 {String.fromCharCode(65 + idx)}
               </div>
-              <span className="flex-1">{opt}</span>
+              <span className="flex-1">{opt.text}</span>
             </button>
           );
         })}
@@ -507,73 +536,20 @@ function QuestionBody({
     );
   }
 
-  if (question.type === "multi") {
-    const arr = (value as string[] | null) ?? [];
-    return (
-      <div className="flex flex-col gap-2">
-        <p className="text-sm text-gray-500 dark:text-gray-400">
-          Pilih semua jawaban yang sesuai (boleh lebih dari satu).
-        </p>
-        {question.options.map((opt) => {
-          const selected = arr.includes(opt);
-          return (
-            <button
-              key={opt}
-              type="button"
-              onClick={() => onToggleMulti(opt)}
-              className={`flex items-center gap-3 rounded-lg border-[1.5px] px-4 py-3 text-left text-sm transition ${
-                selected
-                  ? "border-claude bg-hijau-t dark:border-claude/60 dark:bg-claude/10 dark:text-white dark:shadow-[0_0_10px_rgba(26,122,82,0.25)]"
-                  : "border-dashboard-border bg-white hover:border-black/30 hover:bg-gray-50 dark:bg-card-1 dark:text-gray-200 dark:hover:border-claude/30 dark:hover:bg-card-2"
-              }`}
-            >
-              <div
-                className={`flex size-6 shrink-0 items-center justify-center rounded-md text-xs font-medium ${
-                  selected
-                    ? "bg-claude text-white dark:shadow-[0_0_8px_rgba(26,122,82,0.6)]"
-                    : "border border-gray-300 bg-white text-gray-700 dark:border-dashboard-border dark:bg-card-1 dark:text-gray-300"
-                }`}
-              >
-                {selected ? "✓" : ""}
-              </div>
-              <span className="flex-1">{opt}</span>
-            </button>
-          );
-        })}
-      </div>
-    );
-  }
-
-  if (question.type === "short") {
-    return (
-      <div className="flex flex-col gap-2">
-        <p className="text-sm text-gray-500 dark:text-gray-400">
-          Tuliskan jawaban singkat.
-        </p>
-        <input
-          type="text"
-          value={(value as string | null) ?? ""}
-          onChange={(e) => onTextChange(e.target.value)}
-          maxLength={255}
-          placeholder={question.placeholder}
-          className="w-full rounded-lg border border-dashboard-border px-4 py-3 text-sm transition focus:border-claude focus:outline-none dark:bg-card-1 dark:text-white dark:placeholder:text-gray-500 dark:focus:border-claude/60 dark:focus:shadow-[0_0_10px_rgba(26,122,82,0.2)]"
-        />
-      </div>
-    );
-  }
-
+  const text = typeof value === "string" ? value : "";
   return (
     <div className="flex flex-col gap-2">
-      <p className="text-sm text-gray-500 dark:text-gray-400">
-        Tuliskan jawabanmu dengan lebih lengkap.
-      </p>
+      <p className="text-sm text-gray-500 dark:text-gray-400">{hint}</p>
       <textarea
-        value={(value as string | null) ?? ""}
-        onChange={(e) => onTextChange(e.target.value)}
-        placeholder={question.placeholder}
-        rows={6}
-        className="w-full resize-none rounded-lg border border-dashboard-border px-4 py-3 text-sm transition focus:border-claude focus:outline-none dark:bg-card-1 dark:text-white dark:placeholder:text-gray-500 dark:focus:border-claude/60 dark:focus:shadow-[0_0_10px_rgba(26,122,82,0.2)]"
+        value={text}
+        onChange={(e) => onChange(e.target.value)}
+        maxLength={PRE_ASSESSMENT_TEXT_MAX}
+        rows={item.section === "practice" ? 10 : 6}
+        className="w-full resize-y rounded-lg border border-dashboard-border px-4 py-3 text-sm transition focus:border-claude focus:outline-none dark:bg-card-1 dark:text-white dark:placeholder:text-gray-500 dark:focus:border-claude/60"
       />
+      <span className="self-end text-xs text-gray-400">
+        {text.length} / {PRE_ASSESSMENT_TEXT_MAX}
+      </span>
     </div>
   );
 }
@@ -581,7 +557,7 @@ function QuestionBody({
 function LegendItem({ color, label }: { color: string; label: string }) {
   return (
     <div className="flex items-center gap-2">
-      <span className={`size-3 rounded ${color}`} />
+      <span className={`size-3 rounded-lg ${color}`} />
       <span>{label}</span>
     </div>
   );

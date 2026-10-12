@@ -111,7 +111,7 @@ function FieldRow({
   return (
     <div className="flex gap-3">
       {icon && (
-        <div className="size-9 shrink-0 rounded-md border border-dashboard-border bg-card-2 flex items-center justify-center text-foreground dark:text-gray-300">
+        <div className="size-9 shrink-0 rounded-lg border border-dashboard-border bg-card-2 flex items-center justify-center text-foreground dark:text-gray-300">
           {icon}
         </div>
       )}
@@ -363,7 +363,7 @@ export default function CreateSelfPracticeAILN({
                   }`}
                 >
                   <div
-                    className={`flex size-9 shrink-0 items-center justify-center rounded-md ${
+                    className={`flex size-9 shrink-0 items-center justify-center rounded-lg ${
                       active
                         ? "bg-claude text-white"
                         : "bg-card-2 text-foreground dark:text-gray-300"
@@ -439,14 +439,14 @@ export default function CreateSelfPracticeAILN({
               unstyled
               classNames={{
                 control: ({ isFocused }) =>
-                  `rounded-md border bg-card-2 px-2 py-1 text-sm transition ${
+                  `rounded-lg border bg-card-2 px-2 py-1 text-sm transition ${
                     isFocused ? "border-claude" : "border-dashboard-border"
                   }`,
                 valueContainer: () => "flex flex-wrap gap-1 py-0.5",
                 placeholder: () => "px-1 text-gray-400 dark:text-gray-500",
                 input: () => "px-1 text-sm dark:text-gray-200",
                 multiValue: () =>
-                  "inline-flex items-center overflow-hidden rounded-md bg-hijau-t text-xs font-medium text-claude dark:bg-claude/10 dark:text-lime-bright",
+                  "inline-flex items-center overflow-hidden rounded-lg bg-hijau-t text-xs font-medium text-claude dark:bg-claude/10 dark:text-lime-bright",
                 multiValueLabel: () => "py-0.5 pl-2",
                 multiValueRemove: () =>
                   "flex items-center px-1 hover:bg-hijau hover:text-forest-deep dark:hover:bg-claude/20",
@@ -455,10 +455,10 @@ export default function CreateSelfPracticeAILN({
                 dropdownIndicator: () => "px-1 hover:text-gray-600",
                 clearIndicator: () => "px-1 hover:text-gray-600",
                 menu: () =>
-                  "z-50 mt-1 overflow-hidden rounded-md border border-dashboard-border bg-card-1 shadow-lg",
+                  "z-50 mt-1 overflow-hidden rounded-lg border border-dashboard-border bg-card-1 shadow-lg",
                 menuList: () => "max-h-60 overflow-y-auto p-1",
                 option: ({ isFocused, isDisabled }) =>
-                  `rounded px-2 py-1.5 text-sm ${
+                  `rounded-lg px-2 py-1.5 text-sm ${
                     isDisabled
                       ? "cursor-not-allowed text-gray-300 dark:text-gray-600"
                       : isFocused
@@ -655,7 +655,7 @@ export default function CreateSelfPracticeAILN({
                   const saved = without - withAi;
                   const pct = Math.round((saved / without) * 100);
                   return (
-                    <span className="inline-flex items-center gap-1.5 rounded-md bg-emerald-100 px-2.5 py-1 text-xs font-medium text-emerald-700 dark:bg-emerald-500/15 dark:text-emerald-300">
+                    <span className="inline-flex items-center gap-1.5 rounded-lg bg-emerald-100 px-2.5 py-1 text-xs font-medium text-emerald-700 dark:bg-emerald-500/15 dark:text-emerald-300">
                       Jam dihemat: {saved.toFixed(saved % 1 === 0 ? 0 : 1)} jam
                       · {pct}% lebih cepat
                     </span>
@@ -733,7 +733,7 @@ export default function CreateSelfPracticeAILN({
                       );
                       setAiToolCustomInput("");
                     }}
-                    className="rounded-md border border-dashboard-border bg-white px-3 py-2 text-xs font-medium  text-foreground hover:border-foreground/40 disabled:cursor-not-allowed disabled:opacity-60 dark:bg-card-2 dark:text-gray-200"
+                    className="rounded-lg border border-dashboard-border bg-white px-3 py-2 text-xs font-medium  text-foreground hover:border-foreground/40 disabled:cursor-not-allowed disabled:opacity-60 dark:bg-card-2 dark:text-gray-200"
                   >
                     Tambah
                   </button>
@@ -758,7 +758,7 @@ export default function CreateSelfPracticeAILN({
                   onClick={() => {
                     if (!isUploading) fileInputRef.current?.click();
                   }}
-                  className={`relative flex flex-col items-center justify-center gap-1.5 rounded-md border-2 border-dashed px-4 py-6 text-center transition ${
+                  className={`relative flex flex-col items-center justify-center gap-1.5 rounded-lg border-2 border-dashed px-4 py-6 text-center transition ${
                     isUploading
                       ? "cursor-not-allowed opacity-60 border-dashboard-border bg-card-2"
                       : isDragOver
@@ -809,7 +809,7 @@ export default function CreateSelfPracticeAILN({
               </div>
 
               {outcomeFileName && (
-                <div className="mt-2 flex items-center justify-between gap-2 rounded-md border border-dashboard-border bg-card-2 px-3 py-2">
+                <div className="mt-2 flex items-center justify-between gap-2 rounded-lg border border-dashboard-border bg-card-2 px-3 py-2">
                   <div className="flex items-center gap-2 min-w-0">
                     <FileUp className="size-4 shrink-0 text-foreground dark:text-gray-300" />
                     <span className="truncate text-xs font-medium  text-foreground dark:text-gray-200">
@@ -822,7 +822,7 @@ export default function CreateSelfPracticeAILN({
                       setOutcomeProof("");
                       setOutcomeFileName(null);
                     }}
-                    className="rounded p-1 text-gray-500 hover:bg-black/5 hover:text-foreground dark:hover:bg-white/5 dark:hover:text-white"
+                    className="rounded-lg p-1 text-gray-500 hover:bg-black/5 hover:text-foreground dark:hover:bg-white/5 dark:hover:text-white"
                   >
                     <X className="size-3.5" />
                   </button>

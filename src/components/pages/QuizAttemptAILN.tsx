@@ -159,7 +159,7 @@ export default function QuizAttemptAILN({
     <PageContainerAILN>
       <div className="flex w-full flex-col gap-4">
         {/* Header */}
-        <div className="flex flex-col gap-3 rounded-xl border bg-white p-4 dark:border-dashboard-border dark:bg-card-1 dark:shadow-[0_0_18px_rgba(26,122,82,0.08)]">
+        <div className="flex flex-col gap-3 rounded-lg border bg-white p-4 dark:border-dashboard-border dark:bg-card-1 dark:shadow-[0_0_18px_rgba(26,122,82,0.08)]">
           <div className="flex flex-wrap items-center gap-3">
             <h1 className="flex-1 text-base font-medium dark:text-white">
               {quiz.name}
@@ -184,7 +184,7 @@ export default function QuizAttemptAILN({
             <button
               type="button"
               onClick={handleExit}
-              className="flex items-center gap-1.5 rounded-md border border-gray-200 px-3 py-1.5 text-xs font-medium text-gray-700 transition hover:bg-gray-50 dark:border-dashboard-border dark:text-gray-300 dark:hover:bg-card-2"
+              className="flex items-center gap-1.5 rounded-lg border border-gray-200 px-3 py-1.5 text-xs font-medium text-gray-700 transition hover:bg-gray-50 dark:border-dashboard-border dark:text-gray-300 dark:hover:bg-card-2"
             >
               <FontAwesomeIcon
                 icon={faRightFromBracket}
@@ -214,7 +214,7 @@ export default function QuizAttemptAILN({
         {/* Main body */}
         <div className="flex flex-1 flex-col gap-4 lg:flex-row">
           {/* Left panel: question */}
-          <div className="flex flex-1 flex-col gap-4 rounded-xl border bg-white p-4 sm:p-6 dark:border-dashboard-border dark:bg-card-1 dark:shadow-[0_0_18px_rgba(26,122,82,0.08)]">
+          <div className="flex flex-1 flex-col gap-4 rounded-lg border bg-white p-4 sm:p-6 dark:border-dashboard-border dark:bg-card-1 dark:shadow-[0_0_18px_rgba(26,122,82,0.08)]">
             <div className="flex items-center gap-2">
               <span className="text-[11px] font-medium uppercase tracking-widest text-gray-500 dark:text-gray-400">
                 SOAL {currentIdx + 1}
@@ -288,7 +288,7 @@ export default function QuizAttemptAILN({
 
           {/* Right panel: navigation */}
           <div className="order-first flex w-full shrink-0 flex-col gap-4 lg:order-none lg:w-72">
-            <div className="flex flex-col gap-3 rounded-xl border bg-white p-4 dark:border-dashboard-border dark:bg-card-1 dark:shadow-[0_0_18px_rgba(26,122,82,0.08)]">
+            <div className="flex flex-col gap-3 rounded-lg border bg-white p-4 dark:border-dashboard-border dark:bg-card-1 dark:shadow-[0_0_18px_rgba(26,122,82,0.08)]">
               <span className="text-[11px] font-medium uppercase tracking-widest text-gray-500 dark:text-gray-400">
                 NAVIGASI SOAL
               </span>
@@ -315,7 +315,7 @@ export default function QuizAttemptAILN({
                       key={q.id}
                       type="button"
                       onClick={() => setCurrentIdx(idx)}
-                      className={`flex aspect-square items-center justify-center rounded-md text-xs font-medium transition hover:opacity-80 ${cls}`}
+                      className={`flex aspect-square items-center justify-center rounded-lg text-xs font-medium transition hover:opacity-80 ${cls}`}
                     >
                       {idx + 1}
                     </button>
@@ -365,7 +365,7 @@ export default function QuizAttemptAILN({
 function LegendItem({ color, label }: { color: string; label: string }) {
   return (
     <div className="flex items-center gap-2">
-      <span className={`size-3 rounded ${color}`} />
+      <span className={`size-3 rounded-lg ${color}`} />
       <span>{label}</span>
     </div>
   );
