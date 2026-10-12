@@ -205,7 +205,7 @@ export default function MaterialDetailsAILN({
             {fileUrl && (
               <div className="overflow-hidden rounded-xl border border-dashboard-border bg-white dark:bg-card-1 dark:shadow-[0_0_18px_rgba(26,122,82,0.08)]">
                 <div className="flex items-center justify-between gap-3 border-b border-dashboard-border px-4 py-3">
-                  <div className="flex items-center gap-2 text-sm font-semibold text-sevenpreneur-coal dark:text-white">
+                  <div className="flex items-center gap-2 text-sm font-medium text-sevenpreneur-coal dark:text-white">
                     <FontAwesomeIcon
                       icon={faFilePdf}
                       className="h-4 w-4 text-red-500"
@@ -283,10 +283,10 @@ export default function MaterialDetailsAILN({
                         className={[
                           "block rounded-md px-2.5 py-1.5 text-sm leading-relaxed transition-colors",
                           entry.level === 1
-                            ? "font-semibold"
+                            ? "font-medium"
                             : entry.level === 2
                               ? "font-medium"
-                              : "font-normal",
+                              : "font-light",
                           entry.level === 3 ? "pl-5" : "pl-2.5",
                           "text-gray-600 hover:bg-black/5 hover:text-sevenpreneur-coal dark:text-gray-400 dark:hover:bg-card-2 dark:hover:text-white",
                         ].join(" ")}
@@ -357,7 +357,7 @@ export default function MaterialDetailsAILN({
 
               {updatedAt && (
                 <div className="rounded-xl border border-dashboard-border bg-white p-4 dark:bg-card-1 dark:shadow-[0_0_18px_rgba(26,122,82,0.08)]">
-                  <div className="mb-2 text-sm font-semibold text-sevenpreneur-coal dark:text-white">
+                  <div className="mb-2 text-sm font-medium text-sevenpreneur-coal dark:text-white">
                     Di halaman ini
                   </div>
                   <div className="flex items-center gap-2 text-sm text-gray-600 dark:text-gray-400">
@@ -389,7 +389,7 @@ export default function MaterialDetailsAILN({
                   <span className="text-[11px] uppercase tracking-wide text-gray-400 dark:text-gray-500">
                     Materi Sebelumnya
                   </span>
-                  <span className="line-clamp-1 text-sm font-semibold text-sevenpreneur-coal dark:text-white">
+                  <span className="line-clamp-1 text-sm font-medium text-sevenpreneur-coal dark:text-white">
                     {prevMaterial.title}
                   </span>
                 </span>
@@ -404,7 +404,7 @@ export default function MaterialDetailsAILN({
                     <span className="text-[11px] uppercase tracking-wide text-gray-400 dark:text-gray-500">
                       Materi Selanjutnya
                     </span>
-                    <span className="line-clamp-1 text-sm font-semibold text-sevenpreneur-coal dark:text-white">
+                    <span className="line-clamp-1 text-sm font-medium text-sevenpreneur-coal dark:text-white">
                       {nextMaterial.title}
                     </span>
                   </span>
@@ -423,7 +423,7 @@ export default function MaterialDetailsAILN({
                     <span className="text-[11px] uppercase tracking-wide text-gray-400 dark:text-gray-500">
                       Materi Selanjutnya
                     </span>
-                    <span className="line-clamp-1 text-sm font-semibold text-sevenpreneur-coal dark:text-white">
+                    <span className="line-clamp-1 text-sm font-medium text-sevenpreneur-coal dark:text-white">
                       {nextMaterial.title}
                     </span>
                   </span>

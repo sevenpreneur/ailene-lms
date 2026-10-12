@@ -49,7 +49,7 @@
   --card-1: #ffffff;
   --card-2: #f8faf7;
   --dashboard-border: #dde6d8;
-  /* Sidebar chrome stays dark forest regardless of app theme (matches ailene-os). */
+  /* Sidebar chrome is dark forest in light mode (matches ailene-os); dark mode swaps it to neutral. */
   --sb-bg: #062319;
   --sb-border: #0f4a34;
   --sb-border-soft: #0c3b29;
@@ -125,21 +125,21 @@
 }
 
 .dark {
-  --background: #05120c;
-  --foreground: #e7f2e9;
+  /* Dark surfaces are pure neutral (no green tint) — only lightness steps between layers; green stays an accent. */
+  --background: #0a0a0a;
+  --foreground: #ededed;
   --border: oklch(1 0 0 / 10%);
-  --dashboard-bg: #05120c;
-  --card-1: #0b2118;
-  --card-2: #102a1e;
-  --dashboard-border: #163a2b;
-  /* Sidebar chrome stays the same dark forest as light mode — see :root. */
-  --sb-bg: #062319;
-  --sb-border: #0f4a34;
-  --sb-border-soft: #0c3b29;
-  --sb-text: #a9c2b3;
-  --sb-text-strong: #f4faf1;
-  --sb-item-hover: #103d2d;
-  --sb-item-active-bg: #103d2d;
+  --dashboard-bg: #0a0a0a;
+  --card-1: #141414;
+  --card-2: #1a1a1a;
+  --dashboard-border: #262626;
+  --sb-bg: #0f0f0f;
+  --sb-border: #262626;
+  --sb-border-soft: #1f1f1f;
+  --sb-text: #a3a3a3;
+  --sb-text-strong: #f5f5f5;
+  --sb-item-hover: #1f1f1f;
+  --sb-item-active-bg: #1f1f1f;
   --sb-item-active-text: #d6ee30;
   --color-destructive-muted: var(--color-sevenpreneur-red-midnight);
 
@@ -211,9 +211,9 @@
 }
 
 .dark .sidebar-champion {
-  --sb-text: #a9c2b3;
-  --sb-item-hover: #103d2d;
-  --sb-item-active-bg: #103d2d;
+  --sb-text: #a3a3a3;
+  --sb-item-hover: #1f1f1f;
+  --sb-item-active-bg: #1f1f1f;
   --sb-item-active-text: var(--lime-bright);
   --sb-glow: rgba(214, 238, 48, 0.18);
   --sb-glow-soft: rgba(214, 238, 48, 0.1);
@@ -323,6 +323,13 @@
     @apply bg-background text-foreground;
     background: var(--background);
     color: var(--foreground);
+    /* Body copy is light; nothing in the app goes heavier than medium (500). */
+    font-weight: 300;
+  }
+  b,
+  strong,
+  th {
+    font-weight: 500;
   }
 }
 

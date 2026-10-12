@@ -63,7 +63,7 @@ function ActionTileAILN({
         <Icon className="size-4" />
       </span>
       <span className="min-w-0">
-        <span className="block text-sm font-semibold text-foreground dark:text-white">
+        <span className="block text-sm font-medium text-foreground dark:text-white">
           {title}
         </span>
         <span className="mt-0.5 block text-xs text-gray-500 dark:text-gray-400">

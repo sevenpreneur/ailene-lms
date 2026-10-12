@@ -28,7 +28,7 @@ export default function RewardLabelStudentAILN({
         />
         <div className="flex flex-col">
           <div className="text-xs text-gray-500 dark:text-gray-400">Reward</div>
-          <div className="font-bold dark:text-white">{formattedXp} XP</div>
+          <div className="font-medium dark:text-white">{formattedXp} XP</div>
         </div>
       </div>
     );
@@ -42,7 +42,7 @@ export default function RewardLabelStudentAILN({
         className="size-4 text-amber-500 dark:text-amber-400"
         fill="currentColor"
       />
-      <div className="text-sm font-semibold dark:text-white">
+      <div className="text-sm font-medium dark:text-white">
         {formattedXp} XP
       </div>
     </div>

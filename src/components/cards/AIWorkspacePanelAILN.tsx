@@ -106,10 +106,10 @@ export default function AIWorkspacePanelAILN({
       <div className="flex shrink-0 items-center justify-between border-b border-dashboard-border px-5 py-4">
         <div className="flex items-center gap-2">
           <Bot size={17} className="text-claude dark:text-lime-bright" />
-          <h2 className="text-sm font-semibold text-foreground">
+          <h2 className="text-sm font-medium text-foreground">
             AI Workspace
           </h2>
-          <span className="rounded-full bg-hijau-t px-2 py-0.5 text-[10px] font-bold uppercase tracking-wide text-claude dark:bg-claude/15 dark:text-lime-bright">
+          <span className="rounded-full bg-hijau-t px-2 py-0.5 text-[10px] font-medium uppercase tracking-wide text-claude dark:bg-claude/15 dark:text-lime-bright">
             Beta
           </span>
         </div>
@@ -142,7 +142,7 @@ export default function AIWorkspacePanelAILN({
               return <Icon size={20} />;
             })()}
           </div>
-          <p className="text-sm font-semibold text-foreground">
+          <p className="text-sm font-medium text-foreground">
             {comingSoon[activeTab].title}
           </p>
           <p className="max-w-xs text-xs text-muted-foreground">
@@ -178,7 +178,7 @@ export default function AIWorkspacePanelAILN({
 
             {messages.length === 1 && (
               <div>
-                <p className="mb-2.5 text-xs font-semibold text-muted-foreground">
+                <p className="mb-2.5 text-xs font-medium text-muted-foreground">
                   Coba tanya
                 </p>
                 <div className="flex flex-wrap gap-2">

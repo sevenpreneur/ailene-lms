@@ -31,7 +31,7 @@ export default function AttentionMemberRowAILN({
       <div className="flex min-w-0 items-center gap-3">
         <MemberAvatar name={member.full_name} src={member.avatar} />
         <div className="min-w-0">
-          <div className="truncate text-sm font-semibold text-gray-900 dark:text-white">
+          <div className="truncate text-sm font-medium text-gray-900 dark:text-white">
             {member.full_name}
           </div>
           <div className="truncate text-xs text-gray-500 dark:text-gray-400">
@@ -39,7 +39,7 @@ export default function AttentionMemberRowAILN({
           </div>
         </div>
       </div>
-      <span className="text-center text-sm font-bold text-gray-900 dark:text-white">
+      <span className="text-center text-sm font-medium text-gray-900 dark:text-white">
         L{member.level_number}
       </span>
       <span className="text-center text-[11px] font-medium text-gray-500 dark:text-gray-400">
@@ -79,7 +79,7 @@ function MemberAvatar({ name, src }: { name: string; src: string | null }) {
   }
 
   return (
-    <div className="flex size-9 shrink-0 items-center justify-center rounded-full border border-dashboard-border bg-hijau-t text-xs font-bold text-claude dark:bg-claude/10 dark:text-lime-bright">
+    <div className="flex size-9 shrink-0 items-center justify-center rounded-full border border-dashboard-border bg-hijau-t text-xs font-medium text-claude dark:bg-claude/10 dark:text-lime-bright">
       {initials || <Users className="size-4" />}
     </div>
   );

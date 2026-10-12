@@ -56,7 +56,7 @@ export default function DepartmentDistributionRowAILN({
           {group.name}
         </span>
         {showFlag && isUnderperform && (
-          <span className="shrink-0 rounded-sm bg-amber-200 px-1 text-[10px] font-semibold text-amber-800 dark:bg-amber-500/20 dark:text-amber-300">
+          <span className="shrink-0 rounded-sm bg-amber-200 px-1 text-[10px] font-medium text-amber-800 dark:bg-amber-500/20 dark:text-amber-300">
             ⚠
           </span>
         )}
@@ -72,7 +72,7 @@ export default function DepartmentDistributionRowAILN({
               <Tooltip key={level.level_id}>
                 <TooltipTrigger asChild>
                   <div
-                    className="flex cursor-pointer items-center justify-center px-1 text-[11px] font-bold transition-opacity hover:opacity-90"
+                    className="flex cursor-pointer items-center justify-center px-1 text-[11px] font-medium transition-opacity hover:opacity-90"
                     style={{
                       width: `${pct}%`,
                       backgroundColor: levelColorByCode(level.code),
@@ -86,7 +86,7 @@ export default function DepartmentDistributionRowAILN({
                 </TooltipTrigger>
                 <TooltipContent className="border border-dashboard-border bg-popover text-popover-foreground shadow-md">
                   <div className="flex flex-col gap-0.5">
-                    <span className="font-semibold">
+                    <span className="font-medium">
                       {level.label ?? level.code}
                       {name ? ` · ${name}` : ""}
                     </span>
@@ -101,7 +101,7 @@ export default function DepartmentDistributionRowAILN({
           })}
         </div>
       </TooltipProvider>
-      <div className="text-right text-xs font-semibold text-muted-foreground dark:text-gray-200">
+      <div className="text-right text-xs font-medium text-muted-foreground dark:text-gray-200">
         {group.total} org
       </div>
     </Link>

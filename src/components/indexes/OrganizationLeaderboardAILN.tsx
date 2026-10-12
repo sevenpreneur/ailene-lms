@@ -100,7 +100,7 @@ export default function OrganizationLeaderboardAILN({
         <div className="-mx-5 overflow-x-auto">
           <table className="w-full min-w-[720px] border-collapse text-sm">
             <thead>
-              <tr className="border-y border-dashboard-border bg-muted/40 text-left text-[11px] font-semibold uppercase tracking-wider text-muted-foreground">
+              <tr className="border-y border-dashboard-border bg-muted/40 text-left text-[11px] font-medium uppercase tracking-wider text-muted-foreground">
                 <th className="py-2.5 pl-5 pr-3">Departemen</th>
                 <th className="py-2.5 pr-3 text-right">Jumlah</th>
                 <th className="py-2.5 pr-3">Rata-rata Skor</th>
@@ -123,11 +123,11 @@ export default function OrganizationLeaderboardAILN({
                     <td className="py-3 pl-5 pr-3">
                       <div className="flex items-center gap-3">
                         <span
-                          className={`flex size-9 shrink-0 items-center justify-center rounded-full text-xs font-bold ${tintFor(d.name)}`}
+                          className={`flex size-9 shrink-0 items-center justify-center rounded-full text-xs font-medium ${tintFor(d.name)}`}
                         >
                           {initials(d.name)}
                         </span>
-                        <span className="font-semibold text-foreground">
+                        <span className="font-medium text-foreground">
                           {d.name}
                         </span>
                       </div>
@@ -141,7 +141,7 @@ export default function OrganizationLeaderboardAILN({
                     {/* Rata-rata skor */}
                     <td className="py-3 pr-3">
                       <div className="flex items-center gap-2">
-                        <span className="w-7 shrink-0 tabular-nums font-bold text-foreground">
+                        <span className="w-7 shrink-0 tabular-nums font-medium text-foreground">
                           {formatDecimal(d.avg_score)}
                         </span>
                         <div className="h-1.5 w-20 overflow-hidden rounded-full bg-muted">
@@ -166,7 +166,7 @@ export default function OrganizationLeaderboardAILN({
                     </td>
 
                     {/* Jam dihemat */}
-                    <td className="py-3 pr-3 text-right tabular-nums font-semibold text-foreground">
+                    <td className="py-3 pr-3 text-right tabular-nums font-medium text-foreground">
                       {formatDecimal(d.hours)}
                     </td>
 
@@ -196,7 +196,7 @@ function TrendCell({ percent }: { percent: number | null }) {
     : "text-rose-600 dark:text-rose-400";
   return (
     <span
-      className={`inline-flex items-center gap-1 text-sm font-semibold tabular-nums ${tone}`}
+      className={`inline-flex items-center gap-1 text-sm font-medium tabular-nums ${tone}`}
     >
       <Icon size={14} strokeWidth={2.5} />
       {Math.abs(percent)}%

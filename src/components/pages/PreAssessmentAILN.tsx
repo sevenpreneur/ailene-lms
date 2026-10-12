@@ -166,7 +166,7 @@ export default function PreAssessmentAILN() {
         <div className="flex flex-col gap-3 rounded-xl border bg-white p-4 dark:border-dashboard-border dark:bg-card-1 dark:shadow-[0_0_18px_rgba(26,122,82,0.08)]">
           <div className="flex flex-wrap items-center gap-3">
             <div className="flex-1">
-              <h1 className="text-base font-semibold dark:text-white">
+              <h1 className="text-base font-medium dark:text-white">
                 Pre-Assessment AI Readiness
               </h1>
               <p className="text-xs text-gray-500 dark:text-gray-400">
@@ -178,7 +178,7 @@ export default function PreAssessmentAILN() {
             <span className="rounded-full bg-gray-100 px-3 py-1 text-xs font-medium text-gray-700 dark:bg-dashboard-border dark:text-gray-300">
               Soal {currentIdx + 1} / {totalQuestions}
             </span>
-            <span className="rounded-full bg-hijau-t px-3 py-1 text-xs font-semibold text-claude dark:bg-claude/10 dark:text-lime-bright dark:border dark:border-claude/40">
+            <span className="rounded-full bg-hijau-t px-3 py-1 text-xs font-medium text-claude dark:bg-claude/10 dark:text-lime-bright dark:border dark:border-claude/40">
               {answeredCount} / {totalQuestions} terjawab ({progressPct}%)
             </span>
           </div>
@@ -204,11 +204,11 @@ export default function PreAssessmentAILN() {
           {/* Left: question */}
           <div className="flex flex-1 flex-col gap-4 rounded-xl border bg-white p-4 sm:p-6 dark:border-dashboard-border dark:bg-card-1 dark:shadow-[0_0_18px_rgba(26,122,82,0.08)]">
             <div className="flex flex-wrap items-center gap-2">
-              <span className="text-[11px] font-semibold uppercase tracking-widest text-gray-500 dark:text-gray-400">
+              <span className="text-[11px] font-medium uppercase tracking-widest text-gray-500 dark:text-gray-400">
                 SOAL {currentIdx + 1}
               </span>
               <span
-                className={`rounded-full px-2.5 py-0.5 text-[11px] font-semibold ${
+                className={`rounded-full px-2.5 py-0.5 text-[11px] font-medium ${
                   PRE_ASSESSMENT_CATEGORY_COLORS[currentQ.category]
                 }`}
               >
@@ -224,7 +224,7 @@ export default function PreAssessmentAILN() {
               )}
             </div>
 
-            <p className="text-[17px] font-semibold leading-snug text-gray-900 dark:text-white">
+            <p className="text-[17px] font-medium leading-snug text-gray-900 dark:text-white">
               {currentQ.question}
               {currentQ.required && (
                 <span className="ml-1 text-red-500 dark:text-red-400">*</span>
@@ -262,7 +262,7 @@ export default function PreAssessmentAILN() {
           {/* Right: navigation panel */}
           <div className="order-first flex w-full shrink-0 flex-col gap-4 lg:order-none lg:w-80">
             <div className="flex flex-col gap-3 rounded-xl border bg-white p-4 dark:border-dashboard-border dark:bg-card-1 dark:shadow-[0_0_18px_rgba(26,122,82,0.08)]">
-              <span className="text-[11px] font-semibold uppercase tracking-widest text-gray-500 dark:text-gray-400">
+              <span className="text-[11px] font-medium uppercase tracking-widest text-gray-500 dark:text-gray-400">
                 NAVIGASI
               </span>
               <div className="grid grid-cols-5 gap-2">
@@ -287,7 +287,7 @@ export default function PreAssessmentAILN() {
                       key={q.id}
                       type="button"
                       onClick={() => setCurrentIdx(idx)}
-                      className={`flex aspect-square items-center justify-center rounded-md text-xs font-semibold transition hover:opacity-80 ${cls}`}
+                      className={`flex aspect-square items-center justify-center rounded-md text-xs font-medium transition hover:opacity-80 ${cls}`}
                       title={q.question}
                     >
                       {idx + 1}
@@ -312,14 +312,14 @@ export default function PreAssessmentAILN() {
             </div>
 
             <div className="flex flex-col gap-2 rounded-xl border bg-white p-4 dark:border-dashboard-border dark:bg-card-1 dark:shadow-[0_0_18px_rgba(26,122,82,0.08)]">
-              <span className="text-[11px] font-semibold uppercase tracking-widest text-gray-500 dark:text-gray-400">
+              <span className="text-[11px] font-medium uppercase tracking-widest text-gray-500 dark:text-gray-400">
                 STATUS
               </span>
               <div className="flex items-center justify-between text-sm">
                 <span className="text-gray-600 dark:text-gray-400">
                   Terjawab
                 </span>
-                <span className="font-semibold text-gray-900 dark:text-white">
+                <span className="font-medium text-gray-900 dark:text-white">
                   {answeredCount} / {totalQuestions}
                 </span>
               </div>
@@ -328,7 +328,7 @@ export default function PreAssessmentAILN() {
                   Wajib belum diisi
                 </span>
                 <span
-                  className={`font-semibold ${
+                  className={`font-medium ${
                     missingRequired.length === 0
                       ? "text-emerald-600 dark:text-emerald-400"
                       : "text-red-600 dark:text-red-400"
@@ -408,7 +408,7 @@ function PreAssessmentWelcomeAILN({ onStart }: { onStart: () => void }) {
               className="hidden h-12 w-auto object-contain dark:block"
             />
           </div>
-          <h1 className="text-center text-3xl font-bold leading-tight text-gray-900 dark:text-white">
+          <h1 className="text-center text-3xl font-medium leading-tight text-gray-900 dark:text-white">
             Halo {firstName}, selamat datang 👋
           </h1>
           <p className="mt-3 text-center text-base leading-7 text-gray-600 dark:text-gray-300">
@@ -427,7 +427,7 @@ function PreAssessmentWelcomeAILN({ onStart }: { onStart: () => void }) {
                   {point.icon}
                 </div>
                 <div className="min-w-0">
-                  <div className="text-sm font-semibold text-gray-900 dark:text-white">
+                  <div className="text-sm font-medium text-gray-900 dark:text-white">
                     {point.title}
                   </div>
                   <p className="mt-0.5 text-sm leading-6 text-gray-500 dark:text-gray-400">
@@ -491,7 +491,7 @@ function QuestionBody({
               }`}
             >
               <div
-                className={`flex size-6 shrink-0 items-center justify-center rounded-full text-xs font-bold ${
+                className={`flex size-6 shrink-0 items-center justify-center rounded-full text-xs font-medium ${
                   selected
                     ? "bg-claude text-white dark:shadow-[0_0_8px_rgba(26,122,82,0.6)]"
                     : "bg-gray-200 text-gray-700 dark:bg-dashboard-border dark:text-gray-300"
@@ -528,7 +528,7 @@ function QuestionBody({
               }`}
             >
               <div
-                className={`flex size-6 shrink-0 items-center justify-center rounded-md text-xs font-bold ${
+                className={`flex size-6 shrink-0 items-center justify-center rounded-md text-xs font-medium ${
                   selected
                     ? "bg-claude text-white dark:shadow-[0_0_8px_rgba(26,122,82,0.6)]"
                     : "border border-gray-300 bg-white text-gray-700 dark:border-dashboard-border dark:bg-card-1 dark:text-gray-300"

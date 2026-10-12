@@ -191,7 +191,7 @@ export default function ReviewUseCaseAILN({
               className="size-10 rounded-full object-cover"
             />
             <div>
-              <div className="text-sm font-semibold dark:text-white">
+              <div className="text-sm font-medium dark:text-white">
                 {s.member.full_name}
               </div>
               <div className="text-xs text-gray-500 dark:text-gray-400">
@@ -245,13 +245,13 @@ export default function ReviewUseCaseAILN({
                     />
                   </div>
                   <div className="flex flex-col gap-1">
-                    <div className="text-[11px] font-semibold uppercase tracking-wide text-gray-500 dark:text-gray-400">
+                    <div className="text-[11px] font-medium uppercase tracking-wide text-gray-500 dark:text-gray-400">
                       Outcome / bukti
                     </div>
                     <OutcomeProof value={s.outcome_proof} />
                   </div>
                   <div className="flex flex-col gap-1">
-                    <div className="text-[11px] font-semibold uppercase tracking-wide text-gray-500 dark:text-gray-400">
+                    <div className="text-[11px] font-medium uppercase tracking-wide text-gray-500 dark:text-gray-400">
                       Deskripsi penerapan
                     </div>
                     <p className="whitespace-pre-wrap rounded-md border border-dashboard-border bg-card-2 p-3 text-sm text-gray-700 dark:text-gray-200">
@@ -275,7 +275,7 @@ export default function ReviewUseCaseAILN({
             contentClassName="flex flex-col gap-5"
           >
             <div>
-              <div className="mb-1.5 text-[11px] font-semibold uppercase tracking-wide text-gray-500 dark:text-gray-400">
+              <div className="mb-1.5 text-[11px] font-medium uppercase tracking-wide text-gray-500 dark:text-gray-400">
                 Catatan Submission
               </div>
               <TextAreaAILN
@@ -295,7 +295,7 @@ export default function ReviewUseCaseAILN({
 
             {!canReview && s.comment && (
               <div className="rounded-md border border-hijau-t bg-hijau-t p-3 text-sm text-gray-700 dark:border-claude/30 dark:bg-claude/10 dark:text-gray-200">
-                <div className="mb-1 text-[11px] font-semibold uppercase tracking-wide text-claude dark:text-lime-bright">
+                <div className="mb-1 text-[11px] font-medium uppercase tracking-wide text-claude dark:text-lime-bright">
                   Catatan terakhir
                   {s.reviewed_at &&
                     ` · ${dayjs(s.reviewed_at)
@@ -315,7 +315,7 @@ export default function ReviewUseCaseAILN({
 function Metric({ label, value }: { label: string; value: string }) {
   return (
     <div className="flex flex-col gap-0.5 rounded-md border border-dashboard-border bg-card-2 p-2">
-      <div className="text-[10px] font-semibold uppercase tracking-wide text-gray-500 dark:text-gray-400">
+      <div className="text-[10px] font-medium uppercase tracking-wide text-gray-500 dark:text-gray-400">
         {label}
       </div>
       <div className="text-sm font-medium dark:text-gray-200">{value}</div>

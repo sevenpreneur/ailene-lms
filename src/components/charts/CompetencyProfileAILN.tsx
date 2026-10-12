@@ -77,7 +77,7 @@ export default function CompetencyProfileAILN({
 
         {/* Bar list */}
         <div className="flex flex-col gap-3">
-          <p className="text-[10px] font-semibold uppercase tracking-[0.18em] text-muted-foreground">
+          <p className="text-[10px] font-medium uppercase tracking-[0.18em] text-muted-foreground">
             Diagnosa per Pillar
           </p>
           <div className="grid grid-flow-col grid-rows-3 gap-x-6 gap-y-3">
@@ -86,10 +86,10 @@ export default function CompetencyProfileAILN({
               return (
                 <div key={d.key}>
                   <div className="flex items-baseline justify-between">
-                    <span className="text-sm font-semibold text-foreground dark:text-white">
+                    <span className="text-sm font-medium text-foreground dark:text-white">
                       {d.name}
                     </span>
-                    <span className="text-sm font-semibold tabular-nums text-foreground dark:text-white">
+                    <span className="text-sm font-medium tabular-nums text-foreground dark:text-white">
                       {formatScore(d.score)} / 5
                     </span>
                   </div>

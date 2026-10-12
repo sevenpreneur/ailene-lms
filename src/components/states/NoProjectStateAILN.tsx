@@ -28,7 +28,7 @@ export default function NoProjectStateAILN() {
     <div className="state-root flex flex-col w-full min-h-screen pt-24 px-6 items-center sm:pt-32 lg:px-0 lg:pt-0 lg:justify-center">
       <div className="state-attributes flex flex-col gap-4 max-w-md text-center items-center">
         <div className="state-text flex flex-col gap-2 items-center">
-          <h2 className="state-title flex font-bold text-center tracking-tight text-2xl dark:text-sevenpreneur-white">
+          <h2 className="state-title flex font-medium text-center tracking-tight text-2xl dark:text-sevenpreneur-white">
             Belum Tergabung ke Project
           </h2>
           <p className="state-description text-center font-medium text-emphasis dark:text-foreground">

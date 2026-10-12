@@ -145,7 +145,7 @@ export default function MembersChampionAILN({
                     <div className="max-h-[calc(100dvh-15rem)] overflow-auto">
                       <table className="w-full min-w-[34rem] border-collapse text-sm">
                         <thead>
-                          <tr className="text-left text-[10px] font-semibold uppercase tracking-wider text-gray-500 dark:text-gray-400">
+                          <tr className="text-left text-[10px] font-medium uppercase tracking-wider text-gray-500 dark:text-gray-400">
                             <th className="sticky top-0 z-10 border-y border-dashboard-border bg-card-2 px-5 py-2.5">
                               Anggota
                             </th>
@@ -211,7 +211,7 @@ function LevelPill({
     <button
       type="button"
       onClick={onClick}
-      className={`inline-flex items-center gap-2 rounded-full border px-4 py-2 text-sm font-semibold transition ${
+      className={`inline-flex items-center gap-2 rounded-full border px-4 py-2 text-sm font-medium transition ${
         active
           ? "border-claude bg-claude/10 text-claude dark:border-claude/40 dark:text-lime-bright"
           : "border-dashboard-border text-gray-600 hover:border-gray-400 dark:text-gray-300"
@@ -219,7 +219,7 @@ function LevelPill({
     >
       <span>{label}</span>
       <span
-        className={`inline-flex size-5 items-center justify-center rounded-full text-[11px] font-bold text-white ${
+        className={`inline-flex size-5 items-center justify-center rounded-full text-[11px] font-medium text-white ${
           active ? "bg-claude" : "bg-gray-400 dark:bg-gray-600"
         }`}
       >
@@ -256,7 +256,7 @@ function MemberRow({
             className="size-8 shrink-0 rounded-full object-cover"
           />
           <div className="min-w-0">
-            <div className="truncate text-sm font-semibold text-gray-900 dark:text-white">
+            <div className="truncate text-sm font-medium text-gray-900 dark:text-white">
               {member.user.full_name}
             </div>
             <div className="truncate text-xs font-inter text-gray-500 dark:text-gray-400">
@@ -286,7 +286,7 @@ function MemberRow({
       <td className="px-3 py-3">
         <div className="flex items-center gap-2">
           <span className={`size-1.5 shrink-0 rounded-full ${status.dot}`} />
-          <span className={`text-xs font-semibold ${status.text}`}>
+          <span className={`text-xs font-medium ${status.text}`}>
             {status.label}
           </span>
         </div>

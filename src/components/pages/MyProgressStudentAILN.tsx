@@ -90,7 +90,7 @@ function PreAssessmentReportGateway() {
       <span className="flex min-w-0 items-center gap-4">
         <ClipboardCheck className="size-7 shrink-0 text-white" />
         <span className="min-w-0">
-          <span className="block text-base font-bold text-white">
+          <span className="block text-base font-medium text-white">
             Laporan Pre-Assessment
           </span>
           <span className="mt-1 block text-sm text-gray-300 dark:text-gray-400">

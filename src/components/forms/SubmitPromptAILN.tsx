@@ -79,7 +79,7 @@ function FieldRow({
         {icon}
       </div>
       <div className="flex-1 flex flex-col gap-1.5 min-w-0">
-        <label className="flex items-center gap-0.5 text-sm font-semibold  text-foreground dark:text-white">
+        <label className="flex items-center gap-0.5 text-sm font-medium  text-foreground dark:text-white">
           {label}
           {required && <span className="text-destructive">*</span>}
         </label>
@@ -197,12 +197,12 @@ export default function SubmitPromptAILN({
               <div className="size-10 rounded-full bg-black flex items-center justify-center text-white dark:bg-white dark:text-black">
                 <FileText className="size-5" />
               </div>
-              <h2 className="text-lg font-bold  text-foreground dark:text-white">
+              <h2 className="text-lg font-medium  text-foreground dark:text-white">
                 Deskripsi Prompt
               </h2>
 
               <div className="flex flex-col gap-1">
-                <div className="text-[11px] font-semibold uppercase tracking-wide  text-gray-500 dark:text-gray-400">
+                <div className="text-[11px] font-medium uppercase tracking-wide  text-gray-500 dark:text-gray-400">
                   Skenario
                 </div>
                 <p className="text-sm whitespace-pre-wrap  text-gray-700 dark:text-gray-200">
@@ -211,7 +211,7 @@ export default function SubmitPromptAILN({
               </div>
 
               <div className="flex flex-col gap-1 border-t border-dashboard-border pt-4">
-                <div className="text-[11px] font-semibold uppercase tracking-wide  text-gray-500 dark:text-gray-400">
+                <div className="text-[11px] font-medium uppercase tracking-wide  text-gray-500 dark:text-gray-400">
                   Expected Output
                 </div>
                 <p className="text-sm whitespace-pre-wrap  text-gray-700 dark:text-gray-200">
@@ -231,7 +231,7 @@ export default function SubmitPromptAILN({
                   <span
                     className={
                       deadlineOverdue
-                        ? "font-semibold text-red-600 dark:text-red-400"
+                        ? "font-medium text-red-600 dark:text-red-400"
                         : "text-gray-600 dark:text-gray-300"
                     }
                   >
@@ -244,7 +244,7 @@ export default function SubmitPromptAILN({
 
             {status === "ACCEPTED" && (
               <div className="rounded-lg border border-emerald-200 bg-emerald-50 p-4 dark:border-emerald-500/30 dark:bg-emerald-500/10">
-                <div className="text-[11px] font-semibold uppercase tracking-wide text-emerald-700 dark:text-emerald-300">
+                <div className="text-[11px] font-medium uppercase tracking-wide text-emerald-700 dark:text-emerald-300">
                   Diterima oleh champion
                 </div>
               </div>

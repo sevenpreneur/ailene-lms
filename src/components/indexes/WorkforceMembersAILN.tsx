@@ -74,7 +74,7 @@ function MemberAvatar({ member }: { member: WorkforceMember }) {
 
   return (
     <div
-      className={`flex size-9 shrink-0 items-center justify-center rounded-full bg-gradient-to-br ${gradient} text-[11px] font-bold text-white`}
+      className={`flex size-9 shrink-0 items-center justify-center rounded-full bg-gradient-to-br ${gradient} text-[11px] font-medium text-white`}
     >
       {getInitials(member.user.full_name)}
     </div>
@@ -146,7 +146,7 @@ function FilterLabel({
     >
       <span>{children}</span>
       <span
-        className={`inline-flex min-w-5 items-center justify-center rounded-md px-1.5 py-0.5 text-[11px] font-bold text-white ${
+        className={`inline-flex min-w-5 items-center justify-center rounded-md px-1.5 py-0.5 text-[11px] font-medium text-white ${
           active ? "bg-claude" : "bg-gray-400 dark:bg-gray-600"
         }`}
       >
@@ -224,13 +224,13 @@ export default function WorkforceMembersAILN({
       desc={`Menampilkan ${formatInt(visibleRows.length)} dari ${formatInt(rows.length)} karyawan · filter per departemen`}
       contentClassName="-mx-6 -mb-6"
       headerRight={
-        <label className="inline-flex items-center gap-2 text-[13px] font-semibold text-muted-foreground">
+        <label className="inline-flex items-center gap-2 text-[13px] font-medium text-muted-foreground">
           Sortir:
           <span className="relative inline-flex items-center">
             <select
               value={sort}
               onChange={(event) => setSort(event.target.value as SortKey)}
-              className="appearance-none bg-transparent py-1 pl-1 pr-6 font-semibold text-foreground outline-none"
+              className="appearance-none bg-transparent py-1 pl-1 pr-6 font-medium text-foreground outline-none"
             >
               {sortOptions.map((option) => (
                 <option key={option.key} value={option.key}>
@@ -276,7 +276,7 @@ export default function WorkforceMembersAILN({
       <div className="overflow-x-auto">
         <table className="w-full min-w-[960px] border-collapse text-[13px]">
           <thead>
-            <tr className="border-y border-dashboard-border bg-muted/60 text-left text-xs font-bold uppercase tracking-wider text-muted-foreground">
+            <tr className="border-y border-dashboard-border bg-muted/60 text-left text-xs font-medium uppercase tracking-wider text-muted-foreground">
               <th className="px-8 py-4">Nama</th>
               <th className="px-5 py-4">Departemen</th>
               <th className="px-5 py-4">Level</th>
@@ -326,13 +326,13 @@ export default function WorkforceMembersAILN({
                       <span className="text-sm text-muted-foreground">-</span>
                     )}
                   </td>
-                  <td className="px-5 py-5 text-[15px] font-bold tabular-nums text-foreground">
+                  <td className="px-5 py-5 text-[15px] font-medium tabular-nums text-foreground">
                     {formatDecimal(member.score)}
                   </td>
                   <td className="px-5 py-5">
                     <SegmentLabel segment={member.segment} />
                   </td>
-                  <td className="px-5 py-5 text-right text-[15px] font-bold tabular-nums text-foreground">
+                  <td className="px-5 py-5 text-right text-[15px] font-medium tabular-nums text-foreground">
                     {formatDecimal(member.hours_saved_weekly)}
                   </td>
                   <td className="px-8 py-5">

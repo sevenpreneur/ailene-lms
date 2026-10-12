@@ -80,7 +80,7 @@ export default function TodayFocusCardAILN({
       <div
         className={`${SURFACE} flex h-fit flex-col items-center gap-2 py-8 text-center`}
       >
-        <div className="flex items-center gap-2 text-xs font-semibold uppercase tracking-widest text-claude dark:text-lime-bright">
+        <div className="flex items-center gap-2 text-xs font-medium uppercase tracking-widest text-claude dark:text-lime-bright">
           <span className="size-2 rounded-full bg-lime-bright dark:shadow-[0_0_8px_rgba(214,238,48,0.9)]" />
           Fokus Hari Ini
         </div>
@@ -104,12 +104,12 @@ export default function TodayFocusCardAILN({
       <div className="grid grid-cols-1 gap-5 lg:grid-cols-3">
         {/* Kiri — fokus utama */}
         <div className="flex flex-col gap-3 lg:col-span-2">
-          <div className="flex items-center gap-2 text-xs font-semibold uppercase tracking-widest text-claude dark:text-lime-bright">
+          <div className="flex items-center gap-2 text-xs font-medium uppercase tracking-widest text-claude dark:text-lime-bright">
             <span className="size-2 rounded-full bg-lime-bright dark:shadow-[0_0_8px_rgba(214,238,48,0.9)]" />
             Fokus Hari Ini
           </div>
 
-          <h2 className="text-[30px] font-bold leading-tight text-gray-900 dark:text-white">
+          <h2 className="text-[30px] font-medium leading-tight text-gray-900 dark:text-white">
             {focus.task_title}
           </h2>
 
@@ -168,25 +168,25 @@ export default function TodayFocusCardAILN({
 
         {/* Kanan — detail tugas */}
         <aside className="h-fit rounded-xl border border-hijau-t bg-white/70 p-4 dark:border-claude/20 dark:bg-card-1/60">
-          <div className="mono text-[10px] font-bold uppercase tracking-widest text-gray-400 dark:text-gray-500">
+          <div className="mono text-[10px] font-medium uppercase tracking-widest text-gray-400 dark:text-gray-500">
             Detail Tugas
           </div>
           <dl className="mt-3 flex flex-col gap-2.5 text-sm">
             <div className="flex items-center justify-between gap-3">
               <dt className="text-gray-500 dark:text-gray-400">Jenis</dt>
-              <dd className="mono font-semibold text-claude dark:text-lime-bright">
+              <dd className="mono font-medium text-claude dark:text-lime-bright">
                 {jenisLabel}
               </dd>
             </div>
             <div className="flex items-center justify-between gap-3">
               <dt className="text-gray-500 dark:text-gray-400">Kategori</dt>
-              <dd className="mono font-semibold text-gray-900 dark:text-white">
+              <dd className="mono font-medium text-gray-900 dark:text-white">
                 {focus.category ?? "—"}
               </dd>
             </div>
             <div className="flex items-center justify-between gap-3">
               <dt className="text-gray-500 dark:text-gray-400">Status</dt>
-              <dd className="mono font-semibold text-amber-600 dark:text-amber-400">
+              <dd className="mono font-medium text-amber-600 dark:text-amber-400">
                 Belum dikerjakan
               </dd>
             </div>

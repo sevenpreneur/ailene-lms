@@ -62,21 +62,21 @@ export default function BaselineByDepartmentAILN({
           <div className="overflow-x-auto">
             <table className="w-full min-w-[760px] border-collapse text-sm">
               <thead>
-                <tr className="border-b border-dashboard-border text-[11px] font-bold uppercase tracking-wider text-gray-500 dark:text-gray-400">
-                  <th className="py-2 pr-3 text-left font-bold">Departemen</th>
+                <tr className="border-b border-dashboard-border text-[11px] font-medium uppercase tracking-wider text-gray-500 dark:text-gray-400">
+                  <th className="py-2 pr-3 text-left font-medium">Departemen</th>
                   {data.org_pillars
                     .slice()
                     .sort((a, b) => orderIndex(a.key) - orderIndex(b.key))
                     .map((p) => (
                       <th
                         key={p.key}
-                        className="px-2 py-2 text-center font-bold"
+                        className="px-2 py-2 text-center font-medium"
                       >
                         {PILLAR_SHORT[p.key]}
                       </th>
                     ))}
-                  <th className="px-2 py-2 text-center font-bold">Avg</th>
-                  <th className="py-2 pl-2 text-right font-bold">Selesai</th>
+                  <th className="px-2 py-2 text-center font-medium">Avg</th>
+                  <th className="py-2 pl-2 text-right font-medium">Selesai</th>
                 </tr>
               </thead>
               <tbody>
@@ -86,7 +86,7 @@ export default function BaselineByDepartmentAILN({
                     className="border-b border-dashboard-border/60 last:border-b-0"
                   >
                     <td className="py-2.5 pr-3 text-left">
-                      <span className="font-semibold text-foreground">
+                      <span className="font-medium text-foreground">
                         {dept.name}
                       </span>{" "}
                       <span className="text-xs tabular-nums text-gray-400 dark:text-gray-500">
@@ -100,7 +100,7 @@ export default function BaselineByDepartmentAILN({
                     ))}
                     <td className="px-2 py-2.5 text-center">
                       <span
-                        className={`font-bold tabular-nums ${
+                        className={`font-medium tabular-nums ${
                           dept.avg >= 2.5
                             ? "text-emerald-700 dark:text-emerald-300"
                             : dept.avg < 2.0
@@ -149,7 +149,7 @@ function PillarCell({ score }: { score: number }) {
   const green = score >= 3.2;
   return (
     <span
-      className={`inline-flex size-8 items-center justify-center rounded-md text-sm font-bold tabular-nums ${
+      className={`inline-flex size-8 items-center justify-center rounded-md text-sm font-medium tabular-nums ${
         green
           ? "bg-emerald-200 text-emerald-800 dark:bg-emerald-400/25 dark:text-emerald-200"
           : "bg-amber-200 text-amber-800 dark:bg-amber-400/25 dark:text-amber-200"
@@ -169,7 +169,7 @@ function CompletionBar({ percent }: { percent: number }) {
           style={{ width: `${Math.max(percent, percent > 0 ? 4 : 0)}%` }}
         />
       </div>
-      <span className="w-9 text-right text-xs font-semibold tabular-nums text-gray-600 dark:text-gray-300">
+      <span className="w-9 text-right text-xs font-medium tabular-nums text-gray-600 dark:text-gray-300">
         {percent}%
       </span>
     </div>
@@ -193,7 +193,7 @@ function Stat({
         : "text-foreground";
   return (
     <div className="flex flex-col gap-0.5">
-      <span className={`text-2xl font-bold tabular-nums ${valueColor}`}>
+      <span className={`text-2xl font-medium tabular-nums ${valueColor}`}>
         {value}
       </span>
       <span className="text-[11px] leading-tight text-muted-foreground">

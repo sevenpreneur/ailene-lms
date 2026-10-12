@@ -45,7 +45,7 @@ export default function HealthMetricAILN({
     <li className="flex flex-col gap-1">
       <p className="text-sm font-medium text-foreground">{label}</p>
       <p className="text-xs text-muted-foreground">{name}</p>
-      <p className={`text-2xl font-bold tabular-nums ${tone.text}`}>
+      <p className={`text-2xl font-medium tabular-nums ${tone.text}`}>
         {percent.toLocaleString("id-ID")}%
       </p>
       <div

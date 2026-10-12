@@ -82,7 +82,7 @@ function PillarRankRow({
           <span className="text-gray-400 dark:text-gray-500">{rank}.</span>{" "}
           {label}
         </span>
-        <span className="shrink-0 text-sm font-bold tabular-nums text-foreground">
+        <span className="shrink-0 text-sm font-medium tabular-nums text-foreground">
           {formatScore(score)} / {SCORE_MAX}
         </span>
       </div>

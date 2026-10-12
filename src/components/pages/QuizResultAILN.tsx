@@ -47,7 +47,7 @@ export default function QuizResultAILN({ result }: QuizResultAILNProps) {
 
         {/* Pembahasan Jawaban */}
         <div className="flex flex-col gap-3">
-          <h3 className="text-base font-semibold dark:text-white">
+          <h3 className="text-base font-medium dark:text-white">
             Pembahasan Jawaban
           </h3>
           {questions.map((question, index) => (

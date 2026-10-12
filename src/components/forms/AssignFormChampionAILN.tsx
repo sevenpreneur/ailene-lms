@@ -127,7 +127,7 @@ export default function AssignFormChampionAILN({
         <div className="flex h-full flex-col gap-5 overflow-y-auto px-6 pb-28">
           {/* Target mode toggle */}
           <div className="flex flex-col gap-2">
-            <label className="text-xs font-semibold uppercase tracking-wide text-gray-500 dark:text-gray-400">
+            <label className="text-xs font-medium uppercase tracking-wide text-gray-500 dark:text-gray-400">
               Target
             </label>
             <div className="grid grid-cols-2 gap-2">
@@ -159,7 +159,7 @@ export default function AssignFormChampionAILN({
           {/* Target picker */}
           {mode === "INDIVIDUAL" ? (
             <div className="flex flex-col gap-2">
-              <label className="text-xs font-semibold uppercase tracking-wide text-gray-500 dark:text-gray-400">
+              <label className="text-xs font-medium uppercase tracking-wide text-gray-500 dark:text-gray-400">
                 Pilih Anggota ({selectedMemberIds.length} dipilih)
               </label>
               {members.length === 0 ? (
@@ -199,7 +199,7 @@ export default function AssignFormChampionAILN({
             </div>
           ) : (
             <div className="flex flex-col gap-2">
-              <label className="text-xs font-semibold uppercase tracking-wide text-gray-500 dark:text-gray-400">
+              <label className="text-xs font-medium uppercase tracking-wide text-gray-500 dark:text-gray-400">
                 Pilih Grup ({selectedGroupIds.length} dipilih)
               </label>
               {groups.length === 0 ? (
@@ -241,7 +241,7 @@ export default function AssignFormChampionAILN({
 
           {/* Deadline */}
           <div className="flex flex-col gap-2">
-            <label className="text-xs font-semibold uppercase tracking-wide text-gray-500 dark:text-gray-400">
+            <label className="text-xs font-medium uppercase tracking-wide text-gray-500 dark:text-gray-400">
               Deadline
             </label>
             <div className="grid grid-cols-2 gap-2">
@@ -266,7 +266,7 @@ export default function AssignFormChampionAILN({
 
           {/* Message */}
           <div className="flex flex-col gap-2">
-            <label className="text-xs font-semibold uppercase tracking-wide text-gray-500 dark:text-gray-400">
+            <label className="text-xs font-medium uppercase tracking-wide text-gray-500 dark:text-gray-400">
               Catatan untuk anggota (opsional)
             </label>
             <TextAreaAILN

@@ -46,10 +46,10 @@ export default function AchievementsCardAILN({
             <Trophy className="size-5 text-forest-deep" />
           </div>
           <div className="min-w-0">
-            <div className="text-[10px] font-semibold uppercase tracking-widest text-gray-500 dark:text-gray-400">
+            <div className="text-[10px] font-medium uppercase tracking-widest text-gray-500 dark:text-gray-400">
               Level Sekarang
             </div>
-            <div className="truncate text-base font-bold text-foreground dark:text-white">
+            <div className="truncate text-base font-medium text-foreground dark:text-white">
               {currentLevelNumber != null
                 ? `Level ${currentLevelNumber}${currentLevelName ? ` · ${currentLevelName}` : ""}`
                 : "Belum ada level"}
@@ -57,11 +57,11 @@ export default function AchievementsCardAILN({
           </div>
         </div>
         <div className="shrink-0 text-right">
-          <div className="flex items-center justify-end gap-1.5 text-2xl font-black text-amber-500 dark:text-amber-400">
+          <div className="flex items-center justify-end gap-1.5 text-2xl font-medium text-amber-500 dark:text-amber-400">
             <Star className="size-5 fill-current" />
             {fmtCount(totalXp)}
           </div>
-          <div className="text-[10px] font-semibold uppercase tracking-widest text-gray-500 dark:text-gray-400">
+          <div className="text-[10px] font-medium uppercase tracking-widest text-gray-500 dark:text-gray-400">
             Total XP
           </div>
         </div>
@@ -91,7 +91,7 @@ export default function AchievementsCardAILN({
 
       {toolsMastered.length > 0 && (
         <div className="mt-4">
-          <div className="text-[10px] font-semibold uppercase tracking-widest text-gray-500 dark:text-gray-400">
+          <div className="text-[10px] font-medium uppercase tracking-widest text-gray-500 dark:text-gray-400">
             Telah Menguasai Tools
           </div>
           <div className="mt-2 flex flex-wrap gap-1.5">
@@ -134,7 +134,7 @@ function StatTile({
       >
         <Icon className="size-4" />
       </div>
-      <div className="text-lg font-bold leading-none text-foreground dark:text-white">
+      <div className="text-lg font-medium leading-none text-foreground dark:text-white">
         {value}
       </div>
       <div className="text-xs text-gray-500 dark:text-gray-400">{label}</div>

@@ -128,7 +128,7 @@ function FilterPill({
     <button
       type="button"
       onClick={onClick}
-      className={`inline-flex items-center gap-2 rounded-full border px-4 py-2 text-sm font-semibold transition ${
+      className={`inline-flex items-center gap-2 rounded-full border px-4 py-2 text-sm font-medium transition ${
         active
           ? "border-claude bg-claude/10 text-claude dark:border-claude/40 dark:text-lime-bright"
           : "border-dashboard-border text-gray-600 hover:border-gray-400 dark:text-gray-300"
@@ -136,7 +136,7 @@ function FilterPill({
     >
       <span>{label}</span>
       <span
-        className={`inline-flex min-w-5 items-center justify-center rounded-md px-1.5 py-0.5 text-[11px] font-bold text-white ${
+        className={`inline-flex min-w-5 items-center justify-center rounded-md px-1.5 py-0.5 text-[11px] font-medium text-white ${
           active ? "bg-claude" : "bg-gray-400 dark:bg-gray-600"
         }`}
       >

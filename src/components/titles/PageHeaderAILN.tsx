@@ -15,7 +15,7 @@ export default function PageHeaderAILN({
   return (
     <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between sm:gap-4">
       <div className="min-w-0">
-        <h1 className="text-xl font-bold dark:text-white sm:text-2xl">
+        <h1 className="text-xl font-medium dark:text-white sm:text-2xl">
           {title}
         </h1>
         {desc && (

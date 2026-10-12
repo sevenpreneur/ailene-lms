@@ -34,7 +34,7 @@ export default function AnnouncementTickerAILN({
     <div className="flex w-full items-stretch overflow-hidden rounded-md bg-black">
       <div className="flex shrink-0 items-center gap-2 bg-black px-4 py-3">
         <Megaphone className="h-4 w-4 text-white" />
-        <span className="text-[11px] font-semibold uppercase tracking-wider text-white">
+        <span className="text-[11px] font-medium uppercase tracking-wider text-white">
           {ann.callout ?? "PENGUMUMAN"}
         </span>
         <span className="ml-1 h-4 w-px bg-white/15" />

@@ -135,7 +135,7 @@ function RoiTrendCard({ months }: { months: RoiTrend["months"] }) {
         <span className="text-muted-foreground">
           M1: {first ? formatIdrShort(first.roi_value) : "—"}
         </span>
-        <span className="text-center font-bold text-foreground">
+        <span className="text-center font-medium text-foreground">
           {lastActual ? `${lastActual.label}: ${formatIdrShort(lastActual.roi_value)}` : "—"}
         </span>
         <span className="text-right text-muted-foreground">

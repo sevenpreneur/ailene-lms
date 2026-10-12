@@ -84,7 +84,7 @@ export default function MemberDetailPanelChampionAILN({
       <div className="flex items-center gap-3 rounded-lg border border-dashboard-border bg-card-1 p-4">
         <Avatar name={member.full_name} src={member.avatar} />
         <div className="min-w-0">
-          <div className="truncate text-base font-bold text-gray-900 dark:text-white">
+          <div className="truncate text-base font-medium text-gray-900 dark:text-white">
             {member.full_name}
           </div>
           <div className="mt-0.5 truncate text-xs text-gray-500 dark:text-gray-400">
@@ -105,7 +105,7 @@ export default function MemberDetailPanelChampionAILN({
           targetLevelNumber={member.current_level?.level_number ?? 0}
         />
         <div className="flex flex-col gap-3">
-          <p className="text-[10px] font-semibold uppercase tracking-[0.18em] text-muted-foreground">
+          <p className="text-[10px] font-medium uppercase tracking-[0.18em] text-muted-foreground">
             Diagnostic per Pillar
           </p>
           {dimensions.map((d) => {
@@ -113,10 +113,10 @@ export default function MemberDetailPanelChampionAILN({
             return (
               <div key={d.key}>
                 <div className="flex items-baseline justify-between">
-                  <span className="text-sm font-semibold text-foreground dark:text-white">
+                  <span className="text-sm font-medium text-foreground dark:text-white">
                     {d.label}
                   </span>
-                  <span className="text-sm font-semibold tabular-nums text-foreground dark:text-white">
+                  <span className="text-sm font-medium tabular-nums text-foreground dark:text-white">
                     {formatScore(d.score)} / 5
                   </span>
                 </div>
@@ -218,7 +218,7 @@ function MetricCard({
       <div className="text-xs text-gray-500 dark:text-gray-400">{label}</div>
       <div className="mt-1 flex items-end gap-1">
         <span
-          className={`text-xl font-bold leading-none ${
+          className={`text-xl font-medium leading-none ${
             accent
               ? "text-amber-600 dark:text-amber-400"
               : "text-gray-900 dark:text-white"
@@ -227,7 +227,7 @@ function MetricCard({
           {value}
         </span>
         {unit && (
-          <span className="pb-0.5 text-xs font-semibold text-gray-400">
+          <span className="pb-0.5 text-xs font-medium text-gray-400">
             {unit}
           </span>
         )}
@@ -357,7 +357,7 @@ function Avatar({ name, src }: { name: string; src: string | null }) {
     );
   }
   return (
-    <div className="flex size-10 shrink-0 items-center justify-center rounded-full border border-orange-200 bg-orange-50 text-sm font-bold text-orange-800 dark:border-orange-500/40 dark:bg-orange-500/10 dark:text-orange-200">
+    <div className="flex size-10 shrink-0 items-center justify-center rounded-full border border-orange-200 bg-orange-50 text-sm font-medium text-orange-800 dark:border-orange-500/40 dark:bg-orange-500/10 dark:text-orange-200">
       {name
         .split(" ")
         .filter(Boolean)

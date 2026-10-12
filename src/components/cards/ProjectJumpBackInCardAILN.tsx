@@ -35,7 +35,7 @@ export default function ProjectJumpBackInCardAILN({
               {project.company_name}
             </p>
           )}
-          <p className="truncate text-base font-bold leading-snug text-foreground">
+          <p className="truncate text-base font-medium leading-snug text-foreground">
             {project.name}
           </p>
         </div>

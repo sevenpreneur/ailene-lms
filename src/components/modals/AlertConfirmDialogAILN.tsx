@@ -42,7 +42,7 @@ export default function AlertConfirmDialogAILN({
         onClick={(e) => e.stopPropagation()}
       >
         <div className="dialog-text flex flex-col">
-          <h2 className="text-lg font-semibold dark:text-white">
+          <h2 className="text-lg font-medium dark:text-white">
             {alertDialogHeader}
           </h2>
           <p className="text-emphasis text-sm font-medium dark:text-gray-400">

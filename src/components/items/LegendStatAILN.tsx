@@ -23,7 +23,7 @@ export default function LegendStatAILN({
       <span className="text-sm text-muted-foreground dark:text-gray-200">
         {label}
       </span>
-      <span className="ml-auto text-sm font-bold text-foreground">
+      <span className="ml-auto text-sm font-medium text-foreground">
         {formatInt(value)}
       </span>
     </div>

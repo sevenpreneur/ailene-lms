@@ -43,7 +43,7 @@ export default function RoiDepartmentTableAILN({
       <div className="overflow-x-auto">
         <table className="w-full min-w-[880px] border-collapse text-sm">
           <thead>
-            <tr className="border-y border-dashboard-border bg-muted/60 text-left text-[11px] font-bold uppercase tracking-wider text-muted-foreground">
+            <tr className="border-y border-dashboard-border bg-muted/60 text-left text-[11px] font-medium uppercase tracking-wider text-muted-foreground">
               <th className="px-8 py-4">Departemen</th>
               <th className="px-5 py-4 text-right">Jumlah</th>
               <th className="px-5 py-4 text-right">Jam Dihemat/Mg</th>
@@ -72,7 +72,7 @@ export default function RoiDepartmentTableAILN({
                     <td className="px-8 py-5">
                       <div className="flex items-center gap-3">
                         <span
-                          className="flex size-10 shrink-0 items-center justify-center rounded-lg text-xs font-bold"
+                          className="flex size-10 shrink-0 items-center justify-center rounded-lg text-xs font-medium"
                           style={{
                             backgroundColor: `color-mix(in srgb, ${color} 16%, white)`,
                             color,
@@ -80,23 +80,23 @@ export default function RoiDepartmentTableAILN({
                         >
                           {initials(department.name)}
                         </span>
-                        <span className="font-bold text-foreground">
+                        <span className="font-medium text-foreground">
                           {department.name}
                         </span>
                       </div>
                     </td>
-                    <td className="px-5 py-5 text-right font-semibold tabular-nums text-foreground">
+                    <td className="px-5 py-5 text-right font-medium tabular-nums text-foreground">
                       {formatInt(department.member_count)}
                     </td>
-                    <td className="px-5 py-5 text-right font-semibold tabular-nums text-foreground">
+                    <td className="px-5 py-5 text-right font-medium tabular-nums text-foreground">
                       {formatDecimal(department.hours_saved_weekly)}
                     </td>
-                    <td className="px-5 py-5 text-right font-semibold tabular-nums text-foreground">
+                    <td className="px-5 py-5 text-right font-medium tabular-nums text-foreground">
                       {idrShort(department.roi_annualized)}
                     </td>
                     <td className="px-8 py-5 text-right">
                       <div className="flex items-center justify-end gap-2">
-                        <span className="w-14 tabular-nums font-semibold text-foreground">
+                        <span className="w-14 tabular-nums font-medium text-foreground">
                           {formatDecimal(department.contribution_percent)}%
                         </span>
                         <span className="h-2 w-16 overflow-hidden rounded-full bg-muted">

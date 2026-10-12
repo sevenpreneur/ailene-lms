@@ -35,7 +35,7 @@ export default function TransformationJourneyAILN({
   return (
     <section className="ailn-card border bg-card-1 p-5">
       <div className="flex items-center justify-between gap-3">
-        <span className="text-[11px] font-semibold uppercase tracking-widest text-muted-foreground">
+        <span className="text-[11px] font-medium uppercase tracking-widest text-muted-foreground">
           Perjalanan Transformasi
         </span>
         <span className="text-sm font-medium text-muted-foreground">
@@ -68,7 +68,7 @@ export default function TransformationJourneyAILN({
                 <StageCircle state={state} />
                 <div className="flex flex-col leading-tight">
                   <span
-                    className={`text-sm font-bold ${
+                    className={`text-sm font-medium ${
                       state === "upcoming"
                         ? "text-muted-foreground"
                         : state === "active"
@@ -81,7 +81,7 @@ export default function TransformationJourneyAILN({
                   <span className="text-xs text-muted-foreground">
                     {stage.sub}
                     {state === "active" && (
-                      <span className="font-semibold text-amber-600 dark:text-amber-400">
+                      <span className="font-medium text-amber-600 dark:text-amber-400">
                         {" "}
                         (saat ini)
                       </span>

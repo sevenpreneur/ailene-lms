@@ -28,7 +28,7 @@ function formatTime(totalSeconds: number) {
 function Section({ title, children }: { title: string; children: ReactNode }) {
   return (
     <section className="flex flex-col gap-3 rounded-2xl border border-dashboard-border bg-card-1 p-6">
-      <h2 className="text-lg font-semibold text-foreground">{title}</h2>
+      <h2 className="text-lg font-medium text-foreground">{title}</h2>
       {children}
     </section>
   );
@@ -70,7 +70,7 @@ function SessionMedia({ program }: { program: ProgramPreviewMock }) {
     <div className="flex flex-col gap-5">
       <section className="flex flex-col gap-4 rounded-2xl border border-dashboard-border bg-card-1 p-6">
         <div>
-          <h2 className="text-lg font-semibold text-foreground">
+          <h2 className="text-lg font-medium text-foreground">
             Video sesi
           </h2>
           <p className="text-sm text-muted-foreground">
@@ -111,7 +111,7 @@ function SessionMedia({ program }: { program: ProgramPreviewMock }) {
 
       <section className="rounded-2xl border border-dashboard-border bg-card-1 p-6">
         <div className="mb-4 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-          <h2 className="text-lg font-semibold text-foreground">Transcript</h2>
+          <h2 className="text-lg font-medium text-foreground">Transcript</h2>
           <div className="relative">
             <Search
               size={14}
@@ -140,7 +140,7 @@ function SessionMedia({ program }: { program: ProgramPreviewMock }) {
                 {formatTime(line.time)}
               </span>
               <div className="min-w-0 flex-1">
-                <p className="text-xs font-semibold text-foreground/70">
+                <p className="text-xs font-medium text-foreground/70">
                   {line.speaker}
                 </p>
                 <p className="text-sm text-foreground">{line.text}</p>
@@ -211,7 +211,7 @@ export default function ProgramPreviewAILN({
               by {program.name} · {program.sessionLabel}
             </div>
 
-            <h1 className="text-3xl font-bold text-foreground sm:text-4xl">
+            <h1 className="text-3xl font-medium text-foreground sm:text-4xl">
               {program.name}
             </h1>
 
@@ -255,7 +255,7 @@ export default function ProgramPreviewAILN({
                       key={item.title}
                       className="text-sm leading-relaxed text-muted-foreground"
                     >
-                      <strong className="font-semibold text-foreground">
+                      <strong className="font-medium text-foreground">
                         {item.title}
                       </strong>{" "}
                       — {item.body}
@@ -277,7 +277,7 @@ export default function ProgramPreviewAILN({
               <AIWorkspacePanelAILN firstName={firstName} />
 
               <div className="rounded-2xl border border-dashboard-border bg-card-1 p-5">
-                <h2 className="mb-1 text-sm font-semibold text-foreground">
+                <h2 className="mb-1 text-sm font-medium text-foreground">
                   Materi lainnya
                 </h2>
                 <p className="mb-3 text-xs text-muted-foreground">

@@ -46,7 +46,7 @@ export default function AiDraftItemAILN({
         )}
       </div>
       <div className="flex flex-col gap-1">
-        <h3 className="line-clamp-2 text-sm font-bold text-foreground">
+        <h3 className="line-clamp-2 text-sm font-medium text-foreground">
           {draft.name}
         </h3>
         <p className="line-clamp-3 text-xs text-muted-foreground">

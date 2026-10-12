@@ -106,7 +106,7 @@ export default function ChapterItemAILN(props: ChapterItemAILNProps) {
             <div className="text-xs tracking-widest uppercase text-emphasis dark:text-gray-400">
               Chapter {props.chapterNumber}
             </div>
-            <div className="text-lg font-bold dark:text-white">
+            <div className="text-lg font-medium dark:text-white">
               {props.chapter.name}
             </div>
             {props.chapter.description && (

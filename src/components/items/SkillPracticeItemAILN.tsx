@@ -168,7 +168,7 @@ export default function SkillPracticeItemAILN(
         <div className="text-[10px] uppercase tracking-wide text-gray-500 dark:text-gray-400">
           {v.badge}
         </div>
-        <div className="text-sm font-semibold dark:text-white line-clamp-1">
+        <div className="text-sm font-medium dark:text-white line-clamp-1">
           {item.name}
         </div>
         <div className="mt-1.5 flex flex-wrap items-center gap-2">

@@ -57,7 +57,7 @@ export default function SkillPracticeListAILN(
             <div className="text-xs tracking-widest uppercase text-emphasis dark:text-gray-400">
               Latihan Skill
             </div>
-            <div className="text-lg font-bold dark:text-white">
+            <div className="text-lg font-medium dark:text-white">
               Prompt &amp; Use Case
             </div>
             <div className="text-sm text-gray-500 dark:text-gray-400">

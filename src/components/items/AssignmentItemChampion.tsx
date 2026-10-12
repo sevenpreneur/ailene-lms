@@ -35,7 +35,7 @@ export default function AssignmentItemChampion({
         <GeneralLabelAILN variant="green">Level {levelNumber}</GeneralLabelAILN>
       </div>
       <div className="flex flex-col gap-1">
-        <h3 className="text-sm font-bold line-clamp-2 dark:text-white">
+        <h3 className="text-sm font-medium line-clamp-2 dark:text-white">
           {name}
         </h3>
         <p className="text-xs text-gray-500 line-clamp-3 dark:text-gray-400">

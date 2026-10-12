@@ -82,7 +82,7 @@ function LoginForm() {
   return (
     <div className="flex w-full max-w-sm flex-col items-center gap-8 rounded-2xl border border-dashboard-border bg-card-1 px-6 py-10 shadow-sm">
       <div className="flex flex-col gap-2 text-center">
-        <h1 className="text-2xl font-bold tracking-tight">
+        <h1 className="text-2xl font-medium tracking-tight">
           Selamat Datang di AI Learn
         </h1>
         <p className="text-sm text-muted-foreground">

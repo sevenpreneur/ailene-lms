@@ -80,7 +80,7 @@ export default function HomeAILN({ session }: { session: LmsSession }) {
             />
           </div>
           <div className="min-w-0">
-            <h1 className="text-2xl font-bold tracking-tight text-foreground sm:text-3xl">
+            <h1 className="text-2xl font-medium tracking-tight text-foreground sm:text-3xl">
               {greetingFor(dayjs().hour())}, {firstName}
             </h1>
             <p className="mt-1 text-sm capitalize text-muted-foreground">
@@ -91,7 +91,7 @@ export default function HomeAILN({ session }: { session: LmsSession }) {
 
         <section className="mt-10">
           <div className="flex items-baseline justify-between gap-3">
-            <h2 className="text-lg font-semibold text-foreground">
+            <h2 className="text-lg font-medium text-foreground">
               Program yang sedang berjalan
             </h2>
             <span className="shrink-0 text-sm text-muted-foreground">

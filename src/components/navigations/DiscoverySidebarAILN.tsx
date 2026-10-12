@@ -146,7 +146,7 @@ export default function DiscoverySidebarAILN({
           className="size-9 shrink-0 rounded-full object-cover"
         />
         <div className="min-w-0 flex-1">
-          <div className="truncate text-sm font-semibold text-sb-text-strong">
+          <div className="truncate text-sm font-medium text-sb-text-strong">
             {user.full_name}
           </div>
           <div className="truncate text-xs text-sb-text">{user.email}</div>

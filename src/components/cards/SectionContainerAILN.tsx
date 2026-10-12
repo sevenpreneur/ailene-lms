@@ -17,7 +17,7 @@ export default function SectionContainerAILN(props: SectionContainerAILNProps) {
     >
       <div className="flex flex-wrap items-start justify-between gap-3">
         <div className="flex flex-col gap-0.5">
-          <h2 className="text-base font-bold text-foreground">{props.title}</h2>
+          <h2 className="text-base font-medium text-foreground">{props.title}</h2>
           {props.desc && (
             <p className="text-sm text-muted-foreground">{props.desc}</p>
           )}

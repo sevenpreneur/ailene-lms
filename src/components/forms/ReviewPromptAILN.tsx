@@ -245,7 +245,7 @@ export default function ReviewPromptAILN({
               className="size-10 rounded-full object-cover"
             />
             <div>
-              <div className="text-sm font-semibold dark:text-white">
+              <div className="text-sm font-medium dark:text-white">
                 {s.member.full_name}
               </div>
               <div className="text-xs text-gray-500 dark:text-gray-400">
@@ -332,7 +332,7 @@ export default function ReviewPromptAILN({
             )}
 
             <div className="border-t border-dashboard-border pt-4">
-              <div className="mb-1.5 text-[11px] font-semibold uppercase tracking-wide text-gray-500 dark:text-gray-400">
+              <div className="mb-1.5 text-[11px] font-medium uppercase tracking-wide text-gray-500 dark:text-gray-400">
                 Catatan Submission
               </div>
               <TextAreaAILN
@@ -352,7 +352,7 @@ export default function ReviewPromptAILN({
 
             {!canReview && s.comment && (
               <div className="rounded-md border border-hijau-t bg-hijau-t p-3 text-sm text-gray-700 dark:border-claude/30 dark:bg-claude/10 dark:text-gray-200">
-                <div className="mb-1 text-[11px] font-semibold uppercase tracking-wide text-claude dark:text-lime-bright">
+                <div className="mb-1 text-[11px] font-medium uppercase tracking-wide text-claude dark:text-lime-bright">
                   Catatan terakhir
                   {s.reviewed_at &&
                     ` · ${dayjs(s.reviewed_at)
@@ -434,10 +434,10 @@ function AiAssessment({
 
       <div className="flex items-end justify-between gap-3">
         <div className="flex flex-col gap-1">
-          <div className="text-[11px] font-semibold uppercase tracking-wide text-muted-foreground">
+          <div className="text-[11px] font-medium uppercase tracking-wide text-muted-foreground">
             Rata-rata
           </div>
-          <div className="text-3xl font-bold text-foreground">
+          <div className="text-3xl font-medium text-foreground">
             {average !== null ? average.toFixed(1) : "–"}
             <span className="text-base font-medium text-muted-foreground">
               {" "}
@@ -496,7 +496,7 @@ function AiAssessment({
 
       {evaluation?.ai_feedback && (
         <div className="flex flex-col gap-2 rounded-md border border-dashboard-border bg-card-2 p-3">
-          <div className="flex items-center gap-1.5 text-[11px] font-semibold uppercase tracking-wide text-muted-foreground">
+          <div className="flex items-center gap-1.5 text-[11px] font-medium uppercase tracking-wide text-muted-foreground">
             <Sparkles className="size-3" />
             Feedback AI untuk student
           </div>
@@ -529,7 +529,7 @@ function Field({
 }) {
   return (
     <div className="flex flex-col gap-1">
-      <div className="text-[11px] font-semibold uppercase tracking-wide text-gray-500 dark:text-gray-400">
+      <div className="text-[11px] font-medium uppercase tracking-wide text-gray-500 dark:text-gray-400">
         {label}
       </div>
       <p
@@ -573,7 +573,7 @@ function RubricRow({
             type="button"
             disabled={disabled}
             onClick={() => onChange(n)}
-            className={`size-7 rounded-md border text-xs font-bold transition ${
+            className={`size-7 rounded-md border text-xs font-medium transition ${
               value === n
                 ? "border-claude bg-claude text-white"
                 : "border-dashboard-border text-gray-500 hover:border-claude dark:text-gray-400"

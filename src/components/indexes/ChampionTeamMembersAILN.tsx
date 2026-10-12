@@ -94,7 +94,7 @@ function MemberAvatar({ name, src }: { name: string; src: string | null }) {
   const gradient = AVATAR_GRADIENTS[hashString(name) % AVATAR_GRADIENTS.length];
   return (
     <div
-      className={`flex size-9 shrink-0 items-center justify-center rounded-full bg-gradient-to-br ${gradient} text-xs font-bold text-white`}
+      className={`flex size-9 shrink-0 items-center justify-center rounded-full bg-gradient-to-br ${gradient} text-xs font-medium text-white`}
     >
       {getInitials(name)}
     </div>
@@ -182,7 +182,7 @@ export default function ChampionTeamMembersAILN(props: { members: Member[] }) {
                     }}
                     className={`flex w-full items-center justify-between px-3 py-2 text-left text-sm transition hover:bg-gray-50 dark:hover:bg-card-2 ${
                       statusFilter === opt.value
-                        ? "font-semibold text-claude dark:text-lime-bright"
+                        ? "font-medium text-claude dark:text-lime-bright"
                         : "text-foreground dark:text-gray-200"
                     }`}
                   >
@@ -201,7 +201,7 @@ export default function ChampionTeamMembersAILN(props: { members: Member[] }) {
       <div className="max-h-[460px] overflow-auto">
         <table className="w-full border-collapse text-sm">
           <thead>
-            <tr className="text-left text-[10px] font-semibold uppercase tracking-wider text-gray-500 dark:text-gray-400">
+            <tr className="text-left text-[10px] font-medium uppercase tracking-wider text-gray-500 dark:text-gray-400">
               <th className="sticky top-0 z-10 border-y border-dashboard-border bg-gray-50 px-4 py-2.5 dark:bg-card-2">
                 Anggota
               </th>
@@ -252,7 +252,7 @@ export default function ChampionTeamMembersAILN(props: { members: Member[] }) {
                           src={m.user.avatar}
                         />
                         <div className="min-w-0">
-                          <div className="truncate text-sm font-semibold text-gray-900 dark:text-white">
+                          <div className="truncate text-sm font-medium text-gray-900 dark:text-white">
                             {m.user.full_name}
                           </div>
                           <div className="truncate font-inter text-xs text-gray-500 dark:text-gray-400">
@@ -270,7 +270,7 @@ export default function ChampionTeamMembersAILN(props: { members: Member[] }) {
                     </td>
 
                     {/* Use Case */}
-                    <td className="px-4 py-3 text-center text-sm font-semibold text-gray-900 dark:text-white">
+                    <td className="px-4 py-3 text-center text-sm font-medium text-gray-900 dark:text-white">
                       {m.use_case_count}
                     </td>
 
@@ -281,7 +281,7 @@ export default function ChampionTeamMembersAILN(props: { members: Member[] }) {
                           className={`size-1.5 shrink-0 rounded-full ${status.dot}`}
                         />
                         <span
-                          className={`text-xs font-semibold ${status.text}`}
+                          className={`text-xs font-medium ${status.text}`}
                         >
                           {status.label}
                         </span>
@@ -291,7 +291,7 @@ export default function ChampionTeamMembersAILN(props: { members: Member[] }) {
                     {/* Aksi */}
                     <td className="px-4 py-3 text-right">
                       <span
-                        className={`inline-flex items-center gap-0.5 text-xs font-semibold ${
+                        className={`inline-flex items-center gap-0.5 text-xs font-medium ${
                           m.status === "behind"
                             ? "text-amber-700 dark:text-amber-300"
                             : "text-claude dark:text-lime-bright"

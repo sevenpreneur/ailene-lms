@@ -82,7 +82,7 @@ export default function SubmissionItemChampion({ row }: { row: SubmissionRow }) 
             height={28}
             className="size-7 rounded-full object-cover"
           />
-          <span className="text-sm font-bold dark:text-white">
+          <span className="text-sm font-medium dark:text-white">
             {row.member.full_name}
           </span>
         </div>
@@ -94,7 +94,7 @@ export default function SubmissionItemChampion({ row }: { row: SubmissionRow }) 
       </div>
 
       {/* Title */}
-      <h3 className="text-base font-bold dark:text-white">{row.title}</h3>
+      <h3 className="text-base font-medium dark:text-white">{row.title}</h3>
 
       {/* Labels: kind, level, category */}
       <div className="flex flex-wrap items-center gap-1.5">

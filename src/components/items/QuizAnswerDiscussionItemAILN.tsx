@@ -49,13 +49,13 @@ export default function QuizAnswerDiscussionItemAILN({
 
   return (
     <article className="flex items-start gap-4 rounded-xl border border-dashboard-border bg-card-1 p-5 dark:shadow-[0_0_18px_rgba(26,122,82,0.08)]">
-      <div className="flex size-7 shrink-0 items-center justify-center rounded-full bg-black text-xs font-bold text-white dark:border dark:border-claude/40 dark:bg-claude/20 dark:text-lime-bright">
+      <div className="flex size-7 shrink-0 items-center justify-center rounded-full bg-black text-xs font-medium text-white dark:border dark:border-claude/40 dark:bg-claude/20 dark:text-lime-bright">
         {no}
       </div>
 
       <div className="flex min-w-0 flex-1 flex-col gap-2">
         <div className="flex flex-wrap items-start justify-between gap-3">
-          <p className="min-w-0 flex-1 text-sm font-semibold text-gray-900 dark:text-white">
+          <p className="min-w-0 flex-1 text-sm font-medium text-gray-900 dark:text-white">
             {question.question}
           </p>
           <GeneralLabelAILN
@@ -109,7 +109,7 @@ export default function QuizAnswerDiscussionItemAILN({
 
         {question.explanation && (
           <p className="rounded-lg border border-dashboard-border bg-card-2 px-3 py-2 text-xs text-gray-700 dark:text-gray-300">
-            <strong className="font-semibold">Penjelasan: </strong>
+            <strong className="font-medium">Penjelasan: </strong>
             {question.explanation}
           </p>
         )}

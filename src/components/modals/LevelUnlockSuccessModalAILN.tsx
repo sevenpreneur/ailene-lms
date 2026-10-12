@@ -67,7 +67,7 @@ export default function LevelUnlockSuccessModalAILN({
         <button
           type="button"
           onClick={onClose}
-          className="absolute right-4 top-4 rounded-full px-3 py-1 text-sm font-semibold text-gray-400 transition hover:bg-gray-100 hover:text-gray-700 dark:hover:bg-card-2 dark:hover:text-white"
+          className="absolute right-4 top-4 rounded-full px-3 py-1 text-sm font-medium text-gray-400 transition hover:bg-gray-100 hover:text-gray-700 dark:hover:bg-card-2 dark:hover:text-white"
         >
           Tutup
         </button>
@@ -76,10 +76,10 @@ export default function LevelUnlockSuccessModalAILN({
           <div className="flex size-16 items-center justify-center rounded-2xl bg-claude text-white shadow-[0_18px_40px_rgba(26,122,82,0.35)]">
             <Check className="size-9" strokeWidth={3} />
           </div>
-          <div className="mt-5 text-[11px] font-bold uppercase tracking-widest text-claude dark:text-lime-bright">
+          <div className="mt-5 text-[11px] font-medium uppercase tracking-widest text-claude dark:text-lime-bright">
             Level {data.previous_level.level_number} - selesai
           </div>
-          <h2 className="mt-2 text-3xl font-bold tracking-tight text-gray-900 dark:text-white">
+          <h2 className="mt-2 text-3xl font-medium tracking-tight text-gray-900 dark:text-white">
             Anda lulus{" "}
             <span className="text-claude dark:text-lime-bright">
               {previousLabel}
@@ -114,7 +114,7 @@ export default function LevelUnlockSuccessModalAILN({
         </div>
 
         <section className="overflow-hidden rounded-lg border border-dashboard-border bg-white dark:bg-card-1">
-          <div className="border-b border-dashboard-border px-5 py-4 text-base font-bold text-gray-900 dark:text-white">
+          <div className="border-b border-dashboard-border px-5 py-4 text-base font-medium text-gray-900 dark:text-white">
             Yang baru Anda buka
           </div>
           <UnlockedRow
@@ -137,10 +137,10 @@ export default function LevelUnlockSuccessModalAILN({
         <section className="grid grid-cols-1 overflow-hidden rounded-lg border border-dashboard-border bg-white dark:bg-card-1 md:grid-cols-[12rem_1fr]">
           <div className="flex items-center justify-center border-b border-dashboard-border bg-gray-50 p-5 dark:bg-card-2 md:border-b-0 md:border-r">
             <div className="flex h-28 w-36 flex-col items-center justify-center rounded-sm border border-dashboard-border bg-white text-center shadow-sm dark:bg-card-1">
-              <div className="text-[10px] font-bold uppercase tracking-widest text-gray-400">
+              <div className="text-[10px] font-medium uppercase tracking-widest text-gray-400">
                 Sertifikat
               </div>
-              <div className="mt-2 text-sm font-bold text-gray-900 dark:text-white">
+              <div className="mt-2 text-sm font-medium text-gray-900 dark:text-white">
                 {previousLabel}
               </div>
               <div className="mt-3 text-[10px] text-gray-400">
@@ -149,7 +149,7 @@ export default function LevelUnlockSuccessModalAILN({
             </div>
           </div>
           <div className="flex flex-col justify-center p-5">
-            <h3 className="text-lg font-bold text-gray-900 dark:text-white">
+            <h3 className="text-lg font-medium text-gray-900 dark:text-white">
               Sertifikat {previousLabel}
             </h3>
             <p className="mt-1 text-sm leading-6 text-gray-500 dark:text-gray-400">
@@ -186,14 +186,14 @@ function ScoreCard({
 }) {
   return (
     <div className="rounded-lg border border-dashboard-border bg-white p-5 shadow-sm dark:bg-card-1">
-      <div className="text-[11px] font-bold uppercase tracking-widest text-gray-400">
+      <div className="text-[11px] font-medium uppercase tracking-widest text-gray-400">
         {label}
       </div>
       <div className="mt-4 flex items-end gap-2">
-        <span className=" text-4xl font-bold leading-none text-gray-900 dark:text-white">
+        <span className=" text-4xl font-medium leading-none text-gray-900 dark:text-white">
           {value}
         </span>
-        <span className="pb-1 text-sm font-semibold text-gray-500">{unit}</span>
+        <span className="pb-1 text-sm font-medium text-gray-500">{unit}</span>
       </div>
       <div className="mt-3 text-xs text-gray-400">{sub}</div>
     </div>
@@ -215,14 +215,14 @@ function UnlockedRow({
         {icon}
       </div>
       <div className="min-w-0">
-        <div className="truncate text-sm font-bold text-gray-900 dark:text-white">
+        <div className="truncate text-sm font-medium text-gray-900 dark:text-white">
           {title}
         </div>
         <div className="mt-0.5 truncate text-xs text-gray-500 dark:text-gray-400">
           {description}
         </div>
       </div>
-      <span className="inline-flex items-center justify-center gap-1 rounded-full border border-hijau bg-hijau-t px-2 py-0.5 text-xs font-bold text-claude dark:border-claude/40 dark:bg-claude/10 dark:text-lime-bright">
+      <span className="inline-flex items-center justify-center gap-1 rounded-full border border-hijau bg-hijau-t px-2 py-0.5 text-xs font-medium text-claude dark:border-claude/40 dark:bg-claude/10 dark:text-lime-bright">
         <Sparkles className="size-3" />
         Aktif
       </span>

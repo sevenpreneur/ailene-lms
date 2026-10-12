@@ -123,10 +123,10 @@ function ReportContent({
       <div className="flex w-full flex-col gap-5">
         <div className="flex flex-wrap items-start justify-between gap-4">
           <div>
-            <div className="text-[11px] font-semibold uppercase tracking-widest text-gray-500 dark:text-gray-400">
+            <div className="text-[11px] font-medium uppercase tracking-widest text-gray-500 dark:text-gray-400">
               Champion - Pelaporan
             </div>
-            <h1 className="mt-1 text-3xl font-bold text-gray-900 dark:text-white">
+            <h1 className="mt-1 text-3xl font-medium text-gray-900 dark:text-white">
               Reports
             </h1>
             <p className="mt-1 text-sm text-gray-500 dark:text-gray-400">
@@ -138,7 +138,7 @@ function ReportContent({
           <div className="inline-flex h-10 rounded-lg border border-dashboard-border bg-white p-1 dark:bg-card-1">
             <button
               onClick={() => onPeriodChange("weekly")}
-              className={`rounded-md px-4 text-sm font-semibold ${
+              className={`rounded-md px-4 text-sm font-medium ${
                 period === "weekly"
                   ? "bg-black text-white dark:bg-white dark:text-black"
                   : "text-gray-500 dark:text-gray-400"
@@ -148,7 +148,7 @@ function ReportContent({
             </button>
             <button
               onClick={() => onPeriodChange("monthly")}
-              className={`rounded-md px-4 text-sm font-semibold ${
+              className={`rounded-md px-4 text-sm font-medium ${
                 period === "monthly"
                   ? "bg-black text-white dark:bg-white dark:text-black"
                   : "text-gray-500 dark:text-gray-400"
@@ -162,10 +162,10 @@ function ReportContent({
         <div className="grid grid-cols-1 gap-4 xl:grid-cols-[minmax(0,1fr)_minmax(20rem,0.42fr)]">
           <section className="rounded-lg border border-dashboard-border bg-white shadow-sm dark:bg-card-1">
             <div className="border-b border-dashboard-border p-5">
-              <div className="text-[11px] font-bold uppercase tracking-widest text-claude dark:text-lime-bright">
+              <div className="text-[11px] font-medium uppercase tracking-widest text-claude dark:text-lime-bright">
                 Draft - auto-generated
               </div>
-              <h2 className="mt-2 text-xl font-bold text-gray-900 dark:text-white">
+              <h2 className="mt-2 text-xl font-medium text-gray-900 dark:text-white">
                 {data.report.title}
               </h2>
               <p className="mt-1 text-sm text-gray-500 dark:text-gray-400">
@@ -201,7 +201,7 @@ function ReportContent({
             </div>
 
             <div className="border-b border-dashboard-border p-5">
-              <div className="mb-4 text-base font-bold text-gray-900 dark:text-white">
+              <div className="mb-4 text-base font-medium text-gray-900 dark:text-white">
                 Pergerakan level
               </div>
               <div className="flex flex-col gap-3">
@@ -210,7 +210,7 @@ function ReportContent({
                     key={`${movement.from}-${movement.to}`}
                     className="grid grid-cols-[3.5rem_1fr_2rem] items-center gap-x-3 gap-y-1 text-sm sm:grid-cols-[4rem_1fr_2rem_minmax(8rem,0.55fr)] sm:gap-y-3"
                   >
-                    <span className="font-semibold text-gray-700 dark:text-gray-200">
+                    <span className="font-medium text-gray-700 dark:text-gray-200">
                       {movement.from} -&gt; {movement.to}
                     </span>
                     <div className="h-2.5 overflow-hidden rounded-full bg-gray-100 dark:bg-dashboard-border">
@@ -222,7 +222,7 @@ function ReportContent({
                         }}
                       />
                     </div>
-                    <span className="text-right  font-bold text-gray-900 dark:text-white">
+                    <span className="text-right  font-medium text-gray-900 dark:text-white">
                       {movement.count}
                     </span>
                     <span className="col-span-3 truncate text-xs text-gray-500 dark:text-gray-400 sm:col-span-1">
@@ -235,10 +235,10 @@ function ReportContent({
 
             <div className="p-5">
               <div className="mb-2 flex items-center justify-between gap-3">
-                <div className="text-base font-bold text-gray-900 dark:text-white">
+                <div className="text-base font-medium text-gray-900 dark:text-white">
                   Narasi Champion
                 </div>
-                <span className="text-xs font-semibold text-claude dark:text-lime-bright">
+                <span className="text-xs font-medium text-claude dark:text-lime-bright">
                   Auto-draft - bisa diedit
                 </span>
               </div>
@@ -286,14 +286,14 @@ function KpiTile({
 }) {
   return (
     <div className="border-r border-dashboard-border p-5 last:border-r-0">
-      <div className="text-[11px] font-semibold uppercase tracking-widest text-gray-500 dark:text-gray-400">
+      <div className="text-[11px] font-medium uppercase tracking-widest text-gray-500 dark:text-gray-400">
         {label}
       </div>
       <div className="mt-3 flex items-end gap-1.5">
-        <span className=" text-4xl font-bold leading-none text-gray-900 dark:text-white">
+        <span className=" text-4xl font-medium leading-none text-gray-900 dark:text-white">
           {value}
         </span>
-        <span className="pb-1 text-sm font-semibold text-gray-500 dark:text-gray-400">
+        <span className="pb-1 text-sm font-medium text-gray-500 dark:text-gray-400">
           {unit}
         </span>
       </div>

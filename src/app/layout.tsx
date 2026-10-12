@@ -11,7 +11,7 @@ import { Toaster } from "sonner";
 const stackSans = Stack_Sans_Headline({
   variable: "--font-stack",
   subsets: ["latin"],
-  weight: ["300", "400", "500", "600", "700"],
+  weight: ["300", "400", "500"],
 });
 
 export const metadata: Metadata = {

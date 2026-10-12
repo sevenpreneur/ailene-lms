@@ -66,7 +66,7 @@ function FieldRow({
 }) {
   return (
     <div className="flex flex-col gap-1.5 min-w-0">
-      <label className="flex items-center gap-0.5 text-sm font-semibold  text-foreground dark:text-white">
+      <label className="flex items-center gap-0.5 text-sm font-medium  text-foreground dark:text-white">
         {label}
         {required && <span className="text-destructive">*</span>}
       </label>
@@ -368,7 +368,7 @@ export default function SubmitUseCaseAILN({
               <div className="size-10 rounded-full bg-black flex items-center justify-center text-white dark:bg-white dark:text-black">
                 <FileText className="size-5" />
               </div>
-              <h2 className="text-lg font-bold  text-foreground dark:text-white">
+              <h2 className="text-lg font-medium  text-foreground dark:text-white">
                 Deskripsi Use Case
               </h2>
               <p className="text-sm whitespace-pre-wrap  text-gray-700 dark:text-gray-200">
@@ -387,7 +387,7 @@ export default function SubmitUseCaseAILN({
                   <span
                     className={
                       deadlineOverdue
-                        ? "font-semibold text-red-600 dark:text-red-400"
+                        ? "font-medium text-red-600 dark:text-red-400"
                         : "text-gray-600 dark:text-gray-300"
                     }
                   >
@@ -400,7 +400,7 @@ export default function SubmitUseCaseAILN({
 
             {status === "ACCEPTED" && (
               <div className="rounded-lg border border-emerald-200 bg-emerald-50 p-4 dark:border-emerald-500/30 dark:bg-emerald-500/10">
-                <div className="text-[11px] font-semibold uppercase tracking-wide text-emerald-700 dark:text-emerald-300">
+                <div className="text-[11px] font-medium uppercase tracking-wide text-emerald-700 dark:text-emerald-300">
                   Diterima oleh champion
                 </div>
               </div>
@@ -550,7 +550,7 @@ export default function SubmitUseCaseAILN({
                     const saved = without - withAi;
                     const pct = Math.round((saved / without) * 100);
                     return (
-                      <span className="inline-flex items-center gap-1.5 rounded-md bg-emerald-100 px-2.5 py-1 text-xs font-semibold text-emerald-700 dark:bg-emerald-500/15 dark:text-emerald-300">
+                      <span className="inline-flex items-center gap-1.5 rounded-md bg-emerald-100 px-2.5 py-1 text-xs font-medium text-emerald-700 dark:bg-emerald-500/15 dark:text-emerald-300">
                         Jam dihemat: {saved.toFixed(saved % 1 === 0 ? 0 : 1)}{" "}
                         jam · {pct}% lebih cepat
                       </span>
@@ -645,7 +645,7 @@ export default function SubmitUseCaseAILN({
                                 }
                           );
                         }}
-                        className="rounded-md border border-dashboard-border bg-white px-3 py-2 text-xs font-semibold  text-foreground hover:border-foreground/40 disabled:cursor-not-allowed disabled:opacity-60 dark:bg-card-2 dark:text-gray-200"
+                        className="rounded-md border border-dashboard-border bg-white px-3 py-2 text-xs font-medium  text-foreground hover:border-foreground/40 disabled:cursor-not-allowed disabled:opacity-60 dark:bg-card-2 dark:text-gray-200"
                       >
                         Tambah
                       </button>

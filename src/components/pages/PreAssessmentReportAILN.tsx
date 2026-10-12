@@ -157,22 +157,22 @@ function PreAssessmentReportContent({
           contentClassName="overflow-x-auto"
         >
           <div className="grid min-w-[900px] grid-cols-[150px_repeat(7,minmax(0,1fr))] items-center gap-3 text-center">
-            <div className="text-left text-[11px] font-bold uppercase tracking-wider text-gray-500 dark:text-gray-400">
+            <div className="text-left text-[11px] font-medium uppercase tracking-wider text-gray-500 dark:text-gray-400">
               Dimensi
             </div>
             {report.pillars.map((pillar) => (
               <div
                 key={pillar.key}
-                className="text-[11px] font-bold uppercase tracking-wider text-gray-500 dark:text-gray-400"
+                className="text-[11px] font-medium uppercase tracking-wider text-gray-500 dark:text-gray-400"
               >
                 {pillar.label}
               </div>
             ))}
-            <div className="text-[11px] font-bold uppercase tracking-wider text-gray-500 dark:text-gray-400">
+            <div className="text-[11px] font-medium uppercase tracking-wider text-gray-500 dark:text-gray-400">
               Avg
             </div>
 
-            <div className="text-left text-sm font-bold text-gray-950 dark:text-white">
+            <div className="text-left text-sm font-medium text-gray-950 dark:text-white">
               Skor Anda
             </div>
             {report.pillars.map((pillar) => (
@@ -183,19 +183,19 @@ function PreAssessmentReportContent({
                 />
               </div>
             ))}
-            <div className="text-sm font-black text-gray-950 dark:text-white">
+            <div className="text-sm font-medium text-gray-950 dark:text-white">
               {formatDecimal(report.avg)}
             </div>
             <div />
             {report.pillars.map((pillar) => (
               <div key={`highlight-${pillar.key}`}>
                 {pillar.key === report.strongest.key && (
-                  <span className="text-xs font-semibold text-emerald-700 dark:text-emerald-300">
+                  <span className="text-xs font-medium text-emerald-700 dark:text-emerald-300">
                     Terkuat
                   </span>
                 )}
                 {pillar.key === report.weakest.key && (
-                  <span className="text-xs font-semibold text-amber-700 dark:text-amber-300">
+                  <span className="text-xs font-medium text-amber-700 dark:text-amber-300">
                     Terendah
                   </span>
                 )}
@@ -220,7 +220,7 @@ function PreAssessmentReportContent({
               <TrendingUp className="size-5 shrink-0" />
               <div className="text-sm">
                 Total potensi hemat{" "}
-                <span className="font-black">
+                <span className="font-medium">
                   {recommendations.time_saved_label}
                 </span>{" "}
                 dari tugas rutin Anda.
@@ -229,7 +229,7 @@ function PreAssessmentReportContent({
           )}
 
           <div className="mt-5 border-l-4 border-blue-500 pl-4">
-            <div className="text-sm font-semibold text-gray-500 dark:text-gray-400">
+            <div className="text-sm font-medium text-gray-500 dark:text-gray-400">
               Yang Anda ceritakan
             </div>
             <p className="mt-2 max-w-4xl text-base italic leading-7 text-gray-800 dark:text-gray-100">
@@ -238,7 +238,7 @@ function PreAssessmentReportContent({
           </div>
 
           <div className="mt-6">
-            <div className="text-sm font-semibold text-gray-500 dark:text-gray-400">
+            <div className="text-sm font-medium text-gray-500 dark:text-gray-400">
               Rekomendasi use case paling berdampak untukmu:
             </div>
             <div className="mt-3">
@@ -282,7 +282,7 @@ function PillarScore({
 }) {
   return (
     <span
-      className={`inline-flex size-8 items-center justify-center rounded-md text-sm font-black ${
+      className={`inline-flex size-8 items-center justify-center rounded-md text-sm font-medium ${
         tone === "green"
           ? "bg-emerald-200 text-emerald-800 dark:bg-emerald-400/25 dark:text-emerald-200"
           : "bg-amber-200 text-amber-800 dark:bg-amber-400/25 dark:text-amber-200"
@@ -344,7 +344,7 @@ function RecommendationsFailed({
 }) {
   return (
     <div className="flex flex-col items-start gap-3 rounded-lg border border-amber-200 bg-amber-50 px-4 py-4 text-amber-800 dark:border-amber-500/30 dark:bg-amber-500/10 dark:text-amber-200">
-      <div className="flex items-center gap-2 text-sm font-semibold">
+      <div className="flex items-center gap-2 text-sm font-medium">
         <AlertTriangle className="size-4 shrink-0" />
         Rekomendasi use case gagal dibuat.
       </div>
@@ -374,7 +374,7 @@ function RecommendationCard({
   return (
     <article className="rounded-lg border border-dashboard-border bg-card-2 p-4">
       <div className="flex items-start gap-3">
-        <div className="mt-0.5 flex size-6 shrink-0 items-center justify-center rounded-full bg-blue-600 text-xs font-black text-white">
+        <div className="mt-0.5 flex size-6 shrink-0 items-center justify-center rounded-full bg-blue-600 text-xs font-medium text-white">
           {no}
         </div>
         <div className="min-w-0 flex-1">
@@ -395,7 +395,7 @@ function RecommendationCard({
             )}
           </div>
 
-          <h3 className="mt-3 text-base font-bold text-gray-950 dark:text-white">
+          <h3 className="mt-3 text-base font-medium text-gray-950 dark:text-white">
             {item.title}
           </h3>
           <p className="mt-1 text-sm leading-6 text-gray-500 dark:text-gray-400">
@@ -404,7 +404,7 @@ function RecommendationCard({
 
           {item.lessons.length > 0 && (
             <div className="mt-3 flex flex-wrap items-center gap-2">
-              <span className="text-xs font-semibold text-gray-500 dark:text-gray-400">
+              <span className="text-xs font-medium text-gray-500 dark:text-gray-400">
                 Dipelajari di:
               </span>
               {item.lessons.map((lesson) => (

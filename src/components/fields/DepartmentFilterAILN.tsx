@@ -87,7 +87,7 @@ function DeptItem({
       onClick={onClick}
       className={`flex w-full items-center px-3 py-2 text-left text-sm transition-colors hover:bg-gray-50 dark:hover:bg-card-2 ${
         active
-          ? "font-semibold text-gray-900 dark:text-white"
+          ? "font-medium text-gray-900 dark:text-white"
           : "text-gray-600 dark:text-gray-300"
       }`}
     >

@@ -89,7 +89,7 @@ export default function LevelDistributionSponsorAILN({
                   title={`${seg.label}: ${formatInt(seg.count)} karyawan (${seg.percent}%)`}
                 >
                   {width >= 6 && (
-                    <span className="text-lg font-bold leading-none">
+                    <span className="text-lg font-medium leading-none">
                       {seg.percent}%
                     </span>
                   )}
@@ -111,7 +111,7 @@ export default function LevelDistributionSponsorAILN({
                 className={`rounded-lg border p-3 ${seg.card}`}
               >
                 <div
-                  className={`text-[11px] font-bold uppercase tracking-wider ${seg.labelText}`}
+                  className={`text-[11px] font-medium uppercase tracking-wider ${seg.labelText}`}
                 >
                   {seg.label}
                 </div>
@@ -144,7 +144,7 @@ function Section({
         showDetailLink ? (
           <Link
             href={`/${projectId}/sponsor/workforce`}
-            className="inline-flex items-center gap-1 text-sm font-semibold text-violet-600 transition-colors hover:text-violet-700 dark:text-violet-400 dark:hover:text-violet-300"
+            className="inline-flex items-center gap-1 text-sm font-medium text-violet-600 transition-colors hover:text-violet-700 dark:text-violet-400 dark:hover:text-violet-300"
           >
             Lihat Detail
             <ArrowRight className="size-4" />

@@ -24,17 +24,17 @@ export default function ScorecardAILN({
     <div className="ailn-card flex flex-col border overflow-hidden">
       <div className="flex flex-1 items-start justify-between gap-3 p-5">
         <div className="min-w-0">
-          <div className="text-xs font-bold text-muted-foreground">
+          <div className="text-xs font-medium text-muted-foreground">
             {title.toUpperCase()}
           </div>
 
           <div className="mt-3 flex items-baseline gap-1.5">
             {prefix && (
-              <span className="text-lg font-semibold text-muted-foreground">
+              <span className="text-lg font-medium text-muted-foreground">
                 {prefix}
               </span>
             )}
-            <span className="text-3xl font-bold leading-none tracking-tight text-foreground">
+            <span className="text-3xl font-medium leading-none tracking-tight text-foreground">
               {value}
             </span>
             {unit && (

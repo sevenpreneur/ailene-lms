@@ -38,7 +38,7 @@ export default function LevelDividerAILN(props: LevelDividerAILNProps) {
     return (
       <>
         <div className="relative pl-12">
-          <div className="absolute left-0 top-6 flex h-8 w-8 items-center justify-center rounded-full border-2 border-gray-300 bg-white text-sm font-black text-gray-700 dark:border-dashboard-border dark:bg-black dark:text-gray-200">
+          <div className="absolute left-0 top-6 flex h-8 w-8 items-center justify-center rounded-full border-2 border-gray-300 bg-white text-sm font-medium text-gray-700 dark:border-dashboard-border dark:bg-black dark:text-gray-200">
             {props.level.level_number}
           </div>
           <div className="relative overflow-hidden rounded-xl border-2 border-hijau bg-gradient-to-r from-hijau-t to-white p-4 dark:border-claude/70 dark:bg-gradient-to-r dark:from-claude/15 dark:via-claude/5 dark:to-black">
@@ -61,17 +61,17 @@ export default function LevelDividerAILN(props: LevelDividerAILNProps) {
                   height={300}
                 />
                 <div>
-                  <div className="text-sm font-bold text-claude dark:text-lime-bright">
+                  <div className="text-sm font-medium text-claude dark:text-lime-bright">
                     Level {props.level.level_number} Unlocked!
                   </div>
-                  <div className="text-xl font-bold text-gray-900 dark:text-white">
+                  <div className="text-xl font-medium text-gray-900 dark:text-white">
                     {props.level.name}
                   </div>
                 </div>
               </div>
               <div className="flex items-center gap-4 border-gray-200 sm:border-l sm:pl-6 dark:border-claude/30">
                 <div>
-                  <div className="text-sm font-bold text-claude dark:text-lime-bright">
+                  <div className="text-sm font-medium text-claude dark:text-lime-bright">
                     Congrats!
                   </div>
                   <div className="text-sm text-gray-600 dark:text-gray-300">
@@ -111,7 +111,7 @@ export default function LevelDividerAILN(props: LevelDividerAILNProps) {
                 <div className="text-xs text-gray-400 dark:text-gray-400">
                   Level {props.level.level_number} Locked
                 </div>
-                <div className="text-xl font-bold text-white dark:text-white">
+                <div className="text-xl font-medium text-white dark:text-white">
                   {props.level.name}
                 </div>
                 <div className="text-sm text-gray-300 dark:text-gray-400">
@@ -123,7 +123,7 @@ export default function LevelDividerAILN(props: LevelDividerAILNProps) {
             {props.claimable ? (
               <div className="flex items-center gap-4">
                 <div>
-                  <div className="text-sm font-bold text-claude dark:text-lime-bright">
+                  <div className="text-sm font-medium text-claude dark:text-lime-bright">
                     Ready to unlock!
                   </div>
                   <div className="text-sm text-gray-600 dark:text-gray-300">
@@ -137,7 +137,7 @@ export default function LevelDividerAILN(props: LevelDividerAILNProps) {
             ) : (
               <div className="flex items-center gap-4">
                 <div>
-                  <div className="text-sm font-bold text-white dark:text-gray-200">
+                  <div className="text-sm font-medium text-white dark:text-gray-200">
                     Keep going!
                   </div>
                   <div className="text-sm text-gray-300 dark:text-gray-400">

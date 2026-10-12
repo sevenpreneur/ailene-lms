@@ -25,13 +25,13 @@ export default function TopPerformersTableAILN({
       <table className="w-full text-sm">
         <thead className="sticky top-0 z-10 bg-white dark:bg-card-1">
           <tr className="border-b border-dashboard-border text-left text-[11px] uppercase tracking-wider text-muted-foreground">
-            <th className="pb-2 pr-3 font-semibold">#</th>
-            <th className="pb-2 pr-3 font-semibold">Karyawan</th>
-            <th className="pb-2 pr-3 font-semibold">Departemen</th>
-            <th className="pb-2 pr-3 font-semibold">Level</th>
-            <th className="pb-2 pr-3 font-semibold">Composite</th>
-            <th className="pb-2 pr-3 text-right font-semibold">Use case</th>
-            <th className="pb-2 text-right font-semibold">Jam</th>
+            <th className="pb-2 pr-3 font-medium">#</th>
+            <th className="pb-2 pr-3 font-medium">Karyawan</th>
+            <th className="pb-2 pr-3 font-medium">Departemen</th>
+            <th className="pb-2 pr-3 font-medium">Level</th>
+            <th className="pb-2 pr-3 font-medium">Composite</th>
+            <th className="pb-2 pr-3 text-right font-medium">Use case</th>
+            <th className="pb-2 text-right font-medium">Jam</th>
           </tr>
         </thead>
         <tbody>
@@ -50,7 +50,7 @@ export default function TopPerformersTableAILN({
                 {p.department}
               </td>
               <td className="py-2.5 pr-3">
-                <span className="inline-flex items-center rounded-full border border-dashboard-border bg-muted px-2 py-0.5 text-[11px] font-semibold text-muted-foreground dark:bg-card-2 ">
+                <span className="inline-flex items-center rounded-full border border-dashboard-border bg-muted px-2 py-0.5 text-[11px] font-medium text-muted-foreground dark:bg-card-2 ">
                   {p.level_code}
                 </span>
               </td>
@@ -64,7 +64,7 @@ export default function TopPerformersTableAILN({
                       }}
                     />
                   </div>
-                  <span className="w-7 text-right tabular-nums font-semibold text-foreground">
+                  <span className="w-7 text-right tabular-nums font-medium text-foreground">
                     {p.composite}
                   </span>
                 </div>

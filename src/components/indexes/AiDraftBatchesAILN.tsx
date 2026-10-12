@@ -116,7 +116,7 @@ export default function AiDraftBatchesAILN({
             <button
               type="button"
               onClick={() => setHistoryOpen((open) => !open)}
-              className="flex items-center gap-2 self-start text-sm font-semibold text-foreground"
+              className="flex items-center gap-2 self-start text-sm font-medium text-foreground"
             >
               <ChevronDown
                 className={`size-4 transition ${historyOpen ? "" : "-rotate-90"}`}
@@ -166,7 +166,7 @@ export default function AiDraftBatchesAILN({
                 </GeneralLabelAILN>
               ))}
             </div>
-            <h2 className="text-base font-bold text-foreground">
+            <h2 className="text-base font-medium text-foreground">
               {selected.name}
             </h2>
             <PreviewSection
@@ -239,7 +239,7 @@ function BatchHeader({
     <div className="flex flex-col gap-1">
       <div className="flex flex-wrap items-center gap-2">
         {title && (
-          <h3 className="text-sm font-bold text-foreground">{title}</h3>
+          <h3 className="text-sm font-medium text-foreground">{title}</h3>
         )}
         {isFresh && (
           <GeneralLabelAILN
@@ -290,7 +290,7 @@ function DraftGrid({
 function PreviewSection({ label, text }: { label: string; text: string }) {
   return (
     <div className="flex flex-col gap-1">
-      <div className="text-[11px] font-semibold uppercase tracking-wide text-muted-foreground">
+      <div className="text-[11px] font-medium uppercase tracking-wide text-muted-foreground">
         {label}
       </div>
       <p className="whitespace-pre-wrap text-sm text-foreground">{text}</p>

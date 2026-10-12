@@ -41,7 +41,7 @@ export default function LevelLabelStudentAILN({
           <div className="text-xs text-gray-500 dark:text-gray-400">
             Level Sekarang
           </div>
-          <div className="font-bold dark:text-white">{label}</div>
+          <div className="font-medium dark:text-white">{label}</div>
         </div>
       </div>
     );
@@ -60,7 +60,7 @@ export default function LevelLabelStudentAILN({
           className="h-5 w-5"
         />
       )}
-      <div className="text-sm font-semibold dark:text-white">{label}</div>
+      <div className="text-sm font-medium dark:text-white">{label}</div>
     </div>
   );
 }

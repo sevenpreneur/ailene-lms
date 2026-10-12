@@ -69,7 +69,7 @@ export default function RecentActivityAILN({
                 </span>
                 <div className="min-w-0 flex-1">
                   <p className="text-sm leading-snug text-foreground">
-                    <span className="font-semibold">{item.actor}</span>{" "}
+                    <span className="font-medium">{item.actor}</span>{" "}
                     <span className="text-muted-foreground">{item.action}</span>
                     {item.meta && (
                       <span className="text-muted-foreground">

@@ -77,7 +77,7 @@ function CoachAvatar({ name, src }: { name: string; src: string | null }) {
   const gradient = AVATAR_GRADIENTS[hashString(name) % AVATAR_GRADIENTS.length];
   return (
     <div
-      className={`flex size-7 shrink-0 items-center justify-center rounded-full bg-gradient-to-br ${gradient} text-[10px] font-bold text-white`}
+      className={`flex size-7 shrink-0 items-center justify-center rounded-full bg-gradient-to-br ${gradient} text-[10px] font-medium text-white`}
     >
       {getInitials(name)}
     </div>
@@ -112,7 +112,7 @@ export default function ChampionCoachingAlertAILN(props: {
           <Eye className="size-4" />
         </div>
         <div className="min-w-0">
-          <h2 className="text-sm font-bold leading-snug text-amber-900 dark:text-amber-200">
+          <h2 className="text-sm font-medium leading-snug text-amber-900 dark:text-amber-200">
             {hasAlerts
               ? `${alerts.length} anggota perlu coaching minggu ini`
               : "Semua anggota on track minggu ini"}
@@ -135,7 +135,7 @@ export default function ChampionCoachingAlertAILN(props: {
             >
               <div className="flex items-center gap-2">
                 <CoachAvatar name={m.user.full_name} src={m.user.avatar} />
-                <span className="truncate text-xs font-bold text-gray-900 dark:text-white">
+                <span className="truncate text-xs font-medium text-gray-900 dark:text-white">
                   {m.user.full_name}
                 </span>
               </div>
@@ -144,7 +144,7 @@ export default function ChampionCoachingAlertAILN(props: {
               </p>
               <Link
                 href={`/${projectId}/champion/members?member_id=${m.access_id}`}
-                className="flex items-center justify-center gap-1.5 rounded-lg border border-violet-200 px-3 py-1.5 text-xs font-semibold text-violet-700 transition hover:bg-violet-50 dark:border-violet-500/30 dark:text-violet-300 dark:hover:bg-violet-500/10"
+                className="flex items-center justify-center gap-1.5 rounded-lg border border-violet-200 px-3 py-1.5 text-xs font-medium text-violet-700 transition hover:bg-violet-50 dark:border-violet-500/30 dark:text-violet-300 dark:hover:bg-violet-500/10"
               >
                 Buka 1:1 prep brief
                 <ArrowRight className="size-3.5" />

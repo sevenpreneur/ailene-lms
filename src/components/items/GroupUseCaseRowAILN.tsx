@@ -19,7 +19,7 @@ export default function GroupUseCaseRowAILN({
     <div className="grid grid-cols-[2rem_minmax(8rem,12rem)_1fr_3rem] items-center gap-3">
       <span className="text-xs text-gray-400">#{rank}</span>
       <div className="min-w-0">
-        <div className="truncate text-sm font-semibold text-gray-900 dark:text-white">
+        <div className="truncate text-sm font-medium text-gray-900 dark:text-white">
           {name}
         </div>
         <div className="truncate text-[11px] text-gray-500 dark:text-gray-400">
@@ -32,7 +32,7 @@ export default function GroupUseCaseRowAILN({
           style={{ width: `${Math.min(100, Math.max(0, percent))}%` }}
         />
       </div>
-      <span className="text-right text-xs font-bold text-gray-900 dark:text-white">
+      <span className="text-right text-xs font-medium text-gray-900 dark:text-white">
         {count}x
       </span>
     </div>

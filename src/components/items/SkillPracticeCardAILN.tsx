@@ -154,7 +154,7 @@ export default function SkillPracticeCardAILN({
         </div>
 
         <div className="flex flex-1 flex-col gap-2">
-          <h3 className="text-base font-bold text-foreground dark:text-white">
+          <h3 className="text-base font-medium text-foreground dark:text-white">
             {title}
           </h3>
           <p className="text-sm leading-6 text-gray-500 line-clamp-3 dark:text-gray-400">
@@ -166,7 +166,7 @@ export default function SkillPracticeCardAILN({
           <div className="flex flex-col gap-2 border-t border-dashboard-border pt-3 text-xs text-gray-600 dark:text-gray-300 font-inter">
             {categories.length > 0 && (
               <div className="flex flex-wrap items-center gap-1.5">
-                <span className="shrink-0 font-semibold text-gray-500 dark:text-gray-400">
+                <span className="shrink-0 font-medium text-gray-500 dark:text-gray-400">
                   Category:
                 </span>
                 {categories.map((category) => (
@@ -182,7 +182,7 @@ export default function SkillPracticeCardAILN({
                 <span
                   className={
                     deadlineOverdue
-                      ? "font-semibold text-red-600 dark:text-red-400"
+                      ? "font-medium text-red-600 dark:text-red-400"
                       : ""
                   }
                 >

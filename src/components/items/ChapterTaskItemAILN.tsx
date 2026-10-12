@@ -276,7 +276,7 @@ export default function ChapterTaskItemAILN(props: ChapterTaskItemAILNProps) {
         <div className="text-xs uppercase tracking-wide text-gray-500 dark:text-gray-400">
           {style.badge}
         </div>
-        <div className="text-[15px] font-semibold dark:text-white">{title}</div>
+        <div className="text-[15px] font-medium dark:text-white">{title}</div>
         <div className="mt-1 flex items-center gap-2">
           <GeneralLabelAILN
             variant="white"

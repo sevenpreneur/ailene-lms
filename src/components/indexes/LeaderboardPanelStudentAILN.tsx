@@ -35,7 +35,7 @@ export default function LeaderboardPanelStudentAILN({
       headerRight={
         tab === "DEPT" && data.group ? (
           <div className="flex items-baseline gap-1.5">
-            <span className="text-2xl font-bold leading-none text-gray-900 dark:text-white">
+            <span className="text-2xl font-medium leading-none text-gray-900 dark:text-white">
               #{data.my_rank}
             </span>
             <span className="text-xs text-gray-500 dark:text-gray-400">
@@ -82,12 +82,12 @@ export default function LeaderboardPanelStudentAILN({
                   key={entry.access_id}
                   className={`flex items-center gap-3 rounded-md px-2.5 py-2 ${
                     entry.is_me
-                      ? "bg-hijau-t font-semibold text-gray-900 dark:bg-claude/15 dark:text-white dark:shadow-[inset_0_0_0_1px_rgba(26,122,82,0.4)]"
+                      ? "bg-hijau-t font-medium text-gray-900 dark:bg-claude/15 dark:text-white dark:shadow-[inset_0_0_0_1px_rgba(26,122,82,0.4)]"
                       : "text-gray-700 dark:text-gray-300"
                   }`}
                 >
                   <span
-                    className={`w-5 shrink-0 text-center text-sm font-semibold ${
+                    className={`w-5 shrink-0 text-center text-sm font-medium ${
                       entry.is_me
                         ? "text-claude dark:text-lime-bright"
                         : "text-gray-400 dark:text-gray-500"
@@ -107,7 +107,7 @@ export default function LeaderboardPanelStudentAILN({
                   <span className="flex-1 truncate text-sm">
                     {entry.full_name}
                     {entry.is_me && (
-                      <span className="ml-1.5 rounded bg-claude px-1.5 py-0.5 text-[10px] font-bold text-white">
+                      <span className="ml-1.5 rounded bg-claude px-1.5 py-0.5 text-[10px] font-medium text-white">
                         ANDA
                       </span>
                     )}

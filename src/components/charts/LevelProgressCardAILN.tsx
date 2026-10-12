@@ -41,7 +41,7 @@ export default function LevelProgressCardAILN({
               style={{ width: `${pct}%` }}
             />
           </div>
-          <span className="text-xs font-semibold text-gray-700 dark:text-gray-300">
+          <span className="text-xs font-medium text-gray-700 dark:text-gray-300">
             {tasksDone} / {tasksRequired}
           </span>
         </div>
@@ -97,7 +97,7 @@ function LevelStepper({
                 state={isPast ? "past" : isCurrent ? "current" : "future"}
               />
               <div
-                className={`text-xs font-bold uppercase tracking-wider ${
+                className={`text-xs font-medium uppercase tracking-wider ${
                   isCurrent
                     ? "text-ailene-logo-start dark:text-lime-bright"
                     : isFuture

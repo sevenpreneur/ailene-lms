@@ -60,12 +60,12 @@ export default function HeadlineAILN({
       </div>
 
       <div className="relative">
-        <div className="inline-flex items-center gap-1.5 text-[11px] font-semibold uppercase tracking-widest text-violet-600 dark:text-violet-400">
+        <div className="inline-flex items-center gap-1.5 text-[11px] font-medium uppercase tracking-widest text-violet-600 dark:text-violet-400">
           <Sparkles size={12} className="fill-current" />
           Headline · Bulan ini
         </div>
 
-        <h2 className="mt-3 max-w-3xl text-4xl font-bold leading-tight text-foreground md:text-5xl">
+        <h2 className="mt-3 max-w-3xl text-4xl font-medium leading-tight text-foreground md:text-5xl">
           <span className="text-emerald-600 dark:text-emerald-400">
             {productivePercent}%
           </span>{" "}
@@ -74,10 +74,10 @@ export default function HeadlineAILN({
 
         <p className="mt-4 max-w-2xl text-base text-foreground/90">
           Total{" "}
-          <span className="font-bold">
+          <span className="font-medium">
             {formatInt(Math.round(hoursSavedLastWeek))} jam
           </span>{" "}
-          dihemat minggu lalu — <span className="font-bold">{roiText}</span>{" "}
+          dihemat minggu lalu — <span className="font-medium">{roiText}</span>{" "}
           <span className="text-muted-foreground">(annualized)</span>
         </p>
 

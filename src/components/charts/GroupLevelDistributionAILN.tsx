@@ -50,7 +50,7 @@ export default function GroupLevelDistributionAILN({
                 style={{ backgroundColor: levelColor(index) }}
               />
               <div className="min-w-0">
-                <div className="text-sm font-bold text-gray-900 dark:text-white">
+                <div className="text-sm font-medium text-gray-900 dark:text-white">
                   {level.code} {level.count}
                 </div>
                 <div className="truncate text-[11px] text-gray-500 dark:text-gray-400">
@@ -68,7 +68,7 @@ export default function GroupLevelDistributionAILN({
             key={level.id}
             className="grid grid-cols-[3rem_1fr_3rem] items-center gap-2 text-xs"
           >
-            <span className="font-bold text-gray-700 dark:text-gray-200">
+            <span className="font-medium text-gray-700 dark:text-gray-200">
               {level.code}
             </span>
             <div className="h-2.5 overflow-hidden rounded-full bg-gray-100 dark:bg-dashboard-border">
@@ -80,7 +80,7 @@ export default function GroupLevelDistributionAILN({
                 }}
               />
             </div>
-            <span className="text-right font-semibold text-gray-900 dark:text-white">
+            <span className="text-right font-medium text-gray-900 dark:text-white">
               {level.count}
             </span>
           </div>

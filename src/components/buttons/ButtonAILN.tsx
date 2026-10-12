@@ -47,7 +47,7 @@ const ButtonAILN = forwardRef<HTMLButtonElement, ButtonAILNProps>(
     ref: ForwardedRef<HTMLButtonElement>
   ) => {
     const baseClasses =
-      "app-button  relative inline-flex gap-2 font-semibold items-center justify-center truncate transition transform hover:cursor-pointer active:scale-95 focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:cursor-not-allowed";
+      "app-button  relative inline-flex gap-2 font-medium items-center justify-center truncate transition transform hover:cursor-pointer active:scale-95 focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:cursor-not-allowed";
 
     const primaryClasses =
       "bg-black text-white hover:bg-[#140303] active:bg-[#140303] disabled:bg-gray-300 disabled:text-gray-500 dark:border dark:border-dashboard-border dark:bg-dashboard-bg dark:text-white dark:hover:bg-card-1 dark:active:bg-card-1 dark:disabled:bg-card-1/40 dark:disabled:text-red-100/40";

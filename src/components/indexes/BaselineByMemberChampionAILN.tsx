@@ -91,20 +91,20 @@ export default function BaselineByMemberChampionAILN({
           <div className="overflow-x-auto">
             <table className="w-full min-w-[760px] border-collapse text-sm">
               <thead>
-                <tr className="border-b border-dashboard-border text-[11px] font-bold uppercase tracking-wider text-gray-500 dark:text-gray-400">
-                  <th className="py-2 pr-3 text-left font-bold">Anggota</th>
+                <tr className="border-b border-dashboard-border text-[11px] font-medium uppercase tracking-wider text-gray-500 dark:text-gray-400">
+                  <th className="py-2 pr-3 text-left font-medium">Anggota</th>
                   {data.team_pillars
                     .slice()
                     .sort((a, b) => orderIndex(a.key) - orderIndex(b.key))
                     .map((p) => (
                       <th
                         key={p.key}
-                        className="px-2 py-2 text-center font-bold"
+                        className="px-2 py-2 text-center font-medium"
                       >
                         {PILLAR_SHORT[p.key]}
                       </th>
                     ))}
-                  <th className="px-2 py-2 text-center font-bold">Avg</th>
+                  <th className="px-2 py-2 text-center font-medium">Avg</th>
                 </tr>
               </thead>
               <tbody>
@@ -159,7 +159,7 @@ function DepartmentRows({
         <tr className="bg-gray-50 dark:bg-card-2">
           <td
             colSpan={colSpan}
-            className="px-1 py-2 text-left text-xs font-bold uppercase tracking-wider text-gray-600 dark:text-gray-300"
+            className="px-1 py-2 text-left text-xs font-medium uppercase tracking-wider text-gray-600 dark:text-gray-300"
           >
             {dept.name}{" "}
             <span className="font-medium normal-case tracking-normal text-gray-400 dark:text-gray-500">
@@ -177,10 +177,10 @@ function DepartmentRows({
           <td className="py-2.5 pr-3 text-left">
             <div className="flex items-center gap-2.5">
               <MemberAvatar name={m.name} src={m.avatar} />
-              <span className="truncate font-semibold text-foreground">
+              <span className="truncate font-medium text-foreground">
                 {m.name}
                 {m.is_me && (
-                  <span className="ml-1 font-normal text-muted-foreground">
+                  <span className="ml-1 font-light text-muted-foreground">
                     (Anda)
                   </span>
                 )}
@@ -197,7 +197,7 @@ function DepartmentRows({
             ))}
           <td className="px-2 py-2.5 text-center">
             <span
-              className={`font-bold tabular-nums ${
+              className={`font-medium tabular-nums ${
                 m.avg >= 2.5
                   ? "text-emerald-700 dark:text-emerald-300"
                   : m.avg < 2.0
@@ -230,7 +230,7 @@ function MemberAvatar({ name, src }: { name: string; src: string | null }) {
   const gradient = AVATAR_GRADIENTS[hashString(name) % AVATAR_GRADIENTS.length];
   return (
     <div
-      className={`flex size-7 shrink-0 items-center justify-center rounded-full bg-gradient-to-br ${gradient} text-[10px] font-bold text-white`}
+      className={`flex size-7 shrink-0 items-center justify-center rounded-full bg-gradient-to-br ${gradient} text-[10px] font-medium text-white`}
     >
       {getInitials(name)}
     </div>
@@ -242,7 +242,7 @@ function PillarCell({ score, weakest }: { score: number; weakest: boolean }) {
   const green = score >= 3.2;
   return (
     <span
-      className={`inline-flex size-8 items-center justify-center rounded-md text-sm font-bold tabular-nums ${
+      className={`inline-flex size-8 items-center justify-center rounded-md text-sm font-medium tabular-nums ${
         green
           ? "bg-emerald-200 text-emerald-800 dark:bg-emerald-400/25 dark:text-emerald-200"
           : "bg-amber-200 text-amber-800 dark:bg-amber-400/25 dark:text-amber-200"
@@ -271,7 +271,7 @@ function Stat({
         : "text-foreground";
   return (
     <div className="flex flex-col gap-0.5">
-      <span className={`text-2xl font-bold tabular-nums ${valueColor}`}>
+      <span className={`text-2xl font-medium tabular-nums ${valueColor}`}>
         {value}
       </span>
       <span className="text-[11px] leading-tight text-muted-foreground">

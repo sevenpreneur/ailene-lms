@@ -26,7 +26,7 @@ export default function VoiceChipAILN({
     >
       {label}
       <span
-        className={`min-w-5 rounded-full px-1.5 text-center text-xs font-semibold tabular-nums ${countCls}`}
+        className={`min-w-5 rounded-full px-1.5 text-center text-xs font-medium tabular-nums ${countCls}`}
       >
         {count}
       </span>

@@ -21,7 +21,7 @@ export default function MomentumStripAILN() {
         </span>
         <div className="min-w-0">
           <div className="flex items-baseline gap-1.5">
-            <span className=" text-3xl font-bold leading-none text-foreground dark:text-white">
+            <span className=" text-3xl font-medium leading-none text-foreground dark:text-white">
               {streak}
             </span>
             <span className="text-sm text-gray-500 dark:text-gray-400">
@@ -40,7 +40,7 @@ export default function MomentumStripAILN() {
         href={`/${projectId}/student/skill-practice`}
         className="group flex flex-col justify-center gap-1 rounded-lg border border-dashboard-border bg-[#FCFCFD] p-5 transition hover:border-hijau dark:bg-card-1 dark:hover:border-claude/40"
       >
-        <div className="flex items-center gap-1.5 text-[10px] font-semibold uppercase tracking-widest text-gray-500 dark:text-gray-400">
+        <div className="flex items-center gap-1.5 text-[10px] font-medium uppercase tracking-widest text-gray-500 dark:text-gray-400">
           <Target className="size-3.5" />
           Fokus hari ini
         </div>
@@ -48,7 +48,7 @@ export default function MomentumStripAILN() {
           <>
             <p className="text-sm text-gray-700 dark:text-gray-200">
               Perkuat{" "}
-              <span className="font-semibold text-foreground dark:text-white">
+              <span className="font-medium text-foreground dark:text-white">
                 {weakest.name}
               </span>{" "}
               <span className="text-gray-400 dark:text-gray-500">

@@ -39,7 +39,7 @@ export default function ExploreAILN() {
           <span className="mb-4 flex h-11 w-11 shrink-0 items-center justify-center rounded-full bg-white text-forest-deep shadow-sm dark:bg-card-1 dark:text-lime-bright">
             <Compass size={20} />
           </span>
-          <h1 className="text-3xl font-semibold leading-tight tracking-tight text-forest-deep dark:text-white">
+          <h1 className="text-3xl font-medium leading-tight tracking-tight text-forest-deep dark:text-white">
             Explore
           </h1>
           <p className="mt-2 max-w-xl text-sm leading-relaxed text-forest-deep/70 dark:text-gray-300 sm:text-base">
@@ -53,7 +53,7 @@ export default function ExploreAILN() {
           <aside className="w-full shrink-0 lg:sticky lg:top-6 lg:w-60 lg:self-start xl:w-64">
             <div className="flex flex-col gap-4 rounded-2xl border border-dashboard-border bg-card-1 p-5">
               <div className="flex flex-col gap-2">
-                <p className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">
+                <p className="text-xs font-medium uppercase tracking-wide text-muted-foreground">
                   Vendor
                 </p>
                 <div className="flex flex-wrap gap-2">
@@ -79,7 +79,7 @@ export default function ExploreAILN() {
               </div>
 
               <div className="flex flex-col gap-2 border-t border-dashboard-border pt-4">
-                <p className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">
+                <p className="text-xs font-medium uppercase tracking-wide text-muted-foreground">
                   Level
                 </p>
                 <div className="flex flex-wrap gap-2">
@@ -106,7 +106,7 @@ export default function ExploreAILN() {
           {/* Catalog */}
           <section className="min-w-0 flex-1 rounded-2xl border border-dashboard-border bg-card-1 p-6">
             <div className="mb-4 flex items-center justify-between">
-              <h2 className="text-lg font-semibold text-foreground">
+              <h2 className="text-lg font-medium text-foreground">
                 Semua Kursus
               </h2>
               <span className="text-sm text-muted-foreground">

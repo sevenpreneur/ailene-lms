@@ -105,7 +105,7 @@ function ReadinessDonut({
           </PieChart>
         </ChartContainer>
         <div className="pointer-events-none absolute inset-0 flex flex-col items-center justify-center">
-          <span className="text-2xl font-bold leading-none text-foreground">
+          <span className="text-2xl font-medium leading-none text-foreground">
             {formatScore(orgAvg)}
           </span>
           <span className="mt-0.5 text-[10px] text-muted-foreground">

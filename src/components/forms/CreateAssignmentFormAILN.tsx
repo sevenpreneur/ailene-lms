@@ -225,7 +225,7 @@ export default function CreateAssignmentFormAILN({
         <div className="flex h-full flex-col gap-5 overflow-y-auto px-6 pb-28">
           {/* Type */}
           <div className="flex flex-col gap-2">
-            <label className="text-xs font-semibold uppercase tracking-wide text-gray-500 dark:text-gray-400">
+            <label className="text-xs font-medium uppercase tracking-wide text-gray-500 dark:text-gray-400">
               Tipe
             </label>
             <div className="grid grid-cols-2 gap-2">
@@ -306,7 +306,7 @@ export default function CreateAssignmentFormAILN({
           {/* Categories — searchable multi-select (no AILN equivalent) */}
           <div className="flex flex-col gap-2">
             <div className="flex items-center justify-between">
-              <label className="text-xs font-semibold uppercase tracking-wide text-gray-500 dark:text-gray-400">
+              <label className="text-xs font-medium uppercase tracking-wide text-gray-500 dark:text-gray-400">
                 Kategori <span className="text-red-500">*</span>
               </label>
               <span className="text-[11px] text-gray-400">
@@ -395,7 +395,7 @@ export default function CreateAssignmentFormAILN({
             <>
               {/* Target mode */}
               <div className="flex flex-col gap-2">
-                <label className="text-xs font-semibold uppercase tracking-wide text-gray-500 dark:text-gray-400">
+                <label className="text-xs font-medium uppercase tracking-wide text-gray-500 dark:text-gray-400">
                   Target
                 </label>
                 <div className="grid grid-cols-2 gap-2">
@@ -427,7 +427,7 @@ export default function CreateAssignmentFormAILN({
               {/* Target picker */}
               {formData.mode === "INDIVIDUAL" ? (
                 <div className="flex flex-col gap-2">
-                  <label className="text-xs font-semibold uppercase tracking-wide text-gray-500 dark:text-gray-400">
+                  <label className="text-xs font-medium uppercase tracking-wide text-gray-500 dark:text-gray-400">
                     Pilih Anggota ({formData.selectedMemberIds.length} dipilih)
                   </label>
                   {members.length === 0 ? (
@@ -471,7 +471,7 @@ export default function CreateAssignmentFormAILN({
                 </div>
               ) : (
                 <div className="flex flex-col gap-2">
-                  <label className="text-xs font-semibold uppercase tracking-wide text-gray-500 dark:text-gray-400">
+                  <label className="text-xs font-medium uppercase tracking-wide text-gray-500 dark:text-gray-400">
                     Pilih Grup ({formData.selectedGroupIds.length} dipilih)
                   </label>
                   {groups.length === 0 ? (

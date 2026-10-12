@@ -52,7 +52,7 @@ export default function FirstWinCardAILN() {
     description = (
       <>
         Use case pertama Anda{" "}
-        <strong className="font-semibold text-foreground dark:text-white">
+        <strong className="font-medium text-foreground dark:text-white">
           &ldquo;{fw.name}&rdquo;
         </strong>{" "}
         sudah tercatat. Menunggu konfirmasi kualitas output dari Champion.
@@ -68,7 +68,7 @@ export default function FirstWinCardAILN() {
     description = (
       <>
         Prompt pertama Anda{" "}
-        <strong className="font-semibold text-foreground dark:text-white">
+        <strong className="font-medium text-foreground dark:text-white">
           &ldquo;{fw.name}&rdquo;
         </strong>{" "}
         sudah dikirim ke Champion. Tunggu konfirmasi kualitas output.
@@ -78,11 +78,11 @@ export default function FirstWinCardAILN() {
 
   return (
     <div className="relative rounded-lg border border-amber-200/70 bg-gradient-to-br from-white via-amber-50 to-amber-100 px-6 py-6 dark:border-amber-500/30 dark:from-amber-500/5 dark:via-amber-500/10 dark:to-yellow-500/15">
-      <div className="flex items-center gap-2 text-[11px] font-semibold uppercase tracking-[0.2em] text-amber-700 dark:text-amber-300">
+      <div className="flex items-center gap-2 text-[11px] font-medium uppercase tracking-[0.2em] text-amber-700 dark:text-amber-300">
         <Star className="size-3.5" fill="currentColor" />
         {badge}
       </div>
-      <h2 className="mt-2 break-words text-2xl font-bold leading-snug md:text-3xl">
+      <h2 className="mt-2 break-words text-2xl font-medium leading-snug md:text-3xl">
         {headline}
       </h2>
       <p className="mt-3 break-words text-sm text-gray-700 dark:text-gray-300">

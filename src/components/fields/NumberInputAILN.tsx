@@ -186,7 +186,7 @@ export default function NumberInputAILN({
       {inputName && (
         <label
           htmlFor={inputId}
-          className={`label-input flex pl-1 gap-0.5 text-sm text-foreground font-semibold`}
+          className={`label-input flex pl-1 gap-0.5 text-sm text-foreground font-medium`}
         >
           {inputName}
           {required && (
@@ -265,7 +265,7 @@ export default function NumberInputAILN({
                     <span className="text-emphasis shrink-0">
                       +{c.phone_code}
                     </span>
-                    <span className="truncate font-[450]">
+                    <span className="truncate font-light">
                       {c.country_name}
                     </span>
                   </button>

@@ -26,10 +26,10 @@ export default function RoiProductivityBannerAILN({
   return (
     <section className="relative overflow-hidden rounded-2xl border border-stakeholder-sponsor/20 bg-gradient-to-br from-stakeholder-sponsor-soft via-white to-sky-50 px-8 py-8 dark:via-card-1 dark:to-blue-950/20">
       <div className="relative z-10 max-w-5xl lg:max-w-[56rem] lg:pr-72">
-        <div className="mb-4 text-[11px] font-bold uppercase tracking-[0.35em] text-stakeholder-sponsor">
+        <div className="mb-4 text-[11px] font-medium uppercase tracking-[0.35em] text-stakeholder-sponsor">
           ★ Nilai Program · Annualized
         </div>
-        <h2 className="max-w-5xl text-[28px] font-black leading-tight tracking-normal text-foreground md:text-4xl xl:text-[44px]">
+        <h2 className="max-w-5xl text-[28px] font-medium leading-tight tracking-normal text-foreground md:text-4xl xl:text-[44px]">
           ~
           <span className="text-state-success">
             {formatInt(Math.round(weeklyHours))} jam
@@ -41,7 +41,7 @@ export default function RoiProductivityBannerAILN({
         </h2>
         <p className="mt-5 text-xl text-foreground">
           Setara{" "}
-          <span className="font-bold">
+          <span className="font-medium">
             {formatDecimal(monthlyHours)} jam/bulan
           </span>{" "}
           produktivitas yang dikembalikan ke bisnis Anda

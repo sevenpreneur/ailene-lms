@@ -161,14 +161,14 @@ export default function QuizAttemptAILN({
         {/* Header */}
         <div className="flex flex-col gap-3 rounded-xl border bg-white p-4 dark:border-dashboard-border dark:bg-card-1 dark:shadow-[0_0_18px_rgba(26,122,82,0.08)]">
           <div className="flex flex-wrap items-center gap-3">
-            <h1 className="flex-1 text-base font-semibold dark:text-white">
+            <h1 className="flex-1 text-base font-medium dark:text-white">
               {quiz.name}
             </h1>
             <span className="rounded-full bg-gray-100 px-3 py-1 text-xs font-medium text-gray-700 dark:bg-dashboard-border dark:text-gray-300">
               Soal {currentIdx + 1} / {totalQuestions}
             </span>
             <span
-              className={`flex items-center gap-1.5 rounded-full px-3 py-1 text-xs font-semibold ${
+              className={`flex items-center gap-1.5 rounded-full px-3 py-1 text-xs font-medium ${
                 secondsLeft <= 60
                   ? "bg-red-50 text-red-600 dark:bg-red-500/15 dark:text-red-300 dark:border dark:border-red-500/40 dark:shadow-[0_0_10px_rgba(239,68,68,0.4)]"
                   : secondsLeft <= 300
@@ -216,13 +216,13 @@ export default function QuizAttemptAILN({
           {/* Left panel: question */}
           <div className="flex flex-1 flex-col gap-4 rounded-xl border bg-white p-4 sm:p-6 dark:border-dashboard-border dark:bg-card-1 dark:shadow-[0_0_18px_rgba(26,122,82,0.08)]">
             <div className="flex items-center gap-2">
-              <span className="text-[11px] font-semibold uppercase tracking-widest text-gray-500 dark:text-gray-400">
+              <span className="text-[11px] font-medium uppercase tracking-widest text-gray-500 dark:text-gray-400">
                 SOAL {currentIdx + 1}
               </span>
             </div>
             {currentQ ? (
               <>
-                <p className="text-[17px] font-semibold leading-snug text-gray-900 dark:text-white">
+                <p className="text-[17px] font-medium leading-snug text-gray-900 dark:text-white">
                   {currentQ.question}
                 </p>
                 <p className="text-sm text-gray-500 dark:text-gray-400">
@@ -246,7 +246,7 @@ export default function QuizAttemptAILN({
                         }`}
                       >
                         <div
-                          className={`flex size-6 shrink-0 items-center justify-center rounded-full text-xs font-bold ${
+                          className={`flex size-6 shrink-0 items-center justify-center rounded-full text-xs font-medium ${
                             isSelected
                               ? "bg-claude text-white dark:shadow-[0_0_8px_rgba(26,122,82,0.6)]"
                               : "bg-gray-200 text-gray-700 dark:bg-dashboard-border dark:text-gray-300"
@@ -289,7 +289,7 @@ export default function QuizAttemptAILN({
           {/* Right panel: navigation */}
           <div className="order-first flex w-full shrink-0 flex-col gap-4 lg:order-none lg:w-72">
             <div className="flex flex-col gap-3 rounded-xl border bg-white p-4 dark:border-dashboard-border dark:bg-card-1 dark:shadow-[0_0_18px_rgba(26,122,82,0.08)]">
-              <span className="text-[11px] font-semibold uppercase tracking-widest text-gray-500 dark:text-gray-400">
+              <span className="text-[11px] font-medium uppercase tracking-widest text-gray-500 dark:text-gray-400">
                 NAVIGASI SOAL
               </span>
               <div className="grid grid-cols-5 gap-2">
@@ -315,7 +315,7 @@ export default function QuizAttemptAILN({
                       key={q.id}
                       type="button"
                       onClick={() => setCurrentIdx(idx)}
-                      className={`flex aspect-square items-center justify-center rounded-md text-xs font-semibold transition hover:opacity-80 ${cls}`}
+                      className={`flex aspect-square items-center justify-center rounded-md text-xs font-medium transition hover:opacity-80 ${cls}`}
                     >
                       {idx + 1}
                     </button>

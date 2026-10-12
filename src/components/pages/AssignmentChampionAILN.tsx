@@ -323,7 +323,7 @@ function TabButton({
     <button
       type="button"
       onClick={onClick}
-      className={`-mb-px inline-flex h-12 cursor-pointer items-center gap-2 border-b-2 px-4 text-sm font-semibold transition ${
+      className={`-mb-px inline-flex h-12 cursor-pointer items-center gap-2 border-b-2 px-4 text-sm font-medium transition ${
         active
           ? "border-claude text-claude dark:border-claude dark:text-lime-bright"
           : "border-transparent text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200"
@@ -332,7 +332,7 @@ function TabButton({
       {icon}
       <span className="whitespace-nowrap">{label}</span>
       <span
-        className={`inline-flex min-w-5 items-center justify-center rounded-md px-1.5 py-0.5 text-[11px] font-bold text-white ${
+        className={`inline-flex min-w-5 items-center justify-center rounded-md px-1.5 py-0.5 text-[11px] font-medium text-white ${
           active ? "bg-claude" : "bg-gray-400 dark:bg-gray-600"
         }`}
       >
@@ -363,10 +363,10 @@ function PreviewBody({
           </GeneralLabelAILN>
         ))}
       </div>
-      <h2 className="text-base font-bold dark:text-white">{title}</h2>
+      <h2 className="text-base font-medium dark:text-white">{title}</h2>
       {sections.map((s) => (
         <div key={s.label} className="flex flex-col gap-1">
-          <div className="text-[11px] font-semibold uppercase tracking-wide text-gray-500 dark:text-gray-400">
+          <div className="text-[11px] font-medium uppercase tracking-wide text-gray-500 dark:text-gray-400">
             {s.label}
           </div>
           <p className="text-sm whitespace-pre-wrap text-gray-700 dark:text-gray-200">

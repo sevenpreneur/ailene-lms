@@ -52,16 +52,16 @@ export default function QuizSummaryBannerAILN({
           </div>
 
           <div className="min-w-0">
-            <div className="text-sm font-semibold text-gray-700 dark:text-gray-300">
+            <div className="text-sm font-medium text-gray-700 dark:text-gray-300">
               Skor Kamu
             </div>
             <div className="mt-1 flex flex-wrap items-center gap-3">
-              <span className="text-6xl font-black leading-none tracking-normal text-gray-950 dark:text-white">
+              <span className="text-6xl font-medium leading-none tracking-normal text-gray-950 dark:text-white">
                 {score}
               </span>
               <ScoreStars score={score} />
             </div>
-            <p className="mt-2 text-xl font-black text-claude dark:text-lime-bright">
+            <p className="mt-2 text-xl font-medium text-claude dark:text-lime-bright">
               {motivationalMessage(score)}
             </p>
             {xpEarned > 0 && (
@@ -91,7 +91,7 @@ export default function QuizSummaryBannerAILN({
         <VerticalDivider />
 
         <div className="min-w-0">
-          <h2 className="text-lg font-black text-gray-950 dark:text-white">
+          <h2 className="text-lg font-medium text-gray-950 dark:text-white">
             Ringkasan Performa
           </h2>
           <div className="mt-4 grid gap-2">
@@ -192,10 +192,10 @@ function GreenGauge({ correct, total }: { correct: number; total: number }) {
           icon={faCrown}
           className="mb-2 h-7 w-7 text-amber-400"
         />
-        <span className="text-3xl font-black leading-none text-gray-950 dark:text-white">
+        <span className="text-3xl font-medium leading-none text-gray-950 dark:text-white">
           {correct}/{total}
         </span>
-        <span className="mt-1 text-sm font-bold text-emerald-700 dark:text-emerald-300">
+        <span className="mt-1 text-sm font-medium text-emerald-700 dark:text-emerald-300">
           Benar
         </span>
       </div>
@@ -222,7 +222,7 @@ function SummaryRow({
         <FontAwesomeIcon icon={icon} className={`h-4 w-4 ${iconClassName}`} />
         <span className="truncate">{label}</span>
       </span>
-      <span className={`text-sm font-black ${valueClassName}`}>{value}</span>
+      <span className={`text-sm font-medium ${valueClassName}`}>{value}</span>
     </div>
   );
 }

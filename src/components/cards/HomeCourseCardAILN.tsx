@@ -30,7 +30,7 @@ export function HomeRecommendedCourseCardAILN({
         </div>
       </div>
       <div className="px-1 pt-3">
-        <p className="truncate text-base font-bold text-foreground">
+        <p className="truncate text-base font-medium text-foreground">
           {course.title}
         </p>
         <div className="mt-1.5 flex items-center justify-between gap-2">
@@ -48,7 +48,7 @@ export function HomeRecommendedCourseCardAILN({
             )}
             <span className="truncate">{course.vendor?.name ?? ""}</span>
           </span>
-          <span className="shrink-0 text-sm font-semibold text-claude dark:text-lime-bright">
+          <span className="shrink-0 text-sm font-medium text-claude dark:text-lime-bright">
             {course.action}
           </span>
         </div>
