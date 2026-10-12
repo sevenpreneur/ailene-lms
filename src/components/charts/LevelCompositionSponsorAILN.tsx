@@ -86,7 +86,7 @@ export default function LevelCompositionSponsorAILN({
             </PieChart>
           </ChartContainer>
           <div className="pointer-events-none absolute inset-0 flex flex-col items-center justify-center">
-            <span className="text-3xl font-medium leading-none text-foreground">
+            <span className="font-headline text-3xl font-medium leading-none text-foreground">
               {formatScore(avgScore)}
             </span>
             <span className="mt-1 text-[11px] text-muted-foreground">

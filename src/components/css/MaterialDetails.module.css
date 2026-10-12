@@ -1,6 +1,6 @@
 .prose {
   font-size: 16px;
-  font-weight: 300;
+  font-weight: 400;
   line-height: 1.82;
   color: var(--color-sevenpreneur-coal);
 }
@@ -151,7 +151,7 @@
   color: #e2e8f0;
   font-size: 0.85em;
   line-height: 1.72;
-  font-weight: 300;
+  font-weight: 400;
 }
 
 .prose hr {

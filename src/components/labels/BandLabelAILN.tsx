@@ -18,7 +18,7 @@ export default function BandLabelAILN({
       title={`Band ${band.band} · Level ${band.level}`}
     >
       <span className="tabular-nums">B{band.band}</span>
-      <span className="font-light">{band.name}</span>
+      <span className="font-normal">{band.name}</span>
     </span>
   );
 }

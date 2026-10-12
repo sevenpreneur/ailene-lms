@@ -25,13 +25,13 @@ export default function TeamScoreBannerAILN({
       </div>
 
       <div className="mt-2 flex items-baseline gap-2">
-        <span className="text-3xl font-medium tracking-tight text-gray-900 dark:text-white sm:text-4xl">
+        <span className="font-headline text-3xl font-medium tracking-tight text-gray-900 dark:text-white sm:text-4xl">
           Skor Tim:
         </span>
-        <span className="text-4xl font-medium leading-none tracking-tight text-claude dark:text-lime-bright sm:text-5xl">
+        <span className="font-headline text-4xl font-medium leading-none tracking-tight text-claude dark:text-lime-bright sm:text-5xl">
           {fmt(score)}
         </span>
-        <span className="text-2xl font-medium text-gray-400 dark:text-gray-500">
+        <span className="font-headline text-2xl font-medium text-gray-400 dark:text-gray-500">
           /{fmt(maxScore)}
         </span>
       </div>

@@ -265,7 +265,7 @@ export default function NumberInputAILN({
                     <span className="text-emphasis shrink-0">
                       +{c.phone_code}
                     </span>
-                    <span className="truncate font-light">
+                    <span className="truncate font-normal">
                       {c.country_name}
                     </span>
                   </button>

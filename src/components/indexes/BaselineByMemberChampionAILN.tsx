@@ -96,7 +96,7 @@ export default function BaselineByMemberChampionAILN({
                         <span className="truncate font-medium text-foreground">
                           {m.name}
                           {m.is_me && (
-                            <span className="ml-1 font-light text-muted-foreground">
+                            <span className="ml-1 font-normal text-muted-foreground">
                               (Anda)
                             </span>
                           )}
@@ -201,7 +201,7 @@ function Stat({
         : "text-foreground";
   return (
     <div className="flex flex-col gap-0.5">
-      <span className={`text-2xl font-medium tabular-nums ${valueColor}`}>
+      <span className={`font-headline text-2xl font-medium tabular-nums ${valueColor}`}>
         {value}
       </span>
       <span className="text-[11px] leading-tight text-muted-foreground">

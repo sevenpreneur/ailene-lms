@@ -218,7 +218,7 @@ function MetricCard({
       <div className="text-xs text-gray-500 dark:text-gray-400">{label}</div>
       <div className="mt-1 flex items-end gap-1">
         <span
-          className={`text-xl font-medium leading-none ${
+          className={`font-headline text-xl font-medium leading-none ${
             accent
               ? "text-amber-600 dark:text-amber-400"
               : "text-gray-900 dark:text-white"

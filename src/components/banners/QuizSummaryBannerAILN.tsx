@@ -56,12 +56,12 @@ export default function QuizSummaryBannerAILN({
               Skor Kamu
             </div>
             <div className="mt-1 flex flex-wrap items-center gap-3">
-              <span className="text-6xl font-medium leading-none tracking-normal text-gray-950 dark:text-white">
+              <span className="font-headline text-6xl font-medium leading-none tracking-normal text-gray-950 dark:text-white">
                 {score}
               </span>
               <ScoreStars score={score} />
             </div>
-            <p className="mt-2 text-xl font-medium text-claude dark:text-lime-bright">
+            <p className="font-headline mt-2 text-xl font-medium text-claude dark:text-lime-bright">
               {motivationalMessage(score)}
             </p>
             {xpEarned > 0 && (
@@ -192,7 +192,7 @@ function GreenGauge({ correct, total }: { correct: number; total: number }) {
           icon={faCrown}
           className="mb-2 h-7 w-7 text-amber-400"
         />
-        <span className="text-3xl font-medium leading-none text-gray-950 dark:text-white">
+        <span className="font-headline text-3xl font-medium leading-none text-gray-950 dark:text-white">
           {correct}/{total}
         </span>
         <span className="mt-1 text-sm font-medium text-emerald-700 dark:text-emerald-300">

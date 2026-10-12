@@ -104,7 +104,7 @@ export default function SidebarUserMenuAILN({
             <span className="block truncate text-sm font-medium">
               {user.full_name}
             </span>
-            <span className="block truncate text-xs font-light text-muted-foreground">
+            <span className="block truncate text-xs font-normal text-muted-foreground">
               {user.email}
             </span>
           </span>

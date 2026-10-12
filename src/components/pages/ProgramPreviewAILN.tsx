@@ -100,7 +100,7 @@ function SessionMedia({ program }: { program: ProgramPreviewMock }) {
                   : "border-dashboard-border text-muted-foreground hover:bg-dashboard-bg"
               }`}
             >
-              <span className="font-mono text-[11px] opacity-70">
+              <span className="tabular-nums text-[11px] opacity-70">
                 {formatTime(chapter.start)}–{formatTime(chapter.end)}
               </span>{" "}
               <span>{chapter.label}</span>
@@ -136,7 +136,7 @@ function SessionMedia({ program }: { program: ProgramPreviewMock }) {
                   : "hover:bg-dashboard-bg"
               }`}
             >
-              <span className="w-10 shrink-0 pt-0.5 font-mono text-xs text-muted-foreground">
+              <span className="w-10 shrink-0 pt-0.5 tabular-nums text-xs text-muted-foreground">
                 {formatTime(line.time)}
               </span>
               <div className="min-w-0 flex-1">

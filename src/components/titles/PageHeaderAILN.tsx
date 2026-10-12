@@ -19,7 +19,7 @@ export default function PageHeaderAILN({
           {title}
         </h1>
         {desc && (
-          <p className="text-sm font-inter text-gray-500 dark:text-gray-400">
+          <p className="text-sm text-gray-500 dark:text-gray-400">
             {desc}
           </p>
         )}

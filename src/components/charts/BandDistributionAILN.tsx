@@ -37,7 +37,7 @@ export default function BandDistributionAILN({
       ) : (
         <div className="flex flex-col gap-5">
           <div className="flex items-baseline gap-2">
-            <span className="text-2xl font-medium tabular-nums text-foreground">
+            <span className="font-headline text-2xl font-medium tabular-nums text-foreground">
               {pct}%
             </span>
             <span className="text-sm text-muted-foreground">

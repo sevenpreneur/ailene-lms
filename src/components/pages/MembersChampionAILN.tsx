@@ -259,7 +259,7 @@ function MemberRow({
             <div className="truncate text-sm font-medium text-gray-900 dark:text-white">
               {member.user.full_name}
             </div>
-            <div className="truncate text-xs font-inter text-gray-500 dark:text-gray-400">
+            <div className="truncate text-xs text-gray-500 dark:text-gray-400">
               {member.user.email}
             </div>
           </div>

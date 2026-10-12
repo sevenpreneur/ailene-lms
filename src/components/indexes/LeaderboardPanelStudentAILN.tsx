@@ -35,7 +35,7 @@ export default function LeaderboardPanelStudentAILN({
       headerRight={
         tab === "DEPT" && data.group ? (
           <div className="flex items-baseline gap-1.5">
-            <span className="text-2xl font-medium leading-none text-gray-900 dark:text-white">
+            <span className="font-headline text-2xl font-medium leading-none text-gray-900 dark:text-white">
               #{data.my_rank}
             </span>
             <span className="text-xs text-gray-500 dark:text-gray-400">

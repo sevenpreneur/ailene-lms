@@ -255,7 +255,7 @@ export default function ChampionTeamMembersAILN(props: { members: Member[] }) {
                           <div className="truncate text-sm font-medium text-gray-900 dark:text-white">
                             {m.user.full_name}
                           </div>
-                          <div className="truncate font-inter text-xs text-gray-500 dark:text-gray-400">
+                          <div className="truncate text-xs text-gray-500 dark:text-gray-400">
                             {m.user.email}
                           </div>
                         </div>

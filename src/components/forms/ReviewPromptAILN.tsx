@@ -437,7 +437,7 @@ function AiAssessment({
           <div className="text-[11px] font-medium uppercase tracking-wide text-muted-foreground">
             Rata-rata
           </div>
-          <div className="text-3xl font-medium text-foreground">
+          <div className="font-headline text-3xl font-medium text-foreground">
             {average !== null ? average.toFixed(1) : "–"}
             <span className="text-base font-medium text-muted-foreground">
               {" "}

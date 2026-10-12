@@ -127,6 +127,7 @@ File-file penting di `src/lib/`:
 - Tailwind CSS v4 — config di `src/app/globals.css` (bukan `tailwind.config.js`)
 - Brand color tokens didefinisikan di sana — masih pakai nama variabel `--color-sevenpreneur-*` (legacy, tetap pakai token yang sudah ada, jangan bikin token baru dengan nama beda untuk warna yang sama)
 - Dark mode via `next-themes`
+- Font cuma dua, dimuat di `src/app/layout.tsx`: **Stack Sans Text** untuk semua teks (default `font-sans`, weight 400) dan **Stack Sans Headline** untuk heading. `h1`–`h6` otomatis pakai Headline; teks display yang bukan tag heading (angka besar, judul `text-xl`+) pakai class `font-headline`. Weight maksimal `font-medium` (500). Jangan tambah font family lain (termasuk `font-mono`)
 - Radius cuma satu: `rounded-lg` (= `--radius`), termasuk varian sisi (`rounded-t-lg`, dst.) dan CSS (`var(--radius)`). `rounded-full` hanya untuk bentuk lingkaran/pill (avatar, dot, badge, progress bar). Jangan pakai `rounded`, `-sm`, `-md`, `-xl`, `-2xl`
 - MUI (`@mui/x-charts`) hanya untuk chart components (lihat `src/components/charts/`) — pakai Tailwind + Radix untuk yang lain
 

@@ -57,7 +57,7 @@ export default function AchievementsCardAILN({
           </div>
         </div>
         <div className="shrink-0 text-right">
-          <div className="flex items-center justify-end gap-1.5 text-2xl font-medium text-amber-500 dark:text-amber-400">
+          <div className="font-headline flex items-center justify-end gap-1.5 text-2xl font-medium text-amber-500 dark:text-amber-400">
             <Star className="size-5 fill-current" />
             {fmtCount(totalXp)}
           </div>

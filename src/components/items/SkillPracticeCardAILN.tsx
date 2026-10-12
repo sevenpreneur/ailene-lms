@@ -163,7 +163,7 @@ export default function SkillPracticeCardAILN({
         </div>
 
         {hasFooter && (
-          <div className="flex flex-col gap-2 border-t border-dashboard-border pt-3 text-xs text-gray-600 dark:text-gray-300 font-inter">
+          <div className="flex flex-col gap-2 border-t border-dashboard-border pt-3 text-xs text-gray-600 dark:text-gray-300">
             {categories.length > 0 && (
               <div className="flex flex-wrap items-center gap-1.5">
                 <span className="shrink-0 font-medium text-gray-500 dark:text-gray-400">
@@ -192,7 +192,7 @@ export default function SkillPracticeCardAILN({
               </div>
             )}
             {submittedAt && (
-              <div className="flex items-center gap-2 font-inter">
+              <div className="flex items-center gap-2">
                 <Send className="size-3.5 shrink-0" />
                 <span>
                   Submitted:{" "}
@@ -201,13 +201,13 @@ export default function SkillPracticeCardAILN({
               </div>
             )}
             {championName && (
-              <div className="flex items-center gap-2 font-inter">
+              <div className="flex items-center gap-2">
                 <BookOpen className="size-3.5 shrink-0" />
                 <span>Dari: {championName}</span>
               </div>
             )}
             {message && (
-              <div className="flex items-start gap-2 font-inter">
+              <div className="flex items-start gap-2">
                 <MessageSquare className="mt-0.5 size-3.5 shrink-0" />
                 <span className="italic line-clamp-2">
                   &ldquo;{message}&rdquo;

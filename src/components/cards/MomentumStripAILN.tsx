@@ -21,7 +21,7 @@ export default function MomentumStripAILN() {
         </span>
         <div className="min-w-0">
           <div className="flex items-baseline gap-1.5">
-            <span className=" text-3xl font-medium leading-none text-foreground dark:text-white">
+            <span className="font-headline text-3xl font-medium leading-none text-foreground dark:text-white">
               {streak}
             </span>
             <span className="text-sm text-gray-500 dark:text-gray-400">

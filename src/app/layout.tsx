@@ -4,14 +4,19 @@ import { SidebarProvider } from "@/contexts/SidebarContext";
 import { GoogleOAuthProvider } from "@react-oauth/google";
 import { Metadata } from "next";
 import { ThemeProvider } from "next-themes";
-import { Stack_Sans_Headline } from "next/font/google";
+import { Stack_Sans_Headline, Stack_Sans_Text } from "next/font/google";
 import { Toaster } from "sonner";
 
-// Single typeface app-wide (ailene-os) — globals.css points every other font-* utility at this same variable.
-const stackSans = Stack_Sans_Headline({
-  variable: "--font-stack",
+// Two faces: Stack Sans Text for body copy, Stack Sans Headline for headings (wired up in globals.css).
+const stackSansText = Stack_Sans_Text({
+  variable: "--font-stack-text",
   subsets: ["latin"],
   weight: ["300", "400", "500"],
+});
+const stackSansHeadline = Stack_Sans_Headline({
+  variable: "--font-stack-headline",
+  subsets: ["latin"],
+  weight: ["400", "500"],
 });
 
 export const metadata: Metadata = {
@@ -49,10 +54,10 @@ export default function RootLayout(
   return (
     <html
       lang="en"
-      className={`scroll-smooth ${stackSans.variable}`}
+      className={`scroll-smooth ${stackSansText.variable} ${stackSansHeadline.variable}`}
       suppressHydrationWarning
     >
-      <body className={`${stackSans.className} font-space-grotesk`} suppressHydrationWarning>
+      <body className="font-sans" suppressHydrationWarning>
         <GoogleOAuthProvider clientId={googleOauthId!}>
           <QueryProvider>
             <ThemeProvider

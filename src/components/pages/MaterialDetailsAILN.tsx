@@ -286,7 +286,7 @@ export default function MaterialDetailsAILN({
                             ? "font-medium"
                             : entry.level === 2
                               ? "font-medium"
-                              : "font-light",
+                              : "font-normal",
                           entry.level === 3 ? "pl-5" : "pl-2.5",
                           "text-gray-600 hover:bg-black/5 hover:text-sevenpreneur-coal dark:text-gray-400 dark:hover:bg-card-2 dark:hover:text-white",
                         ].join(" ")}

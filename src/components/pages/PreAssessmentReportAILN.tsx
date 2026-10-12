@@ -218,7 +218,7 @@ function BandHero({ score }: { score: PreAssessmentScore }) {
           Band kamu saat ini
         </span>
         <div className="flex flex-wrap items-baseline gap-x-3 gap-y-1">
-          <span className="text-3xl font-medium text-foreground">
+          <span className="font-headline text-3xl font-medium text-foreground">
             {band.name}
           </span>
           <span className="text-sm text-gray-500 dark:text-gray-400">
