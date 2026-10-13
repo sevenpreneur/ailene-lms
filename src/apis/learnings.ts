@@ -2,6 +2,8 @@ import "server-only";
 
 import { cookies } from "next/headers";
 import { callApi } from "./api";
+import type { ChapterSurveyStatus } from "./chapter-surveys";
+import type { ChapterTestTask } from "./chapter-tests";
 import { SESSION_COOKIE_NAME } from "@/lib/constants";
 import LogError from "@/lib/log-error";
 
@@ -42,6 +44,10 @@ export type ChapterLearnings = {
   quizzes: LearningQuiz[];
   videos: LearningVideo[];
   materials: LearningMaterial[];
+  // Optional so an older backend without chapter tests/surveys still renders.
+  pre_test?: ChapterTestTask | null;
+  post_test?: ChapterTestTask | null;
+  survey?: ChapterSurveyStatus | null;
 };
 
 export type LearningChapterRef = { id: number; name: string };

@@ -4,6 +4,7 @@ import GeneralLabelAILN, {
   type GeneralLabelVariantAILN,
 } from "@/components/labels/GeneralLabelAILN";
 import type { ChapterLearnings } from "@/apis/learnings";
+import { CHAPTER_TEST_LOCKED_MESSAGE } from "@/lib/chapter-evaluation";
 import { faCheck, faLock } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { ChevronDown } from "lucide-react";
@@ -143,38 +144,68 @@ export default function ChapterItemAILN(props: ChapterItemAILNProps) {
             {isLoading && !tasks && <ChapterTasksSkeleton />}
             {tasks &&
               (() => {
+                const preTest = tasks.pre_test ?? null;
+                const postTest = tasks.post_test ?? null;
+                const survey = tasks.survey ?? null;
+                // A pre-test only measures something if it comes before the chapter's content.
+                const preTestDone = !preTest || preTest.submitted;
+                const contentUnlocked = props.unlocked && preTestDone;
+                const contentLockedMessage =
+                  props.unlocked && !preTestDone
+                    ? CHAPTER_TEST_LOCKED_MESSAGE.pre_test_required
+                    : undefined;
                 const allMaterialsRead = tasks.materials.every(
                   (m) => m.completed
                 );
-                const quizUnlocked = props.unlocked && allMaterialsRead;
-                // The single "continue here" task in this chapter — first
-                // unlocked + unfinished item, scanning materials → video → quiz.
+                const quizUnlocked = contentUnlocked && allMaterialsRead;
+                const preTestUnlocked = props.unlocked && !!preTest?.available;
+                const postTestUnlocked =
+                  props.unlocked && !!postTest?.available;
+                const surveyUnlocked = props.unlocked && !!survey?.available;
+                // The single "continue here" task in this chapter — first unlocked + unfinished
+                // item, scanning pre-test → materials → video → quiz → post-test → survey.
                 let nextKey: string | null = null;
                 if (props.unlocked) {
-                  const firstMat = tasks.materials.find((m) => !m.completed);
-                  if (firstMat) {
-                    nextKey = `m-${firstMat.id}`;
-                  } else {
+                  if (preTest && !preTest.submitted && preTestUnlocked) {
+                    nextKey = "pre";
+                  } else if (contentUnlocked) {
+                    const firstMat = tasks.materials.find((m) => !m.completed);
                     const firstVid = tasks.videos.find((v) => !v.completed);
-                    if (firstVid) {
-                      nextKey = `v-${firstVid.id}`;
-                    } else {
-                      const firstQuiz = quizUnlocked
-                        ? tasks.quizzes.find((q) => q.attempts === 0)
-                        : undefined;
-                      if (firstQuiz) nextKey = `q-${firstQuiz.id}`;
-                    }
+                    const firstQuiz = quizUnlocked
+                      ? tasks.quizzes.find((q) => q.attempts === 0)
+                      : undefined;
+                    if (firstMat) nextKey = `m-${firstMat.id}`;
+                    else if (firstVid) nextKey = `v-${firstVid.id}`;
+                    else if (firstQuiz) nextKey = `q-${firstQuiz.id}`;
+                    else if (postTest && !postTest.submitted && postTestUnlocked)
+                      nextKey = "post";
+                    else if (survey && !survey.submitted && surveyUnlocked)
+                      nextKey = "survey";
                   }
                 }
                 return (
                   <div className="space-y-2 border-t border-dashboard-border px-4 py-3">
+                    {preTest && (
+                      <ChapterTaskItemAILN
+                        variant="PreTest"
+                        test={preTest}
+                        unlocked={preTestUnlocked}
+                        isNext={nextKey === "pre"}
+                        lockedMessage={
+                          preTest.locked_reason
+                            ? CHAPTER_TEST_LOCKED_MESSAGE[preTest.locked_reason]
+                            : undefined
+                        }
+                      />
+                    )}
                     {tasks.materials.map((m) => (
                       <ChapterTaskItemAILN
                         key={`m-${m.id}`}
                         variant="Material"
                         material={m}
-                        unlocked={props.unlocked}
+                        unlocked={contentUnlocked}
                         isNext={nextKey === `m-${m.id}`}
+                        lockedMessage={contentLockedMessage}
                       />
                     ))}
                     {tasks.videos.map((v) => (
@@ -182,8 +213,9 @@ export default function ChapterItemAILN(props: ChapterItemAILNProps) {
                         key={`v-${v.id}`}
                         variant="Video"
                         video={v}
-                        unlocked={props.unlocked}
+                        unlocked={contentUnlocked}
                         isNext={nextKey === `v-${v.id}`}
+                        lockedMessage={contentLockedMessage}
                       />
                     ))}
                     {tasks.quizzes.map((q) => (
@@ -194,12 +226,38 @@ export default function ChapterItemAILN(props: ChapterItemAILNProps) {
                         unlocked={quizUnlocked}
                         isNext={nextKey === `q-${q.id}`}
                         lockedMessage={
-                          props.unlocked && !allMaterialsRead
+                          contentLockedMessage ??
+                          (props.unlocked && !allMaterialsRead
                             ? "Baca semua materi, sebelum memulai quiz"
-                            : undefined
+                            : undefined)
                         }
                       />
                     ))}
+                    {postTest && (
+                      <ChapterTaskItemAILN
+                        variant="PostTest"
+                        test={postTest}
+                        unlocked={postTestUnlocked}
+                        isNext={nextKey === "post"}
+                        lockedMessage={
+                          postTest.locked_reason
+                            ? CHAPTER_TEST_LOCKED_MESSAGE[postTest.locked_reason]
+                            : undefined
+                        }
+                      />
+                    )}
+                    {survey && (
+                      <ChapterTaskItemAILN
+                        variant="Survey"
+                        survey={{
+                          chapterId: props.chapter.id,
+                          submitted: survey.submitted,
+                        }}
+                        unlocked={surveyUnlocked || (props.unlocked && survey.submitted)}
+                        isNext={nextKey === "survey"}
+                        lockedMessage="Dibuka setelah sesi chapter dimulai"
+                      />
+                    )}
                   </div>
                 );
               })()}

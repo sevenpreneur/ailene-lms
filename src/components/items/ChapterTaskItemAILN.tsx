@@ -8,6 +8,9 @@ import { useProjectId } from "@/lib/use-project-id";
 import {
   faBookOpen,
   faCirclePlay,
+  faClipboardCheck,
+  faClipboardList,
+  faCommentDots,
   faLock,
   faSquareCheck,
   faStar,
@@ -50,6 +53,18 @@ interface Material {
   xp_reward: number;
 }
 
+interface ChapterTest {
+  id: number;
+  name: string;
+  submitted: boolean;
+  score: number | null;
+}
+
+interface Survey {
+  chapterId: number;
+  submitted: boolean;
+}
+
 const variantStyles: Record<
   TaskVariant,
   { icon: React.ReactNode; badge: string }
@@ -65,6 +80,18 @@ const variantStyles: Record<
   Material: {
     icon: <FontAwesomeIcon icon={faBookOpen} size="xl" />,
     badge: "Materi",
+  },
+  PreTest: {
+    icon: <FontAwesomeIcon icon={faClipboardList} size="xl" />,
+    badge: "Pre-test",
+  },
+  PostTest: {
+    icon: <FontAwesomeIcon icon={faClipboardCheck} size="xl" />,
+    badge: "Post-test",
+  },
+  Survey: {
+    icon: <FontAwesomeIcon icon={faCommentDots} size="xl" />,
+    badge: "Survei",
   },
 };
 
@@ -87,6 +114,27 @@ type ChapterTaskItemAILNProps =
       variant: "Material";
       unlocked: boolean;
       material: Material;
+      lockedMessage?: string;
+      isNext?: boolean;
+    }
+  | {
+      variant: "PreTest";
+      unlocked: boolean;
+      test: ChapterTest;
+      lockedMessage?: string;
+      isNext?: boolean;
+    }
+  | {
+      variant: "PostTest";
+      unlocked: boolean;
+      test: ChapterTest;
+      lockedMessage?: string;
+      isNext?: boolean;
+    }
+  | {
+      variant: "Survey";
+      unlocked: boolean;
+      survey: Survey;
       lockedMessage?: string;
       isNext?: boolean;
     };
@@ -127,7 +175,7 @@ export default function ChapterTaskItemAILN(props: ChapterTaskItemAILNProps) {
   let title = "";
   let meta = "";
   let statusVariant: GeneralLabelVariantAILN = "white";
-  let xpReward = 0;
+  let xpReward: number | null = 0;
   let hasMark = false;
   let cta: React.ReactNode = null;
 
@@ -221,6 +269,49 @@ export default function ChapterTaskItemAILN(props: ChapterTaskItemAILNProps) {
         </ButtonAILN>
       </Link>
     );
+  } else if (props.variant === "PreTest" || props.variant === "PostTest") {
+    const t = props.test;
+    const label = props.variant === "PreTest" ? "Pre-test" : "Post-test";
+    title = t.name;
+    xpReward = null;
+    hasMark = t.submitted;
+    meta = !props.unlocked
+      ? lockedText
+      : !t.submitted
+        ? "Not taken yet"
+        : t.score !== null
+          ? `Score: ${t.score}%`
+          : "Terkirim";
+    statusVariant = !props.unlocked ? "white" : t.submitted ? "green" : "blue";
+    cta = !props.unlocked ? (
+      <ButtonAILN size="small" disabled className="w-full">
+        Locked
+      </ButtonAILN>
+    ) : (
+      <Link href={`/${projectId}/student/chapter-tests/${t.id}`} className="block">
+        <ButtonAILN variant="forest" size="small" className="w-full">
+          {t.submitted ? "Lihat Hasil" : `Mulai ${label}`}
+        </ButtonAILN>
+      </Link>
+    );
+  } else if (props.variant === "Survey") {
+    const sv = props.survey;
+    title = "Survei kepuasan chapter";
+    xpReward = null;
+    hasMark = sv.submitted;
+    meta = !props.unlocked ? lockedText : sv.submitted ? "Terkirim" : "Belum diisi";
+    statusVariant = !props.unlocked ? "white" : sv.submitted ? "green" : "blue";
+    cta = !props.unlocked ? (
+      <ButtonAILN size="small" disabled className="w-full">
+        Locked
+      </ButtonAILN>
+    ) : (
+      <Link href={`/${projectId}/student/surveys/${sv.chapterId}`} className="block">
+        <ButtonAILN variant="forest" size="small" className="w-full">
+          {sv.submitted ? "Lihat Jawaban" : "Isi Survei"}
+        </ButtonAILN>
+      </Link>
+    );
   } else {
     const m = props.material;
     title = m.title;
@@ -278,17 +369,19 @@ export default function ChapterTaskItemAILN(props: ChapterTaskItemAILNProps) {
         </div>
         <div className="text-[15px] font-medium dark:text-white">{title}</div>
         <div className="mt-1 flex items-center gap-2">
-          <GeneralLabelAILN
-            variant="white"
-            icon={
-              <FontAwesomeIcon
-                icon={faStar}
-                className="h-3 w-3 text-warning dark:text-amber-400"
-              />
-            }
-          >
-            {xpReward} XP
-          </GeneralLabelAILN>
+          {xpReward !== null && (
+            <GeneralLabelAILN
+              variant="white"
+              icon={
+                <FontAwesomeIcon
+                  icon={faStar}
+                  className="h-3 w-3 text-warning dark:text-amber-400"
+                />
+              }
+            >
+              {xpReward} XP
+            </GeneralLabelAILN>
+          )}
           <GeneralLabelAILN variant={statusVariant}>{meta}</GeneralLabelAILN>
           {isNext && (
             <GeneralLabelAILN variant="red">Lanjutkan</GeneralLabelAILN>

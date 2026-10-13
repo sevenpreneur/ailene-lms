@@ -109,6 +109,7 @@ File-file penting di `src/lib/`:
 | --------------------------- | ------------------------------------------------------------------ |
 | `actions.ts`                | Next.js Server Actions (`"use server"`) untuk operasi server        |
 | `app-types.ts`               | Shared TypeScript types lintas codebase                             |
+| `chapter-evaluation.ts`      | Teks pertanyaan survei chapter (skala 1–5), label pre-test/post-test, pesan terkunci, batas panjang jawaban (presentasi saja) |
 | `config.ts`                  | Deployment config — `LOGIN_URL`, program start/end date, org/program name |
 | `constants.ts`               | `SESSION_COOKIE_NAME` dan konstanta global lainnya                  |
 | `date-time-manipulation.ts`  | Date/time manipulation dan formatting (dayjs)                       |
