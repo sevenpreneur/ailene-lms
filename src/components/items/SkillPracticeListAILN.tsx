@@ -4,9 +4,7 @@ import SkillPracticeItemAILN, {
   deriveSkillPracticeStatus,
   type SkillPracticeItem,
 } from "@/components/items/SkillPracticeItemAILN";
-import { faLock } from "@fortawesome/free-solid-svg-icons";
-import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { ChevronDown, GraduationCap } from "lucide-react";
+import { ChevronDown, GraduationCap, LockKeyhole } from "lucide-react";
 
 interface SkillPracticeListAILNProps {
   level: { id: number; level_number: number; name: string };
@@ -28,41 +26,30 @@ export default function SkillPracticeListAILN(
       .length;
 
   return (
-    <div className="relative pl-12">
-      <div
-        className={`absolute top-4 left-0 flex h-8 w-8 items-center justify-center rounded-full border-2 ${
-          props.unlocked
-            ? "border-claude bg-white text-claude dark:bg-black"
-            : "border-gray-300 bg-gray-100 text-gray-400 dark:border-claude/30 dark:bg-black dark:text-claude/40"
-        }`}
-      >
-        {props.unlocked ? (
-          <GraduationCap className="size-4 text-claude dark:text-lime-bright" />
-        ) : (
-          <FontAwesomeIcon icon={faLock} className="h-4 w-4" />
-        )}
-      </div>
-
-      <div
-        className={`rounded-lg bg-card-1 border border-dashboard-border ${
-          !props.unlocked ? "opacity-60 dark:opacity-50" : ""
-        }`}
-      >
+    <div className="bg-card-1">
         <button
           type="button"
+          aria-expanded={props.expanded}
+          aria-controls={`practice-items-${props.level.id}`}
           onClick={props.onToggle}
-          className="flex w-full items-center justify-between gap-3 p-4 text-left sm:gap-4"
+          className="flex w-full items-center justify-between gap-3 px-5 py-5 text-left transition-colors hover:bg-card-2/70 sm:gap-4 sm:px-6"
         >
-          <div className="min-w-0 flex-1">
-            <div className="text-xs tracking-widest uppercase text-emphasis dark:text-gray-400">
-              Latihan Skill
+          <div className="flex min-w-0 flex-1 items-center gap-3 sm:gap-4">
+            <div className={`flex h-11 w-11 shrink-0 items-center justify-center rounded-lg ${
+              props.unlocked ? "bg-hijau-t text-claude dark:bg-claude/20 dark:text-lime-bright" : "bg-card-2 text-gray-400"
+            }`}>
+              {props.unlocked ? <GraduationCap className="h-5 w-5" /> : <LockKeyhole className="h-4 w-4" />}
             </div>
-            <div className="text-lg font-medium dark:text-white">
-              Prompt &amp; Use Case
-            </div>
-            <div className="text-sm text-gray-500 dark:text-gray-400">
-              {props.prompts.length} prompt &middot; {props.useCases.length} use
-              case
+            <div className="min-w-0">
+              <div className="text-xs font-medium tracking-widest text-gray-500 uppercase dark:text-gray-400">
+                Latihan skill
+              </div>
+              <div className="font-headline text-base font-medium text-gray-900 dark:text-white sm:text-lg">
+                Prompt &amp; Use Case
+              </div>
+              <div className="text-sm text-gray-500 dark:text-gray-400">
+                {props.prompts.length} prompt · {props.useCases.length} use case
+              </div>
             </div>
           </div>
           <div className="flex shrink-0 items-center gap-2 sm:gap-3">
@@ -71,7 +58,7 @@ export default function SkillPracticeListAILN(
                 {accepted}/{total} Diterima
               </GeneralLabelAILN>
             ) : (
-              <GeneralLabelAILN variant="white">Locked</GeneralLabelAILN>
+              <GeneralLabelAILN variant="white">Terkunci</GeneralLabelAILN>
             )}
             <ChevronDown
               className={`h-4 w-4 text-gray-400 transition-transform duration-300 dark:text-lime-bright/70 ${
@@ -81,6 +68,7 @@ export default function SkillPracticeListAILN(
           </div>
         </button>
         <div
+          id={`practice-items-${props.level.id}`}
           className={`grid transition-all duration-300 ease-in-out ${
             props.expanded
               ? "grid-rows-[1fr] opacity-100"
@@ -88,7 +76,7 @@ export default function SkillPracticeListAILN(
           }`}
         >
           <div className="overflow-hidden">
-            <div className="space-y-2 border-t border-dashboard-border px-4 py-3">
+            <div className="space-y-2 border-t border-dashboard-border bg-card-2/60 px-5 py-4 sm:px-6">
               {props.prompts.map((p) => (
                 <SkillPracticeItemAILN
                   key={`prompt-${p.id}`}
@@ -108,7 +96,6 @@ export default function SkillPracticeListAILN(
             </div>
           </div>
         </div>
-      </div>
     </div>
   );
 }

@@ -45,7 +45,9 @@ function hrefForFocus(focus: TodayFocus, projectId: string) {
     case "material":
       return `/${projectId}/student/materials/${focus.task_id}`;
     case "video":
-      return `/${projectId}/student/videos/${focus.task_id}`;
+      return focus.chapter_id != null
+        ? `/${projectId}/student/learning-path/${focus.chapter_id}`
+        : `/${projectId}/student/videos/${focus.task_id}`;
     case "quiz":
       return `/${projectId}/student/quizzes/${focus.task_id}`;
     case "prompt_practice":
@@ -57,12 +59,10 @@ function hrefForFocus(focus: TodayFocus, projectId: string) {
 
 function detailHrefForFocus(focus: TodayFocus, projectId: string) {
   if (focus.kind === "prompt_practice" || focus.kind === "use_case_practice") {
-    return focus.level_id != null
-      ? `/${projectId}/student/learning-path?practice=${focus.level_id}`
-      : `/${projectId}/student/learning-path`;
+    return `/${projectId}/student/skill-practice`;
   }
   return focus.chapter_id != null
-    ? `/${projectId}/student/learning-path?chapter=${focus.chapter_id}`
+    ? `/${projectId}/student/learning-path/${focus.chapter_id}`
     : `/${projectId}/student/learning-path`;
 }
 

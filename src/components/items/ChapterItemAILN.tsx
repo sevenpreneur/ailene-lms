@@ -3,42 +3,77 @@ import ChapterTaskItemAILN from "@/components/items/ChapterTaskItemAILN";
 import GeneralLabelAILN, {
   type GeneralLabelVariantAILN,
 } from "@/components/labels/GeneralLabelAILN";
-import type { ChapterLearnings } from "@/apis/learnings";
+import type { ChapterLearnings, StudentChapter } from "@/apis/learnings";
 import { CHAPTER_TEST_LOCKED_MESSAGE } from "@/lib/chapter-evaluation";
 import { faCheck, faLock } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { ChevronDown } from "lucide-react";
+import dayjs from "dayjs";
+import "dayjs/locale/id";
+import duration from "dayjs/plugin/duration";
+import timezone from "dayjs/plugin/timezone";
+import utc from "dayjs/plugin/utc";
+import {
+  CalendarDays,
+  ChevronDown,
+  Clock3,
+  ExternalLink,
+  MapPin,
+  Monitor,
+  UsersRound,
+} from "lucide-react";
 import { useEffect, useState } from "react";
 
-type ChapterProgress = "not_started" | "in_progress" | "completed";
+dayjs.extend(duration);
+dayjs.extend(utc);
+dayjs.extend(timezone);
 
-interface Chapter {
-  id: number;
-  name: string;
-  description: string | null;
-  progress: ChapterProgress;
-}
+type ChapterProgress = "not_started" | "in_progress" | "completed";
 
 const progressMeta: Record<
   ChapterProgress,
   { label: string; variant: GeneralLabelVariantAILN }
 > = {
-  not_started: { label: "Not Started", variant: "white" },
-  in_progress: { label: "In Progress", variant: "blue" },
-  completed: { label: "Completed", variant: "green" },
+  not_started: { label: "Belum dimulai", variant: "white" },
+  in_progress: { label: "Berjalan", variant: "blue" },
+  completed: { label: "Selesai", variant: "green" },
 };
 
 interface ChapterItemAILNProps {
-  chapter: Chapter;
+  chapter: StudentChapter;
   chapterNumber: number;
   unlocked: boolean;
   expanded: boolean;
   onToggle: () => void;
 }
 
+function formatSessionDuration(minutes: number): string {
+  const sessionDuration = dayjs.duration(minutes, "minutes");
+  const hours = Math.floor(sessionDuration.asHours());
+  const remainingMinutes = sessionDuration.minutes();
+  if (hours === 0) return `${remainingMinutes} menit`;
+  return remainingMinutes === 0
+    ? `${hours} jam`
+    : `${hours} jam ${remainingMinutes} menit`;
+}
+
+function getLocationHref(value: string | null): string | null {
+  if (!value) return null;
+  try {
+    const url = new URL(value);
+    return url.protocol === "https:" || url.protocol === "http:"
+      ? url.toString()
+      : null;
+  } catch {
+    return null;
+  }
+}
+
 export default function ChapterItemAILN(props: ChapterItemAILNProps) {
   const [tasks, setTasks] = useState<ChapterLearnings | null>(null);
   const [isLoading, setIsLoading] = useState(false);
+  const { chapter } = props;
+  const sessionDate = dayjs.utc(chapter.session_date).tz("Asia/Jakarta");
+  const locationHref = getLocationHref(chapter.location_url);
 
   useEffect(() => {
     if (!props.expanded) return;
@@ -74,66 +109,94 @@ export default function ChapterItemAILN(props: ChapterItemAILNProps) {
   }, [props.expanded, props.chapter.id]);
 
   return (
-    <div className="relative pl-12">
-      <div
-        className={`absolute left-1 top-5 flex h-6 w-6 items-center justify-center rounded-full border-2 ${
-          props.chapter.progress === "completed"
-            ? "border-emerald-500 bg-white text-emerald-500 dark:bg-black"
-            : props.unlocked
-            ? "border-claude bg-white text-claude dark:bg-black"
-            : "border-gray-300 bg-gray-100 text-gray-400 dark:border-claude/30 dark:bg-black dark:text-claude/40"
-        }`}
+    <div id={`chapter-${chapter.id}`} className="border-b border-dashboard-border last:border-b-0">
+      <button
+        type="button"
+        aria-expanded={props.expanded}
+        aria-controls={`chapter-tasks-${chapter.id}`}
+        onClick={props.onToggle}
+        className="flex w-full items-start gap-3 px-5 pb-2 pt-5 text-left transition-colors hover:bg-card-2/70 sm:gap-4 sm:px-6"
       >
-        {props.chapter.progress === "completed" ? (
-          <FontAwesomeIcon icon={faCheck} size="xs" />
-        ) : props.unlocked ? (
-          <span className="h-1.5 w-1.5 rounded-full bg-lime-bright" />
-        ) : (
-          <FontAwesomeIcon icon={faLock} size="xs" />
+        <span className={`flex h-11 w-11 shrink-0 items-center justify-center rounded-lg font-headline text-base font-medium ${
+          chapter.progress === "completed"
+            ? "bg-hijau-t text-claude dark:bg-claude/20 dark:text-lime-bright"
+            : props.unlocked
+              ? "bg-claude text-white"
+              : "bg-card-2 text-gray-400"
+        }`}>
+          {chapter.progress === "completed" ? (
+            <FontAwesomeIcon icon={faCheck} className="h-4 w-4" />
+          ) : props.unlocked ? (
+            String(props.chapterNumber).padStart(2, "0")
+          ) : (
+            <FontAwesomeIcon icon={faLock} className="h-4 w-4" />
+          )}
+        </span>
+        <span className="min-w-0 flex-1">
+          <span className="block text-xs font-medium tracking-widest text-gray-500 uppercase dark:text-gray-400">
+            Sesi {String(props.chapterNumber).padStart(2, "0")}
+          </span>
+          <span className="mt-0.5 block font-headline text-base font-medium text-gray-900 dark:text-white sm:text-lg">
+            {chapter.name}
+          </span>
+          {chapter.description && (
+            <span className="mt-1 block text-sm leading-5 text-gray-500 dark:text-gray-400">
+              {chapter.description}
+            </span>
+          )}
+        </span>
+        <span className="flex shrink-0 items-center gap-2">
+          {props.unlocked ? (
+            <GeneralLabelAILN variant={progressMeta[chapter.progress].variant}>
+              {progressMeta[chapter.progress].label}
+            </GeneralLabelAILN>
+          ) : (
+            <GeneralLabelAILN variant="white">Terkunci</GeneralLabelAILN>
+          )}
+          <ChevronDown className={`h-4 w-4 text-gray-400 transition-transform ${props.expanded ? "rotate-180" : ""}`} aria-hidden="true" />
+        </span>
+      </button>
+      <div className="flex flex-wrap items-center gap-x-5 gap-y-2 px-5 pb-5 text-xs text-gray-600 dark:text-gray-300 sm:pl-[5.25rem] sm:pr-6">
+        <span className="inline-flex items-center gap-1.5">
+          <CalendarDays className="h-3.5 w-3.5 text-claude dark:text-lime-bright" aria-hidden="true" />
+          <span className="sr-only">Jadwal sesi: </span>
+          {sessionDate.isValid()
+            ? `${sessionDate.locale("id").format("dddd, D MMMM YYYY · HH:mm")} WIB`
+            : "Belum dijadwalkan"}
+        </span>
+        <span className="inline-flex items-center gap-1.5">
+          {chapter.method === "online" ? (
+            <Monitor className="h-3.5 w-3.5 text-claude dark:text-lime-bright" aria-hidden="true" />
+          ) : (
+            <UsersRound className="h-3.5 w-3.5 text-claude dark:text-lime-bright" aria-hidden="true" />
+          )}
+          <span className="sr-only">Metode: </span>
+          {chapter.method === "online" ? "Online" : "Tatap muka"}
+        </span>
+        <span className="inline-flex items-center gap-1.5">
+          <Clock3 className="h-3.5 w-3.5 text-claude dark:text-lime-bright" aria-hidden="true" />
+          <span className="sr-only">Durasi: </span>
+          {formatSessionDuration(chapter.duration_minutes)}
+        </span>
+        <span className="inline-flex min-w-0 items-center gap-1.5">
+          <MapPin className="h-3.5 w-3.5 shrink-0 text-claude dark:text-lime-bright" aria-hidden="true" />
+          <span className="sr-only">Lokasi: </span>
+          <span className="break-words">{chapter.location_name?.trim() || "Belum tersedia"}</span>
+        </span>
+        {locationHref && (
+          <a
+            href={locationHref}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="inline-flex items-center gap-1 font-medium text-claude underline underline-offset-2 hover:opacity-80 dark:text-lime-bright"
+          >
+            Buka tautan lokasi
+            <ExternalLink className="h-3 w-3" aria-hidden="true" />
+          </a>
         )}
       </div>
-
-      <div
-        className={`rounded-lg bg-card-1 border border-dashboard-border ${
-          !props.unlocked ? "opacity-60 dark:opacity-50" : ""
-        }`}
-      >
-        <button
-          type="button"
-          onClick={props.onToggle}
-          className="flex w-full cursor-pointer items-center justify-between gap-3 p-4 text-left sm:gap-4"
-        >
-          <div className="min-w-0 flex-1">
-            <div className="text-xs tracking-widest uppercase text-emphasis dark:text-gray-400">
-              Chapter {props.chapterNumber}
-            </div>
-            <div className="text-lg font-medium dark:text-white">
-              {props.chapter.name}
-            </div>
-            {props.chapter.description && (
-              <div className="text-sm text-gray-500 dark:text-gray-400">
-                {props.chapter.description}
-              </div>
-            )}
-          </div>
-          <div className="flex shrink-0 items-center gap-2 sm:gap-3">
-            {props.unlocked ? (
-              <GeneralLabelAILN
-                variant={progressMeta[props.chapter.progress].variant}
-              >
-                {progressMeta[props.chapter.progress].label}
-              </GeneralLabelAILN>
-            ) : (
-              <GeneralLabelAILN variant="white">Locked</GeneralLabelAILN>
-            )}
-            <ChevronDown
-              className={`h-4 w-4 text-gray-400 transition-transform duration-300 dark:text-lime-bright/70 ${
-                props.expanded ? "rotate-180" : ""
-              }`}
-            />
-          </div>
-        </button>
         <div
+          id={`chapter-tasks-${chapter.id}`}
           className={`grid transition-all duration-300 ease-in-out ${
             props.expanded
               ? "grid-rows-[1fr] opacity-100"
@@ -184,7 +247,7 @@ export default function ChapterItemAILN(props: ChapterItemAILNProps) {
                   }
                 }
                 return (
-                  <div className="space-y-2 border-t border-dashboard-border px-4 py-3">
+                  <div className="space-y-2 border-t border-dashboard-border bg-card-2/60 px-5 py-4 sm:px-6">
                     {preTest && (
                       <ChapterTaskItemAILN
                         variant="PreTest"
@@ -263,11 +326,9 @@ export default function ChapterItemAILN(props: ChapterItemAILNProps) {
               })()}
           </div>
         </div>
-      </div>
     </div>
   );
 }
-
 function ChapterTasksSkeleton() {
   return (
     <div className="space-y-2 border-t border-dashboard-border px-4 py-3 animate-pulse">
@@ -285,27 +346,6 @@ function ChapterTasksSkeleton() {
           <div className="h-4 w-4 shrink-0 rounded-full bg-gray-200 dark:bg-dashboard-border" />
         </div>
       ))}
-    </div>
-  );
-}
-
-export function ChapterItemSkeleton() {
-  return (
-    <div className="relative pl-12 animate-pulse">
-      <div className="absolute top-4 left-0 flex h-8 w-8 items-center justify-center rounded-full border-2 border-gray-200 bg-gray-100 dark:border-dashboard-border dark:bg-card-1" />
-      <div className="rounded-lg bg-card-1 border border-dashboard-border">
-        <div className="flex w-full items-center justify-between gap-4 p-4">
-          <div className="flex-1 space-y-2">
-            <div className="h-2.5 w-24 rounded-lg bg-gray-100 dark:bg-dashboard-border" />
-            <div className="h-4 w-64 rounded-lg bg-gray-300 dark:bg-gray-700" />
-            <div className="h-3 w-80 rounded-lg bg-gray-200 dark:bg-dashboard-border" />
-          </div>
-          <div className="flex items-center gap-3">
-            <div className="h-5 w-20 rounded-lg bg-gray-200 dark:bg-dashboard-border" />
-            <div className="h-4 w-4 rounded-lg bg-gray-200 dark:bg-dashboard-border" />
-          </div>
-        </div>
-      </div>
     </div>
   );
 }

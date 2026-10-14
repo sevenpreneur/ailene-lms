@@ -329,7 +329,7 @@ export default function ChapterTestAttemptAILN({
         onClose={() => setIsExitDialogOpen(false)}
         onConfirm={() => {
           setIsExitDialogOpen(false);
-          router.push(`/${projectId}/student/learning-path?chapter=${test.chapter.id}`);
+          router.push(`/${projectId}/student/learning-path/${test.chapter.id}`);
         }}
       />
     </PageContainerAILN>
