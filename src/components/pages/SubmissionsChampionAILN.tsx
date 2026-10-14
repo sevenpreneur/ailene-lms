@@ -1,4 +1,5 @@
 "use client";
+import Tabs from "@/components/navigations/Tabs";
 import SubmissionItemChampion, {
   deriveStatus,
   type ReviewStatus,
@@ -31,7 +32,7 @@ export default function SubmissionsChampionAILN({
 
   const toRow = (
     r: ChampionSubmissions["list"][number],
-    kind: SubmissionRow["kind"]
+    kind: SubmissionRow["kind"],
   ): SubmissionRow => ({
     id: r.id,
     kind,
@@ -71,7 +72,7 @@ export default function SubmissionsChampionAILN({
     .sort(
       (a, b) =>
         dayjs(b.submitted_at ?? 0).valueOf() -
-        dayjs(a.submitted_at ?? 0).valueOf()
+        dayjs(a.submitted_at ?? 0).valueOf(),
     );
 
   return (
@@ -83,17 +84,16 @@ export default function SubmissionsChampionAILN({
         />
 
         {/* Status filters */}
-        <div className="flex flex-wrap items-center gap-2">
-          {FILTERS.map((f) => (
-            <FilterPill
-              key={f.key}
-              active={filter === f.key}
-              label={f.label}
-              count={counts[f.key]}
-              onClick={() => setFilter(f.key)}
-            />
-          ))}
-        </div>
+        <Tabs<ReviewStatus>
+          ariaLabel="Status review tugas"
+          value={filter}
+          onValueChange={setFilter}
+          items={FILTERS.map((item) => ({
+            value: item.key,
+            label: item.label,
+            badge: counts[item.key],
+          }))}
+        />
 
         {visible.length === 0 ? (
           <EmptyState
@@ -110,39 +110,6 @@ export default function SubmissionsChampionAILN({
         )}
       </div>
     </PageContainerAILN>
-  );
-}
-
-function FilterPill({
-  active,
-  label,
-  count,
-  onClick,
-}: {
-  active: boolean;
-  label: string;
-  count: number;
-  onClick: () => void;
-}) {
-  return (
-    <button
-      type="button"
-      onClick={onClick}
-      className={`inline-flex items-center gap-2 rounded-full border px-4 py-2 text-sm font-medium transition ${
-        active
-          ? "border-claude bg-claude/10 text-claude dark:border-claude/40 dark:text-lime-bright"
-          : "border-dashboard-border text-gray-600 hover:border-gray-400 dark:text-gray-300"
-      }`}
-    >
-      <span>{label}</span>
-      <span
-        className={`inline-flex min-w-5 items-center justify-center rounded-lg px-1.5 py-0.5 text-[11px] font-medium text-white ${
-          active ? "bg-claude" : "bg-gray-400 dark:bg-gray-600"
-        }`}
-      >
-        {count}
-      </span>
-    </button>
   );
 }
 

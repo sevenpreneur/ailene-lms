@@ -32,8 +32,8 @@ export default async function MaterialPage({
       <AppPageState
         variant="FORBIDDEN"
         message={
-          materialResult.reason === "level_locked"
-            ? "Materi ini belum bisa diakses. Selesaikan bagian sebelumnya untuk membukanya."
+          materialResult.reason === "chapter_locked"
+            ? "Chapter ini belum terbuka. Periksa jadwal sesi atau hubungi admin."
             : "Kamu belum memiliki akses untuk membaca materi ini."
         }
       />

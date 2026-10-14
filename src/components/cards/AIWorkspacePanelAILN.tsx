@@ -1,4 +1,6 @@
 "use client";
+import ButtonAILN from "@/components/buttons/ButtonAILN";
+import Tabs from "@/components/navigations/Tabs";
 
 import {
   Bot,
@@ -28,7 +30,10 @@ const suggestedPrompts = [
   "Buatkan quiz dari materi ini",
 ];
 
-const comingSoon: Record<Exclude<TabId, "chat">, { title: string; body: string }> = {
+const comingSoon: Record<
+  Exclude<TabId, "chat">,
+  { title: string; body: string }
+> = {
   quiz: {
     title: "Quiz belum siap",
     body: "Quiz otomatis dari transcript sesi ini bakal muncul di sini.",
@@ -95,7 +100,11 @@ export default function AIWorkspacePanelAILN({
     setTimeout(() => {
       setMessages((prev) => [
         ...prev,
-        { id: crypto.randomUUID(), role: "assistant", text: fakeReply(trimmed) },
+        {
+          id: crypto.randomUUID(),
+          role: "assistant",
+          text: fakeReply(trimmed),
+        },
       ]);
       setIsThinking(false);
     }, 500);
@@ -106,9 +115,7 @@ export default function AIWorkspacePanelAILN({
       <div className="flex shrink-0 items-center justify-between border-b border-dashboard-border px-5 py-4">
         <div className="flex items-center gap-2">
           <Bot size={17} className="text-claude dark:text-lime-bright" />
-          <h2 className="text-sm font-medium text-foreground">
-            AI Workspace
-          </h2>
+          <h2 className="text-sm font-medium text-foreground">AI Workspace</h2>
           <span className="rounded-full bg-hijau-t px-2 py-0.5 text-[10px] font-medium uppercase tracking-wide text-claude dark:bg-claude/15 dark:text-lime-bright">
             Beta
           </span>
@@ -116,22 +123,18 @@ export default function AIWorkspacePanelAILN({
         <Info size={16} className="text-muted-foreground" />
       </div>
 
-      <div className="flex shrink-0 items-center gap-1 overflow-x-auto border-b border-dashboard-border px-3 py-2">
-        {tabs.map((tab) => (
-          <button
-            key={tab.id}
-            type="button"
-            onClick={() => setActiveTab(tab.id)}
-            className={`inline-flex shrink-0 items-center gap-1.5 rounded-lg px-3 py-1.5 text-xs font-medium transition-colors ${
-              activeTab === tab.id
-                ? "bg-hijau-t text-claude dark:bg-claude/15 dark:text-lime-bright"
-                : "text-muted-foreground hover:bg-dashboard-bg"
-            }`}
-          >
-            <tab.icon size={14} />
-            {tab.label}
-          </button>
-        ))}
+      <div className="shrink-0 border-b border-dashboard-border px-3 py-2">
+        <Tabs<TabId>
+          ariaLabel="Fitur AI Workspace"
+          value={activeTab}
+          onValueChange={setActiveTab}
+          compact
+          items={tabs.map((tab) => ({
+            value: tab.id,
+            label: tab.label,
+            icon: <tab.icon size={14} />,
+          }))}
+        />
       </div>
 
       {activeTab !== "chat" ? (
@@ -183,14 +186,15 @@ export default function AIWorkspacePanelAILN({
                 </p>
                 <div className="flex flex-wrap gap-2">
                   {suggestedPrompts.map((prompt) => (
-                    <button
+                    <ButtonAILN
+                      variant="chip"
+                      size="chip"
                       key={prompt}
                       type="button"
                       onClick={() => sendMessage(prompt)}
-                      className="rounded-full border border-dashboard-border px-3 py-1.5 text-left text-xs text-foreground/70 transition-colors hover:border-claude hover:bg-hijau-t hover:text-claude dark:hover:border-lime-bright/60 dark:hover:bg-claude/15 dark:hover:text-lime-bright"
                     >
                       {prompt}
-                    </button>
+                    </ButtonAILN>
                   ))}
                 </div>
               </div>
@@ -211,14 +215,15 @@ export default function AIWorkspacePanelAILN({
                 placeholder="Tanya apa saja soal sesi ini..."
                 className="min-w-0 flex-1 bg-transparent text-sm text-foreground placeholder:text-muted-foreground focus:outline-none"
               />
-              <button
+              <ButtonAILN
+                variant="forest"
+                size="iconRounded"
                 type="submit"
                 disabled={!draft.trim()}
                 aria-label="Kirim pesan"
-                className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-claude text-white transition-colors hover:bg-claude/90 disabled:opacity-40"
               >
                 <Send size={14} />
-              </button>
+              </ButtonAILN>
             </form>
             <p className="mt-2 text-center text-[11px] text-muted-foreground">
               AI bisa saja salah. Selalu verifikasi informasi penting.

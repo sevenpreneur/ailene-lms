@@ -1,4 +1,5 @@
 "use client";
+import ButtonAILN from "@/components/buttons/ButtonAILN";
 import { Building2, ChevronDown } from "lucide-react";
 import { useState } from "react";
 
@@ -24,24 +25,26 @@ export default function DepartmentFilterAILN({
 
   return (
     <div className="relative">
-      <button
+      <ButtonAILN
+        variant="outline"
+        size="medium"
         type="button"
         onClick={() => setOpen((o) => !o)}
-        className="inline-flex h-9 items-center gap-2 rounded-lg border border-dashboard-border bg-white px-3 text-sm font-medium text-gray-700 transition-colors hover:bg-gray-50 dark:bg-card-1 dark:text-gray-200 dark:hover:bg-card-2"
       >
         <Building2 className="size-4 text-gray-400" />
         Departemen: {label}
         <ChevronDown className="size-4 text-gray-400" />
-      </button>
+      </ButtonAILN>
 
       {open && (
         <>
-          <button
+          <ButtonAILN
+            variant="backdropClear"
+            size="bare"
             type="button"
             aria-hidden
             tabIndex={-1}
             onClick={() => setOpen(false)}
-            className="fixed inset-0 z-10 cursor-default"
           />
           <div className="absolute left-0 z-20 mt-1 max-h-72 w-64 overflow-auto rounded-lg border border-dashboard-border bg-white py-1 shadow-lg dark:bg-card-1">
             <DeptItem
@@ -82,16 +85,14 @@ function DeptItem({
   children: React.ReactNode;
 }) {
   return (
-    <button
+    <ButtonAILN
+      variant={active ? "menuActive" : "menu"}
+      size="row"
+      width="full"
       type="button"
       onClick={onClick}
-      className={`flex w-full items-center px-3 py-2 text-left text-sm transition-colors hover:bg-gray-50 dark:hover:bg-card-2 ${
-        active
-          ? "font-medium text-gray-900 dark:text-white"
-          : "text-gray-600 dark:text-gray-300"
-      }`}
     >
       {children}
-    </button>
+    </ButtonAILN>
   );
 }

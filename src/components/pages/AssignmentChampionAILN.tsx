@@ -4,6 +4,7 @@ import AiAssignmentComposerAILN from "@/components/forms/AiAssignmentComposerAIL
 import CreateAssignmentFormAILN from "@/components/forms/CreateAssignmentFormAILN";
 import SectionContainerAILN from "@/components/cards/SectionContainerAILN";
 import PageContainerAILN from "@/components/pages/PageContainerAILN";
+import Tabs from "@/components/navigations/Tabs";
 import ButtonAILN from "@/components/buttons/ButtonAILN";
 import PageHeaderAILN from "@/components/titles/PageHeaderAILN";
 import InputAILN from "@/components/fields/InputAILN";
@@ -120,28 +121,22 @@ export default function AssignmentChampionAILN({
         </PageHeaderAILN>
 
         {/* Tabs + search */}
-        <div className="flex flex-wrap items-center justify-between gap-3 border-b border-dashboard-border">
-          <div className="flex items-center">
-            <TabButton
-              active={tab === "AI"}
-              label="Generate AI"
-              icon={<Sparkles className="size-4" />}
-              count={batches.length}
-              onClick={() => setTab("AI")}
-            />
-            <TabButton
-              active={tab === "PROMPT"}
-              label="Prompt"
-              count={prompts.length}
-              onClick={() => setTab("PROMPT")}
-            />
-            <TabButton
-              active={tab === "USE_CASE"}
-              label="Use Case"
-              count={useCases.length}
-              onClick={() => setTab("USE_CASE")}
-            />
-          </div>
+        <div className="flex flex-wrap items-center justify-between gap-3">
+          <Tabs<AssignmentTab>
+            ariaLabel="Jenis assignment"
+            value={tab}
+            onValueChange={setTab}
+            items={[
+              {
+                value: "AI",
+                label: "Generate AI",
+                icon: <Sparkles className="size-4" />,
+                badge: batches.length,
+              },
+              { value: "PROMPT", label: "Prompt", badge: prompts.length },
+              { value: "USE_CASE", label: "Use Case", badge: useCases.length },
+            ]}
+          />
           {tab !== "AI" && (
             <div className="w-full pb-2 sm:w-64">
               <InputAILN
@@ -232,7 +227,7 @@ export default function AssignmentChampionAILN({
                       <ButtonAILN
                         type="button"
                         variant="champion"
-                        className="w-full"
+                        width="full"
                         onClick={() => setAssignOpen(true)}
                       >
                         <Send className="size-4" />
@@ -260,7 +255,7 @@ export default function AssignmentChampionAILN({
                     <ButtonAILN
                       type="button"
                       variant="champion"
-                      className="w-full"
+                      width="full"
                       onClick={() => setAssignOpen(true)}
                     >
                       <Send className="size-4" />
@@ -303,42 +298,6 @@ export default function AssignmentChampionAILN({
         draft={draft}
       />
     </PageContainerAILN>
-  );
-}
-
-function TabButton({
-  active,
-  label,
-  icon,
-  count,
-  onClick,
-}: {
-  active: boolean;
-  label: string;
-  icon?: React.ReactNode;
-  count: number;
-  onClick: () => void;
-}) {
-  return (
-    <button
-      type="button"
-      onClick={onClick}
-      className={`-mb-px inline-flex h-12 cursor-pointer items-center gap-2 border-b-2 px-4 text-sm font-medium transition ${
-        active
-          ? "border-claude text-claude dark:border-claude dark:text-lime-bright"
-          : "border-transparent text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200"
-      }`}
-    >
-      {icon}
-      <span className="whitespace-nowrap">{label}</span>
-      <span
-        className={`inline-flex min-w-5 items-center justify-center rounded-lg px-1.5 py-0.5 text-[11px] font-medium text-white ${
-          active ? "bg-claude" : "bg-gray-400 dark:bg-gray-600"
-        }`}
-      >
-        {count}
-      </span>
-    </button>
   );
 }
 

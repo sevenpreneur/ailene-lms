@@ -121,20 +121,23 @@ function LoginForm() {
             onInputChange={setPassword}
             disabled={isLoading}
           />
-          <button
-            type="button"
-            onClick={() => setShowPassword((show) => !show)}
-            aria-label={
-              showPassword ? "Sembunyikan password" : "Lihat password"
-            }
-            className="absolute right-2 bottom-1.5 flex size-7 items-center justify-center rounded-lg text-muted-foreground transition hover:text-foreground"
-          >
-            {showPassword ? (
-              <EyeOff className="size-4" />
-            ) : (
-              <Eye className="size-4" />
-            )}
-          </button>
+          <div className="absolute right-2 bottom-1.5">
+            <ButtonAILN
+              variant="ghost"
+              size="mediumIcon"
+              type="button"
+              onClick={() => setShowPassword((show) => !show)}
+              aria-label={
+                showPassword ? "Sembunyikan password" : "Lihat password"
+              }
+            >
+              {showPassword ? (
+                <EyeOff className="size-4" />
+              ) : (
+                <Eye className="size-4" />
+              )}
+            </ButtonAILN>
+          </div>
         </div>
 
         <ButtonAILN
@@ -142,7 +145,7 @@ function LoginForm() {
           variant="primary"
           size="defaultRounded"
           disabled={isLoading}
-          className="w-full"
+          width="full"
         >
           {loadingMethod === "PASSWORD" ? "Memproses login..." : "Masuk"}
         </ButtonAILN>
@@ -154,18 +157,20 @@ function LoginForm() {
         <div className="h-px flex-1 bg-dashboard-border" />
       </div>
 
-      <ButtonAILN
-        type="button"
-        variant="light"
-        size="defaultRounded"
-        disabled={isLoading}
-        onClick={() => googleLogin()}
-        className="-mt-4 w-full"
-      >
-        {loadingMethod === "GOOGLE"
-          ? "Memproses login..."
-          : "Lanjutkan dengan Google"}
-      </ButtonAILN>
+      <div className="-mt-4 w-full">
+        <ButtonAILN
+          type="button"
+          variant="light"
+          size="defaultRounded"
+          disabled={isLoading}
+          onClick={() => googleLogin()}
+          width="full"
+        >
+          {loadingMethod === "GOOGLE"
+            ? "Memproses login..."
+            : "Lanjutkan dengan Google"}
+        </ButtonAILN>
+      </div>
     </div>
   );
 }

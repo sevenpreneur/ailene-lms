@@ -92,11 +92,7 @@ function FieldRow({
   );
 }
 
-export default function SubmitPromptAILN({
-  prompt,
-}: {
-  prompt: PromptDetail;
-}) {
+export default function SubmitPromptAILN({ prompt }: { prompt: PromptDetail }) {
   const projectId = useProjectId();
   const router = useRouter();
 
@@ -156,7 +152,9 @@ export default function SubmitPromptAILN({
   const deadline = prompt.deadline_at;
   const deadlineDate = deadline ? dayjs(deadline) : null;
   const deadlineOverdue =
-    deadlineDate !== null && !prompt.is_accepted && deadlineDate.isBefore(dayjs());
+    deadlineDate !== null &&
+    !prompt.is_accepted &&
+    deadlineDate.isBefore(dayjs());
 
   return (
     <PageContainerAILN>
@@ -313,7 +311,8 @@ export default function SubmitPromptAILN({
                 <ButtonAILN
                   type="button"
                   variant="primary"
-                  className="w-fit self-end"
+                  width="fit"
+                  alignSelf="end"
                   disabled={isSubmitting}
                   onClick={handleSubmit}
                 >

@@ -1,4 +1,5 @@
 "use client";
+import ButtonAILN from "@/components/buttons/ButtonAILN";
 import SectionContainerAILN from "@/components/cards/SectionContainerAILN";
 import GeneralLabelAILN, {
   type GeneralLabelVariantAILN,
@@ -158,39 +159,34 @@ export default function ChampionTeamMembersAILN(props: { members: Member[] }) {
             />
           </div>
           <div className="relative" ref={filterRef}>
-            <button
+            <ButtonAILN
+              variant={statusFilter ? "outlineActive" : "outline"}
+              size="medium"
               type="button"
               onClick={() => setFilterOpen((v) => !v)}
-              className={`flex h-10 items-center gap-2 rounded-lg border px-3 text-sm font-medium transition ${
-                statusFilter
-                  ? "border-claude bg-hijau-t text-claude dark:border-claude/40 dark:bg-claude/10 dark:text-lime-bright"
-                  : "border-dashboard-border bg-white text-foreground hover:border-foreground/40 dark:bg-card-1 dark:text-gray-200"
-              }`}
             >
               <ListFilter className="size-4" />
               Filter
-            </button>
+            </ButtonAILN>
             {filterOpen && (
               <div className="absolute right-0 z-20 mt-1.5 w-48 overflow-hidden rounded-lg border border-dashboard-border bg-white py-1 shadow-lg dark:bg-card-1">
                 {filterOptions.map((opt) => (
-                  <button
+                  <ButtonAILN
+                    variant={statusFilter === opt.value ? "menuActive" : "menu"}
+                    size="row"
+                    width="full"
                     key={opt.value || "all"}
                     type="button"
                     onClick={() => {
                       setStatusFilter(opt.value);
                       setFilterOpen(false);
                     }}
-                    className={`flex w-full items-center justify-between px-3 py-2 text-left text-sm transition hover:bg-gray-50 dark:hover:bg-card-2 ${
-                      statusFilter === opt.value
-                        ? "font-medium text-claude dark:text-lime-bright"
-                        : "text-foreground dark:text-gray-200"
-                    }`}
                   >
                     {opt.label}
                     {statusFilter === opt.value && (
                       <span className="size-1.5 rounded-full bg-lime-bright" />
                     )}
-                  </button>
+                  </ButtonAILN>
                 ))}
               </div>
             )}
@@ -234,7 +230,9 @@ export default function ChampionTeamMembersAILN(props: { members: Member[] }) {
                 const status = statusMeta[m.status];
                 const levelVariant =
                   LEVEL_VARIANTS[
-                    ((m.current_level?.level_number ?? 0) - 1 + LEVEL_VARIANTS.length) %
+                    ((m.current_level?.level_number ?? 0) -
+                      1 +
+                      LEVEL_VARIANTS.length) %
                       LEVEL_VARIANTS.length
                   ];
                 const href = `/${projectId}/champion/members?member_id=${m.access_id}`;
@@ -265,7 +263,7 @@ export default function ChampionTeamMembersAILN(props: { members: Member[] }) {
                     {/* Level */}
                     <td className="px-4 py-3">
                       <GeneralLabelAILN variant={levelVariant}>
-                        L{(m.current_level?.level_number ?? 0)}
+                        L{m.current_level?.level_number ?? 0}
                       </GeneralLabelAILN>
                     </td>
 
@@ -280,9 +278,7 @@ export default function ChampionTeamMembersAILN(props: { members: Member[] }) {
                         <span
                           className={`size-1.5 shrink-0 rounded-full ${status.dot}`}
                         />
-                        <span
-                          className={`text-xs font-medium ${status.text}`}
-                        >
+                        <span className={`text-xs font-medium ${status.text}`}>
                           {status.label}
                         </span>
                       </div>

@@ -84,13 +84,15 @@ export default function VideoDetailsAILN({ video }: VideoDetailsAILNProps) {
               <p className="max-w-sm text-sm text-gray-500 dark:text-gray-400">
                 Video ini diputar di tab baru.
               </p>
-              <a
-                href={video.video_url}
-                target="_blank"
-                rel="noopener noreferrer"
-              >
-                <ButtonAILN size="medium">Tonton Video</ButtonAILN>
-              </a>
+              <ButtonAILN asChild size="medium">
+                <a
+                  href={video.video_url}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                >
+                  Tonton Video
+                </a>
+              </ButtonAILN>
             </>
           ) : (
             <p className="max-w-sm text-sm text-gray-500 dark:text-gray-400">

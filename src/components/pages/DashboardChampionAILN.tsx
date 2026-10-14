@@ -67,11 +67,11 @@ export default function DashboardChampionAILN({
     allMembers.length > 0
       ? allMembers.reduce(
           (sum, m) => sum + (m.current_level?.level_number ?? 0),
-          0
+          0,
         ) / allMembers.length
       : 0;
   const level2Plus = allMembers.filter(
-    (m) => (m.current_level?.level_number ?? 0) >= 2
+    (m) => (m.current_level?.level_number ?? 0) >= 2,
   ).length;
 
   const ratio = (n: number, d: number) => (d > 0 ? n / d : 0);
@@ -93,12 +93,12 @@ export default function DashboardChampionAILN({
           </h1>
           <div className="flex items-center gap-3">
             <MembersLabelChampionAILN count={stats.total} />
-            <Link href={`/${projectId}/champion/assignment`}>
-              <ButtonAILN variant="champion" size="medium">
+            <ButtonAILN asChild variant="champion" size="medium">
+              <Link href={`/${projectId}/champion/assignment`}>
                 <Plus className="size-4" />
                 Assign Tugas
-              </ButtonAILN>
-            </Link>
+              </Link>
+            </ButtonAILN>
           </div>
         </header>
 

@@ -113,16 +113,17 @@ export default function AiDraftBatchesAILN({
 
         {history.length > 0 && (
           <div className="flex flex-col gap-3">
-            <button
+            <ButtonAILN
+              variant="text"
+              size="bare"
               type="button"
               onClick={() => setHistoryOpen((open) => !open)}
-              className="flex items-center gap-2 self-start text-sm font-medium text-foreground"
             >
               <ChevronDown
                 className={`size-4 transition ${historyOpen ? "" : "-rotate-90"}`}
               />
               Riwayat Generate ({history.length})
-            </button>
+            </ButtonAILN>
             {historyOpen &&
               history.map((batch) => (
                 <div
@@ -194,7 +195,7 @@ export default function AiDraftBatchesAILN({
               <ButtonAILN
                 type="button"
                 variant="champion"
-                className="w-full"
+                width="full"
                 onClick={() => onUse(selected)}
               >
                 <Send className="size-4" />
@@ -205,7 +206,7 @@ export default function AiDraftBatchesAILN({
                 variant={
                   confirmDeleteId === selected.id ? "destructive" : "neutral"
                 }
-                className="w-full"
+                width="full"
                 onClick={() => handleDelete(selected)}
                 disabled={isDeleting}
               >

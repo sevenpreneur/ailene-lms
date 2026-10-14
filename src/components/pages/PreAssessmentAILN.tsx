@@ -85,9 +85,7 @@ export default function PreAssessmentAILN({
   const [answers, setAnswers] = useState<AnswerMap>({});
   const [currentIdx, setCurrentIdx] = useState(0);
   const [started, setStarted] = useState(false);
-  const [phase, setPhase] = useState<"idle" | "submitting" | "scoring">(
-    "idle",
-  );
+  const [phase, setPhase] = useState<"idle" | "submitting" | "scoring">("idle");
 
   useEffect(() => {
     // eslint-disable-next-line react-hooks/set-state-in-effect
@@ -280,27 +278,23 @@ export default function PreAssessmentAILN({
                   const isCurrent = idx === currentIdx;
                   const ans = isAnswered(item, answers);
 
-                  let cls = "";
-                  if (isCurrent) {
-                    cls = "bg-claude text-white";
-                  } else if (ans) {
-                    cls =
-                      "bg-black text-white dark:bg-claude/20 dark:text-lime-bright dark:border dark:border-claude/40";
-                  } else {
-                    cls =
-                      "border border-dashboard-border bg-gray-100 text-gray-500 dark:bg-card-2 dark:text-gray-400";
-                  }
-
                   return (
-                    <button
+                    <ButtonAILN
+                      variant={
+                        isCurrent
+                          ? "questionCurrent"
+                          : ans
+                            ? "questionAnswered"
+                            : "question"
+                      }
+                      size="question"
                       key={item.id}
                       type="button"
                       onClick={() => setCurrentIdx(idx)}
-                      className={`flex aspect-square items-center justify-center rounded-lg text-xs font-medium transition hover:opacity-80 ${cls}`}
                       title={PRE_ASSESSMENT_SECTIONS[item.section].label}
                     >
                       {idx + 1}
-                    </button>
+                    </ButtonAILN>
                   );
                 })}
               </div>
@@ -348,7 +342,7 @@ export default function PreAssessmentAILN({
             <ButtonAILN
               type="button"
               variant="primary"
-              className="w-full"
+              width="full"
               onClick={handleSubmit}
               disabled={phase !== "idle" || missing.length > 0}
             >
@@ -410,8 +404,8 @@ function PreAssessmentWelcomeAILN({
             Halo {firstName}, selamat datang 👋
           </h1>
           <p className="mt-3 text-center text-base leading-7 text-gray-600 dark:text-gray-300">
-            Sebelum mulai belajar, isi dulu <b>{PRE_ASSESSMENT_TITLE}</b> supaya kami
-            paham titik berangkatmu dan bisa menyiapkan alur belajar yang
+            Sebelum mulai belajar, isi dulu <b>{PRE_ASSESSMENT_TITLE}</b> supaya
+            kami paham titik berangkatmu dan bisa menyiapkan alur belajar yang
             paling relevan.
           </p>
 
@@ -460,14 +454,12 @@ function PreAssessmentWelcomeAILN({
             <b>satu kali</b>.
           </div>
 
-          <ButtonAILN
-            variant="primary"
-            onClick={onStart}
-            className="mt-6 w-full"
-          >
-            {hasDraft ? "Lanjutkan Assessment" : "Mulai Assessment"}
-            <ArrowRight className="size-4" />
-          </ButtonAILN>
+          <div className="mt-6">
+            <ButtonAILN variant="primary" onClick={onStart} width="full">
+              {hasDraft ? "Lanjutkan Assessment" : "Mulai Assessment"}
+              <ArrowRight className="size-4" />
+            </ButtonAILN>
+          </div>
         </div>
       </div>
     </PageContainerSVP>
@@ -509,15 +501,13 @@ function QuestionBody({
         {item.options.map((opt, idx) => {
           const selected = value === opt.id;
           return (
-            <button
+            <ButtonAILN
+              variant={selected ? "answerActive" : "answer"}
+              size="choice"
+              width="full"
               key={opt.id}
               type="button"
               onClick={() => onChange(opt.id)}
-              className={`flex items-center gap-3 rounded-lg border-[1.5px] px-4 py-3 text-left text-sm transition ${
-                selected
-                  ? "border-claude bg-hijau-t dark:border-claude/60 dark:bg-claude/10 dark:text-white"
-                  : "border-dashboard-border bg-white hover:border-black/30 hover:bg-gray-50 dark:bg-card-1 dark:text-gray-200 dark:hover:border-claude/30 dark:hover:bg-card-2"
-              }`}
             >
               <div
                 className={`flex size-6 shrink-0 items-center justify-center rounded-full text-xs font-medium ${
@@ -529,7 +519,7 @@ function QuestionBody({
                 {String.fromCharCode(65 + idx)}
               </div>
               <span className="flex-1">{opt.text}</span>
-            </button>
+            </ButtonAILN>
           );
         })}
       </div>

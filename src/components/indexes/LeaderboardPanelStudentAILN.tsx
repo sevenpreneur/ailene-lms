@@ -1,4 +1,5 @@
 "use client";
+import Tabs from "@/components/navigations/Tabs";
 import SectionContainerAILN from "@/components/cards/SectionContainerAILN";
 import type { StudentLeaderboard } from "@/apis/student";
 import { Lock } from "lucide-react";
@@ -47,26 +48,18 @@ export default function LeaderboardPanelStudentAILN({
     >
       <div className="flex flex-col">
         {/* Tabs */}
-        <div className="inline-flex w-fit rounded-lg border border-dashboard-border p-0.5">
-          {tabs.map((t) => (
-            <button
-              key={t.key}
-              type="button"
-              disabled={!t.enabled}
-              onClick={() => t.enabled && setTab(t.key)}
-              className={`flex items-center gap-1 rounded-lg px-3 py-1.5 text-xs font-medium transition ${
-                tab === t.key
-                  ? "bg-black text-white dark:bg-claude/20 dark:text-lime-bright"
-                  : t.enabled
-                    ? "text-gray-600 hover:text-black dark:text-gray-300 dark:hover:text-white"
-                    : "cursor-not-allowed text-gray-300 dark:text-gray-600"
-              }`}
-            >
-              {t.label}
-              {!t.enabled && <Lock className="size-3" />}
-            </button>
-          ))}
-        </div>
+        <Tabs<LeaderboardTab>
+          ariaLabel="Cakupan leaderboard"
+          value={tab}
+          onValueChange={setTab}
+          compact
+          items={tabs.map((item) => ({
+            value: item.key,
+            label: item.label,
+            disabled: !item.enabled,
+            icon: !item.enabled ? <Lock className="size-3" /> : undefined,
+          }))}
+        />
 
         <div className="mt-4 flex-1">
           {tab !== "DEPT" ? (

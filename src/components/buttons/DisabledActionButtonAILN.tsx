@@ -1,6 +1,8 @@
 "use client";
 
-import ButtonAILN, { type ButtonAILNProps } from "@/components/buttons/ButtonAILN";
+import ButtonAILN, {
+  type ButtonAILNProps,
+} from "@/components/buttons/ButtonAILN";
 import { Lock } from "lucide-react";
 import { toast } from "sonner";
 
@@ -11,7 +13,6 @@ import { toast } from "sonner";
 export default function DisabledActionButtonAILN({
   children,
   reason = "Fitur ini sedang dalam migrasi ke backend baru.",
-  className,
   ...props
 }: Omit<ButtonAILNProps, "onClick" | "disabled"> & { reason?: string }) {
   return (
@@ -19,7 +20,6 @@ export default function DisabledActionButtonAILN({
       {...props}
       disabled
       title={reason}
-      className={className}
       onClick={(e) => {
         e.preventDefault();
         toast.info(reason);

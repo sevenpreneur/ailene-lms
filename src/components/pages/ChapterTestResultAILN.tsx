@@ -37,13 +37,13 @@ export default function ChapterTestResultAILN({
           title={`Hasil ${kindLabel}`}
           desc={`${result.name} · ${result.chapter.name}`}
         >
-          <Link
-            href={`/${projectId}/student/learning-path/${result.chapter.id}`}
-          >
-            <ButtonAILN variant="neutral" size="small">
+          <ButtonAILN asChild variant="neutral" size="small">
+            <Link
+              href={`/${projectId}/student/learning-path/${result.chapter.id}`}
+            >
               Kembali ke Alur Belajar
-            </ButtonAILN>
-          </Link>
+            </Link>
+          </ButtonAILN>
         </PageHeaderAILN>
 
         <section className="grid gap-4 rounded-lg border border-dashboard-border bg-card-1 p-5 sm:grid-cols-3">
@@ -99,7 +99,9 @@ export default function ChapterTestResultAILN({
 
           <div className="text-xs text-gray-500 sm:col-span-3 dark:text-gray-400">
             Dikirim{" "}
-            {dayjs(submission.submitted_at).locale("id").format("D MMMM YYYY, HH:mm")}
+            {dayjs(submission.submitted_at)
+              .locale("id")
+              .format("D MMMM YYYY, HH:mm")}
             {essayCount > 0 &&
               ` · ${essayCount} jawaban uraian disimpan untuk ditinjau.`}
           </div>

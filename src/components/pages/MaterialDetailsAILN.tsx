@@ -75,7 +75,7 @@ function renderArticle(markdown: string): { html: string; toc: TocEntry[] } {
       if (count > 0) id = `${id}-${count + 1}`;
       toc.push({ id, level, text: plain });
       return `<h${level} id="${id}">${inner}</h${level}>`;
-    }
+    },
   );
 
   return { html, toc };
@@ -236,14 +236,17 @@ export default function MaterialDetailsAILN({
                     <p className="text-sm text-gray-600 dark:text-gray-400">
                       Materi ini berupa file. Buka di tab baru untuk melihat.
                     </p>
-                    <a
-                      href={fileUrl}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="mt-3 inline-block"
-                    >
-                      <ButtonAILN size="medium">Buka File</ButtonAILN>
-                    </a>
+                    <div className="mt-3">
+                      <ButtonAILN asChild size="medium">
+                        <a
+                          href={fileUrl}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                        >
+                          Buka File
+                        </a>
+                      </ButtonAILN>
+                    </div>
                   </div>
                 )}
                 <div className="border-t border-dashboard-border bg-gray-50 px-4 py-2 text-sm text-gray-500 dark:bg-card-2 dark:text-gray-400">
@@ -349,7 +352,7 @@ export default function MaterialDetailsAILN({
                             </GeneralLabelAILN>
                           )}
                         </Link>
-                      )
+                      ),
                     )}
                   </div>
                 </SectionContainerAILN>

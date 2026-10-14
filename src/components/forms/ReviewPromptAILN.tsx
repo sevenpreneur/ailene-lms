@@ -474,22 +474,24 @@ function AiAssessment({
       {canEdit && hasScores(evaluation) && (
         <div className="flex justify-end">
           {isEditing ? (
-            <button
+            <ButtonAILN
+              variant="text"
+              size="bare"
               type="button"
               onClick={onResetOverrides}
-              className="text-xs font-medium text-muted-foreground underline-offset-2 hover:text-foreground hover:underline"
             >
               {hasOverrides ? "Kembalikan ke skor AI" : "Batal koreksi"}
-            </button>
+            </ButtonAILN>
           ) : (
-            <button
+            <ButtonAILN
+              variant="textAccent"
+              size="bare"
               type="button"
               onClick={onStartEditing}
-              className="inline-flex items-center gap-1 text-xs font-medium text-claude underline-offset-2 hover:underline dark:text-lime-bright"
             >
               <Pencil className="size-3" />
               Koreksi skor AI
-            </button>
+            </ButtonAILN>
           )}
         </div>
       )}
@@ -504,13 +506,14 @@ function AiAssessment({
             {evaluation.ai_feedback}
           </p>
           {canEdit && (
-            <button
+            <ButtonAILN
+              variant="textAccent"
+              size="bare"
               type="button"
               onClick={() => onUseFeedback(evaluation.ai_feedback ?? "")}
-              className="self-start text-xs font-medium text-claude underline-offset-2 hover:underline dark:text-lime-bright"
             >
               Pakai sebagai catatan
-            </button>
+            </ButtonAILN>
           )}
         </div>
       )}
@@ -568,19 +571,16 @@ function RubricRow({
       </span>
       <div className="flex gap-1">
         {[1, 2, 3, 4, 5].map((n) => (
-          <button
+          <ButtonAILN
+            variant={value === n ? "ratingActive" : "rating"}
+            size="mediumIcon"
             key={n}
             type="button"
             disabled={disabled}
             onClick={() => onChange(n)}
-            className={`size-7 rounded-lg border text-xs font-medium transition ${
-              value === n
-                ? "border-claude bg-claude text-white"
-                : "border-dashboard-border text-gray-500 hover:border-claude dark:text-gray-400"
-            } ${disabled ? "cursor-default" : ""}`}
           >
             {n}
-          </button>
+          </ButtonAILN>
         ))}
       </div>
     </div>

@@ -1,4 +1,5 @@
 "use client";
+import ButtonAILN from "@/components/buttons/ButtonAILN";
 import type { LmsSession } from "@/apis/auth";
 import ProjectJumpBackInCardAILN from "@/components/cards/ProjectJumpBackInCardAILN";
 import ThemeSwitcherAILN from "@/components/buttons/ThemeSwitcherAILN";
@@ -53,18 +54,19 @@ export default function HomeAILN({ session }: { session: LmsSession }) {
           <LogoAileneAILN className="h-7 w-auto text-foreground" />
           <div className="flex-1" />
           <ThemeSwitcherAILN />
-          <button
+          <ButtonAILN
+            variant="ghost"
+            size="small"
             type="button"
             onClick={handleLogout}
             disabled={isLoggingOut}
             aria-label="Logout"
-            className="inline-flex items-center gap-2 rounded-lg px-2.5 py-2 text-sm font-medium text-muted-foreground transition-colors hover:bg-dashboard-bg hover:text-foreground disabled:opacity-60"
           >
             <LogOut size={16} />
             <span className="hidden sm:inline">
               {isLoggingOut ? "Keluar..." : "Keluar"}
             </span>
-          </button>
+          </ButtonAILN>
         </div>
       </header>
 

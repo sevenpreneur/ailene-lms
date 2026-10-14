@@ -1,4 +1,5 @@
 "use client";
+import ButtonAILN from "@/components/buttons/ButtonAILN";
 import ChapterTaskItemAILN from "@/components/items/ChapterTaskItemAILN";
 import GeneralLabelAILN, {
   type GeneralLabelVariantAILN,
@@ -82,7 +83,9 @@ export default function ChapterItemAILN(props: ChapterItemAILNProps) {
     const fetchTasks = (silent: boolean) => {
       if (!silent) setIsLoading(true);
       fetch(`/api/learnings?chapter_id=${props.chapter.id}`)
-        .then((res) => (res.ok ? (res.json() as Promise<ChapterLearnings>) : null))
+        .then((res) =>
+          res.ok ? (res.json() as Promise<ChapterLearnings>) : null,
+        )
         .then((data) => {
           if (!cancelled && data) setTasks(data);
         })
@@ -109,21 +112,28 @@ export default function ChapterItemAILN(props: ChapterItemAILNProps) {
   }, [props.expanded, props.chapter.id]);
 
   return (
-    <div id={`chapter-${chapter.id}`} className="border-b border-dashboard-border last:border-b-0">
-      <button
+    <div
+      id={`chapter-${chapter.id}`}
+      className="border-b border-dashboard-border last:border-b-0"
+    >
+      <ButtonAILN
+        variant="accordion"
+        size="row"
+        width="full"
         type="button"
         aria-expanded={props.expanded}
         aria-controls={`chapter-tasks-${chapter.id}`}
         onClick={props.onToggle}
-        className="flex w-full items-start gap-3 px-5 pb-2 pt-5 text-left transition-colors hover:bg-card-2/70 sm:gap-4 sm:px-6"
       >
-        <span className={`flex h-11 w-11 shrink-0 items-center justify-center rounded-lg font-headline text-base font-medium ${
-          chapter.progress === "completed"
-            ? "bg-hijau-t text-claude dark:bg-claude/20 dark:text-lime-bright"
-            : props.unlocked
-              ? "bg-claude text-white"
-              : "bg-card-2 text-gray-400"
-        }`}>
+        <span
+          className={`flex h-11 w-11 shrink-0 items-center justify-center rounded-lg font-headline text-base font-medium ${
+            chapter.progress === "completed"
+              ? "bg-hijau-t text-claude dark:bg-claude/20 dark:text-lime-bright"
+              : props.unlocked
+                ? "bg-claude text-white"
+                : "bg-card-2 text-gray-400"
+          }`}
+        >
           {chapter.progress === "completed" ? (
             <FontAwesomeIcon icon={faCheck} className="h-4 w-4" />
           ) : props.unlocked ? (
@@ -153,12 +163,18 @@ export default function ChapterItemAILN(props: ChapterItemAILNProps) {
           ) : (
             <GeneralLabelAILN variant="white">Terkunci</GeneralLabelAILN>
           )}
-          <ChevronDown className={`h-4 w-4 text-gray-400 transition-transform ${props.expanded ? "rotate-180" : ""}`} aria-hidden="true" />
+          <ChevronDown
+            className={`h-4 w-4 text-gray-400 transition-transform ${props.expanded ? "rotate-180" : ""}`}
+            aria-hidden="true"
+          />
         </span>
-      </button>
+      </ButtonAILN>
       <div className="flex flex-wrap items-center gap-x-5 gap-y-2 px-5 pb-5 text-xs text-gray-600 dark:text-gray-300 sm:pl-[5.25rem] sm:pr-6">
         <span className="inline-flex items-center gap-1.5">
-          <CalendarDays className="h-3.5 w-3.5 text-claude dark:text-lime-bright" aria-hidden="true" />
+          <CalendarDays
+            className="h-3.5 w-3.5 text-claude dark:text-lime-bright"
+            aria-hidden="true"
+          />
           <span className="sr-only">Jadwal sesi: </span>
           {sessionDate.isValid()
             ? `${sessionDate.locale("id").format("dddd, D MMMM YYYY · HH:mm")} WIB`
@@ -166,22 +182,36 @@ export default function ChapterItemAILN(props: ChapterItemAILNProps) {
         </span>
         <span className="inline-flex items-center gap-1.5">
           {chapter.method === "online" ? (
-            <Monitor className="h-3.5 w-3.5 text-claude dark:text-lime-bright" aria-hidden="true" />
+            <Monitor
+              className="h-3.5 w-3.5 text-claude dark:text-lime-bright"
+              aria-hidden="true"
+            />
           ) : (
-            <UsersRound className="h-3.5 w-3.5 text-claude dark:text-lime-bright" aria-hidden="true" />
+            <UsersRound
+              className="h-3.5 w-3.5 text-claude dark:text-lime-bright"
+              aria-hidden="true"
+            />
           )}
           <span className="sr-only">Metode: </span>
           {chapter.method === "online" ? "Online" : "Tatap muka"}
         </span>
         <span className="inline-flex items-center gap-1.5">
-          <Clock3 className="h-3.5 w-3.5 text-claude dark:text-lime-bright" aria-hidden="true" />
+          <Clock3
+            className="h-3.5 w-3.5 text-claude dark:text-lime-bright"
+            aria-hidden="true"
+          />
           <span className="sr-only">Durasi: </span>
           {formatSessionDuration(chapter.duration_minutes)}
         </span>
         <span className="inline-flex min-w-0 items-center gap-1.5">
-          <MapPin className="h-3.5 w-3.5 shrink-0 text-claude dark:text-lime-bright" aria-hidden="true" />
+          <MapPin
+            className="h-3.5 w-3.5 shrink-0 text-claude dark:text-lime-bright"
+            aria-hidden="true"
+          />
           <span className="sr-only">Lokasi: </span>
-          <span className="break-words">{chapter.location_name?.trim() || "Belum tersedia"}</span>
+          <span className="break-words">
+            {chapter.location_name?.trim() || "Belum tersedia"}
+          </span>
         </span>
         {locationHref && (
           <a
@@ -195,137 +225,137 @@ export default function ChapterItemAILN(props: ChapterItemAILNProps) {
           </a>
         )}
       </div>
-        <div
-          id={`chapter-tasks-${chapter.id}`}
-          className={`grid transition-all duration-300 ease-in-out ${
-            props.expanded
-              ? "grid-rows-[1fr] opacity-100"
-              : "grid-rows-[0fr] opacity-0"
-          }`}
-        >
-          <div className="overflow-hidden">
-            {isLoading && !tasks && <ChapterTasksSkeleton />}
-            {tasks &&
-              (() => {
-                const preTest = tasks.pre_test ?? null;
-                const postTest = tasks.post_test ?? null;
-                const survey = tasks.survey ?? null;
-                // A pre-test only measures something if it comes before the chapter's content.
-                const preTestDone = !preTest || preTest.submitted;
-                const contentUnlocked = props.unlocked && preTestDone;
-                const contentLockedMessage =
-                  props.unlocked && !preTestDone
-                    ? CHAPTER_TEST_LOCKED_MESSAGE.pre_test_required
+      <div
+        id={`chapter-tasks-${chapter.id}`}
+        className={`grid transition-all duration-300 ease-in-out ${
+          props.expanded
+            ? "grid-rows-[1fr] opacity-100"
+            : "grid-rows-[0fr] opacity-0"
+        }`}
+      >
+        <div className="overflow-hidden">
+          {isLoading && !tasks && <ChapterTasksSkeleton />}
+          {tasks &&
+            (() => {
+              const preTest = tasks.pre_test ?? null;
+              const postTest = tasks.post_test ?? null;
+              const survey = tasks.survey ?? null;
+              // A pre-test only measures something if it comes before the chapter's content.
+              const preTestDone = !preTest || preTest.submitted;
+              const contentUnlocked = props.unlocked && preTestDone;
+              const contentLockedMessage =
+                props.unlocked && !preTestDone
+                  ? CHAPTER_TEST_LOCKED_MESSAGE.pre_test_required
+                  : undefined;
+              const allMaterialsRead = tasks.materials.every(
+                (m) => m.completed,
+              );
+              const quizUnlocked = contentUnlocked && allMaterialsRead;
+              const preTestUnlocked = props.unlocked && !!preTest?.available;
+              const postTestUnlocked = props.unlocked && !!postTest?.available;
+              const surveyUnlocked = props.unlocked && !!survey?.available;
+              // First unlocked, unfinished task in order: pre-test, materials, video, quiz, post-test, survey.
+              let nextKey: string | null = null;
+              if (props.unlocked) {
+                if (preTest && !preTest.submitted && preTestUnlocked) {
+                  nextKey = "pre";
+                } else if (contentUnlocked) {
+                  const firstMat = tasks.materials.find((m) => !m.completed);
+                  const firstVid = tasks.videos.find((v) => !v.completed);
+                  const firstQuiz = quizUnlocked
+                    ? tasks.quizzes.find((q) => q.attempts === 0)
                     : undefined;
-                const allMaterialsRead = tasks.materials.every(
-                  (m) => m.completed
-                );
-                const quizUnlocked = contentUnlocked && allMaterialsRead;
-                const preTestUnlocked = props.unlocked && !!preTest?.available;
-                const postTestUnlocked =
-                  props.unlocked && !!postTest?.available;
-                const surveyUnlocked = props.unlocked && !!survey?.available;
-                // The single "continue here" task in this chapter — first unlocked + unfinished
-                // item, scanning pre-test → materials → video → quiz → post-test → survey.
-                let nextKey: string | null = null;
-                if (props.unlocked) {
-                  if (preTest && !preTest.submitted && preTestUnlocked) {
-                    nextKey = "pre";
-                  } else if (contentUnlocked) {
-                    const firstMat = tasks.materials.find((m) => !m.completed);
-                    const firstVid = tasks.videos.find((v) => !v.completed);
-                    const firstQuiz = quizUnlocked
-                      ? tasks.quizzes.find((q) => q.attempts === 0)
-                      : undefined;
-                    if (firstMat) nextKey = `m-${firstMat.id}`;
-                    else if (firstVid) nextKey = `v-${firstVid.id}`;
-                    else if (firstQuiz) nextKey = `q-${firstQuiz.id}`;
-                    else if (postTest && !postTest.submitted && postTestUnlocked)
-                      nextKey = "post";
-                    else if (survey && !survey.submitted && surveyUnlocked)
-                      nextKey = "survey";
-                  }
+                  if (firstMat) nextKey = `m-${firstMat.id}`;
+                  else if (firstVid) nextKey = `v-${firstVid.id}`;
+                  else if (firstQuiz) nextKey = `q-${firstQuiz.id}`;
+                  else if (postTest && !postTest.submitted && postTestUnlocked)
+                    nextKey = "post";
+                  else if (survey && !survey.submitted && surveyUnlocked)
+                    nextKey = "survey";
                 }
-                return (
-                  <div className="space-y-2 border-t border-dashboard-border bg-card-2/60 px-5 py-4 sm:px-6">
-                    {preTest && (
-                      <ChapterTaskItemAILN
-                        variant="PreTest"
-                        test={preTest}
-                        unlocked={preTestUnlocked}
-                        isNext={nextKey === "pre"}
-                        lockedMessage={
-                          preTest.locked_reason
-                            ? CHAPTER_TEST_LOCKED_MESSAGE[preTest.locked_reason]
-                            : undefined
-                        }
-                      />
-                    )}
-                    {tasks.materials.map((m) => (
-                      <ChapterTaskItemAILN
-                        key={`m-${m.id}`}
-                        variant="Material"
-                        material={m}
-                        unlocked={contentUnlocked}
-                        isNext={nextKey === `m-${m.id}`}
-                        lockedMessage={contentLockedMessage}
-                      />
-                    ))}
-                    {tasks.videos.map((v) => (
-                      <ChapterTaskItemAILN
-                        key={`v-${v.id}`}
-                        variant="Video"
-                        video={v}
-                        unlocked={contentUnlocked}
-                        isNext={nextKey === `v-${v.id}`}
-                        lockedMessage={contentLockedMessage}
-                      />
-                    ))}
-                    {tasks.quizzes.map((q) => (
-                      <ChapterTaskItemAILN
-                        key={`q-${q.id}`}
-                        variant="Quiz"
-                        quiz={q}
-                        unlocked={quizUnlocked}
-                        isNext={nextKey === `q-${q.id}`}
-                        lockedMessage={
-                          contentLockedMessage ??
-                          (props.unlocked && !allMaterialsRead
-                            ? "Baca semua materi, sebelum memulai quiz"
-                            : undefined)
-                        }
-                      />
-                    ))}
-                    {postTest && (
-                      <ChapterTaskItemAILN
-                        variant="PostTest"
-                        test={postTest}
-                        unlocked={postTestUnlocked}
-                        isNext={nextKey === "post"}
-                        lockedMessage={
-                          postTest.locked_reason
-                            ? CHAPTER_TEST_LOCKED_MESSAGE[postTest.locked_reason]
-                            : undefined
-                        }
-                      />
-                    )}
-                    {survey && (
-                      <ChapterTaskItemAILN
-                        variant="Survey"
-                        survey={{
-                          chapterId: props.chapter.id,
-                          submitted: survey.submitted,
-                        }}
-                        unlocked={surveyUnlocked || (props.unlocked && survey.submitted)}
-                        isNext={nextKey === "survey"}
-                        lockedMessage="Dibuka setelah sesi chapter dimulai"
-                      />
-                    )}
-                  </div>
-                );
-              })()}
-          </div>
+              }
+              return (
+                <div className="space-y-2 border-t border-dashboard-border bg-card-2/60 px-5 py-4 sm:px-6">
+                  {preTest && (
+                    <ChapterTaskItemAILN
+                      variant="PreTest"
+                      test={preTest}
+                      unlocked={preTestUnlocked}
+                      isNext={nextKey === "pre"}
+                      lockedMessage={
+                        preTest.locked_reason
+                          ? CHAPTER_TEST_LOCKED_MESSAGE[preTest.locked_reason]
+                          : undefined
+                      }
+                    />
+                  )}
+                  {tasks.materials.map((m) => (
+                    <ChapterTaskItemAILN
+                      key={`m-${m.id}`}
+                      variant="Material"
+                      material={m}
+                      unlocked={contentUnlocked}
+                      isNext={nextKey === `m-${m.id}`}
+                      lockedMessage={contentLockedMessage}
+                    />
+                  ))}
+                  {tasks.videos.map((v) => (
+                    <ChapterTaskItemAILN
+                      key={`v-${v.id}`}
+                      variant="Video"
+                      video={v}
+                      unlocked={contentUnlocked}
+                      isNext={nextKey === `v-${v.id}`}
+                      lockedMessage={contentLockedMessage}
+                    />
+                  ))}
+                  {tasks.quizzes.map((q) => (
+                    <ChapterTaskItemAILN
+                      key={`q-${q.id}`}
+                      variant="Quiz"
+                      quiz={q}
+                      unlocked={quizUnlocked}
+                      isNext={nextKey === `q-${q.id}`}
+                      lockedMessage={
+                        contentLockedMessage ??
+                        (props.unlocked && !allMaterialsRead
+                          ? "Baca semua materi, sebelum memulai quiz"
+                          : undefined)
+                      }
+                    />
+                  ))}
+                  {postTest && (
+                    <ChapterTaskItemAILN
+                      variant="PostTest"
+                      test={postTest}
+                      unlocked={postTestUnlocked}
+                      isNext={nextKey === "post"}
+                      lockedMessage={
+                        postTest.locked_reason
+                          ? CHAPTER_TEST_LOCKED_MESSAGE[postTest.locked_reason]
+                          : undefined
+                      }
+                    />
+                  )}
+                  {survey && (
+                    <ChapterTaskItemAILN
+                      variant="Survey"
+                      survey={{
+                        chapterId: props.chapter.id,
+                        submitted: survey.submitted,
+                      }}
+                      unlocked={
+                        surveyUnlocked || (props.unlocked && survey.submitted)
+                      }
+                      isNext={nextKey === "survey"}
+                      lockedMessage="Dibuka setelah sesi chapter dimulai"
+                    />
+                  )}
+                </div>
+              );
+            })()}
         </div>
+      </div>
     </div>
   );
 }

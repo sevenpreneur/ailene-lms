@@ -1,4 +1,5 @@
 "use client";
+import ButtonAILN from "@/components/buttons/ButtonAILN";
 import { HomeRecommendedCourseCardAILN } from "@/components/cards/HomeCourseCardAILN";
 import PageContainerAILN from "@/components/pages/PageContainerAILN";
 import {
@@ -28,7 +29,7 @@ export default function ExploreAILN() {
           ...course,
           vendor: vendors.find((vendor) => vendor.id === course.vendorId),
         })),
-    [courses, vendors, vendorId, level]
+    [courses, vendors, vendorId, level],
   );
 
   return (
@@ -70,7 +71,7 @@ export default function ExploreAILN() {
                       active={vendorId === vendor.id}
                       onClick={() =>
                         setVendorId((prev) =>
-                          prev === vendor.id ? null : vendor.id
+                          prev === vendor.id ? null : vendor.id,
                         )
                       }
                     />
@@ -147,14 +148,11 @@ function FilterChip({
   onClick: () => void;
 }) {
   return (
-    <button
+    <ButtonAILN
+      variant={active ? "chipActive" : "chip"}
+      size="chip"
       type="button"
       onClick={onClick}
-      className={`inline-flex items-center gap-1.5 rounded-full border px-3 py-1.5 text-xs font-medium transition-colors ${
-        active
-          ? "border-claude bg-claude text-white dark:border-lime-bright dark:bg-lime-bright dark:text-forest-deep"
-          : "border-dashboard-border text-muted-foreground hover:bg-dashboard-bg hover:text-foreground"
-      }`}
     >
       {logo && (
         <span className="relative h-4 w-4 shrink-0 overflow-hidden rounded-full bg-white ring-1 ring-dashboard-border">
@@ -168,6 +166,6 @@ function FilterChip({
         </span>
       )}
       {label}
-    </button>
+    </ButtonAILN>
   );
 }

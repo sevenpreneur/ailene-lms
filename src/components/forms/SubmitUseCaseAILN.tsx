@@ -569,7 +569,9 @@ export default function SubmitUseCaseAILN({
                     {AI_TOOL_PRESETS.map((tool) => {
                       const selected = formData.aiTools.includes(tool);
                       return (
-                        <button
+                        <ButtonAILN
+                          variant={selected ? "chipActive" : "chip"}
+                          size="chip"
                           key={tool}
                           type="button"
                           disabled={isLocked}
@@ -581,20 +583,17 @@ export default function SubmitUseCaseAILN({
                                 : [...prev.aiTools, tool],
                             }))
                           }
-                          className={`rounded-full border px-3 py-1 text-xs font-medium  transition disabled:cursor-not-allowed disabled:opacity-60 ${
-                            selected
-                              ? "border-black bg-black text-white dark:border-white dark:bg-white dark:text-black"
-                              : "border-dashboard-border bg-white text-foreground hover:border-foreground/40 dark:bg-card-2 dark:text-gray-200"
-                          }`}
                         >
                           {tool}
-                        </button>
+                        </ButtonAILN>
                       );
                     })}
                     {formData.aiTools
                       .filter((t) => !AI_TOOL_PRESETS.includes(t))
                       .map((tool) => (
-                        <button
+                        <ButtonAILN
+                          variant="chipActive"
+                          size="chip"
                           key={tool}
                           type="button"
                           disabled={isLocked}
@@ -604,11 +603,10 @@ export default function SubmitUseCaseAILN({
                               aiTools: prev.aiTools.filter((t) => t !== tool),
                             }))
                           }
-                          className="inline-flex items-center gap-1 rounded-full border border-black bg-black px-3 py-1 text-xs font-medium  text-white disabled:cursor-not-allowed disabled:opacity-60 dark:border-white dark:bg-white dark:text-black"
                         >
                           {tool}
                           <X className="size-3" />
-                        </button>
+                        </ButtonAILN>
                       ))}
                   </div>
                   {!isLocked && (
@@ -629,7 +627,9 @@ export default function SubmitUseCaseAILN({
                           variant="STUDENT"
                         />
                       </div>
-                      <button
+                      <ButtonAILN
+                        variant="outline"
+                        size="small"
                         type="button"
                         disabled={!formData.aiToolCustomInput.trim()}
                         onClick={() => {
@@ -642,13 +642,12 @@ export default function SubmitUseCaseAILN({
                                   ...prev,
                                   aiTools: [...prev.aiTools, v],
                                   aiToolCustomInput: "",
-                                }
+                                },
                           );
                         }}
-                        className="rounded-lg border border-dashboard-border bg-white px-3 py-2 text-xs font-medium  text-foreground hover:border-foreground/40 disabled:cursor-not-allowed disabled:opacity-60 dark:bg-card-2 dark:text-gray-200"
                       >
                         Tambah
-                      </button>
+                      </ButtonAILN>
                     </div>
                   )}
                 </div>
@@ -735,13 +734,14 @@ export default function SubmitUseCaseAILN({
                       </span>
                     </div>
                     {!isLocked && (
-                      <button
+                      <ButtonAILN
+                        variant="ghost"
+                        size="mediumIcon"
                         type="button"
                         onClick={handleClearOutcomeFile}
-                        className="rounded-lg p-1 text-gray-500 hover:bg-black/5 hover:text-foreground dark:hover:bg-white/5 dark:hover:text-white"
                       >
                         <X className="size-3.5" />
-                      </button>
+                      </ButtonAILN>
                     )}
                   </div>
                 )}
@@ -751,7 +751,8 @@ export default function SubmitUseCaseAILN({
                 <ButtonAILN
                   type="button"
                   variant="primary"
-                  className="w-fit self-end"
+                  width="fit"
+                  alignSelf="end"
                   disabled={isSubmitting}
                   onClick={handleSubmit}
                 >

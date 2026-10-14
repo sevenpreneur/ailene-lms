@@ -73,7 +73,7 @@ export default function MemberDetailPanelChampionAILN({
       : 0;
   const weakest = dimensions.reduce(
     (min, d) => (d.score < min.score ? d : min),
-    dimensions[0]
+    dimensions[0],
   );
   const gateDone = gate.requirements.filter((r) => r.completed).length;
   const gateTotal = gate.requirements.length;
@@ -190,7 +190,7 @@ export default function MemberDetailPanelChampionAILN({
         <DisabledActionButtonAILN
           variant="champion"
           size="medium"
-          className="self-end"
+          alignSelf="end"
         >
           <Send className="size-4" />
           Kirim Catatan

@@ -1,4 +1,5 @@
 "use client";
+import ButtonAILN from "@/components/buttons/ButtonAILN";
 import { NumberConfig, StakeholderVariant } from "@/lib/app-types";
 import { ChevronDown } from "lucide-react";
 import Image from "next/image";
@@ -124,7 +125,7 @@ export default function NumberInputAILN({
   const [internalError, setInternalError] = useState("");
   const [countryOpen, setCountryOpen] = useState(false);
   const [selectedCountryId, setSelectedCountryId] = useState<number | null>(
-    defaultCountryId ?? null
+    defaultCountryId ?? null,
   );
   const countryRef = useRef<HTMLDivElement>(null);
   const styles = variantStyles[variant];
@@ -209,11 +210,12 @@ export default function NumberInputAILN({
         {/* Country code selector — phone_number mode only */}
         {isPhone && (
           <div ref={countryRef} className="relative shrink-0">
-            <button
+            <ButtonAILN
+              variant="outline"
+              size="medium"
               type="button"
               disabled={disabled as boolean}
               onClick={() => setCountryOpen((p) => !p)}
-              className={`flex items-center gap-1.5 h-full px-3 border-r border-dashboard-border text-sm font-medium rounded-l-lg transition hover:bg-card-2 hover:cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed`}
             >
               {selectedCountry?.icon ? (
                 <Image
@@ -232,12 +234,17 @@ export default function NumberInputAILN({
                 +{selectedCountry?.phone_code}
               </span>
               <ChevronDown className="size-3 text-emphasis shrink-0" />
-            </button>
+            </ButtonAILN>
 
             {countryOpen && (
               <div className="absolute top-full left-0 z-50 mt-1 w-60 max-h-56 overflow-y-auto rounded-lg border border-dashboard-border bg-card-1 shadow-lg">
                 {countryCodes.map((c) => (
-                  <button
+                  <ButtonAILN
+                    variant={
+                      selectedCountry?.id === c.id ? "menuActive" : "menu"
+                    }
+                    size="row"
+                    width="full"
                     key={c.id}
                     type="button"
                     onClick={() => {
@@ -245,11 +252,6 @@ export default function NumberInputAILN({
                       onCountryChange?.(c.id, c.phone_code);
                       setCountryOpen(false);
                     }}
-                    className={`flex items-center gap-2 w-full px-3 py-2 text-sm text-left transition hover:bg-card-2 ${
-                      selectedCountry?.id === c.id
-                        ? "bg-primary/5 text-primary"
-                        : ""
-                    }`}
                   >
                     {c.icon ? (
                       <Image
@@ -268,7 +270,7 @@ export default function NumberInputAILN({
                     <span className="truncate font-normal">
                       {c.country_name}
                     </span>
-                  </button>
+                  </ButtonAILN>
                 ))}
               </div>
             )}

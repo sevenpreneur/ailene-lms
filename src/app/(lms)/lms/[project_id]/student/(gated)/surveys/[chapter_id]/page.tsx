@@ -25,8 +25,8 @@ export default async function ChapterSurveyPage({
       <AppPageState
         variant="FORBIDDEN"
         message={
-          result.reason === "level_locked"
-            ? "Survei ini belum bisa diakses. Selesaikan level sebelumnya untuk membukanya."
+          result.reason === "chapter_locked"
+            ? "Chapter ini belum terbuka. Periksa jadwal sesi atau hubungi admin."
             : "Kamu belum memiliki akses ke chapter ini."
         }
       />

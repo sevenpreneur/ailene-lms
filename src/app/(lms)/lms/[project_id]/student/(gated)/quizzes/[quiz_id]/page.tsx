@@ -29,8 +29,8 @@ export default async function QuizPage({
       <AppPageState
         variant="FORBIDDEN"
         message={
-          result.reason === "level_locked"
-            ? "Quiz ini belum bisa diakses. Selesaikan bagian sebelumnya untuk membukanya."
+          result.reason === "chapter_locked"
+            ? "Chapter ini belum terbuka. Periksa jadwal sesi atau hubungi admin."
             : "Kamu belum memiliki akses untuk mengerjakan quiz ini."
         }
       />

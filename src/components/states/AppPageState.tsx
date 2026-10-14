@@ -73,9 +73,9 @@ export default function AppPageState({ variant, message }: AppPageStateProps) {
             {resolvedMessage}
           </p>
         </div>
-        <Link href="/">
-          <ButtonAILN>Back to Home</ButtonAILN>
-        </Link>
+        <ButtonAILN asChild>
+          <Link href="/">Back to Home</Link>
+        </ButtonAILN>
       </div>
     </div>
   );

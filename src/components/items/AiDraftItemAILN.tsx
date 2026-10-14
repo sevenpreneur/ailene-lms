@@ -1,4 +1,5 @@
 "use client";
+import ButtonAILN from "@/components/buttons/ButtonAILN";
 import GeneralLabelAILN from "@/components/labels/GeneralLabelAILN";
 import type { AssignmentDraft } from "@/apis/champion";
 import type { Category } from "@/apis/categories";
@@ -16,18 +17,16 @@ export default function AiDraftItemAILN({
   onClick: () => void;
 }) {
   const draftCategories = categories.filter((c) =>
-    draft.category_ids.includes(c.id)
+    draft.category_ids.includes(c.id),
   );
 
   return (
-    <button
+    <ButtonAILN
+      variant={isSelected ? "cardActive" : "card"}
+      size="card"
+      width="full"
       type="button"
       onClick={onClick}
-      className={`flex flex-col gap-3 rounded-lg border bg-card-1 p-4 text-left transition hover:border-claude/60 hover:bg-claude/[0.04] ${
-        isSelected
-          ? "border-claude ring-1 ring-claude dark:border-claude dark:ring-claude"
-          : "border-dashboard-border"
-      }`}
     >
       <div className="flex flex-wrap items-center gap-1.5">
         <GeneralLabelAILN variant="green">
@@ -62,6 +61,6 @@ export default function AiDraftItemAILN({
           ))}
         </div>
       )}
-    </button>
+    </ButtonAILN>
   );
 }

@@ -1,4 +1,5 @@
 "use client";
+import Tabs from "@/components/navigations/Tabs";
 import SectionContainerAILN from "@/components/cards/SectionContainerAILN";
 import InputAILN from "@/components/fields/InputAILN";
 import MemberDetailPanelChampionAILN from "@/components/indexes/MemberDetailPanelChampionAILN";
@@ -96,136 +97,100 @@ export default function MembersChampionAILN({
           desc="Pilih anggota untuk melihat kompetensi, breakdown, dan kirim catatan coaching."
         />
         <>
-            {/* Row 2: filter + search (full width) */}
-            <div className="flex w-full flex-col gap-3 sm:flex-row sm:items-center sm:justify-between sm:gap-4">
-              {/* Level filter */}
-              <div className="flex flex-wrap items-center gap-2">
-                <LevelPill
-                  active={levelFilter === "ALL"}
-                  label="Semua"
-                  count={members.length}
-                  onClick={() => setLevelFilter("ALL")}
-                />
-                {levelTable.map((lvl) => (
-                  <LevelPill
-                    key={lvl.id}
-                    active={levelFilter === lvl.level_number}
-                    label={`Level ${lvl.level_number}`}
-                    count={levelCounts.get(lvl.level_number) ?? 0}
-                    onClick={() => setLevelFilter(lvl.level_number)}
-                  />
-                ))}
-              </div>
+          {/* Row 2: filter + search (full width) */}
+          <div className="flex w-full flex-col gap-3 sm:flex-row sm:items-center sm:justify-between sm:gap-4">
+            {/* Level filter */}
+            <Tabs<number | "ALL">
+              ariaLabel="Filter level anggota"
+              value={levelFilter}
+              onValueChange={setLevelFilter}
+              compact
+              items={[
+                { value: "ALL", label: "Semua", badge: members.length },
+                ...levelTable.map((level) => ({
+                  value: level.level_number,
+                  label: `Level ${level.level_number}`,
+                  badge: levelCounts.get(level.level_number) ?? 0,
+                })),
+              ]}
+            />
 
-              {/* Search */}
-              <InputAILN
-                inputId="member-search"
-                inputType="text"
-                variant="CHAMPION"
-                inputIcon={<Search className="size-4" />}
-                inputPlaceholder="Cari anggota…"
-                value={search}
-                onInputChange={setSearch}
-              />
-            </div>
+            {/* Search */}
+            <InputAILN
+              inputId="member-search"
+              inputType="text"
+              variant="CHAMPION"
+              inputIcon={<Search className="size-4" />}
+              inputPlaceholder="Cari anggota…"
+              value={search}
+              onInputChange={setSearch}
+            />
+          </div>
 
-            {/* Row 3: table (left) + detail (right) */}
-            <div className="grid grid-cols-1 gap-6 xl:grid-cols-[minmax(0,1fr)_420px]">
-              {/* Left: member table — sticky, follows the detail panel height */}
-              <div className="xl:sticky xl:top-6 xl:self-start">
-                <SectionContainerAILN
-                  title="Anggota Tim"
-                  contentClassName="-mx-5 -mb-5 overflow-hidden"
-                >
-                  {filtered.length === 0 ? (
-                    <div className="px-5 py-10 text-center text-sm text-gray-400">
-                      Tidak ada anggota ditemukan.
-                    </div>
-                  ) : (
-                    <div className="max-h-[calc(100dvh-15rem)] overflow-auto">
-                      <table className="w-full min-w-[34rem] border-collapse text-sm">
-                        <thead>
-                          <tr className="text-left text-[10px] font-medium uppercase tracking-wider text-gray-500 dark:text-gray-400">
-                            <th className="sticky top-0 z-10 border-y border-dashboard-border bg-card-2 px-5 py-2.5">
-                              Anggota
-                            </th>
-                            <th className="sticky top-0 z-10 border-y border-dashboard-border bg-card-2 px-3 py-2.5">
-                              Level
-                            </th>
-                            <th className="sticky top-0 z-10 border-y border-dashboard-border bg-card-2 px-3 py-2.5">
-                              Progress
-                            </th>
-                            <th className="sticky top-0 z-10 border-y border-dashboard-border bg-card-2 px-3 py-2.5">
-                              Status
-                            </th>
-                          </tr>
-                        </thead>
-                        <tbody>
-                          {filtered.map((m) => (
-                            <MemberRow
-                              key={m.access_id}
-                              member={m}
-                              selected={m.access_id === selectedId}
-                              onClick={() => selectMember(m.access_id)}
-                            />
-                          ))}
-                        </tbody>
-                      </table>
-                    </div>
-                  )}
-                </SectionContainerAILN>
-              </div>
-
-              {/* Right: selected member detail */}
-              <div>
-                {selectedId ? (
-                  <MemberDetailPanelChampionAILN
-                    key={selectedId}
-                    detail={detail}
-                  />
+          {/* Row 3: table (left) + detail (right) */}
+          <div className="grid grid-cols-1 gap-6 xl:grid-cols-[minmax(0,1fr)_420px]">
+            {/* Left: member table — sticky, follows the detail panel height */}
+            <div className="xl:sticky xl:top-6 xl:self-start">
+              <SectionContainerAILN
+                title="Anggota Tim"
+                contentClassName="-mx-5 -mb-5 overflow-hidden"
+              >
+                {filtered.length === 0 ? (
+                  <div className="px-5 py-10 text-center text-sm text-gray-400">
+                    Tidak ada anggota ditemukan.
+                  </div>
                 ) : (
-                  <div className="flex h-64 items-center justify-center rounded-lg border border-dashed border-dashboard-border text-sm text-gray-500 dark:text-gray-400">
-                    Pilih anggota untuk melihat detail.
+                  <div className="max-h-[calc(100dvh-15rem)] overflow-auto">
+                    <table className="w-full min-w-[34rem] border-collapse text-sm">
+                      <thead>
+                        <tr className="text-left text-[10px] font-medium uppercase tracking-wider text-gray-500 dark:text-gray-400">
+                          <th className="sticky top-0 z-10 border-y border-dashboard-border bg-card-2 px-5 py-2.5">
+                            Anggota
+                          </th>
+                          <th className="sticky top-0 z-10 border-y border-dashboard-border bg-card-2 px-3 py-2.5">
+                            Level
+                          </th>
+                          <th className="sticky top-0 z-10 border-y border-dashboard-border bg-card-2 px-3 py-2.5">
+                            Progress
+                          </th>
+                          <th className="sticky top-0 z-10 border-y border-dashboard-border bg-card-2 px-3 py-2.5">
+                            Status
+                          </th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        {filtered.map((m) => (
+                          <MemberRow
+                            key={m.access_id}
+                            member={m}
+                            selected={m.access_id === selectedId}
+                            onClick={() => selectMember(m.access_id)}
+                          />
+                        ))}
+                      </tbody>
+                    </table>
                   </div>
                 )}
-              </div>
+              </SectionContainerAILN>
             </div>
+
+            {/* Right: selected member detail */}
+            <div>
+              {selectedId ? (
+                <MemberDetailPanelChampionAILN
+                  key={selectedId}
+                  detail={detail}
+                />
+              ) : (
+                <div className="flex h-64 items-center justify-center rounded-lg border border-dashed border-dashboard-border text-sm text-gray-500 dark:text-gray-400">
+                  Pilih anggota untuk melihat detail.
+                </div>
+              )}
+            </div>
+          </div>
         </>
       </div>
     </PageContainerAILN>
-  );
-}
-
-function LevelPill({
-  active,
-  label,
-  count,
-  onClick,
-}: {
-  active: boolean;
-  label: string;
-  count: number;
-  onClick: () => void;
-}) {
-  return (
-    <button
-      type="button"
-      onClick={onClick}
-      className={`inline-flex items-center gap-2 rounded-full border px-4 py-2 text-sm font-medium transition ${
-        active
-          ? "border-claude bg-claude/10 text-claude dark:border-claude/40 dark:text-lime-bright"
-          : "border-dashboard-border text-gray-600 hover:border-gray-400 dark:text-gray-300"
-      }`}
-    >
-      <span>{label}</span>
-      <span
-        className={`inline-flex size-5 items-center justify-center rounded-full text-[11px] font-medium text-white ${
-          active ? "bg-claude" : "bg-gray-400 dark:bg-gray-600"
-        }`}
-      >
-        {count}
-      </span>
-    </button>
   );
 }
 

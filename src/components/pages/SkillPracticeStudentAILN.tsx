@@ -7,6 +7,7 @@ import SkillPracticeCardAILN, {
   type PracticeStatus,
 } from "@/components/items/SkillPracticeCardAILN";
 import PageContainerAILN from "@/components/pages/PageContainerAILN";
+import Tabs from "@/components/navigations/Tabs";
 import PageHeaderAILN from "@/components/titles/PageHeaderAILN";
 import { useProjectId } from "@/lib/use-project-id";
 import type { AssignedPrompt, PromptLibraryItem } from "@/apis/prompts";
@@ -16,7 +17,7 @@ import "dayjs/locale/id";
 import { BookOpen, Clock, History, Library, Plus } from "lucide-react";
 import Link from "next/link";
 import { useSearchParams } from "next/navigation";
-import { useEffect, type ReactNode, useState } from "react";
+import { useEffect, useState } from "react";
 import { toast } from "sonner";
 
 dayjs.locale("id");
@@ -56,9 +57,10 @@ interface LibraryItem {
 
 async function selfAssign(kind: PracticeKind, id: number): Promise<boolean> {
   const endpoint =
-    kind === "PROMPT" ? "/api/prompts/self-assign" : "/api/use-cases/self-assign";
-  const body =
-    kind === "PROMPT" ? { prompt_id: id } : { use_case_id: id };
+    kind === "PROMPT"
+      ? "/api/prompts/self-assign"
+      : "/api/use-cases/self-assign";
+  const body = kind === "PROMPT" ? { prompt_id: id } : { use_case_id: id };
 
   try {
     const res = await fetch(endpoint, {
@@ -109,7 +111,7 @@ function deriveStatus(item: {
 function assignedToPracticeItem(
   kind: PracticeKind,
   row: AssignedPrompt | AssignedUseCase,
-  projectId: string
+  projectId: string,
 ): PracticeItem {
   return {
     id: row.id,
@@ -130,7 +132,7 @@ function assignedToPracticeItem(
 function libraryToItem(
   kind: PracticeKind,
   row: PromptLibraryItem | UseCaseLibraryItem,
-  projectId: string
+  projectId: string,
 ): LibraryItem {
   return {
     id: row.id,
@@ -166,7 +168,7 @@ export default function SkillPracticeStudentAILN({
   const projectId = useProjectId();
 
   const [tab, setTab] = useState<PracticeTab>(() =>
-    tabFromParam(searchParams.get("tab"))
+    tabFromParam(searchParams.get("tab")),
   );
 
   useEffect(() => {
@@ -175,10 +177,10 @@ export default function SkillPracticeStudentAILN({
 
   const assignedItems: PracticeItem[] = [
     ...assignedPrompts.map((r) =>
-      assignedToPracticeItem("PROMPT", r, projectId)
+      assignedToPracticeItem("PROMPT", r, projectId),
     ),
     ...assignedUseCases.map((r) =>
-      assignedToPracticeItem("USE_CASE", r, projectId)
+      assignedToPracticeItem("USE_CASE", r, projectId),
     ),
   ].sort((a, b) => {
     const statusOrder =
@@ -207,7 +209,8 @@ export default function SkillPracticeStudentAILN({
     ...assignedItems.filter((i) => i.submitted_at !== null),
     ...libraryItems
       .filter(
-        (i) => i.submission?.submitted_at && !assignedIds.has(`${i.kind}-${i.id}`)
+        (i) =>
+          i.submission?.submitted_at && !assignedIds.has(`${i.kind}-${i.id}`),
       )
       .map((i) => ({
         id: i.id,
@@ -226,7 +229,7 @@ export default function SkillPracticeStudentAILN({
   ];
 
   const pendingAssignedCount = assignedItems.filter(
-    (item) => deriveStatus(item) === "PENDING_SUBMIT"
+    (item) => deriveStatus(item) === "PENDING_SUBMIT",
   ).length;
 
   return (
@@ -236,42 +239,43 @@ export default function SkillPracticeStudentAILN({
           title="Latihan Skill"
           desc="Tingkatkan kemampuanmu dengan latihan yang relevan."
         >
-          <Link href={`/${projectId}/student/skill-practice/create`}>
-            <ButtonAILN
-              type="button"
-              variant="lime"
-              size="medium"
-              className="shrink-0"
-            >
+          <ButtonAILN
+            asChild
+            type="button"
+            variant="lime"
+            size="medium"
+            shrink={false}
+          >
+            <Link href={`/${projectId}/student/skill-practice/create`}>
               <Plus className="size-4" />
               Catat Latihan
-            </ButtonAILN>
-          </Link>
+            </Link>
+          </ButtonAILN>
         </PageHeaderAILN>
 
-        <div className="overflow-x-auto overflow-y-hidden">
-          <div className="flex min-w-max items-center border-b border-dashboard-border">
-            <TabButton
-              active={tab === "ASSIGNED"}
-              icon={<Clock className="size-4" />}
-              label="Assigned untuk Anda"
-              badge={pendingAssignedCount > 0 ? pendingAssignedCount : null}
-              onClick={() => setTab("ASSIGNED")}
-            />
-            <TabButton
-              active={tab === "LIBRARY"}
-              icon={<Library className="size-4" />}
-              label="Library (Self Assign)"
-              onClick={() => setTab("LIBRARY")}
-            />
-            <TabButton
-              active={tab === "HISTORY"}
-              icon={<History className="size-4" />}
-              label="Riwayat Submission"
-              onClick={() => setTab("HISTORY")}
-            />
-          </div>
-        </div>
+        <Tabs<PracticeTab>
+          ariaLabel="Bagian latihan skill"
+          value={tab}
+          onValueChange={setTab}
+          items={[
+            {
+              value: "ASSIGNED",
+              label: "Assigned untuk Anda",
+              icon: <Clock className="size-4" />,
+              badge: pendingAssignedCount > 0 ? pendingAssignedCount : null,
+            },
+            {
+              value: "LIBRARY",
+              label: "Library (Self Assign)",
+              icon: <Library className="size-4" />,
+            },
+            {
+              value: "HISTORY",
+              label: "Riwayat Submission",
+              icon: <History className="size-4" />,
+            },
+          ]}
+        />
 
         {tab === "ASSIGNED" && (
           <SectionContainerAILN
@@ -335,7 +339,7 @@ export default function SkillPracticeStudentAILN({
                         submitted_at: null,
                         reviewed_at: null,
                         is_accepted: false,
-                      }
+                      },
                     )}
                     deadline={item.submission?.deadline ?? null}
                     championName={null}
@@ -382,40 +386,6 @@ export default function SkillPracticeStudentAILN({
         )}
       </div>
     </PageContainerAILN>
-  );
-}
-
-function TabButton({
-  active,
-  icon,
-  label,
-  badge,
-  onClick,
-}: {
-  active: boolean;
-  icon: ReactNode;
-  label: string;
-  badge?: number | null;
-  onClick: () => void;
-}) {
-  return (
-    <button
-      type="button"
-      onClick={onClick}
-      className={`-mb-px inline-flex h-12 cursor-pointer items-center gap-2 border-b-2 px-4 text-sm font-medium transition ${
-        active
-          ? "border-claude text-claude dark:border-claude dark:text-lime-bright"
-          : "border-transparent text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200"
-      }`}
-    >
-      {icon}
-      <span>{label}</span>
-      {badge ? (
-        <span className="inline-flex min-w-5 items-center justify-center rounded-full bg-claude px-1.5 py-0.5 text-[11px] font-medium text-white">
-          {badge}
-        </span>
-      ) : null}
-    </button>
   );
 }
 

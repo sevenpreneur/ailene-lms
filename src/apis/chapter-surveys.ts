@@ -66,7 +66,7 @@ export async function getChapterSurveyDetails(
       return { kind: "forbidden", reason: "no_access" };
     }
     if (result.status === "FORBIDDEN") {
-      return { kind: "forbidden", reason: "level_locked" };
+      return { kind: "forbidden", reason: "chapter_locked" };
     }
     return { kind: "not_found" };
   }

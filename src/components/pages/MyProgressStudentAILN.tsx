@@ -70,7 +70,12 @@ export default function MyProgressStudentAILN({
           />
           <LeaderboardPanelStudentAILN
             data={
-              leaderboard ?? { group: null, my_rank: 0, total: 0, leaderboard: [] }
+              leaderboard ?? {
+                group: null,
+                my_rank: 0,
+                total: 0,
+                leaderboard: [],
+              }
             }
             className="h-full"
           />
@@ -98,7 +103,7 @@ function PreAssessmentReportGateway() {
           </span>
         </span>
       </span>
-      <ButtonAILN variant="light" size="medium" className="shrink-0">
+      <ButtonAILN variant="light" size="medium" shrink={false}>
         Lihat Selengkapnya
         <ArrowRight className="size-4" />
       </ButtonAILN>

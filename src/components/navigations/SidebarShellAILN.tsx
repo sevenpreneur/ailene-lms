@@ -1,12 +1,10 @@
 "use client";
+import ButtonAILN from "@/components/buttons/ButtonAILN";
 
 import { useSidebar } from "@/contexts/SidebarContext";
 import { Menu, PanelLeft, X } from "lucide-react";
 import { usePathname } from "next/navigation";
 import { useEffect, type ReactNode } from "react";
-
-const ICON_BUTTON =
-  "flex size-8 shrink-0 items-center justify-center rounded-lg text-sb-text transition-colors hover:bg-sb-item-hover hover:text-sb-text-strong";
 
 // Small muted heading above a group of nav items; hidden on the collapsed rail.
 export function SidebarGroupLabelAILN({
@@ -60,32 +58,32 @@ export default function SidebarShellAILN({
     <>
       {/* ---------- Mobile top bar (<lg) ---------- */}
       <header className="fixed inset-x-0 top-0 z-50 flex h-14 items-center gap-2 border-b border-sb-border bg-sb-bg px-3 lg:hidden">
-        <button
+        <ButtonAILN
+          variant="ghost"
+          size="icon"
           onClick={openMobile}
           aria-label="Buka menu"
           aria-expanded={isMobileOpen}
-          className={ICON_BUTTON}
         >
           <Menu className="size-[18px]" />
-        </button>
+        </ButtonAILN>
         <div className="min-w-0 flex-1">{mobileBrand}</div>
       </header>
 
       {/* ---------- Mobile drawer (<lg) ---------- */}
       <div
         inert={!isMobileOpen}
-        className={`fixed inset-0 z-[60] lg:hidden ${
-          isMobileOpen ? "" : "pointer-events-none"
+        className={`fixed inset-0 z-[60] transition-opacity duration-200 lg:hidden ${
+          isMobileOpen ? "opacity-100" : "pointer-events-none opacity-0"
         }`}
       >
-        <button
+        <ButtonAILN
+          variant="backdropAbsolute"
+          size="bare"
           type="button"
           tabIndex={-1}
           aria-label="Tutup menu"
           onClick={closeMobile}
-          className={`absolute inset-0 bg-black/50 transition-opacity duration-200 ${
-            isMobileOpen ? "opacity-100" : "opacity-0"
-          }`}
         />
 
         <div
@@ -99,13 +97,14 @@ export default function SidebarShellAILN({
           <div className="flex h-full w-full flex-col gap-3 p-3">
             <div className="flex shrink-0 items-center gap-1">
               <div className="min-w-0 flex-1">{header(false)}</div>
-              <button
+              <ButtonAILN
+                variant="ghost"
+                size="icon"
                 onClick={closeMobile}
                 aria-label="Tutup menu"
-                className={ICON_BUTTON}
               >
                 <X className="size-4" />
-              </button>
+              </ButtonAILN>
             </div>
             <nav className="flex flex-1 flex-col gap-0.5 overflow-y-auto">
               {nav(false)}
@@ -136,14 +135,15 @@ export default function SidebarShellAILN({
             <div className={isCollapsed ? "" : "min-w-0 flex-1"}>
               {header(isCollapsed)}
             </div>
-            <button
+            <ButtonAILN
+              variant="ghost"
+              size="icon"
               onClick={toggleSidebar}
               aria-label={isCollapsed ? "Buka sidebar" : "Tutup sidebar"}
               title={isCollapsed ? "Buka sidebar" : "Tutup sidebar"}
-              className={ICON_BUTTON}
             >
               <PanelLeft className="size-4" />
-            </button>
+            </ButtonAILN>
           </div>
 
           <nav

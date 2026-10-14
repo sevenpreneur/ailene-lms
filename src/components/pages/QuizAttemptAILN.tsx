@@ -57,9 +57,8 @@ export default function QuizAttemptAILN({
   const { quiz, questions } = data;
 
   // Jawaban user, key = question id (string), value = option_code yang dipilih
-  const [answers, setAnswers] = useState<Record<string, string | null>>(
-    initialAnswers
-  );
+  const [answers, setAnswers] =
+    useState<Record<string, string | null>>(initialAnswers);
   // Index soal yang lagi ditampilin (mulai dari 0)
   const [currentIdx, setCurrentIdx] = useState(0);
   const [secondsLeft, setSecondsLeft] = useState(initialSecondsLeft);
@@ -69,7 +68,10 @@ export default function QuizAttemptAILN({
   // Tiap detik, kurangi secondsLeft, berhenti di 0.
   useEffect(() => {
     if (secondsLeft <= 0 || isSubmitting) return;
-    const id = setTimeout(() => setSecondsLeft((s) => Math.max(0, s - 1)), 1000);
+    const id = setTimeout(
+      () => setSecondsLeft((s) => Math.max(0, s - 1)),
+      1000,
+    );
     return () => clearTimeout(id);
   }, [secondsLeft, isSubmitting]);
 
@@ -181,17 +183,18 @@ export default function QuizAttemptAILN({
                 ? "Waktu habis"
                 : `${getDurationFromSeconds(secondsLeft)} tersisa`}
             </span>
-            <button
+            <ButtonAILN
+              variant="neutral"
+              size="small"
               type="button"
               onClick={handleExit}
-              className="flex items-center gap-1.5 rounded-lg border border-gray-200 px-3 py-1.5 text-xs font-medium text-gray-700 transition hover:bg-gray-50 dark:border-dashboard-border dark:text-gray-300 dark:hover:bg-card-2"
             >
               <FontAwesomeIcon
                 icon={faRightFromBracket}
                 className="h-3.5 w-3.5"
               />
               Keluar
-            </button>
+            </ButtonAILN>
           </div>
           <div className="flex h-1.5 w-full gap-0.5 overflow-hidden rounded-full">
             {questions.map((q, idx) => {
@@ -234,16 +237,14 @@ export default function QuizAttemptAILN({
                     const qid = String(currentQ.id);
                     const isSelected = answers[qid] === opt.option_code;
                     return (
-                      <button
+                      <ButtonAILN
+                        variant={isSelected ? "answerActive" : "answer"}
+                        size="choice"
+                        width="full"
                         key={opt.id}
                         type="button"
                         disabled={isSubmitting}
                         onClick={() => handleSelect(opt.option_code)}
-                        className={`flex items-center gap-3 rounded-lg border-[1.5px] px-4 py-3 text-left text-sm transition disabled:cursor-not-allowed disabled:opacity-60 ${
-                          isSelected
-                            ? "border-claude bg-hijau-t dark:border-claude/60 dark:bg-claude/10 dark:text-white dark:shadow-[0_0_10px_rgba(26,122,82,0.25)]"
-                            : "border-gray-200 bg-white hover:border-black/30 hover:bg-gray-50 dark:border-dashboard-border dark:bg-card-1 dark:text-gray-200 dark:hover:border-claude/30 dark:hover:bg-card-2"
-                        }`}
                       >
                         <div
                           className={`flex size-6 shrink-0 items-center justify-center rounded-full text-xs font-medium ${
@@ -255,7 +256,7 @@ export default function QuizAttemptAILN({
                           {opt.option_code.toUpperCase()}
                         </div>
                         <span className="flex-1">{opt.text}</span>
-                      </button>
+                      </ButtonAILN>
                     );
                   })}
                 </div>
@@ -298,27 +299,22 @@ export default function QuizAttemptAILN({
                   const isCurrent = idx === currentIdx;
                   const isAnswered = qid in answers && answers[qid] != null;
 
-                  let cls = "";
-                  if (isCurrent) {
-                    cls =
-                      "bg-claude text-white dark:shadow-[0_0_10px_rgba(26,122,82,0.7)]";
-                  } else if (isAnswered) {
-                    cls =
-                      "bg-black text-white dark:bg-claude/20 dark:text-lime-bright dark:border dark:border-claude/40";
-                  } else {
-                    cls =
-                      "border border-gray-200 bg-gray-100 text-gray-500 dark:border-dashboard-border dark:bg-card-2 dark:text-gray-400";
-                  }
-
                   return (
-                    <button
+                    <ButtonAILN
+                      variant={
+                        isCurrent
+                          ? "questionCurrent"
+                          : isAnswered
+                            ? "questionAnswered"
+                            : "question"
+                      }
+                      size="question"
                       key={q.id}
                       type="button"
                       onClick={() => setCurrentIdx(idx)}
-                      className={`flex aspect-square items-center justify-center rounded-lg text-xs font-medium transition hover:opacity-80 ${cls}`}
                     >
                       {idx + 1}
-                    </button>
+                    </ButtonAILN>
                   );
                 })}
               </div>
@@ -340,7 +336,7 @@ export default function QuizAttemptAILN({
 
             <ButtonAILN
               variant="lime"
-              className="w-full"
+              width="full"
               disabled={isSubmitting}
               onClick={handleSubmit}
             >

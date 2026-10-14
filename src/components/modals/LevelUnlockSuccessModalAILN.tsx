@@ -1,4 +1,5 @@
 "use client";
+import ButtonAILN from "@/components/buttons/ButtonAILN";
 import { Check, FileText, Library, Send, Sparkles } from "lucide-react";
 import type { ReactNode } from "react";
 import { useEffect } from "react";
@@ -64,13 +65,16 @@ export default function LevelUnlockSuccessModalAILN({
         className="relative flex w-full max-w-4xl flex-col gap-5 rounded-lg bg-white p-6 shadow-2xl ring-1 ring-black/5 dark:bg-card-1 dark:ring-dashboard-border md:p-8"
         onClick={(event) => event.stopPropagation()}
       >
-        <button
-          type="button"
-          onClick={onClose}
-          className="absolute right-4 top-4 rounded-full px-3 py-1 text-sm font-medium text-gray-400 transition hover:bg-gray-100 hover:text-gray-700 dark:hover:bg-card-2 dark:hover:text-white"
-        >
-          Tutup
-        </button>
+        <div className="absolute right-4 top-4">
+          <ButtonAILN
+            variant="ghost"
+            size="small"
+            type="button"
+            onClick={onClose}
+          >
+            Tutup
+          </ButtonAILN>
+        </div>
 
         <div className="flex flex-col items-center text-center">
           <div className="flex size-16 items-center justify-center rounded-lg bg-claude text-white shadow-[0_18px_40px_rgba(26,122,82,0.35)]">

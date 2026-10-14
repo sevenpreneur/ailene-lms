@@ -1,4 +1,5 @@
 "use client";
+import ButtonAILN from "@/components/buttons/ButtonAILN";
 import GeneralLabelAILN from "@/components/labels/GeneralLabelAILN";
 
 interface CategoryRef {
@@ -22,14 +23,12 @@ export default function AssignmentItemChampion({
   onClick: () => void;
 }) {
   return (
-    <button
+    <ButtonAILN
+      variant={isSelected ? "cardActive" : "card"}
+      size="card"
+      width="full"
       type="button"
       onClick={onClick}
-      className={`flex flex-col gap-3 rounded-lg border bg-card-1 p-4 text-left transition hover:border-claude/60 hover:bg-claude/[0.04] ${
-        isSelected
-          ? "border-claude ring-1 ring-claude dark:border-claude dark:ring-claude"
-          : "border-dashboard-border"
-      }`}
     >
       <div className="flex items-start">
         <GeneralLabelAILN variant="green">Level {levelNumber}</GeneralLabelAILN>
@@ -51,6 +50,6 @@ export default function AssignmentItemChampion({
           ))}
         </div>
       )}
-    </button>
+    </ButtonAILN>
   );
 }

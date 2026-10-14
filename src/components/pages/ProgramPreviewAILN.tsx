@@ -1,7 +1,9 @@
 "use client";
+import ButtonAILN from "@/components/buttons/ButtonAILN";
 import AIWorkspacePanelAILN from "@/components/cards/AIWorkspacePanelAILN";
 import DisabledActionButtonAILN from "@/components/buttons/DisabledActionButtonAILN";
 import DiscoverySidebarAILN from "@/components/navigations/DiscoverySidebarAILN";
+import Tabs from "@/components/navigations/Tabs";
 import PageContainerAILN from "@/components/pages/PageContainerAILN";
 import type { LmsSession } from "@/apis/auth";
 import type { ProgramPreviewMock } from "@/mock-data/explore";
@@ -35,13 +37,25 @@ function Section({ title, children }: { title: string; children: ReactNode }) {
 }
 
 const MODULE_ICON = {
-  done: <CheckCircle2 size={16} className="shrink-0 text-claude dark:text-lime-bright" />,
-  current: <PlayCircle size={16} className="shrink-0 text-claude dark:text-lime-bright" />,
+  done: (
+    <CheckCircle2
+      size={16}
+      className="shrink-0 text-claude dark:text-lime-bright"
+    />
+  ),
+  current: (
+    <PlayCircle
+      size={16}
+      className="shrink-0 text-claude dark:text-lime-bright"
+    />
+  ),
   locked: <Lock size={13} className="shrink-0 text-muted-foreground" />,
 };
 
 function SessionMedia({ program }: { program: ProgramPreviewMock }) {
-  const [activeChapterId, setActiveChapterId] = useState(program.chapters[0]?.id);
+  const [activeChapterId, setActiveChapterId] = useState(
+    program.chapters[0]?.id,
+  );
   const [search, setSearch] = useState("");
   const [copiedId, setCopiedId] = useState<string | null>(null);
 
@@ -50,7 +64,7 @@ function SessionMedia({ program }: { program: ProgramPreviewMock }) {
     ? program.transcript.filter(
         (line) =>
           line.text.toLowerCase().includes(query) ||
-          line.speaker.toLowerCase().includes(query)
+          line.speaker.toLowerCase().includes(query),
       )
     : program.transcript;
 
@@ -70,9 +84,7 @@ function SessionMedia({ program }: { program: ProgramPreviewMock }) {
     <div className="flex flex-col gap-5">
       <section className="flex flex-col gap-4 rounded-lg border border-dashboard-border bg-card-1 p-6">
         <div>
-          <h2 className="text-lg font-medium text-foreground">
-            Video sesi
-          </h2>
+          <h2 className="text-lg font-medium text-foreground">Video sesi</h2>
           <p className="text-sm text-muted-foreground">
             Tonton video-nya, lalu lompat ke bagian materi yang kamu mau.
           </p>
@@ -88,25 +100,16 @@ function SessionMedia({ program }: { program: ProgramPreviewMock }) {
           />
         </div>
 
-        <div className="flex gap-2 overflow-x-auto pb-1">
-          {program.chapters.map((chapter) => (
-            <button
-              key={chapter.id}
-              type="button"
-              onClick={() => setActiveChapterId(chapter.id)}
-              className={`shrink-0 rounded-full border px-3.5 py-2 text-left text-xs font-medium transition-colors ${
-                activeChapterId === chapter.id
-                  ? "border-claude bg-hijau-t text-claude dark:border-lime-bright/60 dark:bg-claude/15 dark:text-lime-bright"
-                  : "border-dashboard-border text-muted-foreground hover:bg-dashboard-bg"
-              }`}
-            >
-              <span className="tabular-nums text-[11px] opacity-70">
-                {formatTime(chapter.start)}–{formatTime(chapter.end)}
-              </span>{" "}
-              <span>{chapter.label}</span>
-            </button>
-          ))}
-        </div>
+        <Tabs
+          ariaLabel="Chapter program"
+          value={activeChapterId}
+          onValueChange={setActiveChapterId}
+          items={program.chapters.map((chapter) => ({
+            value: chapter.id,
+            label: `${formatTime(chapter.start)}–${formatTime(chapter.end)} ${chapter.label}`,
+          }))}
+          compact
+        />
       </section>
 
       <section className="rounded-lg border border-dashboard-border bg-card-1 p-6">
@@ -145,18 +148,22 @@ function SessionMedia({ program }: { program: ProgramPreviewMock }) {
                 </p>
                 <p className="text-sm text-foreground">{line.text}</p>
               </div>
-              <button
+              <ButtonAILN
+                variant="ghost"
+                size="mediumIcon"
                 type="button"
                 aria-label="Salin link timestamp"
                 onClick={() => copyTimestampLink(line.time, line.id)}
-                className="flex h-7 w-7 shrink-0 items-center justify-center rounded-lg text-muted-foreground opacity-0 transition-opacity hover:bg-dashboard-border/60 hover:text-foreground group-hover/row:opacity-100"
               >
                 {copiedId === line.id ? (
-                  <Check size={15} className="text-claude dark:text-lime-bright" />
+                  <Check
+                    size={15}
+                    className="text-claude dark:text-lime-bright"
+                  />
                 ) : (
                   <Link2 size={15} />
                 )}
-              </button>
+              </ButtonAILN>
             </div>
           ))}
 
@@ -225,9 +232,11 @@ export default function ProgramPreviewAILN({
                 <MapPin size={12} />
                 {program.location}
               </span>
-              <DisabledActionButtonAILN size="small" className="ml-1">
-                Ajukan Akses
-              </DisabledActionButtonAILN>
+              <div className="ml-1">
+                <DisabledActionButtonAILN size="small">
+                  Ajukan Akses
+                </DisabledActionButtonAILN>
+              </div>
             </div>
           </div>
 
@@ -288,7 +297,9 @@ export default function ProgramPreviewAILN({
                     <div
                       key={module.id}
                       className={`flex items-center gap-3 rounded-lg p-2 ${
-                        module.status === "current" ? "bg-hijau-t/60 dark:bg-claude/10" : ""
+                        module.status === "current"
+                          ? "bg-hijau-t/60 dark:bg-claude/10"
+                          : ""
                       }`}
                     >
                       <span className="w-4 shrink-0 text-center text-[11px] font-medium text-muted-foreground">

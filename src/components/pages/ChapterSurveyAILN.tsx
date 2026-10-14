@@ -41,7 +41,9 @@ export default function ChapterSurveyAILN({ survey }: ChapterSurveyAILNProps) {
 
   const backHref = `/${projectId}/student/learning-path/${survey.chapter.id}`;
   const readOnly = !!submitted || isSubmitting;
-  const complete = CHAPTER_SURVEY_QUESTIONS.every((q) => ratings[q.key] !== null);
+  const complete = CHAPTER_SURVEY_QUESTIONS.every(
+    (q) => ratings[q.key] !== null,
+  );
 
   const submit = async () => {
     if (!complete) {
@@ -72,7 +74,7 @@ export default function ChapterSurveyAILN({ survey }: ChapterSurveyAILNProps) {
       toast.error(
         res.status === 403
           ? "Survei ini baru dibuka setelah sesi chapter dimulai."
-          : "Gagal mengirim survei. Coba lagi."
+          : "Gagal mengirim survei. Coba lagi.",
       );
     } catch {
       toast.error("Gagal mengirim survei. Coba lagi.");
@@ -90,9 +92,14 @@ export default function ChapterSurveyAILN({ survey }: ChapterSurveyAILNProps) {
 
         {submitted && (
           <div className="flex items-center gap-3 rounded-lg border border-emerald-200 bg-emerald-50 px-4 py-3 text-sm text-emerald-800 dark:border-emerald-500/30 dark:bg-emerald-500/10 dark:text-emerald-300">
-            <FontAwesomeIcon icon={faCircleCheck} className="h-4 w-4 shrink-0" />
+            <FontAwesomeIcon
+              icon={faCircleCheck}
+              className="h-4 w-4 shrink-0"
+            />
             Terkirim{" "}
-            {dayjs(submitted.submitted_at).locale("id").format("D MMMM YYYY, HH:mm")}
+            {dayjs(submitted.submitted_at)
+              .locale("id")
+              .format("D MMMM YYYY, HH:mm")}
             . Terima kasih atas feedback-mu!
           </div>
         )}
@@ -126,11 +133,9 @@ export default function ChapterSurveyAILN({ survey }: ChapterSurveyAILNProps) {
           />
 
           <div className="flex flex-col-reverse gap-2 border-t pt-4 sm:flex-row sm:justify-end dark:border-dashboard-border">
-            <Link href={backHref}>
-              <ButtonAILN variant="neutral" className="w-full sm:w-auto">
-                Kembali ke Alur Belajar
-              </ButtonAILN>
-            </Link>
+            <ButtonAILN asChild variant="neutral" width="responsive">
+              <Link href={backHref}>Kembali ke Alur Belajar</Link>
+            </ButtonAILN>
             {!submitted && (
               <ButtonAILN
                 variant="lime"

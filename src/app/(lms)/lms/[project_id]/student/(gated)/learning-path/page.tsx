@@ -1,5 +1,4 @@
 import { getStudentChapters, getStudentLevels } from "@/apis/learnings";
-import { getStudentStatus } from "@/apis/student";
 import LearningPathStudentAILN from "@/components/pages/LearningPathStudentAILN";
 import { Metadata } from "next";
 import { redirect } from "next/navigation";
@@ -16,11 +15,10 @@ export default async function LearningPathPage({
   searchParams: Promise<{ chapter?: string; practice?: string }>;
 }) {
   const { project_id } = await params;
-  const [query, levels, chapters, status] = await Promise.all([
+  const [query, levels, chapters] = await Promise.all([
     searchParams,
     getStudentLevels(project_id),
     getStudentChapters(project_id),
-    getStudentStatus(project_id),
   ]);
 
   const chapterId = Number(query.chapter);
@@ -34,13 +32,10 @@ export default async function LearningPathPage({
   if (query.practice) {
     redirect(`/${project_id}/student/skill-practice`);
   }
-
   return (
     <LearningPathStudentAILN
       levels={levels}
       chapters={chapters}
-      currentLevelNumber={status?.current_level_number ?? 0}
-      totalXp={status?.xp_count ?? 0}
       projectId={project_id}
     />
   );

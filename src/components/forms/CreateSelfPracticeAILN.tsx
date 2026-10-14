@@ -23,12 +23,7 @@ import {
 } from "lucide-react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import React, {
-  ChangeEvent,
-  useMemo,
-  useRef,
-  useState,
-} from "react";
+import React, { ChangeEvent, useMemo, useRef, useState } from "react";
 import Select from "react-select";
 import { toast } from "sonner";
 
@@ -138,7 +133,7 @@ export default function CreateSelfPracticeAILN({
   const router = useRouter();
   const categoryOptions = useMemo<CategoryOption[]>(
     () => categories.map((c) => ({ value: c.id, label: c.name })),
-    [categories]
+    [categories],
   );
 
   const [type, setType] = useState<PracticeType>("PROMPT");
@@ -148,7 +143,7 @@ export default function CreateSelfPracticeAILN({
   const [selectedCategoryIds, setSelectedCategoryIds] = useState<number[]>([]);
   const selectedCategoryOptions = useMemo(
     () => categoryOptions.filter((o) => selectedCategoryIds.includes(o.value)),
-    [categoryOptions, selectedCategoryIds]
+    [categoryOptions, selectedCategoryIds],
   );
 
   // Prompt
@@ -352,15 +347,12 @@ export default function CreateSelfPracticeAILN({
               const active = type === opt.value;
               const Icon = opt.icon;
               return (
-                <button
+                <ButtonAILN
+                  variant={active ? "cardActive" : "card"}
+                  size="card"
                   key={opt.value}
                   type="button"
                   onClick={() => setType(opt.value)}
-                  className={`flex items-center gap-3 rounded-lg border p-3 text-left transition ${
-                    active
-                      ? "border-claude bg-hijau-t dark:border-claude dark:bg-claude/10"
-                      : "border-dashboard-border bg-white hover:border-foreground/30 dark:bg-card-1"
-                  }`}
                 >
                   <div
                     className={`flex size-9 shrink-0 items-center justify-center rounded-lg ${
@@ -379,7 +371,7 @@ export default function CreateSelfPracticeAILN({
                       {opt.desc}
                     </span>
                   </div>
-                </button>
+                </ButtonAILN>
               );
             })}
           </div>
@@ -674,40 +666,38 @@ export default function CreateSelfPracticeAILN({
                   {AI_TOOL_PRESETS.map((tool) => {
                     const selected = aiTools.includes(tool);
                     return (
-                      <button
+                      <ButtonAILN
+                        variant={selected ? "chipActive" : "chip"}
+                        size="chip"
                         key={tool}
                         type="button"
                         onClick={() =>
                           setAiTools((prev) =>
                             selected
                               ? prev.filter((t) => t !== tool)
-                              : [...prev, tool]
+                              : [...prev, tool],
                           )
                         }
-                        className={`rounded-full border px-3 py-1 text-xs font-medium  transition ${
-                          selected
-                            ? "border-black bg-black text-white dark:border-white dark:bg-white dark:text-black"
-                            : "border-dashboard-border bg-white text-foreground hover:border-foreground/40 dark:bg-card-2 dark:text-gray-200"
-                        }`}
                       >
                         {tool}
-                      </button>
+                      </ButtonAILN>
                     );
                   })}
                   {aiTools
                     .filter((t) => !AI_TOOL_PRESETS.includes(t))
                     .map((tool) => (
-                      <button
+                      <ButtonAILN
+                        variant="chipActive"
+                        size="chip"
                         key={tool}
                         type="button"
                         onClick={() =>
                           setAiTools((prev) => prev.filter((t) => t !== tool))
                         }
-                        className="inline-flex items-center gap-1 rounded-full border border-black bg-black px-3 py-1 text-xs font-medium  text-white dark:border-white dark:bg-white dark:text-black"
                       >
                         {tool}
                         <X className="size-3" />
-                      </button>
+                      </ButtonAILN>
                     ))}
                 </div>
                 <div className="flex items-center gap-2">
@@ -722,21 +712,22 @@ export default function CreateSelfPracticeAILN({
                       variant="STUDENT"
                     />
                   </div>
-                  <button
+                  <ButtonAILN
+                    variant="outline"
+                    size="small"
                     type="button"
                     disabled={!aiToolCustomInput.trim()}
                     onClick={() => {
                       const v = aiToolCustomInput.trim();
                       if (!v) return;
                       setAiTools((prev) =>
-                        prev.includes(v) ? prev : [...prev, v]
+                        prev.includes(v) ? prev : [...prev, v],
                       );
                       setAiToolCustomInput("");
                     }}
-                    className="rounded-lg border border-dashboard-border bg-white px-3 py-2 text-xs font-medium  text-foreground hover:border-foreground/40 disabled:cursor-not-allowed disabled:opacity-60 dark:bg-card-2 dark:text-gray-200"
                   >
                     Tambah
-                  </button>
+                  </ButtonAILN>
                 </div>
               </div>
             </FieldRow>
@@ -816,16 +807,17 @@ export default function CreateSelfPracticeAILN({
                       {outcomeFileName}
                     </span>
                   </div>
-                  <button
+                  <ButtonAILN
+                    variant="ghost"
+                    size="mediumIcon"
                     type="button"
                     onClick={() => {
                       setOutcomeProof("");
                       setOutcomeFileName(null);
                     }}
-                    className="rounded-lg p-1 text-gray-500 hover:bg-black/5 hover:text-foreground dark:hover:bg-white/5 dark:hover:text-white"
                   >
                     <X className="size-3.5" />
-                  </button>
+                  </ButtonAILN>
                 </div>
               )}
             </FieldRow>
@@ -833,15 +825,13 @@ export default function CreateSelfPracticeAILN({
         )}
 
         <div className="flex items-center justify-end gap-3 border-t border-dashboard-border pt-4">
-          <Link href={`/${projectId}/student/skill-practice`}>
-            <ButtonAILN type="button" variant="neutral" className="w-fit">
-              Batal
-            </ButtonAILN>
-          </Link>
+          <ButtonAILN asChild type="button" variant="neutral" width="fit">
+            <Link href={`/${projectId}/student/skill-practice`}>Batal</Link>
+          </ButtonAILN>
           <ButtonAILN
             type="button"
             variant="primary"
-            className="w-fit"
+            width="fit"
             disabled={isSubmitting}
             onClick={handleSubmit}
           >

@@ -3,6 +3,7 @@ import ButtonAILN from "@/components/buttons/ButtonAILN";
 import InputAILN from "@/components/fields/InputAILN";
 import TextAreaAILN from "@/components/fields/TextAreaAILN";
 import SheetAILN from "@/components/modals/SheetAILN";
+import Tabs from "@/components/navigations/Tabs";
 import type { TeamMember } from "@/apis/champion";
 import { useProjectId } from "@/lib/use-project-id";
 import dayjs from "dayjs";
@@ -42,18 +43,18 @@ export default function AssignFormChampionAILN({
   const [selectedGroupIds, setSelectedGroupIds] = useState<number[]>([]);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [deadlineDate, setDeadlineDate] = useState(
-    dayjs().add(7, "day").format("YYYY-MM-DD")
+    dayjs().add(7, "day").format("YYYY-MM-DD"),
   );
   const [deadlineTime, setDeadlineTime] = useState("23:59");
   const [message, setMessage] = useState("");
 
   const toggleMember = (id: string) =>
     setSelectedMemberIds((prev) =>
-      prev.includes(id) ? prev.filter((x) => x !== id) : [...prev, id]
+      prev.includes(id) ? prev.filter((x) => x !== id) : [...prev, id],
     );
   const toggleGroup = (id: number) =>
     setSelectedGroupIds((prev) =>
-      prev.includes(id) ? prev.filter((x) => x !== id) : [...prev, id]
+      prev.includes(id) ? prev.filter((x) => x !== id) : [...prev, id],
     );
 
   const handleAssign = async () => {
@@ -105,7 +106,7 @@ export default function AssignFormChampionAILN({
       const skipped = payload?.skipped ?? 0;
       toast.success(
         `${payload?.assigned_count ?? 0} anggota di-assign` +
-          (skipped > 0 ? ` · ${skipped} sudah punya tugas ini` : "")
+          (skipped > 0 ? ` · ${skipped} sudah punya tugas ini` : ""),
       );
       onClose();
       router.refresh();
@@ -130,30 +131,17 @@ export default function AssignFormChampionAILN({
             <label className="text-xs font-medium uppercase tracking-wide text-gray-500 dark:text-gray-400">
               Target
             </label>
-            <div className="grid grid-cols-2 gap-2">
-              <button
-                type="button"
-                onClick={() => setMode("INDIVIDUAL")}
-                className={`rounded-lg border px-3 py-2 text-sm font-medium transition ${
-                  mode === "INDIVIDUAL"
-                    ? "border-claude bg-hijau-t text-claude dark:bg-claude/10 dark:text-lime-bright"
-                    : "border-dashboard-border text-gray-600 hover:border-gray-400 dark:text-gray-300"
-                }`}
-              >
-                Assign Individual
-              </button>
-              <button
-                type="button"
-                onClick={() => setMode("BULK")}
-                className={`rounded-lg border px-3 py-2 text-sm font-medium transition ${
-                  mode === "BULK"
-                    ? "border-claude bg-hijau-t text-claude dark:bg-claude/10 dark:text-lime-bright"
-                    : "border-dashboard-border text-gray-600 hover:border-gray-400 dark:text-gray-300"
-                }`}
-              >
-                Assign Bulk (Grup)
-              </button>
-            </div>
+            <Tabs<TargetMode>
+              ariaLabel="Target assignment"
+              value={mode}
+              onValueChange={setMode}
+              stretch
+              compact
+              items={[
+                { value: "INDIVIDUAL", label: "Assign Individual" },
+                { value: "BULK", label: "Assign Bulk (Grup)" },
+              ]}
+            />
           </div>
 
           {/* Target picker */}
@@ -289,7 +277,7 @@ export default function AssignFormChampionAILN({
           <ButtonAILN
             type="button"
             variant="champion"
-            className="w-full"
+            width="full"
             onClick={handleAssign}
             disabled={isSubmitting}
           >

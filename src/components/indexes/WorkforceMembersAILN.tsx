@@ -1,16 +1,13 @@
 "use client";
+import Tabs from "@/components/navigations/Tabs";
 import SectionContainerAILN from "@/components/cards/SectionContainerAILN";
 import GeneralLabelAILN, {
   type GeneralLabelVariantAILN,
 } from "@/components/labels/GeneralLabelAILN";
 import { formatInt } from "@/lib/format";
-import type {
-  WorkforceMember,
-  WorkforceMembers,
-} from "@/apis/sponsor";
+import type { WorkforceMember, WorkforceMembers } from "@/apis/sponsor";
 import { Check, ChevronDown, Minus } from "lucide-react";
 import Image from "next/image";
-import type { ReactNode } from "react";
 import { useMemo, useState } from "react";
 
 type SortKey = "score" | "hours" | "level" | "name";
@@ -126,36 +123,6 @@ function StatusLabel({ status }: { status: WorkforceMember["status"] }) {
   );
 }
 
-function FilterLabel({
-  active,
-  count,
-  children,
-}: {
-  active: boolean;
-  count: number;
-  children: ReactNode;
-}) {
-  return (
-    <GeneralLabelAILN
-      variant="white"
-      className={
-        active
-          ? "border-claude bg-claude/10 px-4 py-2 text-sm text-claude dark:border-claude/40 dark:bg-claude/10 dark:text-lime-bright"
-          : "border-dashboard-border px-4 py-2 text-sm text-gray-600 hover:border-claude/40 dark:text-gray-300 dark:hover:border-claude/40"
-      }
-    >
-      <span>{children}</span>
-      <span
-        className={`inline-flex min-w-5 items-center justify-center rounded-lg px-1.5 py-0.5 text-[11px] font-medium text-white ${
-          active ? "bg-claude" : "bg-gray-400 dark:bg-gray-600"
-        }`}
-      >
-        {count}
-      </span>
-    </GeneralLabelAILN>
-  );
-}
-
 function sortMembers(members: WorkforceMember[], sort: SortKey) {
   return [...members].sort((a, b) => {
     if (sort === "score") {
@@ -209,7 +176,7 @@ export default function WorkforceMembersAILN({
       if (!member.department) continue;
       counts.set(
         member.department.id,
-        (counts.get(member.department.id) ?? 0) + 1
+        (counts.get(member.department.id) ?? 0) + 1,
       );
     }
     return counts;
@@ -245,32 +212,20 @@ export default function WorkforceMembersAILN({
       }
     >
       <div className="px-6 pb-6">
-        <div className="flex flex-wrap gap-3">
-          <button
-            type="button"
-            onClick={() => setDepartmentId("ALL")}
-            className="rounded-full"
-          >
-            <FilterLabel active={departmentId === "ALL"} count={data.total}>
-              Semua
-            </FilterLabel>
-          </button>
-          {data.departments.map((department) => (
-            <button
-              key={department.id}
-              type="button"
-              onClick={() => setDepartmentId(department.id)}
-              className="rounded-full"
-            >
-              <FilterLabel
-                active={departmentId === department.id}
-                count={departmentCounts.get(department.id) ?? 0}
-              >
-                {department.name}
-              </FilterLabel>
-            </button>
-          ))}
-        </div>
+        <Tabs<number | "ALL">
+          ariaLabel="Filter departemen"
+          value={departmentId}
+          onValueChange={setDepartmentId}
+          compact
+          items={[
+            { value: "ALL", label: "Semua", badge: data.total },
+            ...data.departments.map((department) => ({
+              value: department.id,
+              label: department.name,
+              badge: departmentCounts.get(department.id) ?? 0,
+            })),
+          ]}
+        />
       </div>
 
       <div className="overflow-x-auto">
@@ -318,7 +273,9 @@ export default function WorkforceMembersAILN({
                   <td className="px-5 py-5">
                     {member.current_level ? (
                       <GeneralLabelAILN
-                        variant={levelVariant(member.current_level.level_number)}
+                        variant={levelVariant(
+                          member.current_level.level_number,
+                        )}
                       >
                         Level {member.current_level.level_number}
                       </GeneralLabelAILN>

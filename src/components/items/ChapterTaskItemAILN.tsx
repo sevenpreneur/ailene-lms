@@ -161,7 +161,7 @@ export default function ChapterTaskItemAILN(props: ChapterTaskItemAILNProps) {
     const tick = () => {
       const elapsed = dayjs().diff(dayjs(activeAttemptStartedAt), "second");
       setActiveAttemptSecondsLeft(
-        Math.max(0, QUIZ_DURATION_MINUTES * 60 - elapsed)
+        Math.max(0, QUIZ_DURATION_MINUTES * 60 - elapsed),
       );
     };
 
@@ -209,36 +209,30 @@ export default function ChapterTaskItemAILN(props: ChapterTaskItemAILNProps) {
             ? "blue"
             : "green";
     cta = !props.unlocked ? (
-      <ButtonAILN size="small" disabled className="w-full">
+      <ButtonAILN size="small" disabled width="full">
         Locked
       </ButtonAILN>
     ) : isActiveAndRunning ? (
-      <Link
-        href={`/${projectId}/student/quizzes/${props.quiz.id}`}
-        className="block"
-      >
-        <ButtonAILN variant="lime" size="small" className="w-full">
+      <ButtonAILN asChild variant="lime" size="small" width="full">
+        <Link href={`/${projectId}/student/quizzes/${props.quiz.id}`}>
           Lanjutkan Quiz (
           {activeAttemptSecondsLeft !== null
             ? getDurationFromSeconds(activeAttemptSecondsLeft)
             : "..."}
           )
-        </ButtonAILN>
-      </Link>
+        </Link>
+      </ButtonAILN>
     ) : hasAttempt || timedOutWithoutRecord ? (
-      <Link
-        href={`/${projectId}/student/quizzes/${props.quiz.id}`}
-        className="block"
-      >
-        <ButtonAILN variant="forest" size="small" className="w-full">
+      <ButtonAILN asChild variant="forest" size="small" width="full">
+        <Link href={`/${projectId}/student/quizzes/${props.quiz.id}`}>
           Lihat Hasil
-        </ButtonAILN>
-      </Link>
+        </Link>
+      </ButtonAILN>
     ) : (
       <ButtonAILN
         variant="forest"
         size="small"
-        className="w-full"
+        width="full"
         onClick={() => setIsStartQuizDialogOpen(true)}
       >
         Mulai Quiz
@@ -256,18 +250,15 @@ export default function ChapterTaskItemAILN(props: ChapterTaskItemAILNProps) {
         : "Not watched yet";
     statusVariant = !props.unlocked ? "white" : v.completed ? "green" : "blue";
     cta = !props.unlocked ? (
-      <ButtonAILN size="small" disabled className="w-full">
+      <ButtonAILN size="small" disabled width="full">
         Locked
       </ButtonAILN>
     ) : (
-      <Link
-        href={`/${projectId}/student/videos/${props.video.id}`}
-        className="block"
-      >
-        <ButtonAILN variant="forest" size="small" className="w-full">
+      <ButtonAILN asChild variant="forest" size="small" width="full">
+        <Link href={`/${projectId}/student/videos/${props.video.id}`}>
           Lihat Recording
-        </ButtonAILN>
-      </Link>
+        </Link>
+      </ButtonAILN>
     );
   } else if (props.variant === "PreTest" || props.variant === "PostTest") {
     const t = props.test;
@@ -284,33 +275,37 @@ export default function ChapterTaskItemAILN(props: ChapterTaskItemAILNProps) {
           : "Terkirim";
     statusVariant = !props.unlocked ? "white" : t.submitted ? "green" : "blue";
     cta = !props.unlocked ? (
-      <ButtonAILN size="small" disabled className="w-full">
+      <ButtonAILN size="small" disabled width="full">
         Locked
       </ButtonAILN>
     ) : (
-      <Link href={`/${projectId}/student/chapter-tests/${t.id}`} className="block">
-        <ButtonAILN variant="forest" size="small" className="w-full">
+      <ButtonAILN asChild variant="forest" size="small" width="full">
+        <Link href={`/${projectId}/student/chapter-tests/${t.id}`}>
           {t.submitted ? "Lihat Hasil" : `Mulai ${label}`}
-        </ButtonAILN>
-      </Link>
+        </Link>
+      </ButtonAILN>
     );
   } else if (props.variant === "Survey") {
     const sv = props.survey;
     title = "Survei kepuasan chapter";
     xpReward = null;
     hasMark = sv.submitted;
-    meta = !props.unlocked ? lockedText : sv.submitted ? "Terkirim" : "Belum diisi";
+    meta = !props.unlocked
+      ? lockedText
+      : sv.submitted
+        ? "Terkirim"
+        : "Belum diisi";
     statusVariant = !props.unlocked ? "white" : sv.submitted ? "green" : "blue";
     cta = !props.unlocked ? (
-      <ButtonAILN size="small" disabled className="w-full">
+      <ButtonAILN size="small" disabled width="full">
         Locked
       </ButtonAILN>
     ) : (
-      <Link href={`/${projectId}/student/surveys/${sv.chapterId}`} className="block">
-        <ButtonAILN variant="forest" size="small" className="w-full">
+      <ButtonAILN asChild variant="forest" size="small" width="full">
+        <Link href={`/${projectId}/student/surveys/${sv.chapterId}`}>
           {sv.submitted ? "Lihat Jawaban" : "Isi Survei"}
-        </ButtonAILN>
-      </Link>
+        </Link>
+      </ButtonAILN>
     );
   } else {
     const m = props.material;
@@ -321,19 +316,19 @@ export default function ChapterTaskItemAILN(props: ChapterTaskItemAILNProps) {
     statusVariant = !props.unlocked ? "white" : m.completed ? "green" : "blue";
 
     cta = !props.unlocked ? (
-      <ButtonAILN size="small" disabled className="w-full">
+      <ButtonAILN size="small" disabled width="full">
         Locked
       </ButtonAILN>
     ) : (
-      <Link
-        href={`/${projectId}/student/materials/${props.material.id}`}
-        target="_blank"
-        rel="noopener noreferrer"
-      >
-        <ButtonAILN variant="forest" size="small" className="w-full">
+      <ButtonAILN asChild variant="forest" size="small" width="full">
+        <Link
+          href={`/${projectId}/student/materials/${props.material.id}`}
+          target="_blank"
+          rel="noopener noreferrer"
+        >
           Baca Materi
-        </ButtonAILN>
-      </Link>
+        </Link>
+      </ButtonAILN>
     );
   }
 

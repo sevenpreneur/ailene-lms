@@ -1,5 +1,4 @@
 import { getLearnings, getStudentChapters } from "@/apis/learnings";
-import { getStudentStatus } from "@/apis/student";
 import ChapterDetailsAILN from "@/components/pages/ChapterDetailsAILN";
 import AppPageState from "@/components/states/AppPageState";
 import type { Metadata } from "next";
@@ -20,17 +19,13 @@ export default async function ChapterDetailPage({
     return <AppPageState variant="NOT_FOUND" />;
   }
 
-  const [chapters, status] = await Promise.all([
-    getStudentChapters(projectId),
-    getStudentStatus(projectId),
-  ]);
+  const chapters = await getStudentChapters(projectId);
   const chapterIndex = chapters.findIndex((item) => item.id === chapterId);
   if (chapterIndex === -1) {
     return <AppPageState variant="NOT_FOUND" />;
   }
-
   const chapter = chapters[chapterIndex];
-  const unlocked = chapter.level.level_number <= (status?.current_level_number ?? 0);
+  const unlocked = !chapter.locked;
   const learnings = unlocked ? await getLearnings(chapterId) : null;
 
   return (

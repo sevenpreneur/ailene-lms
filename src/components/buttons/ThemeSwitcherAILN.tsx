@@ -1,4 +1,5 @@
 "use client";
+import ButtonAILN from "@/components/buttons/ButtonAILN";
 import { Moon, Sun } from "lucide-react";
 import { useTheme } from "next-themes";
 import { useEffect, useState } from "react";
@@ -16,11 +17,12 @@ export default function ThemeSwitcherAILN() {
   const toggle = () => setTheme(isDark ? "light" : "dark");
 
   return (
-    <button
+    <ButtonAILN
+      variant="switch"
+      size="switch"
       type="button"
       onClick={toggle}
       aria-label="Toggle dark mode"
-      className="relative flex h-7 w-12 items-center rounded-full bg-gray-200 transition-colors duration-300 dark:bg-white/10"
       suppressHydrationWarning
     >
       <span
@@ -37,6 +39,6 @@ export default function ThemeSwitcherAILN() {
           className={`size-3 transition-opacity ${isDark ? "opacity-100 text-gray-700" : "opacity-40 text-gray-400"}`}
         />
       </span>
-    </button>
+    </ButtonAILN>
   );
 }

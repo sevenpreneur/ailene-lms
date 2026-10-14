@@ -25,8 +25,8 @@ export default async function VideoPage({
       <AppPageState
         variant="FORBIDDEN"
         message={
-          result.reason === "level_locked"
-            ? "Video ini belum bisa diakses. Selesaikan bagian sebelumnya untuk membukanya."
+          result.reason === "chapter_locked"
+            ? "Chapter ini belum terbuka. Periksa jadwal sesi atau hubungi admin."
             : "Kamu belum memiliki akses untuk menonton video ini."
         }
       />

@@ -71,6 +71,8 @@ export type StudentChapter = {
   done_tasks: number;
   total_tasks: number;
   progress: "not_started" | "in_progress" | "completed";
+  locked: boolean;
+  locked_reason: "session_not_started" | "admin_locked" | null;
 };
 
 export type MaterialDetail = {
@@ -236,7 +238,7 @@ const NO_PROJECT_ACCESS_MESSAGE = "No access found for this project";
 
 export type LearningDetailResult<T> =
   | { kind: "ok"; data: T }
-  | { kind: "forbidden"; reason: "no_access" | "level_locked" }
+  | { kind: "forbidden"; reason: "no_access" | "chapter_locked" }
   | { kind: "not_found" };
 
 function toLearningDetailFailure<T>(
@@ -247,7 +249,7 @@ function toLearningDetailFailure<T>(
     return { kind: "forbidden", reason: "no_access" };
   }
   if (status === "FORBIDDEN") {
-    return { kind: "forbidden", reason: "level_locked" };
+    return { kind: "forbidden", reason: "chapter_locked" };
   }
   return { kind: "not_found" };
 }

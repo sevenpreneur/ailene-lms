@@ -3,6 +3,7 @@ import ButtonAILN from "@/components/buttons/ButtonAILN";
 import InputAILN from "@/components/fields/InputAILN";
 import TextAreaAILN from "@/components/fields/TextAreaAILN";
 import SheetAILN from "@/components/modals/SheetAILN";
+import Tabs from "@/components/navigations/Tabs";
 import { useProjectId } from "@/lib/use-project-id";
 import type { AssignmentDraft, TeamMember } from "@/apis/champion";
 import type { Category } from "@/apis/categories";
@@ -35,7 +36,7 @@ type FormState = {
 // An AI draft defaults to assigning the champion's whole group.
 function buildInitialForm(
   draft: AssignmentDraft | null,
-  group: { id: number; name: string } | null
+  group: { id: number; name: string } | null,
 ): FormState {
   const assignToGroup = draft !== null && group !== null;
   return {
@@ -76,7 +77,7 @@ export default function CreateAssignmentFormAILN({
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   const [formData, setFormData] = useState<FormState>(() =>
-    buildInitialForm(draft, group)
+    buildInitialForm(draft, group),
   );
 
   // Curried single-field updater: handleInputChange("name")(value)
@@ -88,14 +89,14 @@ export default function CreateAssignmentFormAILN({
 
   const categoryOptions = useMemo<CategoryOption[]>(
     () => categories.map((c) => ({ value: c.id, label: c.name })),
-    [categories]
+    [categories],
   );
   const selectedCategoryOptions = useMemo(
     () =>
       categoryOptions.filter((o) =>
-        formData.selectedCategoryIds.includes(o.value)
+        formData.selectedCategoryIds.includes(o.value),
       ),
-    [categoryOptions, formData.selectedCategoryIds]
+    [categoryOptions, formData.selectedCategoryIds],
   );
   const toggleMember = (id: string) =>
     setFormData((prev) => ({
@@ -135,7 +136,7 @@ export default function CreateAssignmentFormAILN({
     let assignment = null;
     if (formData.assignEnabled) {
       const deadline = dayjs(
-        `${formData.deadlineDate}T${formData.deadlineTime}`
+        `${formData.deadlineDate}T${formData.deadlineTime}`,
       );
       if (!deadline.isValid() || deadline.isBefore(dayjs())) {
         toast.error("Deadline harus di masa depan.");
@@ -191,7 +192,7 @@ export default function CreateAssignmentFormAILN({
       toast.success(
         assignment
           ? `Dibuat dan di-assign ke ${payload?.assigned_count ?? 0} anggota.`
-          : "Ditambahkan ke library."
+          : "Ditambahkan ke library.",
       );
       resetForm();
       onClose();
@@ -228,30 +229,17 @@ export default function CreateAssignmentFormAILN({
             <label className="text-xs font-medium uppercase tracking-wide text-gray-500 dark:text-gray-400">
               Tipe
             </label>
-            <div className="grid grid-cols-2 gap-2">
-              <button
-                type="button"
-                onClick={() => handleInputChange("kind")("PROMPT")}
-                className={`rounded-lg border px-3 py-2 text-sm font-medium transition ${
-                  formData.kind === "PROMPT"
-                    ? "border-claude bg-hijau-t text-claude dark:bg-claude/10 dark:text-lime-bright"
-                    : "border-dashboard-border text-gray-600 hover:border-gray-400 dark:text-gray-300"
-                }`}
-              >
-                Prompt (L2)
-              </button>
-              <button
-                type="button"
-                onClick={() => handleInputChange("kind")("USE_CASE")}
-                className={`rounded-lg border px-3 py-2 text-sm font-medium transition ${
-                  formData.kind === "USE_CASE"
-                    ? "border-claude bg-hijau-t text-claude dark:bg-claude/10 dark:text-lime-bright"
-                    : "border-dashboard-border text-gray-600 hover:border-gray-400 dark:text-gray-300"
-                }`}
-              >
-                Use Case (L3)
-              </button>
-            </div>
+            <Tabs<AssignmentKind>
+              ariaLabel="Tipe assignment"
+              value={formData.kind}
+              onValueChange={(kind) => handleInputChange("kind")(kind)}
+              stretch
+              compact
+              items={[
+                { value: "PROMPT", label: "Prompt (L2)" },
+                { value: "USE_CASE", label: "Use Case (L3)" },
+              ]}
+            />
           </div>
 
           {/* Name */}
@@ -321,7 +309,7 @@ export default function CreateAssignmentFormAILN({
               value={selectedCategoryOptions}
               onChange={(vals) =>
                 handleInputChange("selectedCategoryIds")(
-                  vals.map((v) => v.value)
+                  vals.map((v) => v.value),
                 )
               }
               isOptionDisabled={() => formData.selectedCategoryIds.length >= 2}
@@ -398,30 +386,17 @@ export default function CreateAssignmentFormAILN({
                 <label className="text-xs font-medium uppercase tracking-wide text-gray-500 dark:text-gray-400">
                   Target
                 </label>
-                <div className="grid grid-cols-2 gap-2">
-                  <button
-                    type="button"
-                    onClick={() => handleInputChange("mode")("INDIVIDUAL")}
-                    className={`rounded-lg border px-3 py-2 text-sm font-medium transition ${
-                      formData.mode === "INDIVIDUAL"
-                        ? "border-claude bg-hijau-t text-claude dark:bg-claude/10 dark:text-lime-bright"
-                        : "border-dashboard-border text-gray-600 hover:border-gray-400 dark:text-gray-300"
-                    }`}
-                  >
-                    Assign Individual
-                  </button>
-                  <button
-                    type="button"
-                    onClick={() => handleInputChange("mode")("BULK")}
-                    className={`rounded-lg border px-3 py-2 text-sm font-medium transition ${
-                      formData.mode === "BULK"
-                        ? "border-claude bg-hijau-t text-claude dark:bg-claude/10 dark:text-lime-bright"
-                        : "border-dashboard-border text-gray-600 hover:border-gray-400 dark:text-gray-300"
-                    }`}
-                  >
-                    Assign Bulk (Grup)
-                  </button>
-                </div>
+                <Tabs<TargetMode>
+                  ariaLabel="Target assignment"
+                  value={formData.mode}
+                  onValueChange={(mode) => handleInputChange("mode")(mode)}
+                  stretch
+                  compact
+                  items={[
+                    { value: "INDIVIDUAL", label: "Assign Individual" },
+                    { value: "BULK", label: "Assign Bulk (Grup)" },
+                  ]}
+                />
               </div>
 
               {/* Target picker */}
@@ -438,7 +413,7 @@ export default function CreateAssignmentFormAILN({
                     <div className="flex max-h-64 flex-col gap-1 overflow-y-auto rounded-lg border border-dashboard-border p-2">
                       {members.map((m) => {
                         const checked = formData.selectedMemberIds.includes(
-                          m.access_id
+                          m.access_id,
                         );
                         return (
                           <label
@@ -480,7 +455,7 @@ export default function CreateAssignmentFormAILN({
                     <div className="flex flex-col gap-1 rounded-lg border border-dashboard-border p-2">
                       {groups.map((g) => {
                         const checked = formData.selectedGroupIds.includes(
-                          g.id
+                          g.id,
                         );
                         return (
                           <label
@@ -560,7 +535,7 @@ export default function CreateAssignmentFormAILN({
           <ButtonAILN
             type="button"
             variant="champion"
-            className="w-full"
+            width="full"
             onClick={handleCreate}
             disabled={isSubmitting}
           >

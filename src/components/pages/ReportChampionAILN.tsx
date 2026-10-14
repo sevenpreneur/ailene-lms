@@ -2,6 +2,7 @@
 
 import ButtonAILN from "@/components/buttons/ButtonAILN";
 import SectionContainerAILN from "@/components/cards/SectionContainerAILN";
+import Tabs from "@/components/navigations/Tabs";
 import PageContainerAILN from "@/components/pages/PageContainerAILN";
 import AppErrorComponents from "@/components/states/AppErrorComponents";
 import type { ChampionReport, ChampionReportPeriod } from "@/apis/champion";
@@ -81,7 +82,11 @@ function ReportContent({
     doc.setFont("helvetica", "normal");
     doc.setFontSize(10);
     doc.setTextColor(90);
-    doc.text(`Tim ${data.report.team_name} - Champion ${data.report.champion_name}`, 16, y);
+    doc.text(
+      `Tim ${data.report.team_name} - Champion ${data.report.champion_name}`,
+      16,
+      y
+    );
     y += 6;
     doc.text(`Generated: ${generatedLabel}`, 16, y);
 
@@ -91,8 +96,16 @@ function ReportContent({
     doc.text("Ringkasan KPI", 16, y);
     y += 7;
     doc.setFont("helvetica", "normal");
-    doc.text(`Anggota aktif: ${data.metrics.active_members}/${data.metrics.total_members}`, 16, y);
-    doc.text(`Submission diterima: ${data.metrics.accepted_submissions}`, 75, y);
+    doc.text(
+      `Anggota aktif: ${data.metrics.active_members}/${data.metrics.total_members}`,
+      16,
+      y
+    );
+    doc.text(
+      `Submission diterima: ${data.metrics.accepted_submissions}`,
+      75,
+      y
+    );
     y += 6;
     doc.text(`Jam dihemat: ${data.metrics.hours_saved}`, 16, y);
     doc.text(`Naik level: ${data.metrics.level_ups}`, 75, y);
@@ -103,7 +116,11 @@ function ReportContent({
     y += 7;
     doc.setFont("helvetica", "normal");
     data.level_movements.forEach((movement) => {
-      doc.text(`${movement.from} -> ${movement.to}: ${movement.count} (${movement.note})`, 16, y);
+      doc.text(
+        `${movement.from} -> ${movement.to}: ${movement.count} (${movement.note})`,
+        16,
+        y
+      );
       y += 6;
     });
 
@@ -135,28 +152,16 @@ function ReportContent({
             </p>
           </div>
 
-          <div className="inline-flex h-10 rounded-lg border border-dashboard-border bg-white p-1 dark:bg-card-1">
-            <button
-              onClick={() => onPeriodChange("weekly")}
-              className={`rounded-lg px-4 text-sm font-medium ${
-                period === "weekly"
-                  ? "bg-black text-white dark:bg-white dark:text-black"
-                  : "text-gray-500 dark:text-gray-400"
-              }`}
-            >
-              Mingguan
-            </button>
-            <button
-              onClick={() => onPeriodChange("monthly")}
-              className={`rounded-lg px-4 text-sm font-medium ${
-                period === "monthly"
-                  ? "bg-black text-white dark:bg-white dark:text-black"
-                  : "text-gray-500 dark:text-gray-400"
-              }`}
-            >
-              Bulanan
-            </button>
-          </div>
+          <Tabs
+            ariaLabel="Periode laporan"
+            value={period}
+            onValueChange={onPeriodChange}
+            items={[
+              { value: "weekly", label: "Mingguan" },
+              { value: "monthly", label: "Bulanan" },
+            ]}
+            compact
+          />
         </div>
 
         <div className="grid grid-cols-1 gap-4 xl:grid-cols-[minmax(0,1fr)_minmax(20rem,0.42fr)]">
@@ -169,7 +174,8 @@ function ReportContent({
                 {data.report.title}
               </h2>
               <p className="mt-1 text-sm text-gray-500 dark:text-gray-400">
-                Tim {data.report.team_name} - Champion {data.report.champion_name}
+                Tim {data.report.team_name} - Champion{" "}
+                {data.report.champion_name}
               </p>
             </div>
 
@@ -259,7 +265,7 @@ function ReportContent({
               <ButtonAILN
                 variant="primary"
                 size="medium"
-                className="w-full"
+                width="full"
                 onClick={handleDownload}
               >
                 <Download className="size-4" />

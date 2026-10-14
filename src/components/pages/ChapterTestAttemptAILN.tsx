@@ -107,17 +107,20 @@ export default function ChapterTestAttemptAILN({
         try {
           window.localStorage.removeItem(draftKey(test.id));
         } catch {}
-        if (res.status === 409) toast.info(`${kindLabel} ini sudah pernah kamu kirim.`);
+        if (res.status === 409)
+          toast.info(`${kindLabel} ini sudah pernah kamu kirim.`);
         router.refresh();
         return;
       }
       toast.error(
         res.status === 403
           ? `${kindLabel} ini belum bisa dikirim. Selesaikan bagian sebelumnya dulu.`
-          : `Gagal mengirim jawaban ${kindLabel.toLowerCase()}. Coba lagi.`
+          : `Gagal mengirim jawaban ${kindLabel.toLowerCase()}. Coba lagi.`,
       );
     } catch {
-      toast.error(`Gagal mengirim jawaban ${kindLabel.toLowerCase()}. Coba lagi.`);
+      toast.error(
+        `Gagal mengirim jawaban ${kindLabel.toLowerCase()}. Coba lagi.`,
+      );
     }
     setIsSubmitting(false);
   };
@@ -137,16 +140,21 @@ export default function ChapterTestAttemptAILN({
               </h1>
             </div>
             <span className="rounded-full bg-gray-100 px-3 py-1 text-xs font-medium text-gray-700 dark:bg-dashboard-border dark:text-gray-300">
-              Soal {totalQuestions === 0 ? 0 : currentIdx + 1} / {totalQuestions}
+              Soal {totalQuestions === 0 ? 0 : currentIdx + 1} /{" "}
+              {totalQuestions}
             </span>
-            <button
+            <ButtonAILN
+              variant="neutral"
+              size="small"
               type="button"
               onClick={() => setIsExitDialogOpen(true)}
-              className="flex items-center gap-1.5 rounded-lg border border-gray-200 px-3 py-1.5 text-xs font-medium text-gray-700 transition hover:bg-gray-50 dark:border-dashboard-border dark:text-gray-300 dark:hover:bg-card-2"
             >
-              <FontAwesomeIcon icon={faRightFromBracket} className="h-3.5 w-3.5" />
+              <FontAwesomeIcon
+                icon={faRightFromBracket}
+                className="h-3.5 w-3.5"
+              />
               Keluar
-            </button>
+            </ButtonAILN>
           </div>
           {test.description && (
             <p className="text-sm text-gray-500 dark:text-gray-400">
@@ -211,16 +219,14 @@ export default function ChapterTestAttemptAILN({
                         const isSelected =
                           answers[String(currentQ.id)] === opt.option_code;
                         return (
-                          <button
+                          <ButtonAILN
+                            variant={isSelected ? "answerActive" : "answer"}
+                            size="choice"
+                            width="full"
                             key={opt.id}
                             type="button"
                             disabled={isSubmitting}
                             onClick={() => setAnswer(opt.option_code)}
-                            className={`flex items-center gap-3 rounded-lg border-[1.5px] px-4 py-3 text-left text-sm transition disabled:cursor-not-allowed disabled:opacity-60 ${
-                              isSelected
-                                ? "border-claude bg-hijau-t dark:border-claude/60 dark:bg-claude/10 dark:text-white"
-                                : "border-gray-200 bg-white hover:border-black/30 hover:bg-gray-50 dark:border-dashboard-border dark:bg-card-1 dark:text-gray-200 dark:hover:border-claude/30 dark:hover:bg-card-2"
-                            }`}
                           >
                             <div
                               className={`flex size-6 shrink-0 items-center justify-center rounded-full text-xs font-medium ${
@@ -232,7 +238,7 @@ export default function ChapterTestAttemptAILN({
                               {opt.option_code.toUpperCase()}
                             </div>
                             <span className="flex-1">{opt.text}</span>
-                          </button>
+                          </ButtonAILN>
                         );
                       })}
                     </div>
@@ -275,21 +281,22 @@ export default function ChapterTestAttemptAILN({
               </span>
               <div className="grid grid-cols-5 gap-2">
                 {questions.map((q, idx) => {
-                  const cls =
-                    idx === currentIdx
-                      ? "bg-claude text-white"
-                      : isAnswered(q.id)
-                        ? "bg-black text-white dark:bg-claude/20 dark:text-lime-bright dark:border dark:border-claude/40"
-                        : "border border-gray-200 bg-gray-100 text-gray-500 dark:border-dashboard-border dark:bg-card-2 dark:text-gray-400";
                   return (
-                    <button
+                    <ButtonAILN
+                      variant={
+                        idx === currentIdx
+                          ? "questionCurrent"
+                          : isAnswered(q.id)
+                            ? "questionAnswered"
+                            : "question"
+                      }
+                      size="question"
                       key={q.id}
                       type="button"
                       onClick={() => setCurrentIdx(idx)}
-                      className={`flex aspect-square items-center justify-center rounded-lg text-xs font-medium transition hover:opacity-80 ${cls}`}
                     >
                       {idx + 1}
-                    </button>
+                    </ButtonAILN>
                   );
                 })}
               </div>
@@ -302,7 +309,7 @@ export default function ChapterTestAttemptAILN({
 
             <ButtonAILN
               variant="lime"
-              className="w-full"
+              width="full"
               disabled={isSubmitting || totalQuestions === 0}
               onClick={requestSubmit}
             >

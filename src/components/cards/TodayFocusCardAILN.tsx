@@ -153,16 +153,16 @@ export default function TodayFocusCardAILN({
                 <ArrowRight className="size-3.5" />
               </ButtonAILN>
             ) : (
-              <Link href={focusHref}>
-                <ButtonAILN>
+              <ButtonAILN asChild>
+                <Link href={focusHref}>
                   Mulai sekarang
                   <ArrowRight className="size-3.5" />
-                </ButtonAILN>
-              </Link>
+                </Link>
+              </ButtonAILN>
             )}
-            <Link href={detailHref}>
-              <ButtonAILN variant="neutral">Lihat detail</ButtonAILN>
-            </Link>
+            <ButtonAILN asChild variant="neutral">
+              <Link href={detailHref}>Lihat detail</Link>
+            </ButtonAILN>
           </div>
         </div>
 

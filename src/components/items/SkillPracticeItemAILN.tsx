@@ -49,7 +49,7 @@ export type SkillPracticeStatus =
   | "todo";
 
 export function deriveSkillPracticeStatus(
-  item: SkillPracticeItem
+  item: SkillPracticeItem,
 ): SkillPracticeStatus {
   // Source of truth for "sudah direview" adalah reviewed_at —
   // bukan is_accepted, karena is_accepted default false di DB
@@ -119,7 +119,7 @@ interface SkillPracticeItemAILNProps {
 }
 
 export default function SkillPracticeItemAILN(
-  props: SkillPracticeItemAILNProps
+  props: SkillPracticeItemAILNProps,
 ) {
   const { variant, item, unlocked } = props;
   const projectId = useProjectId();
@@ -138,15 +138,13 @@ export default function SkillPracticeItemAILN(
           : "Kerjakan";
 
   const cta = locked ? (
-    <ButtonAILN size="small" disabled className="w-full">
+    <ButtonAILN size="small" disabled width="full">
       Locked
     </ButtonAILN>
   ) : (
-    <Link href={`/${projectId}${v.basePath}/${item.ref_id}`} className="block">
-      <ButtonAILN size="small" className="w-full">
-        {ctaLabel}
-      </ButtonAILN>
-    </Link>
+    <ButtonAILN asChild size="small" width="full">
+      <Link href={`/${projectId}${v.basePath}/${item.ref_id}`}>{ctaLabel}</Link>
+    </ButtonAILN>
   );
 
   return (
