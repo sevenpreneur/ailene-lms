@@ -39,7 +39,7 @@ export default function ChapterSurveyAILN({ survey }: ChapterSurveyAILNProps) {
   const [comment, setComment] = useState(submitted?.comment ?? "");
   const [isSubmitting, setIsSubmitting] = useState(false);
 
-  const backHref = `/${projectId}/student/learning-path/${survey.chapter.id}`;
+  const backHref = `/${projectId}/student/learning-path?chapter=${survey.chapter.id}`;
   const readOnly = !!submitted || isSubmitting;
   const complete = CHAPTER_SURVEY_QUESTIONS.every((q) => ratings[q.key] !== null);
 

@@ -38,7 +38,7 @@ export default function ChapterTestResultAILN({
           desc={`${result.name} · ${result.chapter.name}`}
         >
           <Link
-            href={`/${projectId}/student/learning-path/${result.chapter.id}`}
+            href={`/${projectId}/student/learning-path?chapter=${result.chapter.id}`}
           >
             <ButtonAILN variant="neutral" size="small">
               Kembali ke Alur Belajar
