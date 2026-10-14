@@ -411,7 +411,7 @@ function PreAssessmentWelcomeAILN({
           </h1>
           <p className="mt-3 text-center text-base leading-7 text-gray-600 dark:text-gray-300">
             Sebelum mulai belajar, isi dulu <b>{PRE_ASSESSMENT_TITLE}</b> supaya kami
-            paham titik berangkatmu dan bisa menyiapkan jalur belajar yang
+            paham titik berangkatmu dan bisa menyiapkan alur belajar yang
             paling relevan.
           </p>
 

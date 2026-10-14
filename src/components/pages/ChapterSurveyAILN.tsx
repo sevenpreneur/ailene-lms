@@ -39,7 +39,7 @@ export default function ChapterSurveyAILN({ survey }: ChapterSurveyAILNProps) {
   const [comment, setComment] = useState(submitted?.comment ?? "");
   const [isSubmitting, setIsSubmitting] = useState(false);
 
-  const backHref = `/${projectId}/student/learning-path?chapter=${survey.chapter.id}`;
+  const backHref = `/${projectId}/student/learning-path/${survey.chapter.id}`;
   const readOnly = !!submitted || isSubmitting;
   const complete = CHAPTER_SURVEY_QUESTIONS.every((q) => ratings[q.key] !== null);
 
@@ -128,7 +128,7 @@ export default function ChapterSurveyAILN({ survey }: ChapterSurveyAILNProps) {
           <div className="flex flex-col-reverse gap-2 border-t pt-4 sm:flex-row sm:justify-end dark:border-dashboard-border">
             <Link href={backHref}>
               <ButtonAILN variant="neutral" className="w-full sm:w-auto">
-                Kembali ke Jalur Belajar
+                Kembali ke Alur Belajar
               </ButtonAILN>
             </Link>
             {!submitted && (

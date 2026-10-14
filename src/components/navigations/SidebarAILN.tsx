@@ -45,7 +45,7 @@ const VARIANT_CONFIG: Record<
       { name: "Hari Ini", url: "/student", icon: CalendarDays, exact: true },
       { name: "Pre Assessment", url: "/student/pre-assessment", icon: Gauge },
       {
-        name: "Jalur Belajar",
+        name: "Alur Belajar",
         url: "/student/learning-path",
         icon: BookOpen,
         exact: true,
