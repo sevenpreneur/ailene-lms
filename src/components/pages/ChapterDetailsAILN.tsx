@@ -7,6 +7,7 @@ import type {
 } from "@/apis/learnings";
 import ButtonAILN from "@/components/buttons/ButtonAILN";
 import AlertConfirmDialogAILN from "@/components/modals/AlertConfirmDialogAILN";
+import ChapterSurveyModalAILN from "@/components/modals/ChapterSurveyModalAILN";
 import PageContainerAILN from "@/components/pages/PageContainerAILN";
 import { CHAPTER_TEST_LOCKED_MESSAGE } from "@/lib/chapter-evaluation";
 import {
@@ -295,12 +296,14 @@ export default function ChapterDetailsAILN({
   unlocked,
   projectId,
   nextChapter,
+  initialSurveyOpen = false,
 }: {
   chapter: StudentChapter;
   learnings: ChapterLearnings | null;
   unlocked: boolean;
   projectId: string;
   nextChapter: StudentChapter | null;
+  initialSurveyOpen?: boolean;
 }) {
   const router = useRouter();
   const [selectedVideoId, setSelectedVideoId] = useState<number | null>(
@@ -315,6 +318,7 @@ export default function ChapterDetailsAILN({
   );
   const [savingVideoId, setSavingVideoId] = useState<number | null>(null);
   const [quizToStart, setQuizToStart] = useState<string | null>(null);
+  const [isSurveyOpen, setIsSurveyOpen] = useState(initialSurveyOpen);
   const preTest = learnings?.pre_test ?? null;
   const postTest = learnings?.post_test ?? null;
   const survey = learnings?.survey ?? null;
@@ -705,13 +709,13 @@ export default function ChapterDetailsAILN({
                     done={survey.submitted}
                     lockedReason={
                       !survey.available && !survey.submitted
-                        ? "Dibuka setelah sesi chapter dimulai"
+                        ? "Dibuka setelah admin membuka sesi chapter"
                         : null
                     }
                     actionLabel={
                       survey.submitted ? "Lihat jawaban" : "Isi survei"
                     }
-                    href={`${base}/surveys/${chapter.id}`}
+                    onAction={() => setIsSurveyOpen(true)}
                   />
                 )}
               </StepSection>
@@ -762,6 +766,12 @@ export default function ChapterDetailsAILN({
           router.push(`${base}/quizzes/${quizToStart}`);
           setQuizToStart(null);
         }}
+      />
+      <ChapterSurveyModalAILN
+        chapterId={chapter.id}
+        isOpen={isSurveyOpen}
+        onClose={() => setIsSurveyOpen(false)}
+        onSuccess={() => router.refresh()}
       />
     </PageContainerAILN>
   );

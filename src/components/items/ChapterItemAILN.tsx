@@ -348,7 +348,17 @@ export default function ChapterItemAILN(props: ChapterItemAILNProps) {
                         surveyUnlocked || (props.unlocked && survey.submitted)
                       }
                       isNext={nextKey === "survey"}
-                      lockedMessage="Dibuka setelah sesi chapter dimulai"
+                      lockedMessage="Dibuka setelah admin membuka sesi chapter"
+                      onSurveySuccess={() =>
+                        setTasks((previous) =>
+                          previous?.survey
+                            ? {
+                                ...previous,
+                                survey: { ...previous.survey, submitted: true },
+                              }
+                            : previous,
+                        )
+                      }
                     />
                   )}
                 </div>

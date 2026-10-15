@@ -23,6 +23,7 @@ import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import { getDurationFromSeconds } from "@/lib/date-time-manipulation";
 import AlertConfirmDialogAILN from "../modals/AlertConfirmDialogAILN";
+import ChapterSurveyModalAILN from "../modals/ChapterSurveyModalAILN";
 
 const QUIZ_DURATION_MINUTES = 20;
 
@@ -137,6 +138,7 @@ type ChapterTaskItemAILNProps =
       survey: Survey;
       lockedMessage?: string;
       isNext?: boolean;
+      onSurveySuccess?: () => void;
     };
 
 export default function ChapterTaskItemAILN(props: ChapterTaskItemAILNProps) {
@@ -144,6 +146,7 @@ export default function ChapterTaskItemAILN(props: ChapterTaskItemAILNProps) {
   const style = variantStyles[props.variant];
   const router = useRouter();
   const [isStartQuizDialogOpen, setIsStartQuizDialogOpen] = useState(false);
+  const [isSurveyOpen, setIsSurveyOpen] = useState(false);
 
   const activeAttemptStartedAt =
     props.variant === "Quiz" ? props.quiz.active_attempt_started_at : null;
@@ -301,10 +304,13 @@ export default function ChapterTaskItemAILN(props: ChapterTaskItemAILNProps) {
         Locked
       </ButtonAILN>
     ) : (
-      <ButtonAILN asChild variant="forest" size="small" width="full">
-        <Link href={`/${projectId}/student/surveys/${sv.chapterId}`}>
-          {sv.submitted ? "Lihat Jawaban" : "Isi Survei"}
-        </Link>
+      <ButtonAILN
+        variant="forest"
+        size="small"
+        width="full"
+        onClick={() => setIsSurveyOpen(true)}
+      >
+        {sv.submitted ? "Lihat Jawaban" : "Isi Survei"}
       </ButtonAILN>
     );
   } else {
@@ -410,6 +416,14 @@ export default function ChapterTaskItemAILN(props: ChapterTaskItemAILNProps) {
             setIsStartQuizDialogOpen(false);
             router.push(`/${projectId}/student/quizzes/${quizId}`);
           }}
+        />
+      )}
+      {props.variant === "Survey" && (
+        <ChapterSurveyModalAILN
+          chapterId={props.survey.chapterId}
+          isOpen={isSurveyOpen}
+          onClose={() => setIsSurveyOpen(false)}
+          onSuccess={props.onSurveySuccess}
         />
       )}
     </div>

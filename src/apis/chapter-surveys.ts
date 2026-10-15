@@ -13,10 +13,18 @@ export type ChapterSurveyStatus = {
 };
 
 export type ChapterSurveyAnswer = {
-  satisfaction: number;
-  relevance: number;
-  trainer_rating: number;
-  comment: string | null;
+  trainer_clarity: number;
+  trainer_mastery: number;
+  trainer_responsiveness: number;
+  trainer_engagement: number;
+  material_relevance: number;
+  material_flow: number;
+  material_depth: number;
+  learning_value: number;
+  favorite_material: string | null;
+  missing_topics: string | null;
+  disliked_material: string | null;
+  improvement_suggestion: string | null;
   submitted_at: string;
 };
 
@@ -28,10 +36,18 @@ export type ChapterSurveyDetail = {
 };
 
 export type ChapterSurveyInput = {
-  satisfaction: number;
-  relevance: number;
-  trainer_rating: number;
-  comment: string | null;
+  trainer_clarity: number;
+  trainer_mastery: number;
+  trainer_responsiveness: number;
+  trainer_engagement: number;
+  material_relevance: number;
+  material_flow: number;
+  material_depth: number;
+  learning_value: number;
+  favorite_material: string | null;
+  missing_topics: string | null;
+  disliked_material: string | null;
+  improvement_suggestion: string | null;
 };
 
 export type ChapterSurveyCallResult<T> =
@@ -45,14 +61,14 @@ async function getSessionToken(): Promise<string | null> {
 
 // POST /api/v1/chapter-surveys/details needs the caller's own session JWT — see docs/api/chapter-surveys.md in ailene-lms-backend.
 export async function getChapterSurveyDetails(
-  chapterId: number
+  chapterId: number,
 ): Promise<LearningDetailResult<ChapterSurveyDetail>> {
   const sessionToken = await getSessionToken();
   if (!sessionToken) return { kind: "not_found" };
 
   const result = await callApi<ChapterSurveyDetail>(
     "/api/v1/chapter-surveys/details",
-    { method: "POST", body: { chapter_id: chapterId }, token: sessionToken }
+    { method: "POST", body: { chapter_id: chapterId }, token: sessionToken },
   );
 
   if (!result.success) {
@@ -60,7 +76,7 @@ export async function getChapterSurveyDetails(
       "getChapterSurveyDetails",
       result.code,
       result.status,
-      result.message
+      result.message,
     );
     if (result.message === "No access found for this project") {
       return { kind: "forbidden", reason: "no_access" };
@@ -70,13 +86,15 @@ export async function getChapterSurveyDetails(
     }
     return { kind: "not_found" };
   }
-  return result.data ? { kind: "ok", data: result.data } : { kind: "not_found" };
+  return result.data
+    ? { kind: "ok", data: result.data }
+    : { kind: "not_found" };
 }
 
 // POST /api/v1/chapter-surveys/submit needs the caller's own session JWT — see docs/api/chapter-surveys.md in ailene-lms-backend.
 export async function submitChapterSurvey(
   chapterId: number,
-  input: ChapterSurveyInput
+  input: ChapterSurveyInput,
 ): Promise<ChapterSurveyCallResult<ChapterSurveyAnswer>> {
   const sessionToken = await getSessionToken();
   if (!sessionToken) {
@@ -89,7 +107,7 @@ export async function submitChapterSurvey(
       method: "POST",
       body: { chapter_id: chapterId, ...input },
       token: sessionToken,
-    }
+    },
   );
 
   if (!result.success || !result.data) {
@@ -97,7 +115,7 @@ export async function submitChapterSurvey(
       "submitChapterSurvey",
       result.code,
       result.status,
-      result.message
+      result.message,
     );
     return { success: false, code: result.code, message: result.message };
   }
