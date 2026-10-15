@@ -1,4 +1,9 @@
-import { getLearnings, getStudentChapters } from "@/apis/learnings";
+import {
+  getLearnings,
+  getMaterialDetails,
+  getStudentChapters,
+  type MaterialDetail,
+} from "@/apis/learnings";
 import ChapterDetailsAILN from "@/components/pages/ChapterDetailsAILN";
 import AppPageState from "@/components/states/AppPageState";
 import type { Metadata } from "next";
@@ -30,11 +35,22 @@ export default async function ChapterDetailPage({
   const chapter = chapters[chapterIndex];
   const unlocked = !chapter.locked;
   const learnings = unlocked ? await getLearnings(chapterId) : null;
+  const materialResults = await Promise.all(
+    (learnings?.materials ?? []).map((material) =>
+      getMaterialDetails(material.id),
+    ),
+  );
+  const materialDetails: Record<string, MaterialDetail> = Object.fromEntries(
+    materialResults.flatMap((result) =>
+      result.kind === "ok" ? [[result.data.id, result.data]] : [],
+    ),
+  );
 
   return (
     <ChapterDetailsAILN
       chapter={chapter}
       learnings={learnings}
+      materialDetails={materialDetails}
       unlocked={unlocked}
       projectId={projectId}
       nextChapter={chapters[chapterIndex + 1] ?? null}

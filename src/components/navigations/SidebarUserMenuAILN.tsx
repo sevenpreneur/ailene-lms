@@ -110,13 +110,7 @@ export default function SidebarUserMenuAILN({
           </span>
         </DropdownMenuLabel>
         <DropdownMenuSeparator />
-        {/* Toggling keeps the menu open so the switch visibly flips. */}
-        <DropdownMenuItem
-          onSelect={(event) => {
-            event.preventDefault();
-            setTheme(isDark ? "light" : "dark");
-          }}
-        >
+        <DropdownMenuItem onSelect={() => setTheme(isDark ? "light" : "dark")}>
           <Moon className="text-muted-foreground" />
           <span className="flex-1">Mode gelap</span>
           <span
