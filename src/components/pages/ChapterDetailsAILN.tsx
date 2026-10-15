@@ -369,7 +369,7 @@ export default function ChapterDetailsAILN({
     evaluations.push({
       key: "pre",
       kind: "pre",
-      label: "Sebelum belajar",
+      label: "Pre-test",
       title: preTest.name,
       description: preTest.description,
       questionCount: preTest.question_count,
@@ -385,12 +385,12 @@ export default function ChapterDetailsAILN({
       href: `${base}/chapter-tests/${preTest.id}`,
     });
   }
-  learnings?.quizzes.forEach((quiz, index) => {
+  learnings?.quizzes.forEach((quiz) => {
     const untouched = quiz.attempts === 0 && !quiz.active_attempt_started_at;
     evaluations.push({
       key: `quiz-${quiz.id}`,
       kind: "quiz",
-      label: `Quiz ${index + 1}`,
+      label: "Quiz",
       title: quiz.name,
       description: quiz.description,
       questionCount: quiz.question_count,
@@ -417,7 +417,7 @@ export default function ChapterDetailsAILN({
     evaluations.push({
       key: "post",
       kind: "post",
-      label: "Setelah belajar",
+      label: "Post-test",
       title: postTest.name,
       description: postTest.description,
       questionCount: postTest.question_count,
