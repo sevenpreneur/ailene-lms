@@ -31,10 +31,22 @@ function draftKey(testId: number) {
   return `ailn-chapter-test-draft-${testId}`;
 }
 
-function readDraft(testId: number): ChapterTestAnswers {
+function readDraft(test: ChapterTestDetail): ChapterTestAnswers {
   try {
-    const raw = window.localStorage.getItem(draftKey(testId));
-    return raw ? (JSON.parse(raw) as ChapterTestAnswers) : {};
+    const raw = window.localStorage.getItem(draftKey(test.id));
+    const saved = raw ? (JSON.parse(raw) as ChapterTestAnswers) : {};
+    return Object.fromEntries(
+      test.questions.flatMap((question) => {
+        const answer = saved[String(question.id)];
+        if (typeof answer !== "string") return [];
+        if (
+          question.type === "multiple_choice" &&
+          !question.options.some((option) => option.option_code === answer)
+        )
+          return [];
+        return [[String(question.id), answer]];
+      }),
+    );
   } catch {
     return {};
   }
@@ -56,12 +68,12 @@ export default function ChapterTestAttemptAILN({
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   useEffect(() => {
-    const draft = readDraft(test.id);
+    const draft = readDraft(test);
     queueMicrotask(() => {
       setAnswers(draft);
       setDraftLoaded(true);
     });
-  }, [test.id]);
+  }, [test]);
 
   useEffect(() => {
     if (!draftLoaded) return;
@@ -101,9 +113,20 @@ export default function ChapterTestAttemptAILN({
       const res = await fetch("/api/chapter-tests/submit", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ test_id: test.id, answers }),
+        body: JSON.stringify({
+          test_id: test.id,
+          answers: Object.fromEntries(
+            questions.map((question) => [
+              String(question.id),
+              answers[String(question.id)],
+            ]),
+          ),
+        }),
       });
-      if (res.ok || res.status === 409) {
+      const payload = res.headers.get("content-type")?.includes("application/json")
+        ? await res.json().catch(() => null)
+        : null;
+      if (!res.redirected && ((res.ok && payload?.submitted_at) || res.status === 409)) {
         try {
           window.localStorage.removeItem(draftKey(test.id));
         } catch {}
@@ -112,10 +135,16 @@ export default function ChapterTestAttemptAILN({
         router.refresh();
         return;
       }
+      const backendMessage =
+        typeof payload?.message === "string" ? payload.message : null;
       toast.error(
-        res.status === 403
-          ? `${kindLabel} ini belum bisa dikirim. Selesaikan bagian sebelumnya dulu.`
-          : `Gagal mengirim jawaban ${kindLabel.toLowerCase()}. Coba lagi.`,
+        res.redirected || res.status === 401
+          ? "Sesi kamu sudah berakhir. Masuk kembali, lalu kirim jawaban yang tersimpan."
+          : res.status === 403
+            ? `${kindLabel} ini belum bisa dikirim. ${backendMessage ?? "Selesaikan bagian sebelumnya dulu."}`
+            : backendMessage && res.status === 400
+              ? `Jawaban belum terkirim: ${backendMessage}`
+              : `Gagal mengirim jawaban ${kindLabel.toLowerCase()}. Coba lagi.`,
       );
     } catch {
       toast.error(
