@@ -11,7 +11,8 @@ import {
   GUIDED_FREQUENCIES,
   GUIDED_TASK_EXAMPLES,
 } from "@/lib/guided-use-case";
-import { ShieldCheck } from "lucide-react";
+import type { StakeholderVariant } from "@/lib/app-types";
+import { Loader2, ShieldCheck } from "lucide-react";
 import GuidedHintAILN from "@/components/elements/GuidedHintAILN";
 import { useState } from "react";
 
@@ -44,6 +45,10 @@ export default function GuidedIntakeAILN({
   onFileChange,
   exampleMode,
   onExampleModeChange,
+  allowFile = true,
+  uploading = false,
+  variant = "STUDENT",
+  headingId = "guided-heading",
 }: {
   step: number;
   value: GuidedIntake;
@@ -52,6 +57,10 @@ export default function GuidedIntakeAILN({
   onFileChange: (file: File | null) => void;
   exampleMode: "text" | "file";
   onExampleModeChange: (mode: "text" | "file") => void;
+  allowFile?: boolean;
+  uploading?: boolean;
+  variant?: StakeholderVariant;
+  headingId?: string;
 }) {
   const [otherTools, setOtherTools] = useState(() =>
     value.current_tools
@@ -64,13 +73,13 @@ export default function GuidedIntakeAILN({
       <div className="flex flex-col gap-5">
         <TextAreaAILN
           textAreaId="guided-task"
-          aria-labelledby="guided-heading"
+          aria-labelledby={headingId}
           value={value.daily_task ?? ""}
           onTextAreaChange={(daily_task) => onChange({ daily_task })}
           textAreaPlaceholder="Mis. merekap penjualan mingguan dari beberapa cabang."
           textAreaHeight="min-h-36"
           characterLength={3000}
-          variant="STUDENT"
+          variant={variant}
           required
         />
         <p className="-mt-3 text-right text-[11px] text-muted-foreground">
@@ -99,7 +108,7 @@ export default function GuidedIntakeAILN({
           onChange={(frequency) =>
             onChange({ frequency: frequency as GuidedIntake["frequency"] })
           }
-          variant="STUDENT"
+          variant={variant}
           required
         />
       </div>
@@ -116,37 +125,39 @@ export default function GuidedIntakeAILN({
             dengan nama seperti “Pelanggan A”.
           </GuidedHintAILN>
         </div>
-        <div
-          className="flex flex-wrap gap-2"
-          role="group"
-          aria-label="Cara memberikan contoh"
-        >
-          <ButtonAILN
-            variant={exampleMode === "text" ? "outlineActive" : "outline"}
-            aria-pressed={exampleMode === "text"}
-            onClick={() => {
-              onExampleModeChange("text");
-              onFileChange(null);
-              onChange({ sensitive_data_confirmed: false });
-            }}
+        {allowFile && (
+          <div
+            className="flex flex-wrap gap-2"
+            role="group"
+            aria-label="Cara memberikan contoh"
           >
-            Tempel teks
-          </ButtonAILN>
-          <ButtonAILN
-            variant={exampleMode === "file" ? "outlineActive" : "outline"}
-            aria-pressed={exampleMode === "file"}
-            onClick={() => {
-              onExampleModeChange("file");
-              onChange({ example_text: "", sensitive_data_confirmed: false });
-            }}
-          >
-            Pilih file
-          </ButtonAILN>
-        </div>
-        {exampleMode === "text" ? (
+            <ButtonAILN
+              variant={exampleMode === "text" ? "outlineActive" : "outline"}
+              aria-pressed={exampleMode === "text"}
+              onClick={() => {
+                onExampleModeChange("text");
+                onFileChange(null);
+                onChange({ sensitive_data_confirmed: false });
+              }}
+            >
+              Tempel teks
+            </ButtonAILN>
+            <ButtonAILN
+              variant={exampleMode === "file" ? "outlineActive" : "outline"}
+              aria-pressed={exampleMode === "file"}
+              onClick={() => {
+                onExampleModeChange("file");
+                onChange({ sensitive_data_confirmed: false });
+              }}
+            >
+              Pilih file
+            </ButtonAILN>
+          </div>
+        )}
+        {!allowFile || exampleMode === "text" ? (
           <TextAreaAILN
             textAreaId="guided-example"
-            aria-labelledby="guided-heading"
+            aria-labelledby={headingId}
             value={value.example_text ?? ""}
             onTextAreaChange={(example_text) =>
               onChange({ example_text, sensitive_data_confirmed: false })
@@ -154,18 +165,38 @@ export default function GuidedIntakeAILN({
             textAreaPlaceholder="Tempel contoh yang sudah disamarkan…"
             textAreaHeight="min-h-44"
             characterLength={10000}
-            variant="STUDENT"
+            variant={variant}
             required
           />
         ) : (
-          <GuidedFileFieldAILN
-            id="guided-example-file"
-            file={file}
-            onChange={(selected) => {
-              onFileChange(selected);
-              onChange({ sensitive_data_confirmed: false });
-            }}
-          />
+          <div className="flex flex-col gap-3">
+            <GuidedFileFieldAILN
+              id="guided-example-file"
+              file={file}
+              onChange={(selected) => {
+                onFileChange(selected);
+                onChange({ sensitive_data_confirmed: false });
+              }}
+            />
+            {uploading && (
+              <p className="flex items-center gap-2 text-xs text-muted-foreground">
+                <Loader2 className="size-3.5 animate-spin" />
+                Mengunggah file…
+              </p>
+            )}
+            <TextAreaAILN
+              textAreaId="guided-example-summary"
+              textAreaName="Ringkasan isi file"
+              value={value.example_text ?? ""}
+              onTextAreaChange={(example_text) =>
+                onChange({ example_text, sensitive_data_confirmed: false })
+              }
+              textAreaPlaceholder="Tulis ringkasan isi file yang sudah disamarkan. AI membaca ringkasan ini, bukan filenya."
+              textAreaHeight="min-h-28"
+              characterLength={10000}
+              variant={variant}
+            />
+          </div>
         )}
         <label className="flex cursor-pointer items-start gap-3 text-sm">
           <input
@@ -197,7 +228,7 @@ export default function GuidedIntakeAILN({
           onInputChange={(raw) =>
             onChange({ minutes_without_ai: raw === "" ? null : Number(raw) })
           }
-          variant="STUDENT"
+          variant={variant}
           required
         />
       </div>
@@ -211,7 +242,7 @@ export default function GuidedIntakeAILN({
         }
         textAreaHeight="min-h-36"
         characterLength={5000}
-        variant="STUDENT"
+        variant={variant}
         required
       />
       <div className="flex flex-col gap-2">
@@ -257,7 +288,7 @@ export default function GuidedIntakeAILN({
               ],
             });
           }}
-          variant="STUDENT"
+          variant={variant}
         />
       </div>
       <TextAreaAILN
@@ -268,7 +299,7 @@ export default function GuidedIntakeAILN({
         textAreaPlaceholder="Bagian tersulit atau paling sering salah?"
         textAreaHeight="min-h-24"
         characterLength={2000}
-        variant="STUDENT"
+        variant={variant}
       />
     </div>
   );

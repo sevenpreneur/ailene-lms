@@ -71,7 +71,6 @@ export type UseCaseType =
   | "learning"
   | "other";
 
-// Guided UI contract. No guided endpoints are called until the backend is ready.
 export type GuidedStatus =
   | "intake"
   | "steps_ready"
@@ -96,9 +95,10 @@ export type GuidedStep = {
 
 export type GuidedSession = {
   id: number;
-  use_case_id: number;
+  use_case_id: number | null;
+  project_id: string;
   status: GuidedStatus;
-  current_step: 1 | 2 | 3 | 4 | 5 | 6;
+  current_step: number;
   daily_task: string | null;
   frequency: UseCaseFrequency | null;
   example_text: string | null;
@@ -109,9 +109,11 @@ export type GuidedSession = {
   current_tools: string[];
   pain_point: string | null;
   steps: GuidedStep[];
+  summary: string | null;
   estimated_minutes_with_ai: number | null;
   risks: string[];
   regenerate_remaining: number;
+  is_generating: boolean;
   created_at: string;
   updated_at: string;
 };
@@ -122,24 +124,28 @@ export type GuidedTestimonial = {
   share_consent: boolean;
 };
 
-export type GuidedSaveInput = Pick<
+export type GuidedIntakeFields = Pick<
   GuidedSession,
-  "use_case_id" | "current_step"
-> &
-  Partial<
-    Pick<
-      GuidedSession,
-      | "daily_task"
-      | "frequency"
-      | "example_text"
-      | "example_file_url"
-      | "sensitive_data_confirmed"
-      | "minutes_without_ai"
-      | "current_process"
-      | "current_tools"
-      | "pain_point"
-    >
-  >;
+  | "daily_task"
+  | "frequency"
+  | "example_text"
+  | "example_file_url"
+  | "sensitive_data_confirmed"
+  | "minutes_without_ai"
+  | "current_process"
+  | "current_tools"
+  | "pain_point"
+>;
+
+export type GuidedDetailsInput = {
+  session_id?: number;
+  project_id?: string;
+  use_case_id?: number;
+};
+
+export type GuidedSaveInput = GuidedDetailsInput & {
+  current_step: number;
+} & Partial<GuidedIntakeFields>;
 
 export type GuidedGenerateInput = { session_id: number; feedback?: string };
 export type GuidedCheckInput = Pick<GuidedStep, "is_done"> & {
@@ -148,6 +154,32 @@ export type GuidedCheckInput = Pick<GuidedStep, "is_done"> & {
   note?: string;
   skipped_reason?: string;
 };
+
+export type GuidedSubmitInput = {
+  session_id: number;
+  name?: string;
+  category_ids?: number[];
+  outcome_proof: string;
+  hours_with_ai: number;
+  description: string;
+  ai_tool: string;
+  type: UseCaseType;
+  testimonial: string;
+  helpfulness_rating: number;
+  share_consent: boolean;
+};
+
+export type GuidedSubmitResult = {
+  session: GuidedSession;
+  submission_id: number;
+  use_case_id: number;
+  submission_status: "awaiting_review" | "needs_revision" | "accepted";
+  hours_saved: number;
+};
+
+export type GuidedResult<T> =
+  | { success: true; data: T }
+  | { success: false; code: number; message: string };
 
 export type SelfCreateUseCaseInput = {
   project_id: string;
@@ -349,4 +381,69 @@ export async function submitUseCase(
     return { success: false, code: result.code, message: result.message };
   }
   return { success: true, data: result.data };
+}
+
+// Every guided endpoint shares the student's JWT and envelope — see docs/api/use-cases.md in ailene-lms-backend.
+async function callGuided<T>(
+  name: string,
+  path: string,
+  body: unknown
+): Promise<GuidedResult<T>> {
+  const sessionToken = await getSessionToken();
+  if (!sessionToken) {
+    return { success: false, code: 401, message: "Not authenticated" };
+  }
+
+  const result = await callApi<T>(path, {
+    method: "POST",
+    body,
+    token: sessionToken,
+  });
+
+  if (!result.success) {
+    await LogError(name, result.code, result.status, result.message);
+    return { success: false, code: result.code, message: result.message };
+  }
+  return { success: true, data: result.data as T };
+}
+
+// data is null when the student has no open draft for this project or use case.
+export function getGuidedSession(input: GuidedDetailsInput) {
+  return callGuided<GuidedSession | null>(
+    "getGuidedSession",
+    "/api/v1/use-cases/guided/details",
+    input
+  );
+}
+
+export function saveGuidedSession(input: GuidedSaveInput) {
+  return callGuided<GuidedSession>(
+    "saveGuidedSession",
+    "/api/v1/use-cases/guided/save",
+    input
+  );
+}
+
+export function generateGuidedWorkflow(input: GuidedGenerateInput) {
+  return callGuided<GuidedSession>(
+    "generateGuidedWorkflow",
+    "/api/v1/use-cases/guided/generate",
+    input
+  );
+}
+
+export function checkGuidedStep(input: GuidedCheckInput) {
+  return callGuided<GuidedStep>(
+    "checkGuidedStep",
+    "/api/v1/use-cases/guided/check",
+    input
+  );
+}
+
+export function submitGuidedUseCase(input: GuidedSubmitInput) {
+  return callGuided<GuidedSubmitResult>(
+    "submitGuidedUseCase",
+    "/api/v1/use-cases/guided/submit",
+    input
+  );
 }

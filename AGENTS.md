@@ -114,6 +114,7 @@ File-file penting di `src/lib/`:
 | `constants.ts`               | `SESSION_COOKIE_NAME` dan konstanta global lainnya                  |
 | `date-time-manipulation.ts`  | Date/time manipulation dan formatting (dayjs)                       |
 | `feature-tracking.ts`        | Client-side hook untuk track feature usage                          |
+| `guided-use-case.ts`         | Heading/tahap guided use case (student & champion), opsi frekuensi/tipe, contoh isian, validasi link bukti (presentasi saja) |
 | `format.ts`                  | Number/score formatting (locale `id-ID`) untuk dashboard laporan     |
 | `level-colors.ts`            | Mapping level (`L0`–`L4`) ke warna UI                                |
 | `log-error.ts`               | Helper log error yang konsisten (console-only)                      |
@@ -121,7 +122,7 @@ File-file penting di `src/lib/`:
 | `optional-type.ts`           | TypeScript helper untuk optional/nullable types                     |
 | `pre-assessment.ts`          | Label section pre-assessment, batas teks jawaban, tone warna skor 0–100 (presentasi saja) |
 | `status_code.ts`             | HTTP status code constants                                           |
-| `supabase.ts`                | Supabase Storage upload                                              |
+| `supabase.ts`                | Supabase Storage upload — `uploadPublicFile(file, folder)` mengembalikan public URL |
 | `use-unread-notifications.ts` | Hook badge notifikasi di sidebar — refresh saat navigasi & tab kembali aktif, sengaja tanpa polling interval supaya tab idle tidak membangunkan Neon |
 | `utils.ts`                   | General utilities — `cn()` class merger, dll                        |
 

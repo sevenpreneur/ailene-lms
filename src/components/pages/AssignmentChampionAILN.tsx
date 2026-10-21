@@ -2,6 +2,7 @@
 import AssignFormChampionAILN from "@/components/forms/AssignFormChampionAILN";
 import AiAssignmentComposerAILN from "@/components/forms/AiAssignmentComposerAILN";
 import CreateAssignmentFormAILN from "@/components/forms/CreateAssignmentFormAILN";
+import CreateGuidedUseCaseFormAILN from "@/components/forms/CreateGuidedUseCaseFormAILN";
 import SectionContainerAILN from "@/components/cards/SectionContainerAILN";
 import PageContainerAILN from "@/components/pages/PageContainerAILN";
 import Tabs from "@/components/navigations/Tabs";
@@ -19,7 +20,15 @@ import type {
 import type { Category } from "@/apis/categories";
 import type { PromptLibraryItem } from "@/apis/prompts";
 import type { UseCaseLibraryItem } from "@/apis/use-cases";
-import { BookOpen, Plus, Search, Send, Sparkles } from "lucide-react";
+import {
+  ArrowRight,
+  BookOpen,
+  Compass,
+  Plus,
+  Search,
+  Send,
+  Sparkles,
+} from "lucide-react";
 import { useState } from "react";
 
 type AssignmentTab = "AI" | "PROMPT" | "USE_CASE";
@@ -49,6 +58,7 @@ export default function AssignmentChampionAILN({
   );
   const [assignOpen, setAssignOpen] = useState(false);
   const [createOpen, setCreateOpen] = useState(false);
+  const [guidedOpen, setGuidedOpen] = useState(false);
   const [draft, setDraft] = useState<AssignmentDraft | null>(null);
   const [formKey, setFormKey] = useState(0);
   const [search, setSearch] = useState("");
@@ -112,6 +122,14 @@ export default function AssignmentChampionAILN({
         >
           <ButtonAILN
             type="button"
+            variant="outline"
+            onClick={() => setGuidedOpen(true)}
+          >
+            <Compass className="size-4" />
+            Guided Use Case
+          </ButtonAILN>
+          <ButtonAILN
+            type="button"
             variant="champion"
             onClick={() => openCreate(null)}
           >
@@ -167,6 +185,31 @@ export default function AssignmentChampionAILN({
           <div className="grid grid-cols-1 gap-6 xl:grid-cols-[1fr_360px]">
             {/* Grid of items */}
             <div className="flex flex-col gap-3">
+              {tab === "USE_CASE" && (
+                <button
+                  type="button"
+                  onClick={() => setGuidedOpen(true)}
+                  className="group relative flex items-center gap-4 overflow-hidden rounded-lg border border-dashboard-border bg-card-1 p-4 text-left transition hover:border-claude dark:hover:border-lime-bright/60"
+                >
+                  <span
+                    aria-hidden
+                    className="pointer-events-none absolute -right-10 -top-16 size-40 rounded-full bg-hijau-t blur-2xl dark:bg-claude/20"
+                  />
+                  <span className="relative flex size-10 shrink-0 items-center justify-center rounded-lg bg-claude text-white dark:bg-lime-bright dark:text-claude">
+                    <Compass className="size-5" />
+                  </span>
+                  <span className="relative min-w-0 flex-1">
+                    <span className="block text-sm font-medium dark:text-white">
+                      Siapkan Guided Use Case
+                    </span>
+                    <span className="mt-0.5 block text-xs text-gray-500 dark:text-gray-400">
+                      Isi pekerjaan, contoh, dan prosesnya. Anggota tinggal
+                      membuat workflow AI dan mencobanya.
+                    </span>
+                  </span>
+                  <ArrowRight className="relative size-4 shrink-0 text-gray-400 transition group-hover:translate-x-0.5 group-hover:text-claude dark:group-hover:text-lime-bright" />
+                </button>
+              )}
               {tab === "PROMPT" ? (
                 filteredPrompts.length === 0 ? (
                   <EmptyState label="Belum ada prompt." />
@@ -286,6 +329,13 @@ export default function AssignmentChampionAILN({
         }
         members={members}
         group={group}
+      />
+
+      <CreateGuidedUseCaseFormAILN
+        isOpen={guidedOpen}
+        onClose={() => setGuidedOpen(false)}
+        members={members}
+        categories={categories}
       />
 
       <CreateAssignmentFormAILN

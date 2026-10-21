@@ -26,8 +26,7 @@ export default function GuidedUseCaseReviewAILN({
       <div className="flex flex-col gap-5 border-t border-dashboard-border p-4 sm:p-5">
         {preview && (
           <p className="text-sm text-muted-foreground">
-            Ini ringkasan isian lokalmu dengan contoh workflow. Belum dikirim ke
-            Champion.
+            Ini yang akan dilihat Champion setelah kamu mengirim.
           </p>
         )}
         <dl className="grid gap-4 text-sm sm:grid-cols-2">
@@ -111,9 +110,7 @@ export default function GuidedUseCaseReviewAILN({
         )}
         <div className="flex flex-col gap-4">
           <h3 className="text-sm font-medium">
-            {preview
-              ? "Contoh langkah & checklist lokal"
-              : "Langkah AI & checklist"}
+            Langkah AI & checklist
           </h3>
           {session.steps.map((step) => (
             <div key={step.id} className="flex flex-col gap-2">

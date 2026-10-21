@@ -39,13 +39,13 @@ export default function GuidedFileFieldAILN({
           </span>
         </label>
         <GuidedHintAILN label="Format file">
-          {extensions.join(", ").toUpperCase()}. Maksimal {maxMb} MB. File baru
-          dipilih di perangkat, belum diunggah.
+          {extensions.join(", ").toUpperCase()}. Maksimal {maxMb} MB. File langsung
+          diunggah setelah dipilih.
         </GuidedHintAILN>
       </div>
       <p id={`${id}-help`} className="sr-only">
-        {extensions.join(", ").toUpperCase()} · Maksimal {maxMb} MB. File hanya
-        dipilih di perangkat, belum diunggah.
+        {extensions.join(", ").toUpperCase()} · Maksimal {maxMb} MB. File langsung
+        diunggah setelah dipilih.
       </p>
       <input
         id={id}

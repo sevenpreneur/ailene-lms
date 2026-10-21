@@ -78,8 +78,34 @@ export const GUIDED_TASK_EXAMPLES = [
   },
 ] as const;
 
-export const GUIDED_MOCK_REASON =
-  "Belum tersedia di pratinjau. Data tidak disimpan atau dikirim.";
+// Champion-facing headings for the same first three steps.
+export const GUIDED_CHAMPION_HEADINGS = [
+  "Pekerjaan apa yang ingin dibantu AI?",
+  "Berikan contoh nyatanya.",
+  "Bagaimana prosesnya sekarang?",
+  "Kirim ke siapa?",
+] as const;
+
+export const GUIDED_CHAMPION_STAGES = [
+  { title: "Pekerjaan", description: "Tugas rutin yang ingin dipercepat." },
+  { title: "Contoh", description: "Contoh data yang sudah disamarkan." },
+  { title: "Proses", description: "Langkah dan durasi saat ini." },
+  { title: "Assign", description: "Judul, anggota, dan deadline." },
+] as const;
+
+// A fixed, explicitly labelled example for the "Coba isian contoh" shortcut.
+export const GUIDED_SAMPLE_INTAKE = {
+  daily_task:
+    "Saya merekap laporan penjualan mingguan dari beberapa cabang, memeriksa total, lalu menulis ringkasan untuk atasan.",
+  frequency: "weekly",
+  example_text:
+    "Contoh data fiktif (juta rupiah):\nCabang A: target 50, realisasi 45\nCabang B: target 40, realisasi 44\nCabang C: target 30, realisasi 27",
+  minutes_without_ai: 90,
+  current_process:
+    "1. Kumpulkan laporan dari setiap cabang.\n2. Rapikan format dan cek total di Excel.\n3. Bandingkan realisasi dengan target.\n4. Tulis ringkasan dan tindak lanjut untuk atasan.",
+  current_tools: ["Excel", "Email"],
+  pain_point: "Menyatukan format laporan dan menulis ringkasan yang tetap akurat.",
+} as const;
 
 export function isGuidedProofLink(value: string): boolean {
   try {
