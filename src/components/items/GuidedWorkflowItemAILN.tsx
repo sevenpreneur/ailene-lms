@@ -11,11 +11,13 @@ export default function GuidedWorkflowItemAILN({
   step,
   checklist,
   onChange,
+  onCommit,
   onNext,
 }: {
   step: GuidedStep;
   checklist: boolean;
   onChange: (patch: Partial<GuidedStep>) => void;
+  onCommit: (patch: Partial<GuidedStep>) => void;
   onNext?: () => void;
 }) {
   const skipped = !step.is_done && !!step.skipped_reason?.trim();
@@ -32,7 +34,7 @@ export default function GuidedWorkflowItemAILN({
             checked={step.is_done}
             aria-label={`Saya sudah menjalankan langkah ${step.order} dan mengecek hasilnya`}
             onChange={(event) =>
-              onChange({ is_done: event.target.checked, skipped_reason: null })
+              onCommit({ is_done: event.target.checked, skipped_reason: null })
             }
             className="size-4 shrink-0 cursor-pointer accent-claude"
           />
@@ -70,6 +72,7 @@ export default function GuidedWorkflowItemAILN({
                 textAreaName="Catatan (opsional)"
                 value={step.note ?? ""}
                 onTextAreaChange={(note) => onChange({ note })}
+                onBlur={() => onCommit({})}
                 textAreaHeight="min-h-20"
                 characterLength={2000}
                 variant="STUDENT"
@@ -82,6 +85,7 @@ export default function GuidedWorkflowItemAILN({
                   onTextAreaChange={(skipped_reason) =>
                     onChange({ skipped_reason })
                   }
+                  onBlur={() => onCommit({})}
                   textAreaPlaceholder="Kenapa langkah ini dilewati?"
                   textAreaHeight="min-h-20"
                   characterLength={2000}
@@ -92,7 +96,7 @@ export default function GuidedWorkflowItemAILN({
                 variant="outline"
                 size="small"
                 onClick={() => {
-                  onChange({ is_done: true, skipped_reason: null });
+                  onCommit({ is_done: true, skipped_reason: null });
                   onNext?.();
                 }}
               >

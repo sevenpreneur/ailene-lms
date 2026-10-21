@@ -9,8 +9,10 @@ import SelectAILN from "@/components/fields/SelectAILN";
 import TextAreaAILN from "@/components/fields/TextAreaAILN";
 import { GUIDED_TYPES, isGuidedProofLink } from "@/lib/guided-use-case";
 import GuidedHintAILN from "@/components/elements/GuidedHintAILN";
+import { Loader2 } from "lucide-react";
 
 export type GuidedEvidence = GuidedTestimonial & {
+  name: string;
   outcome_proof: string;
   hours_with_ai: string;
   ai_tool: string;
@@ -24,15 +26,31 @@ export default function GuidedEvidenceAILN({
   file,
   onFileChange,
   minutesWithoutAi,
+  showName,
+  uploading,
 }: {
   value: GuidedEvidence;
   onChange: (patch: Partial<GuidedEvidence>) => void;
   file: File | null;
   onFileChange: (file: File | null) => void;
   minutesWithoutAi: number | null;
+  showName: boolean;
+  uploading: boolean;
 }) {
   return (
     <div className="flex flex-col gap-5">
+      {showName && (
+        <InputAILN
+          inputId="guided-name"
+          inputName="Judul use case (opsional)"
+          inputType="text"
+          inputPlaceholder="Mis. Rekap laporan penjualan mingguan"
+          value={value.name}
+          onInputChange={(name) => onChange({ name })}
+          characterLength={255}
+          variant="STUDENT"
+        />
+      )}
       <div className="flex flex-col gap-3">
         <div className="flex items-center justify-between">
           <p className="text-sm font-medium">Bukti hasil</p>
@@ -44,24 +62,29 @@ export default function GuidedEvidenceAILN({
         <GuidedFileFieldAILN
           id="guided-outcome-file"
           file={file}
-          onChange={(selected) => {
-            onFileChange(selected);
-            if (selected) onChange({ outcome_proof: "" });
-          }}
+          onChange={onFileChange}
           outcome
         />
+        {uploading && (
+          <p className="flex items-center gap-2 text-xs text-muted-foreground">
+            <Loader2 className="size-3.5 animate-spin" />
+            Mengunggah file…
+          </p>
+        )}
         <InputAILN
           inputId="guided-outcome-link"
           aria-label="Tautan bukti hasil"
           inputType="url"
           inputPlaceholder="Atau tempel tautan: https://…"
-          value={value.outcome_proof}
+          value={file ? "" : value.outcome_proof}
           onInputChange={(outcome_proof) => {
             onChange({ outcome_proof });
             if (outcome_proof) onFileChange(null);
           }}
           errorMessage={
-            value.outcome_proof && !isGuidedProofLink(value.outcome_proof)
+            !file &&
+            value.outcome_proof &&
+            !isGuidedProofLink(value.outcome_proof)
               ? "Gunakan tautan lengkap dengan https:// atau http://."
               : undefined
           }
@@ -76,8 +99,8 @@ export default function GuidedEvidenceAILN({
           </span>
         </span>
         <GuidedHintAILN label="Tentang waktu">
-          Durasi untuk satu kali pengerjaan. Penghematan akan dihitung oleh
-          backend setelah pengiriman tersedia.
+          Durasi untuk satu kali pengerjaan. Penghematan waktu dihitung
+          otomatis setelah kamu mengirim.
         </GuidedHintAILN>
       </div>
       <NumberInputAILN

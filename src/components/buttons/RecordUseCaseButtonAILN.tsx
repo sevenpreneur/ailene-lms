@@ -32,6 +32,7 @@ export default function RecordUseCaseButtonAILN({
         isOpen={isOpen}
         onClose={() => setIsOpen(false)}
         triggerRef={triggerRef}
+        projectId={projectId}
       />
     </>
   );

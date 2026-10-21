@@ -12,12 +12,14 @@ export default function GuidedUseCaseModalAILN({
   triggerRef,
   children,
   progress,
+  title,
 }: {
   isOpen: boolean;
   onClose: () => void;
   triggerRef: RefObject<HTMLButtonElement | null>;
   children: ReactNode;
   progress: ReactNode;
+  title: string;
 }) {
   return (
     <Dialog.Root
@@ -47,22 +49,21 @@ export default function GuidedUseCaseModalAILN({
               </span>
               <div>
                 <div className="flex flex-wrap items-center gap-x-3 gap-y-1">
-                  <Dialog.Title className="text-sm font-medium">
-                    Catat Use Case
+                  <Dialog.Title className="line-clamp-1 text-sm font-medium">
+                    {title}
                   </Dialog.Title>
                 </div>
                 <Dialog.Description className="sr-only">
-                  Catat use case dalam enam langkah. Isian hanya tersimpan
-                  selama halaman terbuka.
+                  Catat use case dalam enam langkah. Isian tersimpan otomatis
+                  setiap pindah langkah.
                 </Dialog.Description>
               </div>
             </div>
             <div className="flex shrink-0 items-center gap-1 sm:gap-2">
               {progress}
-              <GuidedHintAILN label="Tentang pratinjau">
-                Pratinjau tanpa backend. Isian tetap ada saat modal ditutup,
-                lalu hilang saat refresh. File belum diunggah; data belum
-                dikirim.
+              <GuidedHintAILN label="Tentang penyimpanan">
+                Isianmu tersimpan otomatis setiap pindah langkah, jadi kamu
+                bisa menutup dan melanjutkan nanti.
               </GuidedHintAILN>
               <Dialog.Close asChild>
                 <ButtonAILN

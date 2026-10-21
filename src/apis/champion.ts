@@ -4,7 +4,7 @@ import { cookies } from "next/headers";
 import { callApi } from "./api";
 import { SESSION_COOKIE_NAME } from "@/lib/constants";
 import LogError from "@/lib/log-error";
-import type { GuidedSession } from "./use-cases";
+import type { GuidedIntakeFields, GuidedSession } from "./use-cases";
 import type {
   PreAssessmentBand,
   PreAssessmentBaselineBandCount,
@@ -511,6 +511,26 @@ export function createUseCaseAssignment(
   return championWrite<CreateUseCaseAssignmentResult>(
     "createUseCaseAssignment",
     "/api/v1/champion/use-cases/create-assignment",
+    { project_id: projectId, ...input },
+  );
+}
+
+// Steps 1–3 come from the champion; each target's guided session opens on step 4.
+export function createGuidedUseCase(
+  projectId: string,
+  input: {
+    name: string;
+    description?: string | null;
+    category_ids: number[];
+    assignment: AssignmentTarget;
+    intake: Omit<GuidedIntakeFields, "sensitive_data_confirmed"> & {
+      sensitive_data_confirmed: true;
+    };
+  },
+) {
+  return championWrite<CreateUseCaseAssignmentResult>(
+    "createGuidedUseCase",
+    "/api/v1/champion/use-cases/create-guided",
     { project_id: projectId, ...input },
   );
 }
