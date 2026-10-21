@@ -1,5 +1,6 @@
 "use client";
 import ButtonAILN from "@/components/buttons/ButtonAILN";
+import RecordUseCaseButtonAILN from "@/components/buttons/RecordUseCaseButtonAILN";
 import GeneralLabelAILN from "@/components/labels/GeneralLabelAILN";
 import AlertConfirmDialogAILN from "@/components/modals/AlertConfirmDialogAILN";
 import type { TodayFocus, TodayFocusKind } from "@/apis/learnings";
@@ -20,7 +21,6 @@ const SURFACE =
 function labelForKind(kind: TodayFocusKind) {
   if (kind === "quiz") return "Quiz";
   if (kind === "video") return "Video";
-  if (kind === "prompt_practice") return "Prompt";
   if (kind === "use_case_practice") return "Use Case";
   return "Materi";
 }
@@ -28,7 +28,7 @@ function labelForKind(kind: TodayFocusKind) {
 // Kalimat ajakan — sebelumnya jadi judul, sekarang turun ke deskripsi.
 function descForFocus(focus: Pick<TodayFocus, "kind" | "chapter_name">) {
   const label = labelForKind(focus.kind).toLowerCase();
-  if (focus.kind === "prompt_practice" || focus.kind === "use_case_practice") {
+  if (focus.kind === "use_case_practice") {
     return `Kerjakan ${label} ini sebelum tenggat yang diberikan Champion kamu.`;
   }
   return `Selesaikan ${label} ini${
@@ -51,14 +51,14 @@ function hrefForFocus(focus: TodayFocus, projectId: string) {
     case "quiz":
       return `/${projectId}/student/quizzes/${focus.task_id}`;
     case "prompt_practice":
-      return `/${projectId}/student/skill-practice/prompts/${focus.task_id}`;
+      return `/${projectId}/student/skill-practice`;
     case "use_case_practice":
       return `/${projectId}/student/skill-practice/use-cases/${focus.task_id}`;
   }
 }
 
 function detailHrefForFocus(focus: TodayFocus, projectId: string) {
-  if (focus.kind === "prompt_practice" || focus.kind === "use_case_practice") {
+  if (focus.kind === "use_case_practice") {
     return `/${projectId}/student/skill-practice`;
   }
   return focus.chapter_id != null
@@ -74,6 +74,18 @@ export default function TodayFocusCardAILN({
   const router = useRouter();
   const projectId = useProjectId();
   const [isQuizDialogOpen, setIsQuizDialogOpen] = useState(false);
+
+  if (focus?.kind === "prompt_practice") {
+    return (
+      <div className={`${SURFACE} flex flex-col items-start gap-4`}>
+        <span className="text-xs font-medium uppercase tracking-widest text-claude dark:text-lime-bright">
+          Fokus Hari Ini
+        </span>
+        <h2 className="text-2xl font-medium">Coba AI di pekerjaanmu.</h2>
+        <RecordUseCaseButtonAILN projectId={projectId} />
+      </div>
+    );
+  }
 
   if (!focus) {
     return (

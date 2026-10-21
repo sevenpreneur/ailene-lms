@@ -117,10 +117,12 @@ File-file penting di `src/lib/`:
 | `format.ts`                  | Number/score formatting (locale `id-ID`) untuk dashboard laporan     |
 | `level-colors.ts`            | Mapping level (`L0`–`L4`) ke warna UI                                |
 | `log-error.ts`               | Helper log error yang konsisten (console-only)                      |
+| `notifications.ts`           | Ikon + tujuan link per `type` notifikasi (dari `ref_id`) dan label sesi/deadline (presentasi saja) |
 | `optional-type.ts`           | TypeScript helper untuk optional/nullable types                     |
 | `pre-assessment.ts`          | Label section pre-assessment, batas teks jawaban, tone warna skor 0–100 (presentasi saja) |
 | `status_code.ts`             | HTTP status code constants                                           |
 | `supabase.ts`                | Supabase Storage upload                                              |
+| `use-unread-notifications.ts` | Hook badge notifikasi di sidebar — refresh saat navigasi & tab kembali aktif, sengaja tanpa polling interval supaya tab idle tidak membangunkan Neon |
 | `utils.ts`                   | General utilities — `cn()` class merger, dll                        |
 
 ## Styling

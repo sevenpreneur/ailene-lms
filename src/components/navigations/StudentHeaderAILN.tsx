@@ -1,10 +1,8 @@
 "use client";
 
-import ButtonAILN from "@/components/buttons/ButtonAILN";
+import RecordUseCaseButtonAILN from "@/components/buttons/RecordUseCaseButtonAILN";
 import LevelLabelStudentAILN from "@/components/labels/LevelLabelStudentAILN";
 import RewardLabelStudentAILN from "@/components/labels/RewardLabelStudentAILN";
-import { PlusCircle } from "lucide-react";
-import { useRouter } from "next/navigation";
 
 export default function StudentHeaderAILN({
   fullName,
@@ -17,7 +15,6 @@ export default function StudentHeaderAILN({
   currentLevelNumber: number;
   totalXp: number;
 }) {
-  const router = useRouter();
   const firstName = fullName.split(" ")[0] || fullName;
 
   return (
@@ -28,15 +25,7 @@ export default function StudentHeaderAILN({
       <div className="flex flex-wrap items-center gap-3">
         <LevelLabelStudentAILN variant="compact" levelNumber={currentLevelNumber} />
         <RewardLabelStudentAILN variant="compact" xp={totalXp} />
-        <ButtonAILN
-          type="button"
-          variant="lime"
-          size="medium"
-          onClick={() => router.push(`/${projectId}/student/skill-practice/create`)}
-        >
-          <PlusCircle className="size-4" />
-          Catat Use Case
-        </ButtonAILN>
+        <RecordUseCaseButtonAILN projectId={projectId} />
       </div>
     </header>
   );

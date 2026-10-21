@@ -1,21 +1,18 @@
 "use client";
-import ButtonAILN from "@/components/buttons/ButtonAILN";
+import RecordUseCaseButtonAILN from "@/components/buttons/RecordUseCaseButtonAILN";
 import SectionContainerAILN from "@/components/cards/SectionContainerAILN";
 import SkillPracticeCardAILN, {
   type Category,
-  type PracticeKind,
   type PracticeStatus,
 } from "@/components/items/SkillPracticeCardAILN";
 import PageContainerAILN from "@/components/pages/PageContainerAILN";
 import Tabs from "@/components/navigations/Tabs";
 import PageHeaderAILN from "@/components/titles/PageHeaderAILN";
 import { useProjectId } from "@/lib/use-project-id";
-import type { AssignedPrompt, PromptLibraryItem } from "@/apis/prompts";
 import type { AssignedUseCase, UseCaseLibraryItem } from "@/apis/use-cases";
 import dayjs from "dayjs";
 import "dayjs/locale/id";
-import { BookOpen, Clock, History, Library, Plus } from "lucide-react";
-import Link from "next/link";
+import { BookOpen, Clock, History, Library } from "lucide-react";
 import { useSearchParams } from "next/navigation";
 import { useEffect, useState } from "react";
 import { toast } from "sonner";
@@ -26,7 +23,6 @@ type PracticeTab = "ASSIGNED" | "LIBRARY" | "HISTORY";
 
 interface PracticeItem {
   id: number;
-  kind: PracticeKind;
   href: string;
   title: string;
   body: string;
@@ -41,7 +37,6 @@ interface PracticeItem {
 
 interface LibraryItem {
   id: number;
-  kind: PracticeKind;
   href: string;
   title: string;
   body: string;
@@ -55,18 +50,12 @@ interface LibraryItem {
   } | null;
 }
 
-async function selfAssign(kind: PracticeKind, id: number): Promise<boolean> {
-  const endpoint =
-    kind === "PROMPT"
-      ? "/api/prompts/self-assign"
-      : "/api/use-cases/self-assign";
-  const body = kind === "PROMPT" ? { prompt_id: id } : { use_case_id: id };
-
+async function selfAssign(id: number): Promise<boolean> {
   try {
-    const res = await fetch(endpoint, {
+    const res = await fetch("/api/use-cases/self-assign", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(body),
+      body: JSON.stringify({ use_case_id: id }),
     });
     if (!res.ok) {
       const data = await res.json().catch(() => null);
@@ -80,10 +69,8 @@ async function selfAssign(kind: PracticeKind, id: number): Promise<boolean> {
   }
 }
 
-function practiceHref(projectId: string, kind: PracticeKind, refId: number) {
-  return kind === "PROMPT"
-    ? `/${projectId}/student/skill-practice/prompts/${refId}`
-    : `/${projectId}/student/skill-practice/use-cases/${refId}`;
+function practiceHref(projectId: string, refId: number) {
+  return `/${projectId}/student/skill-practice/use-cases/${refId}`;
 }
 
 function tabFromParam(value: string | null): PracticeTab {
@@ -109,14 +96,12 @@ function deriveStatus(item: {
 }
 
 function assignedToPracticeItem(
-  kind: PracticeKind,
-  row: AssignedPrompt | AssignedUseCase,
+  row: AssignedUseCase,
   projectId: string,
 ): PracticeItem {
   return {
     id: row.id,
-    kind,
-    href: practiceHref(projectId, kind, row.id),
+    href: practiceHref(projectId, row.id),
     title: row.name,
     body: row.description,
     level_number: row.level_number,
@@ -130,14 +115,12 @@ function assignedToPracticeItem(
 }
 
 function libraryToItem(
-  kind: PracticeKind,
-  row: PromptLibraryItem | UseCaseLibraryItem,
+  row: UseCaseLibraryItem,
   projectId: string,
 ): LibraryItem {
   return {
     id: row.id,
-    kind,
-    href: practiceHref(projectId, kind, row.id),
+    href: practiceHref(projectId, row.id),
     title: row.name,
     body: row.description,
     level_number: row.level_number,
@@ -154,14 +137,10 @@ function libraryToItem(
 }
 
 export default function SkillPracticeStudentAILN({
-  promptLibrary,
   useCaseLibrary,
-  assignedPrompts,
   assignedUseCases,
 }: {
-  promptLibrary: PromptLibraryItem[];
   useCaseLibrary: UseCaseLibraryItem[];
-  assignedPrompts: AssignedPrompt[];
   assignedUseCases: AssignedUseCase[];
 }) {
   const searchParams = useSearchParams();
@@ -176,12 +155,7 @@ export default function SkillPracticeStudentAILN({
   }, [searchParams]);
 
   const assignedItems: PracticeItem[] = [
-    ...assignedPrompts.map((r) =>
-      assignedToPracticeItem("PROMPT", r, projectId),
-    ),
-    ...assignedUseCases.map((r) =>
-      assignedToPracticeItem("USE_CASE", r, projectId),
-    ),
+    ...assignedUseCases.map((r) => assignedToPracticeItem(r, projectId)),
   ].sort((a, b) => {
     const statusOrder =
       Number(a.is_accepted) - Number(b.is_accepted) ||
@@ -194,8 +168,7 @@ export default function SkillPracticeStudentAILN({
   });
 
   const libraryItems: LibraryItem[] = [
-    ...promptLibrary.map((r) => libraryToItem("PROMPT", r, projectId)),
-    ...useCaseLibrary.map((r) => libraryToItem("USE_CASE", r, projectId)),
+    ...useCaseLibrary.map((r) => libraryToItem(r, projectId)),
   ].sort((a, b) => {
     if (a.level_number !== b.level_number) {
       return a.level_number - b.level_number;
@@ -204,17 +177,13 @@ export default function SkillPracticeStudentAILN({
   });
 
   // History = submitted assigned items + submitted library items not already counted as assigned.
-  const assignedIds = new Set(assignedItems.map((i) => `${i.kind}-${i.id}`));
+  const assignedIds = new Set(assignedItems.map((i) => i.id));
   const historyItems: PracticeItem[] = [
     ...assignedItems.filter((i) => i.submitted_at !== null),
     ...libraryItems
-      .filter(
-        (i) =>
-          i.submission?.submitted_at && !assignedIds.has(`${i.kind}-${i.id}`),
-      )
+      .filter((i) => i.submission?.submitted_at && !assignedIds.has(i.id))
       .map((i) => ({
         id: i.id,
-        kind: i.kind,
         href: i.href,
         title: i.title,
         body: i.body,
@@ -235,22 +204,8 @@ export default function SkillPracticeStudentAILN({
   return (
     <PageContainerAILN>
       <div className="flex w-full flex-col gap-6">
-        <PageHeaderAILN
-          title="Latihan Skill"
-          desc="Tingkatkan kemampuanmu dengan latihan yang relevan."
-        >
-          <ButtonAILN
-            asChild
-            type="button"
-            variant="lime"
-            size="medium"
-            shrink={false}
-          >
-            <Link href={`/${projectId}/student/skill-practice/create`}>
-              <Plus className="size-4" />
-              Catat Latihan
-            </Link>
-          </ButtonAILN>
+        <PageHeaderAILN title="Use Case" desc="Terapkan AI di pekerjaanmu.">
+          <RecordUseCaseButtonAILN projectId={projectId} />
         </PageHeaderAILN>
 
         <Tabs<PracticeTab>
@@ -260,18 +215,18 @@ export default function SkillPracticeStudentAILN({
           items={[
             {
               value: "ASSIGNED",
-              label: "Assigned untuk Anda",
+              label: "Untukmu",
               icon: <Clock className="size-4" />,
               badge: pendingAssignedCount > 0 ? pendingAssignedCount : null,
             },
             {
               value: "LIBRARY",
-              label: "Library (Self Assign)",
+              label: "Library",
               icon: <Library className="size-4" />,
             },
             {
               value: "HISTORY",
-              label: "Riwayat Submission",
+              label: "Riwayat",
               icon: <History className="size-4" />,
             },
           ]}
@@ -279,25 +234,23 @@ export default function SkillPracticeStudentAILN({
 
         {tab === "ASSIGNED" && (
           <SectionContainerAILN
-            title="Assigned untuk Anda"
-            desc="Latihan yang diberikan untuk kamu kerjakan."
+            title="Untukmu"
             contentClassName="flex flex-col gap-4"
           >
             {assignedItems.length === 0 ? (
-              <EmptyState label="Belum ada latihan yang di-assign." />
+              <EmptyState label="Belum ada use case untukmu." />
             ) : (
               <>
                 {pendingAssignedCount > 0 && (
                   <div className="rounded-lg border border-amber-300 bg-amber-50 p-3 text-sm text-amber-800 dark:border-amber-500/30 dark:bg-amber-500/10 dark:text-amber-200">
-                    Kamu punya <strong>{pendingAssignedCount}</strong> tugas
-                    yang belum dikerjakan.
+                    <strong>{pendingAssignedCount}</strong> use case belum
+                    dikerjakan.
                   </div>
                 )}
                 <div className="grid grid-cols-1 gap-3 md:grid-cols-2">
                   {assignedItems.map((item) => (
                     <SkillPracticeCardAILN
-                      key={`${item.kind}-${item.id}`}
-                      kind={item.kind}
+                      key={item.id}
                       title={item.title}
                       body={item.body}
                       levelNumber={item.level_number}
@@ -318,18 +271,16 @@ export default function SkillPracticeStudentAILN({
 
         {tab === "LIBRARY" && (
           <SectionContainerAILN
-            title="Library (Self Assign)"
-            desc="Pilih latihan dari prompt dan use case yang tersedia."
+            title="Use Case Library"
             contentClassName="flex flex-col gap-4"
           >
             {libraryItems.length === 0 ? (
-              <EmptyState label="Library belum punya latihan aktif." />
+              <EmptyState label="Belum ada use case di library." />
             ) : (
               <div className="grid grid-cols-1 gap-3 md:grid-cols-2">
                 {libraryItems.map((item) => (
                   <SkillPracticeCardAILN
-                    key={`${item.kind}-${item.id}`}
-                    kind={item.kind}
+                    key={item.id}
                     title={item.title}
                     body={item.body}
                     levelNumber={item.level_number}
@@ -346,7 +297,7 @@ export default function SkillPracticeStudentAILN({
                     message={null}
                     submittedAt={item.submission?.submitted_at ?? null}
                     href={item.href}
-                    onSelfAssign={() => selfAssign(item.kind, item.id)}
+                    onSelfAssign={() => selfAssign(item.id)}
                   />
                 ))}
               </div>
@@ -356,18 +307,16 @@ export default function SkillPracticeStudentAILN({
 
         {tab === "HISTORY" && (
           <SectionContainerAILN
-            title="Riwayat Submission"
-            desc="Semua latihan yang berhasil kamu submit."
+            title="Riwayat Use Case"
             contentClassName="flex flex-col gap-4"
           >
             {historyItems.length === 0 ? (
-              <EmptyState label="Belum ada submission yang berhasil dikirim." />
+              <EmptyState label="Belum ada use case yang dikirim." />
             ) : (
               <div className="grid grid-cols-1 gap-3 md:grid-cols-2">
                 {historyItems.map((item) => (
                   <SkillPracticeCardAILN
-                    key={`${item.kind}-${item.id}`}
-                    kind={item.kind}
+                    key={item.id}
                     title={item.title}
                     body={item.body}
                     levelNumber={item.level_number}

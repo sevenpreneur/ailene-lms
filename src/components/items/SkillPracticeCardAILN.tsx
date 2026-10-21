@@ -2,11 +2,6 @@
 import GeneralLabelAILN, {
   type GeneralLabelVariantAILN,
 } from "@/components/labels/GeneralLabelAILN";
-import {
-  faPuzzlePiece,
-  faWandMagicSparkles,
-} from "@fortawesome/free-solid-svg-icons";
-import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import dayjs from "dayjs";
 import "dayjs/locale/id";
 import {
@@ -17,6 +12,7 @@ import {
   Clock,
   Loader2,
   MessageSquare,
+  Puzzle,
   Send,
 } from "lucide-react";
 import Link from "next/link";
@@ -24,8 +20,6 @@ import { useRouter } from "next/navigation";
 import React, { useState } from "react";
 
 dayjs.locale("id");
-
-export type PracticeKind = "PROMPT" | "USE_CASE";
 
 export type PracticeStatus =
   | "PENDING_SUBMIT"
@@ -65,7 +59,6 @@ const statusMeta: Record<
 };
 
 export default function SkillPracticeCardAILN({
-  kind,
   title,
   body,
   levelNumber,
@@ -78,7 +71,6 @@ export default function SkillPracticeCardAILN({
   href,
   onSelfAssign,
 }: {
-  kind: PracticeKind;
   title: string;
   body: string;
   levelNumber: number;
@@ -100,7 +92,7 @@ export default function SkillPracticeCardAILN({
     deadline !== null &&
     dayjs(deadline).isBefore(dayjs());
   const hasFooter = Boolean(
-    deadline || submittedAt || championName || message || categories.length > 0
+    deadline || submittedAt || championName || message || categories.length > 0,
   );
 
   const handleClick = async (e: React.MouseEvent) => {
@@ -134,14 +126,9 @@ export default function SkillPracticeCardAILN({
             </GeneralLabelAILN>
             <GeneralLabelAILN
               variant="white"
-              icon={
-                <FontAwesomeIcon
-                  icon={kind === "PROMPT" ? faWandMagicSparkles : faPuzzlePiece}
-                  className="size-3"
-                />
-              }
+              icon={<Puzzle className="size-3" />}
             >
-              {kind === "PROMPT" ? "Prompt" : "Use Case"}
+              Use Case
             </GeneralLabelAILN>
           </div>
           <GeneralLabelAILN

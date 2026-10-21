@@ -12,19 +12,16 @@ interface SkillPracticeListAILNProps {
   unlocked: boolean;
   expanded: boolean;
   onToggle: () => void;
-  prompts: SkillPracticeItem[];
   useCases: SkillPracticeItem[];
 }
 
 export default function SkillPracticeListAILN(
   props: SkillPracticeListAILNProps,
 ) {
-  const total = props.prompts.length + props.useCases.length;
-  const accepted =
-    props.prompts.filter((p) => deriveSkillPracticeStatus(p) === "accepted")
-      .length +
-    props.useCases.filter((u) => deriveSkillPracticeStatus(u) === "accepted")
-      .length;
+  const total = props.useCases.length;
+  const accepted = props.useCases.filter(
+    (u) => deriveSkillPracticeStatus(u) === "accepted",
+  ).length;
 
   return (
     <div className="bg-card-1">
@@ -56,10 +53,10 @@ export default function SkillPracticeListAILN(
               Latihan skill
             </div>
             <div className="font-headline text-base font-medium text-gray-900 dark:text-white sm:text-lg">
-              Prompt &amp; Use Case
+              Use Case
             </div>
             <div className="text-sm text-gray-500 dark:text-gray-400">
-              {props.prompts.length} prompt · {props.useCases.length} use case
+              {props.useCases.length} use case
             </div>
           </div>
         </div>
@@ -88,18 +85,9 @@ export default function SkillPracticeListAILN(
       >
         <div className="overflow-hidden">
           <div className="space-y-2 border-t border-dashboard-border bg-card-2/60 px-5 py-4 sm:px-6">
-            {props.prompts.map((p) => (
-              <SkillPracticeItemAILN
-                key={`prompt-${p.id}`}
-                variant="Prompt"
-                item={p}
-                unlocked={props.unlocked}
-              />
-            ))}
             {props.useCases.map((u) => (
               <SkillPracticeItemAILN
                 key={`usecase-${u.id}`}
-                variant="UseCase"
                 item={u}
                 unlocked={props.unlocked}
               />

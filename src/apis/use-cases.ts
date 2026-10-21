@@ -71,6 +71,84 @@ export type UseCaseType =
   | "learning"
   | "other";
 
+// Guided UI contract. No guided endpoints are called until the backend is ready.
+export type GuidedStatus =
+  | "intake"
+  | "steps_ready"
+  | "in_progress"
+  | "ready_to_submit"
+  | "submitted";
+
+export type GuidedStep = {
+  id: number;
+  order: number;
+  title: string;
+  instruction: string;
+  suggested_tool: string;
+  prompt_template: string;
+  estimated_minutes: number;
+  verification: string;
+  is_done: boolean;
+  skipped_reason: string | null;
+  note: string | null;
+  done_at: string | null;
+};
+
+export type GuidedSession = {
+  id: number;
+  use_case_id: number;
+  status: GuidedStatus;
+  current_step: 1 | 2 | 3 | 4 | 5 | 6;
+  daily_task: string | null;
+  frequency: UseCaseFrequency | null;
+  example_text: string | null;
+  example_file_url: string | null;
+  sensitive_data_confirmed: boolean;
+  minutes_without_ai: number | null;
+  current_process: string | null;
+  current_tools: string[];
+  pain_point: string | null;
+  steps: GuidedStep[];
+  estimated_minutes_with_ai: number | null;
+  risks: string[];
+  regenerate_remaining: number;
+  created_at: string;
+  updated_at: string;
+};
+
+export type GuidedTestimonial = {
+  testimonial: string;
+  helpfulness_rating: number | null;
+  share_consent: boolean;
+};
+
+export type GuidedSaveInput = Pick<
+  GuidedSession,
+  "use_case_id" | "current_step"
+> &
+  Partial<
+    Pick<
+      GuidedSession,
+      | "daily_task"
+      | "frequency"
+      | "example_text"
+      | "example_file_url"
+      | "sensitive_data_confirmed"
+      | "minutes_without_ai"
+      | "current_process"
+      | "current_tools"
+      | "pain_point"
+    >
+  >;
+
+export type GuidedGenerateInput = { session_id: number; feedback?: string };
+export type GuidedCheckInput = Pick<GuidedStep, "is_done"> & {
+  session_id: number;
+  step_id: number;
+  note?: string;
+  skipped_reason?: string;
+};
+
 export type SelfCreateUseCaseInput = {
   project_id: string;
   name: string;
@@ -93,6 +171,10 @@ export type SubmitUseCaseInput = {
   ai_tool: string;
   frequency: UseCaseFrequency;
   type: UseCaseType;
+  guided_session_id?: number;
+  testimonial?: string;
+  helpfulness_rating?: number;
+  share_consent?: boolean;
 };
 
 export type UseCaseMutationResult =

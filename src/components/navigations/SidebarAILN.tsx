@@ -1,7 +1,9 @@
 "use client";
 
 import type { LmsProjectRole, LmsSession } from "@/apis/auth";
+import NotificationSheetAILN from "@/components/modals/NotificationSheetAILN";
 import SidebarNavItemAILN from "@/components/navigations/SidebarNavItemAILN";
+import SidebarNotificationButtonAILN from "@/components/navigations/SidebarNotificationButtonAILN";
 import SidebarProjectSwitcherAILN, {
   ROLE_LABEL,
 } from "@/components/navigations/SidebarProjectSwitcherAILN";
@@ -9,7 +11,9 @@ import SidebarShellAILN, {
   SidebarGroupLabelAILN,
 } from "@/components/navigations/SidebarShellAILN";
 import SidebarUserMenuAILN from "@/components/navigations/SidebarUserMenuAILN";
+import { useSidebar } from "@/contexts/SidebarContext";
 import { useProjectId } from "@/lib/use-project-id";
+import { useUnreadNotifications } from "@/lib/use-unread-notifications";
 import {
   BarChart3,
   BookMarked,
@@ -24,6 +28,7 @@ import {
   type LucideIcon,
 } from "lucide-react";
 import { usePathname } from "next/navigation";
+import { useCallback, useState } from "react";
 
 export type SidebarAILNVariant = "STUDENT" | "CHAMPION" | "SPONSOR";
 
@@ -116,6 +121,20 @@ export default function SidebarAILN({
   const pathname = usePathname();
   const project = session.project_access.find((p) => p.id === projectId);
 
+  // Sponsors receive no notifications, so their sidebar never asks for any.
+  const hasNotifications = variant !== "SPONSOR";
+  const { unreadCount, setUnreadCount } = useUnreadNotifications(
+    projectId,
+    hasNotifications
+  );
+  const [isNotificationOpen, setIsNotificationOpen] = useState(false);
+  const { closeMobile } = useSidebar();
+  const openNotifications = () => {
+    closeMobile();
+    setIsNotificationOpen(true);
+  };
+  const closeNotifications = useCallback(() => setIsNotificationOpen(false), []);
+
   const switcher = (collapsed: boolean) => (
     <SidebarProjectSwitcherAILN
       project={project}
@@ -126,6 +145,7 @@ export default function SidebarAILN({
   );
 
   return (
+    <>
     <SidebarShellAILN
       mobileBrand={
         <div className="min-w-0">
@@ -140,6 +160,13 @@ export default function SidebarAILN({
       header={switcher}
       nav={(collapsed) => (
         <>
+          {hasNotifications && (
+            <SidebarNotificationButtonAILN
+              unreadCount={unreadCount}
+              collapsed={collapsed}
+              onClick={openNotifications}
+            />
+          )}
           <SidebarGroupLabelAILN collapsed={collapsed}>
             {config.groupLabel}
           </SidebarGroupLabelAILN>
@@ -168,5 +195,15 @@ export default function SidebarAILN({
         />
       )}
     />
+    {hasNotifications && (
+      <NotificationSheetAILN
+        projectId={projectId}
+        isOpen={isNotificationOpen}
+        onClose={closeNotifications}
+        unreadCount={unreadCount}
+        onUnreadChange={setUnreadCount}
+      />
+    )}
+    </>
   );
 }

@@ -1,0 +1,275 @@
+"use client";
+
+import type { GuidedSession } from "@/apis/use-cases";
+import ButtonAILN from "@/components/buttons/ButtonAILN";
+import GuidedFileFieldAILN from "@/components/fields/GuidedFileFieldAILN";
+import InputAILN from "@/components/fields/InputAILN";
+import NumberInputAILN from "@/components/fields/NumberInputAILN";
+import SelectAILN from "@/components/fields/SelectAILN";
+import TextAreaAILN from "@/components/fields/TextAreaAILN";
+import {
+  GUIDED_FREQUENCIES,
+  GUIDED_TASK_EXAMPLES,
+} from "@/lib/guided-use-case";
+import { ShieldCheck } from "lucide-react";
+import GuidedHintAILN from "@/components/elements/GuidedHintAILN";
+import { useState } from "react";
+
+export type GuidedIntake = Pick<
+  GuidedSession,
+  | "daily_task"
+  | "frequency"
+  | "example_text"
+  | "sensitive_data_confirmed"
+  | "minutes_without_ai"
+  | "current_process"
+  | "current_tools"
+  | "pain_point"
+>;
+
+const CURRENT_TOOL_PRESETS = [
+  "Excel",
+  "Google Sheets",
+  "Email",
+  "WhatsApp",
+  "Word",
+  "PowerPoint",
+];
+
+export default function GuidedIntakeAILN({
+  step,
+  value,
+  onChange,
+  file,
+  onFileChange,
+  exampleMode,
+  onExampleModeChange,
+}: {
+  step: number;
+  value: GuidedIntake;
+  onChange: (patch: Partial<GuidedIntake>) => void;
+  file: File | null;
+  onFileChange: (file: File | null) => void;
+  exampleMode: "text" | "file";
+  onExampleModeChange: (mode: "text" | "file") => void;
+}) {
+  const [otherTools, setOtherTools] = useState(() =>
+    value.current_tools
+      .filter((tool) => !CURRENT_TOOL_PRESETS.includes(tool))
+      .join(", "),
+  );
+
+  if (step === 1)
+    return (
+      <div className="flex flex-col gap-5">
+        <TextAreaAILN
+          textAreaId="guided-task"
+          aria-labelledby="guided-heading"
+          value={value.daily_task ?? ""}
+          onTextAreaChange={(daily_task) => onChange({ daily_task })}
+          textAreaPlaceholder="Mis. merekap penjualan mingguan dari beberapa cabang."
+          textAreaHeight="min-h-36"
+          characterLength={3000}
+          variant="STUDENT"
+          required
+        />
+        <p className="-mt-3 text-right text-[11px] text-muted-foreground">
+          {(value.daily_task ?? "").trim().length} karakter · min. 30
+        </p>
+        <div className="flex flex-col gap-2">
+          <div className="flex flex-wrap gap-2">
+            {GUIDED_TASK_EXAMPLES.map((example) => (
+              <ButtonAILN
+                key={example.label}
+                variant="chip"
+                size="chip"
+                onClick={() => onChange({ daily_task: example.text })}
+              >
+                {example.label}
+              </ButtonAILN>
+            ))}
+          </div>
+        </div>
+        <SelectAILN
+          selectId="guided-frequency"
+          selectName="Frekuensi"
+          selectPlaceholder="Pilih frekuensi"
+          value={value.frequency}
+          options={GUIDED_FREQUENCIES}
+          onChange={(frequency) =>
+            onChange({ frequency: frequency as GuidedIntake["frequency"] })
+          }
+          variant="STUDENT"
+          required
+        />
+      </div>
+    );
+
+  if (step === 2)
+    return (
+      <div className="flex flex-col gap-5">
+        <div className="flex items-center gap-2 rounded-lg bg-amber-50 px-3 py-1.5 text-xs text-amber-950 dark:bg-amber-500/10 dark:text-amber-200">
+          <ShieldCheck className="size-4 shrink-0" />
+          <span className="flex-1">Samarkan data sensitif.</span>
+          <GuidedHintAILN label="Data yang perlu disamarkan">
+            Hapus NIK, rekening, gaji, dan data pelanggan asli. Ganti identitas
+            dengan nama seperti “Pelanggan A”.
+          </GuidedHintAILN>
+        </div>
+        <div
+          className="flex flex-wrap gap-2"
+          role="group"
+          aria-label="Cara memberikan contoh"
+        >
+          <ButtonAILN
+            variant={exampleMode === "text" ? "outlineActive" : "outline"}
+            aria-pressed={exampleMode === "text"}
+            onClick={() => {
+              onExampleModeChange("text");
+              onFileChange(null);
+              onChange({ sensitive_data_confirmed: false });
+            }}
+          >
+            Tempel teks
+          </ButtonAILN>
+          <ButtonAILN
+            variant={exampleMode === "file" ? "outlineActive" : "outline"}
+            aria-pressed={exampleMode === "file"}
+            onClick={() => {
+              onExampleModeChange("file");
+              onChange({ example_text: "", sensitive_data_confirmed: false });
+            }}
+          >
+            Pilih file
+          </ButtonAILN>
+        </div>
+        {exampleMode === "text" ? (
+          <TextAreaAILN
+            textAreaId="guided-example"
+            aria-labelledby="guided-heading"
+            value={value.example_text ?? ""}
+            onTextAreaChange={(example_text) =>
+              onChange({ example_text, sensitive_data_confirmed: false })
+            }
+            textAreaPlaceholder="Tempel contoh yang sudah disamarkan…"
+            textAreaHeight="min-h-44"
+            characterLength={10000}
+            variant="STUDENT"
+            required
+          />
+        ) : (
+          <GuidedFileFieldAILN
+            id="guided-example-file"
+            file={file}
+            onChange={(selected) => {
+              onFileChange(selected);
+              onChange({ sensitive_data_confirmed: false });
+            }}
+          />
+        )}
+        <label className="flex cursor-pointer items-start gap-3 text-sm">
+          <input
+            type="checkbox"
+            checked={value.sensitive_data_confirmed}
+            onChange={(e) =>
+              onChange({ sensitive_data_confirmed: e.target.checked })
+            }
+            className="mt-0.5 size-4 shrink-0 accent-claude"
+          />
+          <span>Saya sudah menyamarkan data sensitif.</span>
+        </label>
+      </div>
+    );
+
+  return (
+    <div className="flex flex-col gap-5">
+      <div className="max-w-sm">
+        <NumberInputAILN
+          inputId="guided-minutes"
+          inputName="Durasi per pengerjaan (menit)"
+          inputConfig="numeric"
+          inputPlaceholder="Contoh: 90"
+          value={
+            value.minutes_without_ai === null
+              ? ""
+              : String(value.minutes_without_ai)
+          }
+          onInputChange={(raw) =>
+            onChange({ minutes_without_ai: raw === "" ? null : Number(raw) })
+          }
+          variant="STUDENT"
+          required
+        />
+      </div>
+      <TextAreaAILN
+        textAreaId="guided-process"
+        textAreaName="Proses sekarang"
+        value={value.current_process ?? ""}
+        onTextAreaChange={(current_process) => onChange({ current_process })}
+        textAreaPlaceholder={
+          "1. Kumpulkan data\n2. Cek angka di Excel\n3. Kirim ringkasan"
+        }
+        textAreaHeight="min-h-36"
+        characterLength={5000}
+        variant="STUDENT"
+        required
+      />
+      <div className="flex flex-col gap-2">
+        <p className="text-sm font-medium">Tool saat ini</p>
+        <div className="flex flex-wrap gap-2">
+          {CURRENT_TOOL_PRESETS.map((tool) => (
+            <ButtonAILN
+              key={tool}
+              size="chip"
+              variant={
+                value.current_tools.includes(tool) ? "chipActive" : "chip"
+              }
+              aria-pressed={value.current_tools.includes(tool)}
+              onClick={() =>
+                onChange({
+                  current_tools: value.current_tools.includes(tool)
+                    ? value.current_tools.filter((item) => item !== tool)
+                    : [...value.current_tools, tool],
+                })
+              }
+            >
+              {tool}
+            </ButtonAILN>
+          ))}
+        </div>
+        <InputAILN
+          inputId="guided-other-tools"
+          aria-label="Tool lainnya"
+          inputPlaceholder="Tool lain, pisahkan dengan koma"
+          inputType="text"
+          value={otherTools}
+          onInputChange={(raw) => {
+            setOtherTools(raw);
+            onChange({
+              current_tools: [
+                ...value.current_tools.filter((tool) =>
+                  CURRENT_TOOL_PRESETS.includes(tool),
+                ),
+                ...raw
+                  .split(",")
+                  .map((tool) => tool.trim())
+                  .filter(Boolean),
+              ],
+            });
+          }}
+          variant="STUDENT"
+        />
+      </div>
+      <TextAreaAILN
+        textAreaId="guided-pain"
+        textAreaName="Kendala (opsional)"
+        value={value.pain_point ?? ""}
+        onTextAreaChange={(pain_point) => onChange({ pain_point })}
+        textAreaPlaceholder="Bagian tersulit atau paling sering salah?"
+        textAreaHeight="min-h-24"
+        characterLength={2000}
+        variant="STUDENT"
+      />
+    </div>
+  );
+}

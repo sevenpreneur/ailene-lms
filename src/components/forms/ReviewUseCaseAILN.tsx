@@ -1,6 +1,7 @@
 "use client";
 import ButtonAILN from "@/components/buttons/ButtonAILN";
 import SectionContainerAILN from "@/components/cards/SectionContainerAILN";
+import GuidedUseCaseReviewAILN from "@/components/cards/GuidedUseCaseReviewAILN";
 import TextAreaAILN from "@/components/fields/TextAreaAILN";
 import GeneralLabelAILN, {
   type GeneralLabelVariantAILN,
@@ -265,6 +266,14 @@ export default function ReviewUseCaseAILN({
                 </p>
               )}
             </SectionContainerAILN>
+            {s.guided_session && (
+              <GuidedUseCaseReviewAILN
+                session={s.guided_session}
+                testimonial={s.testimonial ?? ""}
+                helpfulness_rating={s.helpfulness_rating ?? null}
+                share_consent={s.share_consent ?? false}
+              />
+            )}
           </div>
 
           {/* Right: assessment */}

@@ -1,28 +1,15 @@
-import { getPromptDetails } from "@/apis/prompts";
-import SubmitPromptAILN from "@/components/forms/SubmitPromptAILN";
-import AppPageState from "@/components/states/AppPageState";
 import { Metadata } from "next";
+import { redirect } from "next/navigation";
 
 export const metadata: Metadata = {
-  title: "Kerjakan Prompt",
+  title: "Use Case",
 };
 
 export default async function StudentPromptPracticePage({
   params,
 }: {
-  params: Promise<{ prompt_id: string }>;
+  params: Promise<{ project_id: string }>;
 }) {
-  const { prompt_id } = await params;
-  const promptIdNum = Number(prompt_id);
-
-  if (!Number.isInteger(promptIdNum) || promptIdNum <= 0) {
-    return <AppPageState variant="NOT_FOUND" />;
-  }
-
-  const result = await getPromptDetails(promptIdNum);
-  if (result.kind === "not_found") {
-    return <AppPageState variant="NOT_FOUND" />;
-  }
-
-  return <SubmitPromptAILN prompt={result.data} />;
+  const { project_id } = await params;
+  redirect(`/${project_id}/student/skill-practice`);
 }

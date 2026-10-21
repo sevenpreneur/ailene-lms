@@ -3,11 +3,7 @@ import ButtonAILN from "@/components/buttons/ButtonAILN";
 import GeneralLabelAILN, {
   type GeneralLabelVariantAILN,
 } from "@/components/labels/GeneralLabelAILN";
-import {
-  faLock,
-  faPuzzlePiece,
-  faWandMagicSparkles,
-} from "@fortawesome/free-solid-svg-icons";
+import { faLock, faPuzzlePiece } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import dayjs from "dayjs";
 import "dayjs/locale/id";
@@ -53,7 +49,7 @@ export function deriveSkillPracticeStatus(
 ): SkillPracticeStatus {
   // Source of truth for "sudah direview" adalah reviewed_at —
   // bukan is_accepted, karena is_accepted default false di DB
-  // (lihat schema AilPromptSubmission / AilUseCaseSubmission).
+  // (lihat status submission use case).
   if (item.reviewed_at) {
     return item.is_accepted ? "accepted" : "rejected";
   }
@@ -94,26 +90,13 @@ const statusMeta: Record<
   },
 };
 
-type Variant = "Prompt" | "UseCase";
-
-const variantMeta: Record<
-  Variant,
-  { icon: React.ReactNode; badge: string; basePath: string }
-> = {
-  Prompt: {
-    icon: <FontAwesomeIcon icon={faWandMagicSparkles} size="lg" />,
-    badge: "Prompt",
-    basePath: "/student/skill-practice/prompts",
-  },
-  UseCase: {
-    icon: <FontAwesomeIcon icon={faPuzzlePiece} size="lg" />,
-    badge: "Use Case",
-    basePath: "/student/skill-practice/use-cases",
-  },
+const useCaseMeta = {
+  icon: <FontAwesomeIcon icon={faPuzzlePiece} size="lg" />,
+  badge: "Use Case",
+  basePath: "/student/skill-practice/use-cases",
 };
 
 interface SkillPracticeItemAILNProps {
-  variant: Variant;
   unlocked: boolean;
   item: SkillPracticeItem;
 }
@@ -121,9 +104,9 @@ interface SkillPracticeItemAILNProps {
 export default function SkillPracticeItemAILN(
   props: SkillPracticeItemAILNProps,
 ) {
-  const { variant, item, unlocked } = props;
+  const { item, unlocked } = props;
   const projectId = useProjectId();
-  const v = variantMeta[variant];
+  const v = useCaseMeta;
   const status = deriveSkillPracticeStatus(item);
   const sMeta = statusMeta[status];
   const locked = !unlocked;

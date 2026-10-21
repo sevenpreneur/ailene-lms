@@ -1,13 +1,21 @@
 import dayjs from "dayjs";
 import duration from "dayjs/plugin/duration";
+import relativeTime from "dayjs/plugin/relativeTime";
 import timezone from "dayjs/plugin/timezone";
 import utc from "dayjs/plugin/utc";
 import "dayjs/locale/id";
 
 dayjs.locale("id");
 dayjs.extend(duration);
+dayjs.extend(relativeTime);
 dayjs.extend(utc);
 dayjs.extend(timezone);
+
+// "5 menit yang lalu", for feeds where the exact time matters less than recency.
+export function formatRelativeTime(value: string): string {
+  const moment = dayjs(value);
+  return moment.isValid() ? moment.locale("id").fromNow() : "";
+}
 
 export function formatChapterSessionDate(
   value: string,

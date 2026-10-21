@@ -4,6 +4,7 @@ import { cookies } from "next/headers";
 import { callApi } from "./api";
 import { SESSION_COOKIE_NAME } from "@/lib/constants";
 import LogError from "@/lib/log-error";
+import type { GuidedSession } from "./use-cases";
 import type {
   PreAssessmentBand,
   PreAssessmentBaselineBandCount,
@@ -275,6 +276,10 @@ export type UseCaseSubmissionDetails = {
   comment: string | null;
   is_accepted: boolean;
   categories: ChampionCategory[];
+  guided_session?: GuidedSession | null;
+  testimonial?: string | null;
+  helpfulness_rating?: number | null;
+  share_consent?: boolean;
 };
 
 export type AssignmentTarget = {
