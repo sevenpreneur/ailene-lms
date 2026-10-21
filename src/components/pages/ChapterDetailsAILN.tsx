@@ -83,7 +83,7 @@ function youtubeEmbedUrl(raw: string): string | null {
 
 const YOUTUBE_EMBED_ORIGIN = "https://www.youtube-nocookie.com";
 
-function locationHref(raw: string | null): string | null {
+function httpHref(raw: string | null): string | null {
   if (!raw) return null;
   try {
     const url = new URL(raw);
@@ -437,7 +437,11 @@ export default function ChapterDetailsAILN({
     (evaluation) => !evaluation.done && !evaluation.lockedReason,
   )?.key;
   const embedUrl = youtubeEmbedUrl(activeVideo?.video_url ?? "");
-  const location = locationHref(chapter.location_url);
+  const location = httpHref(chapter.location_url);
+  // Admins can save any HTTP(S) video link; non-YouTube ones open in a new tab.
+  const externalVideoUrl = embedUrl
+    ? null
+    : httpHref(activeVideo?.video_url ?? null);
   const shortcutLimit = Math.max(0, Math.floor(chapter.duration_minutes / 5));
   const shortcuts = Array.from(
     { length: shortcutLimit + 1 },
@@ -645,12 +649,36 @@ export default function ChapterDetailsAILN({
                       {!activeVideo || !embedUrl ? (
                         <div className="flex aspect-video flex-col items-center justify-center gap-3 px-6 text-center text-white">
                           <MonitorPlay className="size-10 text-white/70" />
-                          <p className="font-headline text-lg font-medium">
-                            Video YouTube belum tersedia
-                          </p>
-                          <p className="text-sm text-white/60">
-                            Lanjutkan dengan materi chapter di bawah.
-                          </p>
+                          {externalVideoUrl ? (
+                            <>
+                              <p className="font-headline text-lg font-medium">
+                                Video diputar di tab baru
+                              </p>
+                              <ButtonAILN
+                                asChild
+                                variant="outline"
+                                size="small"
+                              >
+                                <a
+                                  href={externalVideoUrl}
+                                  target="_blank"
+                                  rel="noopener noreferrer"
+                                >
+                                  Tonton video
+                                  <ExternalLink className="size-3.5" />
+                                </a>
+                              </ButtonAILN>
+                            </>
+                          ) : (
+                            <>
+                              <p className="font-headline text-lg font-medium">
+                                Video YouTube belum tersedia
+                              </p>
+                              <p className="text-sm text-white/60">
+                                Lanjutkan dengan materi chapter di bawah.
+                              </p>
+                            </>
+                          )}
                         </div>
                       ) : (
                         <iframe
@@ -702,7 +730,7 @@ export default function ChapterDetailsAILN({
                           Sudah ditonton
                         </span>
                       ) : (
-                        embedUrl && (
+                        (embedUrl || externalVideoUrl) && (
                           <ButtonAILN
                             variant="outline"
                             size="small"
