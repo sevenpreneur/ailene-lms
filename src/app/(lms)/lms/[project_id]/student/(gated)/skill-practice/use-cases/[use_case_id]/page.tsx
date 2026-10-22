@@ -1,11 +1,12 @@
+import { captureApiRead } from "@/apis/api";
 import {
   getAssignedUseCases,
   getGuidedSession,
   getUseCaseDetails,
 } from "@/apis/use-cases";
-import SubmitUseCaseAILN from "@/components/forms/SubmitUseCaseAILN";
 import GuidedUseCaseStudentAILN from "@/components/pages/GuidedUseCaseStudentAILN";
 import AppPageState from "@/components/states/AppPageState";
+import LoadErrorAILN from "@/components/states/LoadErrorAILN";
 import { Metadata } from "next";
 
 export const metadata: Metadata = {
@@ -27,15 +28,18 @@ export default async function StudentUseCasePracticePage({
   const [result, guided, assigned] = await Promise.all([
     getUseCaseDetails(useCaseIdNum),
     getGuidedSession({ use_case_id: useCaseIdNum, project_id }),
-    getAssignedUseCases(project_id),
+    captureApiRead(getAssignedUseCases(project_id)),
   ]);
   if (result.kind === "not_found") {
     return <AppPageState variant="NOT_FOUND" />;
   }
+  if (!guided.success) {
+    return <LoadErrorAILN message="Use Case belum dapat dimuat." />;
+  }
 
-  // A champion-prepared guided use case carries a session; everything else keeps the classic form.
-  if (guided.success && guided.data) {
-    const assignment = assigned.find((item) => item.id === useCaseIdNum);
+  // Only guided assignments are available in the student LMS for now.
+  if (guided.data) {
+    const assignment = assigned.data?.find((item) => item.id === useCaseIdNum);
     return (
       <GuidedUseCaseStudentAILN
         useCase={result.data}
@@ -45,5 +49,5 @@ export default async function StudentUseCasePracticePage({
     );
   }
 
-  return <SubmitUseCaseAILN useCase={result.data} />;
+  return <AppPageState variant="NOT_FOUND" />;
 }

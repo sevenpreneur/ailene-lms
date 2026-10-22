@@ -337,25 +337,18 @@ test("legacy Prompt notifications cannot navigate into the retired task journey"
   );
 });
 
-test("a failed assigned-task endpoint does not hide a successful library response", async () => {
+test("guided practice hides non-guided assignments", async () => {
   const { captureApiRead } = loadSource("src/apis/api.ts");
   const Page = loadSource(
     "src/app/(lms)/lms/[project_id]/student/(gated)/skill-practice/page.tsx",
     {
       "@/apis/api": { captureApiRead },
       "@/apis/use-cases": {
-        getUseCases: async () => ({
-          list: [{ id: 7, name: "Use Case" }],
-          metapaging: {
-            current_page: 1,
-            total_page: 1,
-            total_data: 1,
-            page_size: 20,
-          },
+        getAssignedUseCases: async () => [{ id: 7 }, { id: 8 }],
+        getGuidedSession: async ({ use_case_id }) => ({
+          success: true,
+          data: use_case_id === 7 ? { id: 99 } : null,
         }),
-        getAssignedUseCases: async () => {
-          throw new Error("Backend unavailable");
-        },
       },
       "@/components/pages/SkillPracticeStudentAILN": {
         __esModule: true,
@@ -365,11 +358,200 @@ test("a failed assigned-task endpoint does not hide a successful library respons
   ).default;
   const view = await Page({
     params: Promise.resolve({ project_id: "program" }),
-    searchParams: Promise.resolve({}),
   });
-  assert.equal(view.props.assignedFailed, true);
-  assert.equal(view.props.libraryFailed, false);
-  assert.equal(view.props.useCaseLibrary[0].id, 7);
+  assert.equal(view.props.assignedFailed, false);
+  assert.deepEqual(
+    view.props.assignedUseCases.map((item) => item.id),
+    [7],
+  );
+  assert.equal("useCaseLibrary" in view.props, false);
+});
+
+test("personal workflows stay visible in practice before final submission", async () => {
+  const session = {
+    id: 73,
+    project_id: "program",
+    use_case_id: null,
+    current_step: 4,
+    steps: [{ id: 1 }],
+    daily_task: "Rekap laporan penjualan",
+    summary: "Buat dan cek ringkasan dengan AI",
+  };
+  const ui = { __esModule: true, default: () => null };
+  const { captureApiRead } = loadSource("src/apis/api.ts");
+  const Page = loadSource(
+    "src/app/(lms)/lms/[project_id]/student/(gated)/skill-practice/page.tsx",
+    {
+      "@/apis/api": { captureApiRead },
+      "@/apis/use-cases": {
+        getAssignedUseCases: async () => [],
+        getGuidedSession: async () => ({ success: true, data: session }),
+      },
+      "@/components/pages/SkillPracticeStudentAILN": ui,
+    },
+  ).default;
+  const view = await Page({
+    params: Promise.resolve({ project_id: "program" }),
+  });
+  assert.equal(view.props.personalSession, session);
+  assert.equal(view.props.personalFailed, false);
+  assert.equal(view.props.assignedUseCases.length, 0);
+
+  const Card = loadSource("src/components/cards/GuidedSessionCardAILN.tsx", {
+    "@/lib/guided-use-case": {
+      GUIDED_STAGES: [{}, {}, {}, { title: "Saran Workflow" }],
+    },
+    "next/link": {
+      __esModule: true,
+      default: ({ children, ...props }) =>
+        React.createElement("a", props, children),
+    },
+  }).default;
+  const html = renderToStaticMarkup(
+    React.createElement(Card, { session, projectId: "program" }),
+  );
+  assert.match(
+    html,
+    /\/program\/student\/skill-practice\/guided\?session_id=73/,
+  );
+  assert.match(html, /Lanjutkan/);
+});
+
+test("new workflows invalidate the rewritten practice page for return navigation", async () => {
+  const invalidated = [];
+  const { RefreshSkillPractice } = loadSource("src/lib/actions.ts", {
+    "@/lib/status_code": { STATUS_NO_CONTENT: 204 },
+    "@/apis/auth": {
+      checkSession: async () => ({
+        project_access: [{ id: "program", role: "champion" }],
+      }),
+    },
+    "next/cache": { revalidatePath: (path) => invalidated.push(path) },
+  });
+  await RefreshSkillPractice("program");
+  assert.deepEqual(invalidated, ["/lms/program/student/skill-practice"]);
+  await assert.rejects(() => RefreshSkillPractice("another-program"));
+  assert.equal(invalidated.length, 1);
+});
+
+test("workflow improvement stays available after the former quota is exhausted", () => {
+  const ui = { __esModule: true, default: () => null };
+  const Workflow = loadSource(
+    "src/components/forms/guided-use-case/GuidedWorkflowAILN.tsx",
+    {
+      "@/components/buttons/ButtonAILN": {
+        __esModule: true,
+        default: ({ children, disabled, ...props }) =>
+          React.createElement(
+            "button",
+            { disabled, "aria-haspopup": props["aria-haspopup"] },
+            children,
+          ),
+      },
+      "@/components/items/GuidedWorkflowItemAILN": ui,
+      "@/components/forms/guided-use-case/GuidedWorkflowPreviewAILN": {
+        __esModule: true,
+        default: ({ action }) => React.createElement("div", null, action),
+      },
+      "@/components/modals/ImproveGuidedWorkflowModalAILN": ui,
+      "@/components/elements/GuidedHintAILN": ui,
+      "@/components/elements/GuidedProgressGaugeAILN": ui,
+      "@/lib/format": { formatDecimal: String },
+      "radix-ui": {
+        Accordion: {
+          Root: ({ children }) => React.createElement("div", null, children),
+        },
+      },
+    },
+  ).default;
+  const html = renderToStaticMarkup(
+    React.createElement(Workflow, {
+      session: {
+        regenerate_remaining: 0,
+        risks: [],
+        minutes_without_ai: 90,
+        estimated_minutes_with_ai: 30,
+      },
+      steps: [{ id: 1 }],
+      checklist: false,
+      generating: false,
+      onGenerate: async () => true,
+      onStepChange: () => {},
+      onStepCommit: () => {},
+    }),
+  );
+  assert.match(html, /aria-haspopup="dialog"/);
+  assert.match(html, /Perbaiki workflow/);
+  assert.doesNotMatch(html, /disabled|kuota|Sisa/);
+});
+
+test("workflow page resumes the generated session on refresh", async () => {
+  const lookups = [];
+  const session = {
+    id: 73,
+    project_id: "program",
+    use_case_id: null,
+    current_step: 4,
+    steps: [{ id: 1 }],
+  };
+  const ui = { __esModule: true, default: () => null };
+  const Page = loadSource(
+    "src/app/(lms)/lms/[project_id]/student/(gated)/skill-practice/guided/page.tsx",
+    {
+      "@/apis/api": {
+        captureApiRead: async (request) => ({
+          data: await request,
+          failed: false,
+        }),
+      },
+      "@/apis/use-cases": {
+        getGuidedSession: async (input) => {
+          lookups.push(input);
+          return { success: true, data: session };
+        },
+        getUseCaseDetails: async () => {
+          throw new Error("Personal drafts have no assignment yet");
+        },
+      },
+      "@/components/forms/GuidedUseCaseAILN": ui,
+      "@/components/pages/PageContainerAILN": ui,
+      "@/components/states/AppPageState": ui,
+      "@/components/states/LoadErrorAILN": ui,
+    },
+  ).default;
+  const view = await Page({
+    params: Promise.resolve({ project_id: "program" }),
+    searchParams: Promise.resolve({ session_id: "73" }),
+  });
+  assert.equal(lookups[0].session_id, 73);
+  assert.equal(lookups[0].project_id, "program");
+  assert.equal(view.props.children.props.initialSession, session);
+  assert.equal(view.props.children.key, "73");
+});
+
+test("a guided session cannot be opened under a different program", async () => {
+  const ui = { __esModule: true, default: () => null };
+  const Page = loadSource(
+    "src/app/(lms)/lms/[project_id]/student/(gated)/skill-practice/guided/page.tsx",
+    {
+      "@/apis/api": {},
+      "@/apis/use-cases": {
+        getGuidedSession: async () => ({
+          success: true,
+          data: { id: 73, project_id: "another-program", use_case_id: null },
+        }),
+      },
+      "@/components/forms/GuidedUseCaseAILN": ui,
+      "@/components/pages/PageContainerAILN": ui,
+      "@/components/states/AppPageState": ui,
+      "@/components/states/LoadErrorAILN": ui,
+    },
+  ).default;
+  const view = await Page({
+    params: Promise.resolve({ project_id: "program" }),
+    searchParams: Promise.resolve({ session_id: "73" }),
+  });
+  assert.equal(view.props.variant, "NOT_FOUND");
 });
 
 function renderHome(projects) {

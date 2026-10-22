@@ -7,12 +7,9 @@ import InputAILN from "@/components/fields/InputAILN";
 import NumberInputAILN from "@/components/fields/NumberInputAILN";
 import SelectAILN from "@/components/fields/SelectAILN";
 import TextAreaAILN from "@/components/fields/TextAreaAILN";
-import {
-  GUIDED_FREQUENCIES,
-  GUIDED_TASK_EXAMPLES,
-} from "@/lib/guided-use-case";
+import { GUIDED_FREQUENCIES } from "@/lib/guided-use-case";
 import type { StakeholderVariant } from "@/lib/app-types";
-import { Loader2, ShieldCheck } from "lucide-react";
+import { FileUp, Loader2, ShieldCheck, TextCursorInput } from "lucide-react";
 import GuidedHintAILN from "@/components/elements/GuidedHintAILN";
 import { useState } from "react";
 
@@ -85,20 +82,6 @@ export default function GuidedIntakeAILN({
         <p className="-mt-3 text-right text-[11px] text-muted-foreground">
           {(value.daily_task ?? "").trim().length} karakter · min. 30
         </p>
-        <div className="flex flex-col gap-2">
-          <div className="flex flex-wrap gap-2">
-            {GUIDED_TASK_EXAMPLES.map((example) => (
-              <ButtonAILN
-                key={example.label}
-                variant="chip"
-                size="chip"
-                onClick={() => onChange({ daily_task: example.text })}
-              >
-                {example.label}
-              </ButtonAILN>
-            ))}
-          </div>
-        </div>
         <SelectAILN
           selectId="guided-frequency"
           selectName="Frekuensi"
@@ -127,12 +110,13 @@ export default function GuidedIntakeAILN({
         </div>
         {allowFile && (
           <div
-            className="flex flex-wrap gap-2"
+            className="grid gap-3 sm:grid-cols-2"
             role="group"
             aria-label="Cara memberikan contoh"
           >
-            <ButtonAILN
-              variant={exampleMode === "text" ? "outlineActive" : "outline"}
+            <button
+              type="button"
+              className={`flex min-h-24 flex-col items-start justify-center gap-2 rounded-lg border p-4 text-left text-sm transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-claude ${exampleMode === "text" ? "border-claude bg-hijau-t/50 dark:bg-claude/10" : "border-dashboard-border bg-card-2 hover:border-claude/50"}`}
               aria-pressed={exampleMode === "text"}
               onClick={() => {
                 onExampleModeChange("text");
@@ -140,18 +124,21 @@ export default function GuidedIntakeAILN({
                 onChange({ sensitive_data_confirmed: false });
               }}
             >
-              Tempel teks
-            </ButtonAILN>
-            <ButtonAILN
-              variant={exampleMode === "file" ? "outlineActive" : "outline"}
+              <TextCursorInput className="size-5 text-claude dark:text-lime-bright" />
+              <span className="font-medium">Tempel contoh</span>
+            </button>
+            <button
+              type="button"
+              className={`flex min-h-24 flex-col items-start justify-center gap-2 rounded-lg border p-4 text-left text-sm transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-claude ${exampleMode === "file" ? "border-claude bg-hijau-t/50 dark:bg-claude/10" : "border-dashboard-border bg-card-2 hover:border-claude/50"}`}
               aria-pressed={exampleMode === "file"}
               onClick={() => {
                 onExampleModeChange("file");
                 onChange({ sensitive_data_confirmed: false });
               }}
             >
-              Pilih file
-            </ButtonAILN>
+              <FileUp className="size-5 text-claude dark:text-lime-bright" />
+              <span className="font-medium">Upload file</span>
+            </button>
           </div>
         )}
         {!allowFile || exampleMode === "text" ? (

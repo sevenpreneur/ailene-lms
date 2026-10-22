@@ -11,10 +11,12 @@ export default function GuidedUseCaseStepperAILN({
   currentStep,
   furthestStep,
   onStepChange,
+  maxStep = 6,
 }: {
   currentStep: number;
   furthestStep: number;
   onStepChange: (step: number) => void;
+  maxStep?: number;
 }) {
   const [open, setOpen] = useState(false);
   return (
@@ -22,12 +24,12 @@ export default function GuidedUseCaseStepperAILN({
       <Popover.Trigger asChild>
         <button
           type="button"
-          aria-label={`Pilih langkah, ${currentStep} dari 6`}
+          aria-label={`Pilih langkah, ${currentStep} dari ${maxStep}`}
           className="rounded-full transition hover:bg-card-2 focus-visible:outline-2 focus-visible:outline-claude"
         >
           <GuidedProgressGaugeAILN
             value={currentStep}
-            total={6}
+            total={maxStep}
             label="Langkah panduan"
           />
         </button>
@@ -40,7 +42,7 @@ export default function GuidedUseCaseStepperAILN({
         >
           <nav aria-label="Langkah panduan use case">
             <ol>
-              {GUIDED_STAGES.map((stage, index) => {
+              {GUIDED_STAGES.slice(0, maxStep).map((stage, index) => {
                 const step = index + 1;
                 const active = step === currentStep;
                 const locked = step > furthestStep;

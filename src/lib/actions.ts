@@ -5,6 +5,18 @@ import {
   checkSession as checkSessionApi,
   logoutSession as logoutSessionApi,
 } from "@/apis/auth";
+import { revalidatePath } from "next/cache";
+
+export async function RefreshSkillPractice(projectId: string) {
+  const session = await checkSessionApi();
+  const access = session?.project_access.find(
+    (project) => project.id === projectId,
+  );
+  if (!access || (access.role !== "student" && access.role !== "champion")) {
+    throw new Error("Akses program tidak valid");
+  }
+  revalidatePath(`/lms/${access.id}/student/skill-practice`);
+}
 
 export async function CheckSession() {
   const session = await checkSessionApi();

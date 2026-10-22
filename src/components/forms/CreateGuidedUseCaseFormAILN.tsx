@@ -13,7 +13,6 @@ import {
   GUIDED_CHAMPION_HEADINGS,
   GUIDED_CHAMPION_STAGES,
   GUIDED_FREQUENCIES,
-  GUIDED_SAMPLE_INTAKE,
 } from "@/lib/guided-use-case";
 import { useProjectId } from "@/lib/use-project-id";
 import { cn } from "@/lib/utils";
@@ -313,7 +312,7 @@ export default function CreateGuidedUseCaseFormAILN({
                         id="champion-guided-heading"
                         ref={headingRef}
                         tabIndex={-1}
-                        className="max-w-lg text-2xl font-medium leading-tight tracking-tight focus:outline-none sm:text-3xl"
+                        className="max-w-lg text-xl font-medium leading-tight tracking-tight focus:outline-none sm:text-2xl"
                       >
                         {GUIDED_CHAMPION_HEADINGS[step - 1]}
                       </h2>
@@ -334,25 +333,6 @@ export default function CreateGuidedUseCaseFormAILN({
                         variant="CHAMPION"
                         headingId="champion-guided-heading"
                       />
-                    )}
-                    {step === 1 && !intake.daily_task && (
-                      <div className="mt-5">
-                        <ButtonAILN
-                          variant="textAccent"
-                          size="small"
-                          onClick={() =>
-                            setIntake({
-                              ...GUIDED_SAMPLE_INTAKE,
-                              current_tools: [
-                                ...GUIDED_SAMPLE_INTAKE.current_tools,
-                              ],
-                              sensitive_data_confirmed: false,
-                            })
-                          }
-                        >
-                          Coba isian contoh
-                        </ButtonAILN>
-                      </div>
                     )}
 
                     {step === 4 && (

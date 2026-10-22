@@ -53,7 +53,7 @@ function hrefForFocus(focus: TodayFocus, projectId: string) {
     case "prompt_practice":
       return `/${projectId}/student/skill-practice`;
     case "use_case_practice":
-      return `/${projectId}/student/skill-practice/use-cases/${focus.task_id}`;
+      return `/${projectId}/student/skill-practice`;
   }
 }
 

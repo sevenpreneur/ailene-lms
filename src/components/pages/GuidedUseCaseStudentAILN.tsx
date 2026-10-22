@@ -2,7 +2,7 @@
 
 import type { GuidedSession, UseCaseDetail } from "@/apis/use-cases";
 import ButtonAILN from "@/components/buttons/ButtonAILN";
-import GuidedUseCaseAILN from "@/components/forms/GuidedUseCaseAILN";
+import RecordUseCaseButtonAILN from "@/components/buttons/RecordUseCaseButtonAILN";
 import GeneralLabelAILN, {
   type GeneralLabelVariantAILN,
 } from "@/components/labels/GeneralLabelAILN";
@@ -26,7 +26,7 @@ import {
   UserRoundCheck,
 } from "lucide-react";
 import Link from "next/link";
-import { useRef, useState, type ReactNode } from "react";
+import type { ReactNode } from "react";
 
 dayjs.locale("id");
 
@@ -64,8 +64,6 @@ export default function GuidedUseCaseStudentAILN({
   championName: string | null;
 }) {
   const projectId = useProjectId();
-  const [isOpen, setIsOpen] = useState(false);
-  const triggerRef = useRef<HTMLButtonElement>(null);
   const status = deriveStatus(useCase);
   const meta = STATUS_META[status];
   const submitted = session.status === "submitted";
@@ -192,16 +190,27 @@ export default function GuidedUseCaseStudentAILN({
                     ? `Workflow siap. ${done} dari ${session.steps.length} langkah selesai.`
                     : "Langkah 1–3 sudah terisi. Tinggal buat workflow AI dan coba di pekerjaanmu."}
               </p>
-              <ButtonAILN
-                ref={triggerRef}
-                variant="lime"
-                size="medium"
-                aria-haspopup="dialog"
-                onClick={() => setIsOpen(true)}
-              >
-                {cta}
-                <ArrowRight className="size-4" />
-              </ButtonAILN>
+              {!submitted && session.steps.length === 0 ? (
+                <RecordUseCaseButtonAILN
+                  projectId={projectId}
+                  useCaseId={useCase.id}
+                  useCaseName={useCase.name}
+                  championName={championName}
+                  initialSession={session}
+                >
+                  {cta}
+                  <ArrowRight className="size-4" />
+                </RecordUseCaseButtonAILN>
+              ) : (
+                <ButtonAILN asChild variant="lime" size="medium">
+                  <Link
+                    href={`/${projectId}/student/skill-practice/guided?use_case_id=${useCase.id}`}
+                  >
+                    {cta}
+                    <ArrowRight className="size-4" />
+                  </Link>
+                </ButtonAILN>
+              )}
             </div>
           </div>
         </section>
@@ -244,25 +253,6 @@ export default function GuidedUseCaseStudentAILN({
           </div>
         </section>
       </div>
-
-      <GuidedUseCaseAILN
-        isOpen={isOpen}
-        onClose={() => setIsOpen(false)}
-        triggerRef={triggerRef}
-        projectId={projectId}
-        useCaseId={useCase.id}
-        useCaseName={useCase.name}
-        championName={championName}
-        initialSession={session}
-        submissionStatus={
-          status === "ACCEPTED"
-            ? "accepted"
-            : status === "NEEDS_REVISION"
-              ? "needs_revision"
-              : "awaiting_review"
-        }
-        allowResubmit={status === "NEEDS_REVISION"}
-      />
     </PageContainerAILN>
   );
 }

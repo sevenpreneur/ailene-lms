@@ -112,7 +112,7 @@ export type GuidedSession = {
   summary: string | null;
   estimated_minutes_with_ai: number | null;
   risks: string[];
-  regenerate_remaining: number;
+  regenerate_remaining: number | null;
   is_generating: boolean;
   created_at: string;
   updated_at: string;

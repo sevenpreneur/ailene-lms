@@ -676,15 +676,9 @@ export default function DocsAILN() {
                   Periksa tujuan, instruksi, dan deadline sebelum mengerjakan.
                 </li>
                 <li>
-                  <strong>Library:</strong> cari latihan yang relevan, baca
-                  deskripsinya, lalu pilih <strong>Ambil & buka latihan</strong>{" "}
-                  saat siap. Gunakan pencarian dan halaman katalog untuk
-                  menemukan topik.
-                </li>
-                <li>
-                  <strong>Catat Use Case:</strong> gunakan tombol pencatatan Use
-                  Case untuk memulai dari pekerjaanmu sendiri dan mengikuti
-                  panduan bertahap.
+                  <strong>Catat Use Case:</strong> buka modal pencatatan dari
+                  pekerjaanmu sendiri. Isi langkah 1–3, lalu lanjutkan langkah
+                  4–6 di halaman setelah workflow AI selesai dibuat.
                 </li>
               </ul>
               <h3 className="mt-7 text-lg font-medium">
@@ -697,18 +691,22 @@ export default function DocsAILN() {
                     menyita waktu dan seberapa sering kamu mengerjakannya.
                   </>,
                   <>
-                    <strong>Kirim contoh.</strong> Berikan contoh teks atau file
-                    yang sudah disamarkan. Gunakan contoh yang cukup jelas untuk
-                    menjelaskan pekerjaanmu.
+                    <strong>Kirim contoh.</strong> Pilih area Tempel contoh atau
+                    Upload file. Samarkan data sensitif sebelum mengirim.
                   </>,
                   <>
                     <strong>Proses sekarang.</strong> Jelaskan langkah kerja,
-                    alat yang dipakai, hambatan, dan durasi sebelum memakai AI.
+                    alat yang dipakai, hambatan, dan durasi sebelum memakai AI
+                    dalam menit. Pilih <strong>Kirim & buat workflow AI</strong>
+                    agar AI mulai menyusun workflow. Modal menampilkan status
+                    proses, lalu otomatis membuka halaman langkah 4–6 setelah
+                    workflow berhasil dibuat.
                   </>,
                   <>
-                    <strong>Langkah AI.</strong> Buat dan baca workflow yang
-                    disarankan. Periksa instruksi serta prompt di setiap langkah
-                    sebelum mencoba.
+                    <strong>Saran Workflow.</strong> Baca workflow yang disarankan
+                    di halaman. Pilih <strong>Perbaiki workflow</strong> di kanan
+                    atas jika ingin memberi arahan melalui modal. Periksa
+                    instruksi serta prompt di setiap langkah sebelum mencoba.
                   </>,
                   <>
                     <strong>Coba & centang.</strong> Jalankan langkah pada
@@ -718,20 +716,13 @@ export default function DocsAILN() {
                   </>,
                   <>
                     <strong>Bukti & cerita.</strong> Lengkapi bukti hasil berupa
-                    file atau tautan, waktu pengerjaan dengan AI, alat yang
+                    file atau tautan, waktu pengerjaan dengan AI dalam menit, alat yang
                     dipakai, kategori, deskripsi hasil, dan pertanyaan
                     pengalaman yang diminta. Periksa ringkasan, lalu pilih{" "}
                     <strong>Kirim ke Champion</strong>.
                   </>,
                 ]}
               />
-              <Note>
-                Jika tugas membuka formulir langsung, ikuti kolom yang tersedia:
-                jenis dan frekuensi Use Case, cerita penerapan, waktu
-                tanpa/dengan AI, alat AI, serta bukti outcome. Laporkan durasi
-                yang benar-benar kamu alami dan periksa satuan menit atau jam
-                pada setiap kolom.
-              </Note>
               <h3 className="mt-7 text-lg font-medium">
                 Siapkan bukti yang mudah direview
               </h3>
@@ -758,11 +749,10 @@ export default function DocsAILN() {
                 </li>
               </ul>
               <Note>
-                Tab <strong>Riwayat</strong> saat ini menampilkan kiriman tugas
-                Champion. Hasil latihan Library bisa dibuka kembali melalui
-                pencarian Library; riwayat catatan pribadi lengkap belum
-                tersedia. Simpan tautan halaman tugasmu agar mudah ditemukan
-                kembali.
+                Catatan pribadi yang sudah masuk langkah 4 tersedia di bagian
+                <strong> Lanjutkan Use Case</strong> pada Latihan AI. Buka
+                kartunya untuk melanjutkan halaman yang sama. Setelah dikirim,
+                periksa statusnya melalui tab <strong>Riwayat</strong>.
               </Note>
             </Section>
 
@@ -829,11 +819,17 @@ export default function DocsAILN() {
               id="champion-sponsor"
               number="11 / PENDAMPING PROGRAM"
               title="Untuk Champion dan Sponsor"
-              intro="Menu mengikuti peran pada program yang dipilih. Ganti peran melalui pemilih program jika akunmu memiliki lebih dari satu akses."
+              intro="Menu mengikuti peran pada program yang dipilih. Champion dapat berpindah antara Mode Champion dan Mode Student melalui pemilih program; akun Student tidak memiliki akses ke Mode Champion."
             >
               <h3 className="mt-6 text-lg font-medium">
                 Champion: dampingi penerapan AI tim
               </h3>
+              <p className="mt-3 text-sm leading-7 text-muted-foreground sm:text-base">
+                Saat ingin belajar atau mencatat Use Case milik sendiri,
+                pilih <strong>Mode Student</strong> lalu buka{" "}
+                <strong>Latihan AI</strong>. Kembali ke{" "}
+                <strong>Mode Champion</strong> untuk mendampingi tim.
+              </p>
               <Steps
                 items={[
                   <>

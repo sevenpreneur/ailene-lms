@@ -14,7 +14,7 @@ import { Loader2 } from "lucide-react";
 export type GuidedEvidence = GuidedTestimonial & {
   name: string;
   outcome_proof: string;
-  hours_with_ai: string;
+  minutes_with_ai: string;
   ai_tool: string;
   type: UseCaseType | null;
   description: string;
@@ -106,12 +106,12 @@ export default function GuidedEvidenceAILN({
         </GuidedHintAILN>
       </div>
       <NumberInputAILN
-        inputId="guided-hours-with"
-        inputName="Durasi dengan AI (jam)"
-        inputConfig="decimal"
-        inputPlaceholder="Contoh: 0,5"
-        value={value.hours_with_ai}
-        onInputChange={(hours_with_ai) => onChange({ hours_with_ai })}
+        inputId="guided-minutes-with"
+        inputName="Durasi dengan AI (menit)"
+        inputConfig="numeric"
+        inputPlaceholder="Contoh: 30"
+        value={value.minutes_with_ai}
+        onInputChange={(minutes_with_ai) => onChange({ minutes_with_ai })}
         variant="STUDENT"
         required
       />

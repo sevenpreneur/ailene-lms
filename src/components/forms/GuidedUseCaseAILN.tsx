@@ -26,11 +26,11 @@ import GuidedHintAILN from "@/components/elements/GuidedHintAILN";
 import {
   GUIDED_FREQUENCIES,
   GUIDED_HEADINGS,
-  GUIDED_SAMPLE_INTAKE,
   GUIDED_TYPES,
   isGuidedProofLink,
 } from "@/lib/guided-use-case";
 import { formatDecimal } from "@/lib/format";
+import { RefreshSkillPractice } from "@/lib/actions";
 import { uploadPublicFile } from "@/lib/supabase";
 import {
   ArrowLeft,
@@ -59,7 +59,7 @@ const EMPTY_INTAKE: GuidedIntake = {
 const EMPTY_EVIDENCE: GuidedEvidence = {
   name: "",
   outcome_proof: "",
-  hours_with_ai: "",
+  minutes_with_ai: "",
   ai_tool: "",
   type: null,
   description: "",
@@ -72,7 +72,7 @@ const REQUIREMENTS = [
   "Isi pekerjaan minimal 30 karakter dan pilih frekuensi.",
   "Tambahkan contoh dan konfirmasi penyamaran data.",
   "Isi durasi lebih dari 0 menit dan proses kerjamu.",
-  "Buat workflow, lalu centang Saya mau coba.",
+  "Centang Saya mau coba untuk melanjutkan ke checklist.",
   "Tandai selesai atau isi alasan melewati setiap langkah.",
   "Lengkapi bukti, durasi, tool, tipe, hasil, pengalaman (min. 50 karakter), dan rating.",
 ];
@@ -124,9 +124,6 @@ function fileNameFromUrl(url: string): string {
 }
 
 export default function GuidedUseCaseAILN({
-  isOpen,
-  onClose,
-  triggerRef,
   projectId,
   useCaseId,
   useCaseName,
@@ -134,10 +131,10 @@ export default function GuidedUseCaseAILN({
   initialSession,
   submissionStatus,
   allowResubmit = false,
+  launchInModal = false,
+  onClose,
+  triggerRef,
 }: {
-  isOpen: boolean;
-  onClose: () => void;
-  triggerRef: RefObject<HTMLButtonElement | null>;
   projectId: string;
   useCaseId?: number;
   useCaseName?: string;
@@ -145,6 +142,9 @@ export default function GuidedUseCaseAILN({
   initialSession?: GuidedSession | null;
   submissionStatus?: "accepted" | "awaiting_review" | "needs_revision";
   allowResubmit?: boolean;
+  launchInModal?: boolean;
+  onClose?: () => void;
+  triggerRef?: RefObject<HTMLButtonElement | null>;
 }) {
   const router = useRouter();
   const reducedMotion = useReducedMotion();
@@ -158,8 +158,9 @@ export default function GuidedUseCaseAILN({
   const [loadError, setLoadError] = useState<string | null>(null);
   const [session, setSession] = useState<GuidedSession | null>(null);
   const [loaded, setLoaded] = useState(false);
-  const [step, setStep] = useState(1);
-  const [visitedStep, setVisitedStep] = useState(1);
+  const [step, setStep] = useState(launchInModal ? 1 : 4);
+  const [visitedStep, setVisitedStep] = useState(launchInModal ? 1 : 4);
+  const [redirecting, setRedirecting] = useState(false);
   const [summary, setSummary] = useState(false);
   const [accepted, setAccepted] = useState(false);
   const [exampleFile, setExampleFile] = useState<File | null>(null);
@@ -178,6 +179,13 @@ export default function GuidedUseCaseAILN({
   const [result, setResult] = useState<GuidedSubmitResult | null>(null);
   const headingRef = useRef<HTMLHeadingElement>(null);
   const scrollRef = useRef<HTMLDivElement>(null);
+  const inIntake = launchInModal || (loaded && step <= 3 && !result);
+
+  function workflowHref(next: GuidedSession) {
+    const query = new URLSearchParams({ session_id: String(next.id) });
+    if (next.use_case_id) query.set("use_case_id", String(next.use_case_id));
+    return `/${projectId}/student/skill-practice/guided?${query}`;
+  }
 
   function hydrate(next: GuidedSession) {
     setSession(next);
@@ -190,13 +198,29 @@ export default function GuidedUseCaseAILN({
     const current =
       next.status === "submitted"
         ? 6
-        : Math.min(Math.max(next.current_step, 1), 6);
+        : next.steps.length === 0
+          ? Math.min(Math.max(next.current_step, 1), 3)
+          : Math.min(Math.max(next.current_step, 1), 6);
     setStep(current);
     setVisitedStep((previous) => Math.max(previous, current));
   }
 
   function restore(next: GuidedSession | null) {
+    if (
+      launchInModal &&
+      next &&
+      next.current_step >= 4 &&
+      next.steps.length > 0
+    ) {
+      setRedirecting(true);
+      router.push(workflowHref(next));
+      return;
+    }
     if (next) hydrate(next);
+    else {
+      setStep(1);
+      setVisitedStep(1);
+    }
     try {
       const draft = readBrowserDraft<{
         sessionId: number | null;
@@ -213,8 +237,20 @@ export default function GuidedUseCaseAILN({
         (next?.status === "submitted" && !allowResubmit)
       )
         return;
-      if (draft.evidence && typeof draft.evidence.outcome_proof === "string")
-        setEvidence({ ...EMPTY_EVIDENCE, ...draft.evidence });
+      if (draft.evidence && typeof draft.evidence.outcome_proof === "string") {
+        const previousHours = (
+          draft.evidence as GuidedEvidence & { hours_with_ai?: string }
+        ).hours_with_ai;
+        setEvidence({
+          ...EMPTY_EVIDENCE,
+          ...draft.evidence,
+          minutes_with_ai:
+            draft.evidence.minutes_with_ai ??
+            (previousHours
+              ? String(Number(previousHours.replace(",", ".")) * 60)
+              : ""),
+        });
+      }
       if (
         next?.status !== "submitted" &&
         draft.serverUpdatedAt === (next?.updated_at ?? null) &&
@@ -228,6 +264,7 @@ export default function GuidedUseCaseAILN({
         const restoredStep = Math.min(
           Math.max(Number(draft.step) || 1, 1),
           next?.current_step ?? 1,
+          next?.steps.length ? 6 : 3,
         );
         setStep(restoredStep);
         setVisitedStep(restoredStep);
@@ -238,9 +275,9 @@ export default function GuidedUseCaseAILN({
     }
   }
 
-  // Resume the latest draft once, the first time the modal opens.
+  // Resume the latest draft once when the page mounts.
   useEffect(() => {
-    if (!isOpen || loaded || loadError) return;
+    if (loaded || loadError) return;
     if (initialSession !== undefined) {
       restore(initialSession);
       setLoaded(true);
@@ -264,12 +301,19 @@ export default function GuidedUseCaseAILN({
     };
     // Restoration runs only when opening an unloaded form; edits must not rehydrate it.
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [isOpen, loaded, initialSession, useCaseId, projectId, loadError]);
+  }, [loaded, initialSession, useCaseId, projectId, loadError]);
 
   const submitted = session?.status === "submitted";
   const revising = submitted && allowResubmit && !result;
   useEffect(() => {
-    if (!loaded || !userId || result || (submitted && !allowResubmit)) return;
+    if (
+      !loaded ||
+      !userId ||
+      result ||
+      redirecting ||
+      (submitted && !allowResubmit)
+    )
+      return;
     try {
       writeBrowserDraft(window.localStorage, localKey, {
         sessionId: session?.id ?? null,
@@ -298,6 +342,7 @@ export default function GuidedUseCaseAILN({
     result,
     submitted,
     allowResubmit,
+    redirecting,
   ]);
 
   useEffect(() => {
@@ -317,11 +362,13 @@ export default function GuidedUseCaseAILN({
   }, [loaded, result, submitted, allowResubmit, draftWarning, uploading]);
 
   const minutes = intake.minutes_without_ai;
-  const hoursWithAi = Number(evidence.hours_with_ai.replace(",", "."));
+  const minutesWithAi = Number(evidence.minutes_with_ai.replace(",", "."));
 
   const valid = [
     (intake.daily_task ?? "").trim().length >= 30 && intake.frequency !== null,
-    (!!intake.example_text?.trim() || !!exampleFileUrl) &&
+    (exampleMode === "file"
+      ? !!exampleFileUrl
+      : !!intake.example_text?.trim()) &&
       intake.sensitive_data_confirmed &&
       uploading !== "example",
     minutes !== null &&
@@ -333,8 +380,8 @@ export default function GuidedUseCaseAILN({
       steps.every((item) => item.is_done || !!item.skipped_reason?.trim()),
     isGuidedProofLink(evidence.outcome_proof) &&
       uploading !== "outcome" &&
-      Number.isFinite(hoursWithAi) &&
-      hoursWithAi > 0 &&
+      Number.isFinite(minutesWithAi) &&
+      minutesWithAi > 0 &&
       !!evidence.ai_tool.trim() &&
       evidence.type !== null &&
       !!evidence.description.trim() &&
@@ -350,13 +397,18 @@ export default function GuidedUseCaseAILN({
   const canContinue = valid.slice(0, step).every(Boolean);
 
   function focusTop() {
-    scrollRef.current?.scrollTo({ top: 0 });
+    if (inIntake) scrollRef.current?.scrollTo({ top: 0 });
+    else
+      window.scrollTo({
+        top: 0,
+        behavior: reducedMotion ? "instant" : "smooth",
+      });
     requestAnimationFrame(() => headingRef.current?.focus());
   }
 
-  // Every navigation persists the intake, so a refresh resumes where the student left off.
-  async function persist(nextStep: number): Promise<boolean> {
-    if (submitted) return true;
+  // Only intake steps send answers; workflow navigation saves the step alone.
+  async function persist(nextStep: number): Promise<GuidedSession | null> {
+    if (submitted) return session;
     setBusy("save");
     const response = await postGuided<GuidedSession>("save", {
       ...(session
@@ -365,33 +417,35 @@ export default function GuidedUseCaseAILN({
           ? { use_case_id: useCaseId }
           : { project_id: projectId }),
       current_step: nextStep,
-      ...intake,
-      example_text: intake.example_text ?? "",
-      example_file_url: exampleFileUrl,
-      pain_point: intake.pain_point ?? "",
+      ...(step <= 3
+        ? {
+            ...intake,
+            example_text: intake.example_text ?? "",
+            example_file_url: exampleFileUrl,
+            pain_point: intake.pain_point ?? "",
+          }
+        : {}),
     });
     setBusy(null);
     if (!response.ok) {
       toast.error(response.message);
-      return false;
+      return null;
     }
     if (
       session &&
       session.steps.length > 0 &&
       response.data.steps.length === 0
     ) {
-      toast.info(
-        "Isian berubah, jadi workflow lama dihapus. Buat ulang di langkah 4.",
-      );
+      toast.info("Isian berubah. Kirim langkah 3 untuk membuat workflow baru.");
     }
     setSession(response.data);
     setSteps(response.data.steps);
     if (response.data.steps.length === 0) setAccepted(false);
-    return true;
+    return response.data;
   }
 
   async function navigate(next: number) {
-    if (busy) return;
+    if (busy || redirecting || (inIntake && next > 3)) return;
     if (!(await persist(next))) return;
     setStep(next);
     setVisitedStep((previous) => Math.max(previous, next));
@@ -399,31 +453,60 @@ export default function GuidedUseCaseAILN({
     focusTop();
   }
 
-  function advance() {
-    if (!canContinue || summary || busy) return;
-    if (step < 6) void navigate(step + 1);
+  async function advance() {
+    if (!canContinue || summary || busy || redirecting) return;
+    if (step === 3) {
+      const saved = await persist(4);
+      if (!saved) return;
+      const ready =
+        saved.steps.length > 0 ? saved : await generate(undefined, saved.id);
+      if (!ready) return;
+      try {
+        writeBrowserDraft(window.localStorage, localKey, {
+          sessionId: ready.id,
+          serverUpdatedAt: ready.updated_at,
+          intake,
+          evidence,
+          exampleFileUrl,
+          step: 4,
+          accepted: false,
+        });
+      } catch {
+        setDraftWarning(true);
+      }
+      setStep(4);
+      setVisitedStep((previous) => Math.max(previous, 4));
+      if (launchInModal) setRedirecting(true);
+      else focusTop();
+      router.push(workflowHref(ready));
+    } else if (step < 6) void navigate(step + 1);
     else {
       setSummary(true);
       focusTop();
     }
   }
 
-  async function generate(feedback?: string): Promise<boolean> {
-    if (busy || !session) return false;
+  async function generate(
+    feedback?: string,
+    sessionId?: number,
+  ): Promise<GuidedSession | null> {
+    if (busy === "generate" || !(sessionId ?? session?.id)) return null;
     setBusy("generate");
     const response = await postGuided<GuidedSession>("generate", {
-      session_id: session.id,
+      session_id: sessionId ?? session?.id,
       ...(feedback ? { feedback } : {}),
     });
-    setBusy(null);
     if (!response.ok) {
+      setBusy(null);
       toast.error(response.message);
-      return false;
+      return null;
     }
     setSession(response.data);
     setSteps(response.data.steps);
     setAccepted(false);
-    return true;
+    await RefreshSkillPractice(projectId).catch(() => router.refresh());
+    setBusy(null);
+    return response.data;
   }
 
   function updateStep(id: number, patch: Partial<GuidedStep>) {
@@ -488,7 +571,7 @@ export default function GuidedUseCaseAILN({
       session_id: session.id,
       ...(evidence.name.trim() ? { name: evidence.name.trim() } : {}),
       outcome_proof: evidence.outcome_proof.trim(),
-      hours_with_ai: Math.round(hoursWithAi * 100) / 100,
+      hours_with_ai: Math.round((minutesWithAi / 60) * 100) / 100,
       description: evidence.description.trim(),
       ai_tool: evidence.ai_tool.trim(),
       type: evidence.type,
@@ -506,11 +589,12 @@ export default function GuidedUseCaseAILN({
     } catch {}
     setResult(response.data);
     setSession(response.data.session);
+    await RefreshSkillPractice(projectId).catch(() => router.refresh());
     focusTop();
   }
 
   function handleClose() {
-    if (busy || uploading) {
+    if (busy || uploading || redirecting) {
       toast.info("Tunggu penyimpanan atau unggahan selesai sebelum menutup.");
       return;
     }
@@ -522,26 +606,8 @@ export default function GuidedUseCaseAILN({
       )
     )
       return;
-    onClose();
-    if (result) {
-      router.refresh();
-      // A personal session starts fresh after it is submitted.
-      if (!useCaseId) {
-        setResult(null);
-        setSession(null);
-        setLoaded(false);
-        setIntake(EMPTY_INTAKE);
-        setEvidence(EMPTY_EVIDENCE);
-        setSteps([]);
-        setExampleFile(null);
-        setExampleFileUrl("");
-        setOutcomeFile(null);
-        setStep(1);
-        setVisitedStep(1);
-        setSummary(false);
-        setAccepted(false);
-      }
-    }
+    if (onClose) onClose();
+    else router.push(`/${projectId}/student/skill-practice`);
   }
 
   const prefilled = !!championName && step <= 3 && !submitted;
@@ -552,25 +618,21 @@ export default function GuidedUseCaseAILN({
   const reviewSession: GuidedSession | null = session
     ? { ...session, ...intake, example_file_url: exampleFileUrl || null, steps }
     : null;
+  const previewing = step === 4 && !result && !submitted;
 
-  return (
-    <GuidedUseCaseModalAILN
-      isOpen={isOpen}
-      onClose={handleClose}
-      triggerRef={triggerRef}
-      title={useCaseName ?? "Catat Use Case"}
-      progress={
-        !result && !submitted ? (
-          <GuidedUseCaseStepperAILN
-            currentStep={step}
-            furthestStep={furthestStep}
-            onStepChange={(next) => {
-              if (next <= furthestStep && next !== step) void navigate(next);
-            }}
-          />
-        ) : null
-      }
-    >
+  const progress = !result && !submitted && !redirecting && (
+    <GuidedUseCaseStepperAILN
+      currentStep={step}
+      furthestStep={furthestStep}
+      maxStep={inIntake ? 3 : 6}
+      onStepChange={(next) => {
+        if (next <= furthestStep && next !== step) void navigate(next);
+      }}
+    />
+  );
+
+  const content = (
+    <>
       {loadError ? (
         <div className="flex flex-col gap-3 p-6">
           <p role="alert">{loadError}</p>
@@ -578,10 +640,27 @@ export default function GuidedUseCaseAILN({
             Coba lagi
           </ButtonAILN>
         </div>
-      ) : busy === "load" ? (
-        <div className="flex flex-1 items-center justify-center gap-2 text-sm text-muted-foreground">
+      ) : busy === "load" || !loaded ? (
+        <div className="flex min-h-48 flex-1 items-center justify-center gap-2 text-sm text-muted-foreground">
           <Loader2 className="size-4 animate-spin" />
           Memuat isianmu…
+        </div>
+      ) : redirecting || (inIntake && busy === "generate") ? (
+        <div
+          role="status"
+          aria-live="polite"
+          aria-busy="true"
+          className="flex min-h-64 flex-1 flex-col items-center justify-center gap-4 px-6 py-10 text-center"
+        >
+          <Loader2 className="size-8 animate-spin text-claude dark:text-lime-bright" />
+          <h2 className="text-xl font-medium">
+            {redirecting ? "Workflow siap" : "AI sedang menyusun workflow"}
+          </h2>
+          <p className="max-w-sm text-sm text-muted-foreground">
+            {redirecting
+              ? "Membuka halaman untuk melanjutkan langkah 4–6…"
+              : "Tunggu sebentar. Setelah selesai, kamu akan diarahkan ke halaman langkah 4–6."}
+          </p>
         </div>
       ) : result || (submitted && !revising) ? (
         <SubmittedView
@@ -606,7 +685,7 @@ export default function GuidedUseCaseAILN({
             <div
               ref={scrollRef}
               data-guided-scroll
-              className="min-h-0 min-w-0 flex-1 overflow-y-auto overscroll-contain px-5 py-7 sm:px-8 sm:py-8"
+              className={`min-w-0 ${previewing ? "py-4" : "px-5 py-7 sm:px-8 sm:py-8"} ${inIntake ? "min-h-0 flex-1 overflow-y-auto overscroll-contain" : ""}`}
             >
               <motion.section
                 key={`${step}-${summary}`}
@@ -616,15 +695,21 @@ export default function GuidedUseCaseAILN({
                 className="min-w-0"
                 aria-labelledby="guided-heading"
               >
-                <div className="mb-6 flex flex-col gap-3">
+                <div
+                  className={
+                    previewing ? "sr-only" : "mb-6 flex flex-col gap-3"
+                  }
+                >
                   <p className="text-xs font-medium uppercase tracking-wide text-claude dark:text-lime-bright">
-                    {summary ? "Ringkasan" : `Langkah ${step} dari 6`}
+                    {summary
+                      ? "Ringkasan"
+                      : `Langkah ${step} dari ${inIntake ? 3 : 6}`}
                   </p>
                   <h2
                     id="guided-heading"
                     ref={headingRef}
                     tabIndex={-1}
-                    className="max-w-lg text-2xl font-medium leading-tight tracking-tight focus:outline-none sm:text-3xl"
+                    className="max-w-lg text-xl font-medium leading-tight tracking-tight focus:outline-none sm:text-2xl"
                   >
                     {summary
                       ? "Siap untuk direview?"
@@ -668,40 +753,23 @@ export default function GuidedUseCaseAILN({
                     uploading={uploading === "example"}
                   />
                 )}
-                {step === 1 && !intake.daily_task && !useCaseId && (
-                  <div className="mt-5">
-                    <ButtonAILN
-                      variant="textAccent"
-                      size="small"
-                      onClick={() => {
-                        setIntake({
-                          ...GUIDED_SAMPLE_INTAKE,
-                          current_tools: [
-                            ...GUIDED_SAMPLE_INTAKE.current_tools,
-                          ],
-                          sensitive_data_confirmed: false,
-                        });
-                        setExampleMode("text");
-                      }}
-                    >
-                      Coba isian contoh
-                    </ButtonAILN>
-                  </div>
-                )}
                 {(step === 4 || step === 5) && (
                   <GuidedWorkflowAILN
-                    key={steps.map((item) => item.id).join("-")}
                     session={session}
                     steps={steps}
                     checklist={step === 5}
                     generating={busy === "generate" || !!session?.is_generating}
-                    onGenerate={generate}
+                    onGenerate={async (feedback) =>
+                      !!(await generate(feedback))
+                    }
                     onStepChange={updateStep}
                     onStepCommit={commitStep}
                   />
                 )}
                 {step === 4 && steps.length > 0 && busy !== "generate" && (
-                  <label className="mt-5 flex cursor-pointer items-start gap-3 rounded-lg border border-dashboard-border bg-card-2 p-4 text-sm">
+                  <label
+                    className={`mt-5 flex cursor-pointer items-start gap-3 rounded-lg border p-4 text-sm transition ${accepted ? "border-claude/30 bg-hijau-t/40 dark:border-lime-bright/30 dark:bg-claude/10" : "border-dashboard-border bg-card-1 hover:border-claude/30"}`}
+                  >
                     <input
                       type="checkbox"
                       checked={accepted}
@@ -711,7 +779,8 @@ export default function GuidedUseCaseAILN({
                     <span>
                       <span className="font-medium">Saya mau coba</span>
                       <span className="mt-0.5 block text-xs text-muted-foreground">
-                        Workflow dikunci jadi checklist di langkah berikutnya.
+                        Lanjutkan untuk menjalankan langkahnya satu per satu dan
+                        mencatat hasilnya.
                       </span>
                     </span>
                   </label>
@@ -754,7 +823,7 @@ export default function GuidedUseCaseAILN({
                       <div>
                         <dt className="font-medium">Dengan AI</dt>
                         <dd className="mt-1 text-muted-foreground">
-                          {evidence.hours_with_ai} jam
+                          {evidence.minutes_with_ai} menit
                         </dd>
                       </div>
                       <div>
@@ -802,13 +871,28 @@ export default function GuidedUseCaseAILN({
               </motion.section>
             </div>
           </div>
-          <footer className="shrink-0 border-t border-dashboard-border bg-card-1 px-5 py-4 sm:px-8">
-            <p role="status" className="mb-2 text-xs text-muted-foreground">
+          <footer
+            className={
+              previewing
+                ? "sticky bottom-0 z-20 shrink-0 rounded-lg border border-dashboard-border bg-card-1/95 px-5 py-3 shadow-sm backdrop-blur sm:px-6"
+                : "shrink-0 border-t border-dashboard-border bg-card-1 px-5 py-4 sm:px-8"
+            }
+          >
+            <p
+              role="status"
+              className={
+                previewing && !draftWarning && !busy
+                  ? "sr-only"
+                  : "mb-2 text-xs text-muted-foreground"
+              }
+            >
               {busy === "save"
                 ? "Menyimpan langkah ke server..."
                 : draftWarning
                   ? "Draft belum tersimpan. Jangan tutup halaman."
-                  : "Draft isian tersimpan di browser ini untuk akunmu. Pindah langkah juga menyimpan proses ke server."}
+                  : previewing
+                    ? "Workflow tersimpan. Lanjutkan saat siap."
+                    : "Draft isian tersimpan di browser ini untuk akunmu. Pindah langkah juga menyimpan proses ke server."}
             </p>
             <div className="flex items-center justify-between gap-2">
               <ButtonAILN
@@ -822,7 +906,11 @@ export default function GuidedUseCaseAILN({
                 }}
               >
                 <ArrowLeft className="size-4" />
-                {summary ? "Ubah isian" : "Kembali"}
+                {summary
+                  ? "Ubah isian"
+                  : previewing
+                    ? "Ubah jawaban"
+                    : "Kembali"}
               </ButtonAILN>
               <div className="flex items-center gap-2">
                 {!canContinue && !summary && (
@@ -852,7 +940,13 @@ export default function GuidedUseCaseAILN({
                     {busy === "save" && (
                       <Loader2 className="size-4 animate-spin" />
                     )}
-                    {step === 6 ? "Lihat ringkasan" : "Lanjut"}
+                    {step === 6
+                      ? "Lihat ringkasan"
+                      : step === 3
+                        ? "Kirim & buat workflow AI"
+                        : step === 4
+                          ? "Mulai coba"
+                          : "Lanjut"}
                     {busy !== "save" && <ArrowRight className="size-4" />}
                   </ButtonAILN>
                 )}
@@ -861,7 +955,59 @@ export default function GuidedUseCaseAILN({
           </footer>
         </>
       )}
-    </GuidedUseCaseModalAILN>
+    </>
+  );
+
+  if (inIntake) {
+    return (
+      <GuidedUseCaseModalAILN
+        onClose={handleClose}
+        triggerRef={triggerRef}
+        title={useCaseName ?? "Catat Use Case"}
+        progress={progress}
+      >
+        {content}
+      </GuidedUseCaseModalAILN>
+    );
+  }
+
+  return (
+    <div
+      className={`mx-auto flex w-full flex-col gap-5 ${previewing ? "max-w-6xl" : "max-w-4xl"}`}
+    >
+      <button
+        type="button"
+        onClick={handleClose}
+        className="flex w-fit items-center gap-1.5 text-sm text-muted-foreground hover:text-foreground"
+      >
+        <ArrowLeft className="size-4" /> Kembali ke Latihan AI
+      </button>
+      <div
+        className={
+          previewing
+            ? "min-w-0"
+            : "overflow-hidden rounded-lg border border-dashboard-border bg-card-1"
+        }
+      >
+        <header
+          className={`flex flex-wrap items-center justify-between gap-4 ${previewing ? "pb-2" : "border-b border-dashboard-border px-5 py-5 sm:px-8"}`}
+        >
+          <div>
+            <p className="text-xs text-muted-foreground">
+              {previewing
+                ? "Langkah 4 dari 6 · Tinjau rencana kerjamu"
+                : "Latihan AI terpandu · Langkah 4–6"}
+            </p>
+            <h1 className="mt-1 font-headline text-xl font-medium sm:text-2xl">
+              {useCaseName ??
+                (previewing ? "Saran workflow AI" : "Catat Use Case")}
+            </h1>
+          </div>
+          {progress}
+        </header>
+        {content}
+      </div>
+    </div>
   );
 }
 
@@ -884,7 +1030,7 @@ function SubmittedView({
     submissionStatus === "accepted" || result?.submission_status === "accepted";
   return (
     <>
-      <div className="min-h-0 flex-1 overflow-y-auto px-5 py-8 sm:px-8">
+      <div className="px-5 py-8 sm:px-8">
         <div className="flex flex-col items-center gap-4 text-center">
           <motion.span
             initial={{ scale: 0.6, opacity: 0 }}
@@ -912,8 +1058,8 @@ function SubmittedView({
               <div className="bg-hijau-t/60 p-4 dark:bg-claude/10">
                 <p className="text-xs text-muted-foreground">Waktu dihemat</p>
                 <p className="mt-1 font-headline text-2xl font-medium text-claude dark:text-lime-bright">
-                  {formatDecimal(result.hours_saved)}{" "}
-                  <span className="font-sans text-sm font-normal">jam</span>
+                  {formatDecimal(result.hours_saved * 60)}{" "}
+                  <span className="font-sans text-sm font-normal">menit</span>
                 </p>
               </div>
               <div className="border-l border-dashboard-border p-4">

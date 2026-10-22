@@ -22,30 +22,32 @@ export default function GuidedFileFieldAILN({
   const maxMb = outcome ? 20 : 10;
 
   return (
-    <div className="flex flex-col gap-2 rounded-lg border border-dashed border-dashboard-border bg-card-2/50 p-4 focus-within:ring-1 focus-within:ring-claude">
-      <div className="flex items-center justify-between">
+    <div className="flex flex-col gap-2 rounded-lg border border-dashed border-dashboard-border bg-card-2/50 focus-within:ring-1 focus-within:ring-claude">
+      <div className="relative flex items-start justify-between">
         <label
           htmlFor={id}
-          className="flex flex-1 cursor-pointer items-center gap-3 py-2 text-sm font-medium"
+          className="flex min-h-36 flex-1 cursor-pointer flex-col items-center justify-center gap-2 p-5 text-center text-sm font-medium hover:bg-card-2"
         >
-          <span className="flex size-9 items-center justify-center rounded-lg bg-card-1">
-            <FileUp className="size-4 text-claude dark:text-lime-bright" />
+          <span className="flex size-10 items-center justify-center rounded-lg bg-card-1">
+            <FileUp className="size-5 text-claude dark:text-lime-bright" />
           </span>
           <span>
-            Pilih file
+            {file ? "Ganti file" : "Klik area ini untuk upload file"}
             <span className="mt-0.5 block text-xs font-normal text-muted-foreground">
               Maks. {maxMb} MB
             </span>
           </span>
         </label>
-        <GuidedHintAILN label="Format file">
-          {extensions.join(", ").toUpperCase()}. Maksimal {maxMb} MB. File langsung
-          diunggah setelah dipilih.
-        </GuidedHintAILN>
+        <span className="absolute right-3 top-3">
+          <GuidedHintAILN label="Format file">
+            {extensions.join(", ").toUpperCase()}. Maksimal {maxMb} MB. File
+            langsung diunggah setelah dipilih.
+          </GuidedHintAILN>
+        </span>
       </div>
       <p id={`${id}-help`} className="sr-only">
-        {extensions.join(", ").toUpperCase()} · Maksimal {maxMb} MB. File langsung
-        diunggah setelah dipilih.
+        {extensions.join(", ").toUpperCase()} · Maksimal {maxMb} MB. File
+        langsung diunggah setelah dipilih.
       </p>
       <input
         id={id}
@@ -70,7 +72,7 @@ export default function GuidedFileFieldAILN({
         }}
       />
       {file && (
-        <div className="flex items-center justify-between gap-2 text-sm">
+        <div className="flex items-center justify-between gap-2 border-t border-dashboard-border px-4 py-2 text-sm">
           <span className="min-w-0 break-all">{file.name} </span>
           <ButtonAILN
             variant="ghost"
