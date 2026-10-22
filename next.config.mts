@@ -64,10 +64,10 @@ const nextConfig: NextConfig = {
   },
   async redirects() {
     return [
-      // No session cookie on a protected path -> send to /auth/login.
+      // Login, public guides and auth callbacks do not require a session cookie.
       {
         source:
-          "/:path((?!auth/login|api/auth/callback/google|api/auth/login/password|_next/static|_next/image|favicon\\.ico|.*\\..*).*)",
+          "/:path((?!docs(?:/|$)|auth/login|api/auth/callback/google|api/auth/login/password|_next/static|_next/image|favicon\\.ico|.*\\..*).*)",
         has: [
           {
             type: "header",

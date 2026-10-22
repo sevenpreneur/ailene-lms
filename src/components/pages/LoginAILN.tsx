@@ -6,6 +6,7 @@ import InputAILN from "@/components/fields/InputAILN";
 import { useGoogleLogin } from "@react-oauth/google";
 import { Eye, EyeOff, Lock, Mail } from "lucide-react";
 import { useRouter, useSearchParams } from "next/navigation";
+import Link from "next/link";
 import { Suspense, useState, type FormEvent } from "react";
 import { toast } from "sonner";
 
@@ -173,6 +174,12 @@ function LoginForm() {
             : "Lanjutkan dengan Google"}
         </ButtonAILN>
       </div>
+      <Link
+        href="/docs"
+        className="inline-flex min-h-11 items-center rounded-lg text-sm text-stakeholder-student-foreground underline underline-offset-4 focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-claude"
+      >
+        Baca panduan penggunaan LMS
+      </Link>
     </div>
   );
 }

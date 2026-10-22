@@ -22,6 +22,7 @@ import {
   ClipboardCheck,
   ClipboardList,
   Gauge,
+  CircleHelp,
   LayoutDashboard,
   LineChart,
   Target,
@@ -188,6 +189,16 @@ export default function SidebarAILN({
                 />
               );
             })}
+            <SidebarGroupLabelAILN collapsed={collapsed}>
+              Bantuan
+            </SidebarGroupLabelAILN>
+            <SidebarNavItemAILN
+              href="/docs"
+              label="Panduan LMS"
+              icon={CircleHelp}
+              active={pathname === "/docs"}
+              collapsed={collapsed}
+            />
           </>
         )}
         footer={(collapsed) => (

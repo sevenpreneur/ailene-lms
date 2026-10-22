@@ -10,6 +10,7 @@ import dayjs from "dayjs";
 import "dayjs/locale/id";
 import { LogOut } from "lucide-react";
 import Image from "next/image";
+import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { toast } from "sonner";
@@ -53,6 +54,12 @@ export default function HomeAILN({ session }: { session: LmsSession }) {
         <div className="mx-auto flex w-full max-w-5xl items-center gap-3 px-4 py-3 md:px-6">
           <LogoAileneAILN className="h-7 w-auto text-foreground" />
           <div className="flex-1" />
+          <Link
+            href="/docs"
+            className="inline-flex min-h-11 items-center rounded-lg px-2 text-sm text-muted-foreground hover:text-foreground focus-visible:outline-2 focus-visible:outline-claude"
+          >
+            Panduan LMS
+          </Link>
           <ThemeSwitcherAILN />
           <ButtonAILN
             variant="ghost"
