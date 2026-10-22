@@ -4,7 +4,7 @@ import { Star } from "lucide-react";
 
 function formatTimeSaved(
   hoursSaved: number | null,
-  hoursWithoutAi: number | null
+  hoursWithoutAi: number | null,
 ): string | null {
   if (hoursSaved === null || hoursWithoutAi === null) return null;
   const savedHours = hoursWithoutAi - hoursSaved;
@@ -59,15 +59,15 @@ export default function FirstWinCardAILN() {
       </>
     );
   } else {
-    badge = "PROMPT PERTAMA TERCATAT";
+    badge = "USE CASE PERTAMA TERCATAT";
     headline = (
       <span className="text-foreground dark:text-white">
-        Prompt pertama tercatat <span aria-hidden>🎉</span>
+        Use case pertama tercatat <span aria-hidden>🎉</span>
       </span>
     );
     description = (
       <>
-        Prompt pertama Anda{" "}
+        Use case pertama Anda{" "}
         <strong className="font-medium text-foreground dark:text-white">
           &ldquo;{fw.name}&rdquo;
         </strong>{" "}

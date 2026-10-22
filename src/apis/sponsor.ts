@@ -339,7 +339,7 @@ async function getSessionToken(): Promise<string | null> {
 async function sponsorCall<T>(
   name: string,
   path: string,
-  body: Record<string, unknown>
+  body: Record<string, unknown>,
 ): Promise<T | null> {
   const sessionToken = await getSessionToken();
   if (!sessionToken) return null;
@@ -352,7 +352,7 @@ async function sponsorCall<T>(
 
   if (!result.success) {
     await LogError(name, result.code, result.status, result.message);
-    return null;
+    throw new Error("Data belum dapat dimuat.");
   }
   return result.data ?? null;
 }
@@ -361,7 +361,7 @@ export function getOrganizationStats(projectId: string) {
   return sponsorCall<OrganizationStats>(
     "getOrganizationStats",
     "/api/v1/sponsor/organization-stats",
-    { project_id: projectId }
+    { project_id: projectId },
   );
 }
 
@@ -369,7 +369,7 @@ export function getExecutiveView(projectId: string) {
   return sponsorCall<ExecutiveView>(
     "getExecutiveView",
     "/api/v1/sponsor/executive-view",
-    { project_id: projectId }
+    { project_id: projectId },
   );
 }
 
@@ -377,7 +377,7 @@ export function getSponsorHeadline(projectId: string) {
   return sponsorCall<SponsorHeadline>(
     "getSponsorHeadline",
     "/api/v1/sponsor/headline",
-    { project_id: projectId }
+    { project_id: projectId },
   );
 }
 
@@ -385,7 +385,7 @@ export function getProgramHealth(projectId: string) {
   return sponsorCall<ProgramHealth>(
     "getProgramHealth",
     "/api/v1/sponsor/program-health",
-    { project_id: projectId }
+    { project_id: projectId },
   );
 }
 
@@ -393,7 +393,7 @@ export function getSponsorRecentActivity(projectId: string) {
   return sponsorCall<SponsorRecentActivity>(
     "getSponsorRecentActivity",
     "/api/v1/sponsor/recent-activity",
-    { project_id: projectId }
+    { project_id: projectId },
   );
 }
 
@@ -401,7 +401,7 @@ export function getWeeklyTrends(projectId: string) {
   return sponsorCall<WeeklyTrends>(
     "getWeeklyTrends",
     "/api/v1/sponsor/weekly-trends",
-    { project_id: projectId }
+    { project_id: projectId },
   );
 }
 
@@ -409,7 +409,7 @@ export function getProficiencyTrends(projectId: string) {
   return sponsorCall<ProficiencyTrends>(
     "getProficiencyTrends",
     "/api/v1/sponsor/proficiency-trends",
-    { project_id: projectId }
+    { project_id: projectId },
   );
 }
 
@@ -417,7 +417,7 @@ export function getLevelDistribution(projectId: string) {
   return sponsorCall<LevelDistribution>(
     "getLevelDistribution",
     "/api/v1/sponsor/level-distribution",
-    { project_id: projectId }
+    { project_id: projectId },
   );
 }
 
@@ -425,7 +425,7 @@ export function getWorkforceMembers(projectId: string) {
   return sponsorCall<WorkforceMembers>(
     "getWorkforceMembers",
     "/api/v1/sponsor/workforce-members",
-    { project_id: projectId }
+    { project_id: projectId },
   );
 }
 
@@ -433,7 +433,7 @@ export function getOrganizationLeaderboard(projectId: string) {
   return sponsorCall<OrganizationLeaderboard>(
     "getOrganizationLeaderboard",
     "/api/v1/sponsor/organization-leaderboard",
-    { project_id: projectId }
+    { project_id: projectId },
   );
 }
 
@@ -441,7 +441,7 @@ export function getPreAssessmentOrganization(projectId: string) {
   return sponsorCall<PreAssessmentOrganization>(
     "getPreAssessmentOrganization",
     "/api/v1/sponsor/pre-assessment-organization",
-    { project_id: projectId }
+    { project_id: projectId },
   );
 }
 
@@ -449,7 +449,7 @@ export function getGroupDepartments(projectId: string) {
   return sponsorCall<GroupDepartments>(
     "getGroupDepartments",
     "/api/v1/sponsor/groups/departments",
-    { project_id: projectId }
+    { project_id: projectId },
   );
 }
 
@@ -457,7 +457,7 @@ export function getGroupOverview(projectId: string, groupId: number) {
   return sponsorCall<GroupOverview>(
     "getGroupOverview",
     "/api/v1/sponsor/groups/overview",
-    { project_id: projectId, group_id: groupId }
+    { project_id: projectId, group_id: groupId },
   );
 }
 
@@ -465,7 +465,7 @@ export function getGroupLevelDistribution(projectId: string, groupId: number) {
   return sponsorCall<GroupLevelDistribution>(
     "getGroupLevelDistribution",
     "/api/v1/sponsor/groups/level-distribution",
-    { project_id: projectId, group_id: groupId }
+    { project_id: projectId, group_id: groupId },
   );
 }
 
@@ -473,7 +473,7 @@ export function getGroupTopUseCases(projectId: string, groupId: number) {
   return sponsorCall<GroupTopUseCases>(
     "getGroupTopUseCases",
     "/api/v1/sponsor/groups/top-use-cases",
-    { project_id: projectId, group_id: groupId }
+    { project_id: projectId, group_id: groupId },
   );
 }
 
@@ -481,7 +481,7 @@ export function getGroupAttentionMembers(projectId: string, groupId: number) {
   return sponsorCall<GroupAttentionMembers>(
     "getGroupAttentionMembers",
     "/api/v1/sponsor/groups/attention-members",
-    { project_id: projectId, group_id: groupId }
+    { project_id: projectId, group_id: groupId },
   );
 }
 
@@ -489,7 +489,7 @@ export function getOutcomeOverview(projectId: string) {
   return sponsorCall<OutcomeOverview>(
     "getOutcomeOverview",
     "/api/v1/sponsor/outcome/overview",
-    { project_id: projectId }
+    { project_id: projectId },
   );
 }
 
@@ -497,21 +497,25 @@ export function getOutcomeLevelDistribution(projectId: string) {
   return sponsorCall<OutcomeLevelDistribution>(
     "getOutcomeLevelDistribution",
     "/api/v1/sponsor/outcome/level-distribution",
-    { project_id: projectId }
+    { project_id: projectId },
   );
 }
 
 export function getRoiTrend(projectId: string) {
-  return sponsorCall<RoiTrend>("getRoiTrend", "/api/v1/sponsor/outcome/roi-trend", {
-    project_id: projectId,
-  });
+  return sponsorCall<RoiTrend>(
+    "getRoiTrend",
+    "/api/v1/sponsor/outcome/roi-trend",
+    {
+      project_id: projectId,
+    },
+  );
 }
 
 export function getDepartmentRoi(projectId: string) {
   return sponsorCall<DepartmentRoi>(
     "getDepartmentRoi",
     "/api/v1/sponsor/outcome/department-roi",
-    { project_id: projectId }
+    { project_id: projectId },
   );
 }
 
@@ -519,6 +523,6 @@ export function getTopPerformers(projectId: string) {
   return sponsorCall<TopPerformers>(
     "getTopPerformers",
     "/api/v1/sponsor/outcome/top-performers",
-    { project_id: projectId }
+    { project_id: projectId },
   );
 }

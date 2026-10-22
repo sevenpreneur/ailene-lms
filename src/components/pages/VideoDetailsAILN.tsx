@@ -1,4 +1,5 @@
 "use client";
+import CompleteLearningButtonAILN from "@/components/buttons/CompleteLearningButtonAILN";
 import ButtonAILN from "@/components/buttons/ButtonAILN";
 import GeneralLabelAILN from "@/components/labels/GeneralLabelAILN";
 import PageContainerAILN from "@/components/pages/PageContainerAILN";
@@ -78,6 +79,11 @@ export default function VideoDetailsAILN({ video }: VideoDetailsAILNProps) {
           <FontAwesomeIcon
             icon={faCirclePlay}
             className="h-12 w-12 text-claude dark:text-lime-bright"
+          />
+          <CompleteLearningButtonAILN
+            kind="videos"
+            id={video.id}
+            completed={video.completed}
           />
           {hasVideoUrl ? (
             <>

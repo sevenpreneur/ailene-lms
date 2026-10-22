@@ -254,6 +254,13 @@ export default function GuidedUseCaseStudentAILN({
         useCaseName={useCase.name}
         championName={championName}
         initialSession={session}
+        submissionStatus={
+          status === "ACCEPTED"
+            ? "accepted"
+            : status === "NEEDS_REVISION"
+              ? "needs_revision"
+              : "awaiting_review"
+        }
         allowResubmit={status === "NEEDS_REVISION"}
       />
     </PageContainerAILN>

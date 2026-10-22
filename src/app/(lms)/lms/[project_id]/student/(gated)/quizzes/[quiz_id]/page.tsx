@@ -73,6 +73,8 @@ export default async function QuizPage({
         },
         questions: quiz.questions,
       }}
+      key={`${quiz.id}:${attempt.started_at}`}
+      attemptStartedAt={attempt.started_at}
       initialAnswers={attempt.answers ?? {}}
       initialSecondsLeft={attempt.seconds_left ?? 20 * 60}
     />

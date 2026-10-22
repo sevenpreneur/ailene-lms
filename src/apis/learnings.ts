@@ -284,7 +284,7 @@ export async function getLearnings(
 
   if (!result.success) {
     await LogError("getLearnings", result.code, result.status, result.message);
-    return null;
+    throw new Error("Data belum dapat dimuat.");
   }
   return result.data ?? null;
 }
@@ -309,7 +309,7 @@ export async function getStudentChapters(
       result.status,
       result.message,
     );
-    return [];
+    throw new Error("Data belum dapat dimuat.");
   }
   return result.data ?? [];
 }
@@ -334,7 +334,7 @@ export async function getStudentLevels(
       result.status,
       result.message,
     );
-    return [];
+    throw new Error("Data belum dapat dimuat.");
   }
   return result.data ?? [];
 }
@@ -353,6 +353,8 @@ export async function getMaterialDetails(
   });
 
   if (!result.success) {
+    if (result.code !== 403 && result.code !== 404)
+      throw new Error("Data belum dapat dimuat.");
     await LogError(
       "getMaterialDetails",
       result.code,
@@ -386,7 +388,7 @@ export async function getLevelMaterials(
       result.status,
       result.message,
     );
-    return null;
+    throw new Error("Data belum dapat dimuat.");
   }
   return result.data ?? null;
 }
@@ -405,6 +407,8 @@ export async function getVideoDetails(
   });
 
   if (!result.success) {
+    if (result.code !== 403 && result.code !== 404)
+      throw new Error("Data belum dapat dimuat.");
     await LogError(
       "getVideoDetails",
       result.code,
@@ -432,6 +436,8 @@ export async function getQuizDetails(
   });
 
   if (!result.success) {
+    if (result.code !== 403 && result.code !== 404)
+      throw new Error("Data belum dapat dimuat.");
     await LogError(
       "getQuizDetails",
       result.code,
@@ -532,7 +538,7 @@ export async function getQuizResult(
 
   if (!result.success) {
     await LogError("getQuizResult", result.code, result.status, result.message);
-    return null;
+    throw new Error("Data belum dapat dimuat.");
   }
   return result.data ?? null;
 }
@@ -603,7 +609,7 @@ export async function getTodayFocus(
 
   if (!result.success) {
     await LogError("getTodayFocus", result.code, result.status, result.message);
-    return null;
+    throw new Error("Data belum dapat dimuat.");
   }
   return result.data?.focus ?? null;
 }

@@ -62,7 +62,7 @@ async function getSessionToken(): Promise<string | null> {
 
 // POST /api/v1/student/status needs the caller's own session JWT — see docs/api/student.md in ailene-lms-backend.
 export async function getStudentStatus(
-  projectId: string
+  projectId: string,
 ): Promise<StudentStatus | null> {
   const sessionToken = await getSessionToken();
   if (!sessionToken) return null;
@@ -74,15 +74,20 @@ export async function getStudentStatus(
   });
 
   if (!result.success) {
-    await LogError("getStudentStatus", result.code, result.status, result.message);
-    return null;
+    await LogError(
+      "getStudentStatus",
+      result.code,
+      result.status,
+      result.message,
+    );
+    throw new Error("Data belum dapat dimuat.");
   }
   return result.data ?? null;
 }
 
 // POST /api/v1/student/level-progress needs the caller's own session JWT — see docs/api/student.md in ailene-lms-backend.
 export async function getStudentLevelProgress(
-  projectId: string
+  projectId: string,
 ): Promise<StudentLevelProgress | null> {
   const sessionToken = await getSessionToken();
   if (!sessionToken) return null;
@@ -93,7 +98,7 @@ export async function getStudentLevelProgress(
       method: "POST",
       body: { project_id: projectId },
       token: sessionToken,
-    }
+    },
   );
 
   if (!result.success) {
@@ -101,41 +106,44 @@ export async function getStudentLevelProgress(
       "getStudentLevelProgress",
       result.code,
       result.status,
-      result.message
+      result.message,
     );
-    return null;
+    throw new Error("Data belum dapat dimuat.");
   }
   return result.data ?? null;
 }
 
 // POST /api/v1/student/competency needs the caller's own session JWT — see docs/api/student.md in ailene-lms-backend.
 export async function getStudentCompetency(
-  projectId: string
+  projectId: string,
 ): Promise<StudentCompetency | null> {
   const sessionToken = await getSessionToken();
   if (!sessionToken) return null;
 
-  const result = await callApi<StudentCompetency>("/api/v1/student/competency", {
-    method: "POST",
-    body: { project_id: projectId },
-    token: sessionToken,
-  });
+  const result = await callApi<StudentCompetency>(
+    "/api/v1/student/competency",
+    {
+      method: "POST",
+      body: { project_id: projectId },
+      token: sessionToken,
+    },
+  );
 
   if (!result.success) {
     await LogError(
       "getStudentCompetency",
       result.code,
       result.status,
-      result.message
+      result.message,
     );
-    return null;
+    throw new Error("Data belum dapat dimuat.");
   }
   return result.data ?? null;
 }
 
 // POST /api/v1/student/leaderboard needs the caller's own session JWT — see docs/api/student.md in ailene-lms-backend.
 export async function getStudentLeaderboard(
-  projectId: string
+  projectId: string,
 ): Promise<StudentLeaderboard | null> {
   const sessionToken = await getSessionToken();
   if (!sessionToken) return null;
@@ -146,7 +154,7 @@ export async function getStudentLeaderboard(
       method: "POST",
       body: { project_id: projectId },
       token: sessionToken,
-    }
+    },
   );
 
   if (!result.success) {
@@ -154,9 +162,9 @@ export async function getStudentLeaderboard(
       "getStudentLeaderboard",
       result.code,
       result.status,
-      result.message
+      result.message,
     );
-    return null;
+    throw new Error("Data belum dapat dimuat.");
   }
   return result.data ?? null;
 }

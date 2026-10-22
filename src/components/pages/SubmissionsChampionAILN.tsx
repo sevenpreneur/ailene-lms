@@ -20,10 +20,8 @@ const FILTERS: { key: ReviewStatus; label: string }[] = [
 ];
 
 export default function SubmissionsChampionAILN({
-  promptSubmissions,
   useCaseSubmissions,
 }: {
-  promptSubmissions: ChampionSubmissions | null;
   useCaseSubmissions: ChampionSubmissions | null;
 }) {
   const projectId = useProjectId();
@@ -36,9 +34,7 @@ export default function SubmissionsChampionAILN({
   ): SubmissionRow => ({
     id: r.id,
     kind,
-    href: `/${projectId}/champion/submissions/${
-      kind === "PROMPT" ? "prompts" : "use-cases"
-    }/${r.id}`,
+    href: `/${projectId}/champion/submissions/use-cases/${r.id}`,
     level_number: r.subject.level?.level_number ?? null,
     title: r.subject.name,
     body: r.subject.text,
@@ -53,7 +49,6 @@ export default function SubmissionsChampionAILN({
   });
 
   const rows: SubmissionRow[] = [
-    ...(promptSubmissions?.list ?? []).map((r) => toRow(r, "PROMPT")),
     ...(useCaseSubmissions?.list ?? []).map((r) => toRow(r, "USE_CASE")),
   ];
 

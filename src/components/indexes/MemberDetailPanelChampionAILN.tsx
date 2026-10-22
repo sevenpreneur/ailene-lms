@@ -176,6 +176,10 @@ export default function MemberDetailPanelChampionAILN({
             ))}
           </div>
         )}
+        <p className="text-sm text-muted-foreground">
+          Pengiriman catatan belum tersedia. Teks yang kamu tulis belum
+          disimpan; salin untuk persiapan coaching.
+        </p>
         <TextAreaAILN
           textAreaId="coaching-note"
           textAreaPlaceholder={`Tulis catatan coaching untuk ${

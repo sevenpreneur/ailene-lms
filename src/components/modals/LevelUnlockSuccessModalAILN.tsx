@@ -133,7 +133,7 @@ export default function LevelUnlockSuccessModalAILN({
           />
           <UnlockedRow
             icon={<Library className="size-4" />}
-            title="Prompt Vault tim"
+            title="Use Case Library tim"
             description="Akses prompt terkurasi dari Champion dan tim"
           />
         </section>

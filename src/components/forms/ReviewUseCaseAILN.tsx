@@ -111,7 +111,11 @@ export default function ReviewUseCaseAILN({
       });
 
       const payload = await response.json().catch(() => null);
-      if (!response.ok) {
+      if (
+        !response.ok ||
+        response.redirected ||
+        !response.headers.get("content-type")?.includes("application/json")
+      ) {
         toast.error(payload?.message ?? "Gagal menyimpan review.");
         return;
       }
@@ -119,7 +123,7 @@ export default function ReviewUseCaseAILN({
       toast.success(
         isAccepted
           ? `Submission diterima · +${payload?.xp_awarded ?? 0} XP`
-          : "Dikembalikan untuk revisi."
+          : "Dikembalikan untuk revisi.",
       );
       router.refresh();
     } catch {
@@ -130,8 +134,7 @@ export default function ReviewUseCaseAILN({
   };
 
   const meta = STATUS_META[status];
-  const canReview =
-    status === "AWAITING_REVIEW" || status === "NEEDS_REVISION";
+  const canReview = status === "AWAITING_REVIEW" || status === "NEEDS_REVISION";
   const deadline = s.deadline;
   const submittedAt = s.submitted_at;
 
@@ -234,7 +237,8 @@ export default function ReviewUseCaseAILN({
                     <Metric
                       label="Hours saved"
                       value={
-                        s.hours_with_ai !== null && s.hours_with_ai !== undefined
+                        s.hours_with_ai !== null &&
+                        s.hours_with_ai !== undefined
                           ? `${s.hours_with_ai} jam`
                           : "—"
                       }

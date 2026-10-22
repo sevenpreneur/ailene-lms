@@ -20,7 +20,7 @@ export default function RecentUseCasesAILN({
     .sort(
       (a, b) =>
         new Date(b.submitted_at!).getTime() -
-        new Date(a.submitted_at!).getTime()
+        new Date(a.submitted_at!).getTime(),
     )
     .slice(0, 3);
 
@@ -35,14 +35,15 @@ export default function RecentUseCasesAILN({
           {items.map((r) => (
             <div key={r.id} className="flex items-start justify-between gap-2">
               <div className="min-w-0 flex-1">
-                <p className="truncate text-xs font-medium text-gray-900 dark:text-white">
+                <Link
+                  href={`/${projectId}/champion/submissions/use-cases/${r.id}`}
+                  className="block truncate text-sm font-medium text-gray-900 underline-offset-2 hover:underline dark:text-white"
+                >
                   {r.subject.name}
-                </p>
+                </Link>
                 <p className="truncate text-[10px] text-gray-500 dark:text-gray-400">
                   oleh {r.member.full_name}
-                  {r.subject.level
-                    ? ` · L${r.subject.level.level_number}`
-                    : ""}
+                  {r.subject.level ? ` · L${r.subject.level.level_number}` : ""}
                   {r.is_accepted ? " · diterima" : " · menunggu review"}
                 </p>
               </div>
@@ -55,7 +56,7 @@ export default function RecentUseCasesAILN({
       )}
 
       <Link
-        href={`/${projectId}/champion/submissions/use-cases`}
+        href={`/${projectId}/champion/submissions`}
         className="mt-4 block rounded-lg border border-dashboard-border py-2 text-center text-xs font-medium text-claude transition hover:bg-hijau-t dark:text-lime-bright dark:hover:bg-claude/10"
       >
         Lihat semua use case

@@ -26,7 +26,7 @@ async function getSessionToken(): Promise<string | null> {
 // POST /api/v1/coaching-notes needs the caller's own session JWT — see docs/api/coaching-notes.md in ailene-lms-backend.
 export async function getCoachingNotes(
   projectId: string,
-  role: "student" | "champion"
+  role: "student" | "champion",
 ): Promise<CoachingNote[]> {
   const sessionToken = await getSessionToken();
   if (!sessionToken) return [];
@@ -42,9 +42,9 @@ export async function getCoachingNotes(
       "getCoachingNotes",
       result.code,
       result.status,
-      result.message
+      result.message,
     );
-    return [];
+    throw new Error("Data belum dapat dimuat.");
   }
   return result.data ?? [];
 }

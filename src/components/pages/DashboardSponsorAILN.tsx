@@ -4,6 +4,7 @@ import {
   usePdfReport,
   type ReportProps,
 } from "@/components/pdf/AileneReportPDF";
+import LoadErrorAILN from "@/components/states/LoadErrorAILN";
 import ButtonAILN from "@/components/buttons/ButtonAILN";
 import ScorecardAILN from "@/components/cards/ScorecardAILN";
 import SectionContainerAILN from "@/components/cards/SectionContainerAILN";
@@ -96,14 +97,15 @@ export default function DashboardSponsorAILN({
   const healthMetrics = programHealth?.metrics ?? [];
   const activity = recentActivity?.activity ?? [];
   const orgName = org ?? "Ringkasan Organisasi";
-  const activeStaffCount = metrics.staff_active_weekly_count.toLocaleString("id-ID");
+  const activeStaffCount =
+    metrics.staff_active_weekly_count.toLocaleString("id-ID");
   const departmentCount = (orgStats?.group_count ?? 0).toLocaleString("id-ID");
 
   // Program week derived from the configured start date (env). No start = week 1.
   const programWeek = PROGRAM_START_ISO
     ? Math.min(
         Math.max(dayjs().diff(dayjs(PROGRAM_START_ISO), "week") + 1, 1),
-        PROGRAM_TOTAL_WEEKS
+        PROGRAM_TOTAL_WEEKS,
       )
     : 1;
 
@@ -175,6 +177,20 @@ export default function DashboardSponsorAILN({
       : undefined,
     generatedAt: dayjs().format("D MMMM YYYY"),
     sections: [
+      {
+        type: "list",
+        title: "Tentang data",
+        items: [
+          {
+            primary:
+              "Waktu pembaruan sumber belum tersedia. Angka mengikuti periode pada setiap indikator.",
+          },
+          {
+            primary:
+              "Nilai rupiah merupakan estimasi penghematan waktu dari perhitungan backend, bukan konfirmasi penghematan kas.",
+          },
+        ],
+      },
       {
         type: "kpi",
         title: "Indikator Utama",
@@ -256,6 +272,22 @@ export default function DashboardSponsorAILN({
     ],
   };
 
+  if (
+    !executiveView ||
+    !headline ||
+    !orgStats ||
+    !programHealth ||
+    !recentActivity ||
+    !levelDistribution ||
+    !proficiencyTrends ||
+    !organizationLeaderboard
+  )
+    return (
+      <PageContainerAILN>
+        <LoadErrorAILN />
+      </PageContainerAILN>
+    );
+
   return (
     <PageContainerAILN>
       <div className="flex w-full flex-col gap-6">
@@ -299,9 +331,21 @@ export default function DashboardSponsorAILN({
           hoursSavedLastWeek={headline?.hours_saved_last_week ?? 0}
           roiAnnualized={headline?.roi_annualized ?? 0}
           trend={headline?.trend ?? []}
-          updatedLabel="baru saja"
+          updatedLabel="Waktu pembaruan sumber belum tersedia"
         />
 
+        <details className="rounded-lg border border-dashboard-border bg-card-1 p-4 text-sm">
+          <summary className="cursor-pointer font-medium">
+            Cara membaca angka ini
+          </summary>
+          <p className="mt-2 text-muted-foreground">
+            Periode mengikuti label tiap indikator: mingguan, kumulatif program,
+            atau proyeksi tahunan. Nilai rupiah adalah estimasi nilai waktu dari
+            perhitungan backend, bukan penghematan kas yang sudah terealisasi.
+            Waktu pembaruan sumber dan rincian cakupan submission belum
+            tersedia.
+          </p>
+        </details>
         {/* KPI strip — standardized ScorecardAILN cards */}
         <div className="grid grid-cols-1 gap-4 md:grid-cols-2 xl:grid-cols-4">
           {kpiCards.map((k, i) => (
@@ -329,24 +373,24 @@ export default function DashboardSponsorAILN({
 
         {/* Kesehatan Program + Aktivitas terkini */}
         <div className="grid grid-cols-1 gap-4 lg:grid-cols-2">
-            <SectionContainerAILN
-              title="Kesehatan Program"
-              desc="Capaian program vs target · update real-time."
-            >
-              <ul className="grid grid-cols-2 gap-6 lg:grid-cols-4">
-                {healthMetrics.map((h) => (
-                  <HealthMetricAILN
-                    key={h.key}
-                    label={h.label}
-                    name={h.name}
-                    percent={h.percent}
-                    detail={h.detail}
-                  />
-                ))}
-              </ul>
-            </SectionContainerAILN>
+          <SectionContainerAILN
+            title="Kesehatan Program"
+            desc="Capaian program vs target · dimuat saat halaman dibuka."
+          >
+            <ul className="grid grid-cols-2 gap-6 lg:grid-cols-4">
+              {healthMetrics.map((h) => (
+                <HealthMetricAILN
+                  key={h.key}
+                  label={h.label}
+                  name={h.name}
+                  percent={h.percent}
+                  detail={h.detail}
+                />
+              ))}
+            </ul>
+          </SectionContainerAILN>
 
-            <RecentActivityAILN activity={activity} />
+          <RecentActivityAILN activity={activity} />
         </div>
       </div>
     </PageContainerAILN>

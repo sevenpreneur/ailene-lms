@@ -106,14 +106,14 @@ async function getSessionToken(): Promise<string | null> {
 
 // POST /api/v1/chapter-tests/details needs the caller's own session JWT — see docs/api/chapter-tests.md in ailene-lms-backend.
 export async function getChapterTestDetails(
-  testId: number
+  testId: number,
 ): Promise<LearningDetailResult<ChapterTestDetail>> {
   const sessionToken = await getSessionToken();
   if (!sessionToken) return { kind: "not_found" };
 
   const result = await callApi<ChapterTestDetail>(
     "/api/v1/chapter-tests/details",
-    { method: "POST", body: { test_id: testId }, token: sessionToken }
+    { method: "POST", body: { test_id: testId }, token: sessionToken },
   );
 
   if (!result.success) {
@@ -121,7 +121,7 @@ export async function getChapterTestDetails(
       "getChapterTestDetails",
       result.code,
       result.status,
-      result.message
+      result.message,
     );
     if (result.message === "No access found for this project") {
       return { kind: "forbidden", reason: "no_access" };
@@ -129,15 +129,18 @@ export async function getChapterTestDetails(
     if (result.status === "FORBIDDEN") {
       return { kind: "forbidden", reason: "chapter_locked" };
     }
-    return { kind: "not_found" };
+    if (result.code === 404) return { kind: "not_found" };
+    throw new Error("Data belum dapat dimuat.");
   }
-  return result.data ? { kind: "ok", data: result.data } : { kind: "not_found" };
+  return result.data
+    ? { kind: "ok", data: result.data }
+    : { kind: "not_found" };
 }
 
 // POST /api/v1/chapter-tests/submit needs the caller's own session JWT — see docs/api/chapter-tests.md in ailene-lms-backend.
 export async function submitChapterTest(
   testId: number,
-  answers: ChapterTestAnswers
+  answers: ChapterTestAnswers,
 ): Promise<ChapterTestCallResult<ChapterTestSubmitResult>> {
   const sessionToken = await getSessionToken();
   if (!sessionToken) {
@@ -146,7 +149,7 @@ export async function submitChapterTest(
 
   const result = await callApi<ChapterTestSubmitResult>(
     "/api/v1/chapter-tests/submit",
-    { method: "POST", body: { test_id: testId, answers }, token: sessionToken }
+    { method: "POST", body: { test_id: testId, answers }, token: sessionToken },
   );
 
   if (!result.success || !result.data) {
@@ -154,7 +157,7 @@ export async function submitChapterTest(
       "submitChapterTest",
       result.code,
       result.status,
-      result.message
+      result.message,
     );
     return { success: false, code: result.code, message: result.message };
   }
@@ -163,14 +166,14 @@ export async function submitChapterTest(
 
 // POST /api/v1/chapter-tests/result needs the caller's own session JWT — see docs/api/chapter-tests.md in ailene-lms-backend.
 export async function getChapterTestResult(
-  testId: number
+  testId: number,
 ): Promise<ChapterTestResult | null> {
   const sessionToken = await getSessionToken();
   if (!sessionToken) return null;
 
   const result = await callApi<ChapterTestResult>(
     "/api/v1/chapter-tests/result",
-    { method: "POST", body: { test_id: testId }, token: sessionToken }
+    { method: "POST", body: { test_id: testId }, token: sessionToken },
   );
 
   if (!result.success) {
@@ -178,9 +181,9 @@ export async function getChapterTestResult(
       "getChapterTestResult",
       result.code,
       result.status,
-      result.message
+      result.message,
     );
-    return null;
+    throw new Error("Data belum dapat dimuat.");
   }
   return result.data ?? null;
 }

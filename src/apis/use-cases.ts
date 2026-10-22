@@ -221,7 +221,7 @@ async function getSessionToken(): Promise<string | null> {
 // POST /api/v1/use-cases needs the caller's own session JWT — see docs/api/use-cases.md in ailene-lms-backend.
 export async function getUseCases(
   projectId: string,
-  options?: { search?: string; page?: number; page_size?: number }
+  options?: { search?: string; page?: number; page_size?: number },
 ): Promise<{ list: UseCaseLibraryItem[]; metapaging: Metapaging | null }> {
   const sessionToken = await getSessionToken();
   if (!sessionToken) return { list: [], metapaging: null };
@@ -237,7 +237,7 @@ export async function getUseCases(
 
   if (!result.success) {
     await LogError("getUseCases", result.code, result.status, result.message);
-    return { list: [], metapaging: null };
+    throw new Error("Data belum dapat dimuat.");
   }
   return result.data ?? { list: [], metapaging: null };
 }
@@ -245,7 +245,7 @@ export async function getUseCases(
 // POST /api/v1/use-cases/assigned needs the caller's own session JWT — see docs/api/use-cases.md in ailene-lms-backend.
 export async function getAssignedUseCases(
   projectId: string,
-  options?: { has_submitted?: boolean; is_accepted?: boolean }
+  options?: { has_submitted?: boolean; is_accepted?: boolean },
 ): Promise<AssignedUseCase[]> {
   const sessionToken = await getSessionToken();
   if (!sessionToken) return [];
@@ -256,7 +256,7 @@ export async function getAssignedUseCases(
       method: "POST",
       body: { project_id: projectId, ...options },
       token: sessionToken,
-    }
+    },
   );
 
   if (!result.success) {
@@ -264,16 +264,16 @@ export async function getAssignedUseCases(
       "getAssignedUseCases",
       result.code,
       result.status,
-      result.message
+      result.message,
     );
-    return [];
+    throw new Error("Data belum dapat dimuat.");
   }
   return result.data ?? [];
 }
 
 // POST /api/v1/use-cases/details needs the caller's own session JWT — see docs/api/use-cases.md in ailene-lms-backend.
 export async function getUseCaseDetails(
-  id: number
+  id: number,
 ): Promise<UseCaseDetailResult> {
   const sessionToken = await getSessionToken();
   if (!sessionToken) return { kind: "not_found" };
@@ -289,37 +289,37 @@ export async function getUseCaseDetails(
       "getUseCaseDetails",
       result.code,
       result.status,
-      result.message
+      result.message,
     );
-    return { kind: "not_found" };
+    if (result.code === 404) return { kind: "not_found" };
+    throw new Error("Data belum dapat dimuat.");
   }
-  return result.data ? { kind: "ok", data: result.data } : { kind: "not_found" };
+  return result.data
+    ? { kind: "ok", data: result.data }
+    : { kind: "not_found" };
 }
 
 // POST /api/v1/use-cases/self-assign needs the caller's own session JWT — see docs/api/use-cases.md in ailene-lms-backend.
 export async function selfAssignUseCase(
-  useCaseId: number
+  useCaseId: number,
 ): Promise<UseCaseMutationResult> {
   const sessionToken = await getSessionToken();
   if (!sessionToken) {
     return { success: false, code: 401, message: "Not authenticated" };
   }
 
-  const result = await callApi<UseCaseDetail>(
-    "/api/v1/use-cases/self-assign",
-    {
-      method: "POST",
-      body: { use_case_id: useCaseId },
-      token: sessionToken,
-    }
-  );
+  const result = await callApi<UseCaseDetail>("/api/v1/use-cases/self-assign", {
+    method: "POST",
+    body: { use_case_id: useCaseId },
+    token: sessionToken,
+  });
 
   if (!result.success || !result.data) {
     await LogError(
       "selfAssignUseCase",
       result.code,
       result.status,
-      result.message
+      result.message,
     );
     return { success: false, code: result.code, message: result.message };
   }
@@ -328,28 +328,25 @@ export async function selfAssignUseCase(
 
 // POST /api/v1/use-cases/self-create needs the caller's own session JWT — see docs/api/use-cases.md in ailene-lms-backend.
 export async function selfCreateUseCase(
-  input: SelfCreateUseCaseInput
+  input: SelfCreateUseCaseInput,
 ): Promise<UseCaseMutationResult> {
   const sessionToken = await getSessionToken();
   if (!sessionToken) {
     return { success: false, code: 401, message: "Not authenticated" };
   }
 
-  const result = await callApi<UseCaseDetail>(
-    "/api/v1/use-cases/self-create",
-    {
-      method: "POST",
-      body: input,
-      token: sessionToken,
-    }
-  );
+  const result = await callApi<UseCaseDetail>("/api/v1/use-cases/self-create", {
+    method: "POST",
+    body: input,
+    token: sessionToken,
+  });
 
   if (!result.success || !result.data) {
     await LogError(
       "selfCreateUseCase",
       result.code,
       result.status,
-      result.message
+      result.message,
     );
     return { success: false, code: result.code, message: result.message };
   }
@@ -358,7 +355,7 @@ export async function selfCreateUseCase(
 
 // POST /api/v1/use-cases/submit needs the caller's own session JWT — see docs/api/use-cases.md in ailene-lms-backend.
 export async function submitUseCase(
-  input: SubmitUseCaseInput
+  input: SubmitUseCaseInput,
 ): Promise<UseCaseMutationResult> {
   const sessionToken = await getSessionToken();
   if (!sessionToken) {
@@ -372,12 +369,7 @@ export async function submitUseCase(
   });
 
   if (!result.success || !result.data) {
-    await LogError(
-      "submitUseCase",
-      result.code,
-      result.status,
-      result.message
-    );
+    await LogError("submitUseCase", result.code, result.status, result.message);
     return { success: false, code: result.code, message: result.message };
   }
   return { success: true, data: result.data };
@@ -387,7 +379,7 @@ export async function submitUseCase(
 async function callGuided<T>(
   name: string,
   path: string,
-  body: unknown
+  body: unknown,
 ): Promise<GuidedResult<T>> {
   const sessionToken = await getSessionToken();
   if (!sessionToken) {
@@ -412,7 +404,7 @@ export function getGuidedSession(input: GuidedDetailsInput) {
   return callGuided<GuidedSession | null>(
     "getGuidedSession",
     "/api/v1/use-cases/guided/details",
-    input
+    input,
   );
 }
 
@@ -420,7 +412,7 @@ export function saveGuidedSession(input: GuidedSaveInput) {
   return callGuided<GuidedSession>(
     "saveGuidedSession",
     "/api/v1/use-cases/guided/save",
-    input
+    input,
   );
 }
 
@@ -428,7 +420,7 @@ export function generateGuidedWorkflow(input: GuidedGenerateInput) {
   return callGuided<GuidedSession>(
     "generateGuidedWorkflow",
     "/api/v1/use-cases/guided/generate",
-    input
+    input,
   );
 }
 
@@ -436,7 +428,7 @@ export function checkGuidedStep(input: GuidedCheckInput) {
   return callGuided<GuidedStep>(
     "checkGuidedStep",
     "/api/v1/use-cases/guided/check",
-    input
+    input,
   );
 }
 
@@ -444,6 +436,6 @@ export function submitGuidedUseCase(input: GuidedSubmitInput) {
   return callGuided<GuidedSubmitResult>(
     "submitGuidedUseCase",
     "/api/v1/use-cases/guided/submit",
-    input
+    input,
   );
 }

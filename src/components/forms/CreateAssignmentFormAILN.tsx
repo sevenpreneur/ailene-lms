@@ -14,15 +14,12 @@ import { useMemo, useState } from "react";
 import { toast } from "sonner";
 import Select from "react-select";
 
-type AssignmentKind = "PROMPT" | "USE_CASE";
 type TargetMode = "INDIVIDUAL" | "BULK";
 type CategoryOption = { value: number; label: string };
 
 type FormState = {
-  kind: AssignmentKind;
   name: string;
   description: string;
-  expectedOutput: string;
   selectedCategoryIds: number[];
   assignEnabled: boolean;
   mode: TargetMode;
@@ -40,10 +37,8 @@ function buildInitialForm(
 ): FormState {
   const assignToGroup = draft !== null && group !== null;
   return {
-    kind: draft?.kind ?? "PROMPT",
     name: draft?.name ?? "",
     description: draft?.description ?? "",
-    expectedOutput: draft?.expected_output ?? "",
     selectedCategoryIds: draft?.category_ids.slice(0, 2) ?? [],
     assignEnabled: assignToGroup,
     mode: assignToGroup ? "BULK" : "INDIVIDUAL",
@@ -116,15 +111,11 @@ export default function CreateAssignmentFormAILN({
   const handleCreate = async () => {
     if (isSubmitting) return;
 
-    const isPrompt = formData.kind === "PROMPT";
     if (!formData.name.trim() || !formData.description.trim()) {
       toast.error("Nama dan deskripsi wajib diisi.");
       return;
     }
-    if (isPrompt && !formData.expectedOutput.trim()) {
-      toast.error("Expected output wajib diisi.");
-      return;
-    }
+
     if (
       formData.selectedCategoryIds.length < 1 ||
       formData.selectedCategoryIds.length > 2
@@ -163,9 +154,7 @@ export default function CreateAssignmentFormAILN({
 
     setIsSubmitting(true);
     try {
-      const endpoint = isPrompt
-        ? "/api/champion/prompts/create-assignment"
-        : "/api/champion/use-cases/create-assignment";
+      const endpoint = "/api/champion/use-cases/create-assignment";
       const response = await fetch(endpoint, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -173,18 +162,19 @@ export default function CreateAssignmentFormAILN({
           project_id: projectId,
           name: formData.name.trim(),
           description: formData.description.trim(),
-          ...(isPrompt
-            ? { expected_output: formData.expectedOutput.trim() }
-            : {}),
           category_ids: formData.selectedCategoryIds,
           assignment,
           // Backend rejects a draft whose kind no longer matches, so drop the link if it was switched.
-          draft_id: draft?.kind === formData.kind ? draft.id : null,
+          draft_id: draft?.kind === "USE_CASE" ? draft.id : null,
         }),
       });
 
       const payload = await response.json().catch(() => null);
-      if (!response.ok) {
+      if (
+        !response.ok ||
+        response.redirected ||
+        !response.headers.get("content-type")?.includes("application/json")
+      ) {
         toast.error(payload?.message ?? "Gagal menyimpan. Coba lagi.");
         return;
       }
@@ -215,33 +205,15 @@ export default function CreateAssignmentFormAILN({
     <SheetAILN
       isOpen={isOpen}
       onClose={handleClose}
-      sheetName={draft ? "Review Draft dari AI" : "Buat Assignment Baru"}
+      sheetName={draft ? "Review Draft dari AI" : "Buat Use Case Baru"}
       sheetDescription={
         draft
           ? "Cek dan edit draft dari AI. Item baru tersimpan ke library setelah Anda klik tombol di bawah."
-          : "Tambah prompt atau use case ke library, lalu (opsional) assign ke anggota."
+          : "Tambah use case ke library, lalu (opsional) assign ke anggota."
       }
     >
       <form className="relative flex h-full w-full flex-col">
         <div className="flex h-full flex-col gap-5 overflow-y-auto px-6 pb-28">
-          {/* Type */}
-          <div className="flex flex-col gap-2">
-            <label className="text-xs font-medium uppercase tracking-wide text-gray-500 dark:text-gray-400">
-              Tipe
-            </label>
-            <Tabs<AssignmentKind>
-              ariaLabel="Tipe assignment"
-              value={formData.kind}
-              onValueChange={(kind) => handleInputChange("kind")(kind)}
-              stretch
-              compact
-              items={[
-                { value: "PROMPT", label: "Prompt (L2)" },
-                { value: "USE_CASE", label: "Use Case (L3)" },
-              ]}
-            />
-          </div>
-
           {/* Name */}
           <InputAILN
             inputId="assignment-name"
@@ -251,45 +223,22 @@ export default function CreateAssignmentFormAILN({
             value={formData.name}
             onInputChange={handleInputChange("name")}
             characterLength={255}
-            inputPlaceholder={
-              formData.kind === "PROMPT"
-                ? "Contoh: Brainstorm caption Instagram"
-                : "Contoh: Otomasi laporan penjualan mingguan"
-            }
+            inputPlaceholder="Contoh: Otomasi laporan penjualan mingguan"
             required
           />
 
           {/* Description */}
           <TextAreaAILN
             textAreaId="assignment-description"
-            textAreaName={formData.kind === "PROMPT" ? "Skenario" : "Deskripsi"}
+            textAreaName="Deskripsi"
             variant="CHAMPION"
             value={formData.description}
             onTextAreaChange={handleInputChange("description")}
             textAreaHeight="h-28"
             characterLength={4000}
-            textAreaPlaceholder={
-              formData.kind === "PROMPT"
-                ? "Jelaskan skenario / konteks prompt-nya…"
-                : "Jelaskan use case-nya secara singkat…"
-            }
+            textAreaPlaceholder="Jelaskan use case-nya secara singkat?"
             required
           />
-
-          {/* Expected Output (prompt only) */}
-          {formData.kind === "PROMPT" && (
-            <TextAreaAILN
-              textAreaId="assignment-expected-output"
-              textAreaName="Expected Output"
-              variant="CHAMPION"
-              value={formData.expectedOutput}
-              onTextAreaChange={handleInputChange("expectedOutput")}
-              textAreaHeight="h-28"
-              characterLength={4000}
-              textAreaPlaceholder="Deskripsikan output yang diharapkan dari prompt ini…"
-              required
-            />
-          )}
 
           {/* Categories — searchable multi-select (no AILN equivalent) */}
           <div className="flex flex-col gap-2">
@@ -542,13 +491,10 @@ export default function CreateAssignmentFormAILN({
             <Plus className="size-4" />
             {isSubmitting
               ? "Menyimpan…"
-              : `${formData.assignEnabled ? "Buat & Assign" : "Buat"} ${
-                  formData.kind === "PROMPT" ? "Prompt" : "Use Case"
-                }`}
+              : `${formData.assignEnabled ? "Buat & Assign" : "Buat"} Use Case`}
           </ButtonAILN>
           <p className="text-center text-[11px] text-gray-500 dark:text-gray-400">
-            Item akan ditambahkan ke library{" "}
-            {formData.kind === "PROMPT" ? "Prompt (L2)" : "Use Case (L3)"}.
+            Item akan ditambahkan ke library Use Case (L3).
           </p>
         </div>
       </form>

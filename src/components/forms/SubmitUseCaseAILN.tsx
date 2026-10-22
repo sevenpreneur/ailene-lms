@@ -221,7 +221,11 @@ export default function SubmitUseCaseAILN({
         }),
       });
       const data = await res.json().catch(() => null);
-      if (!res.ok) {
+      if (
+        !res.ok ||
+        res.redirected ||
+        !res.headers.get("content-type")?.includes("application/json")
+      ) {
         toast.error(data?.message ?? "Gagal mengirim tugas.");
         return;
       }

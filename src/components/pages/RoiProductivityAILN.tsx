@@ -1,5 +1,6 @@
 "use client";
 import RoiProductivityBannerAILN from "@/components/banners/RoiProductivityBannerAILN";
+import LoadErrorAILN from "@/components/states/LoadErrorAILN";
 import ButtonAILN from "@/components/buttons/ButtonAILN";
 import ScorecardAILN from "@/components/cards/ScorecardAILN";
 import RoiOutcomeChartsAILN from "@/components/charts/RoiOutcomeChartsAILN";
@@ -67,6 +68,16 @@ export default function RoiProductivityAILN({
 
   const buildReport = (): ReportProps => {
     const sections: ReportProps["sections"] = [];
+    sections.push({
+      type: "list",
+      title: "Tentang estimasi",
+      items: [
+        {
+          primary:
+            "Nilai rupiah adalah estimasi nilai waktu berdasarkan tarif per jam dari backend, bukan konfirmasi penghematan kas. Periode mengikuti label tiap indikator. Waktu pembaruan sumber belum tersedia.",
+        },
+      ],
+    });
     sections.push({
       type: "kpi",
       title: "ROI Productivity",
@@ -152,6 +163,13 @@ export default function RoiProductivityAILN({
     };
   };
 
+  if (!overviewPayload || !roiTrend || !departmentRoi || !topPerformers)
+    return (
+      <PageContainerAILN>
+        <LoadErrorAILN />
+      </PageContainerAILN>
+    );
+
   return (
     <PageContainerAILN>
       <div className="flex w-full flex-col gap-6">
@@ -170,6 +188,11 @@ export default function RoiProductivityAILN({
           </ButtonAILN>
         </PageHeaderAILN>
 
+        <p className="rounded-lg border border-dashboard-border bg-card-1 p-4 text-sm text-muted-foreground">
+          Nilai rupiah adalah estimasi nilai waktu, bukan penghematan kas yang
+          sudah terealisasi. Basis tarif dan periode mengikuti indikator dari
+          backend. Waktu pembaruan sumber belum tersedia.
+        </p>
         <RoiProductivityBannerAILN
           overview={overviewPayload}
           departmentRoi={departmentRoi}
@@ -251,7 +274,10 @@ export default function RoiProductivityAILN({
           ))}
         </div>
 
-        <RoiOutcomeChartsAILN roiTrend={roiTrend} departmentRoi={departmentRoi} />
+        <RoiOutcomeChartsAILN
+          roiTrend={roiTrend}
+          departmentRoi={departmentRoi}
+        />
 
         <RoiDepartmentTableAILN data={departmentRoi} />
       </div>

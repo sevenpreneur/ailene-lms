@@ -1,5 +1,4 @@
 "use client";
-import ButtonAILN from "@/components/buttons/ButtonAILN";
 
 interface RatingScaleAILNProps {
   id: string;
@@ -36,18 +35,25 @@ export default function RatingScaleAILN({
         {SCALE.map((n) => {
           const selected = value === n;
           return (
-            <ButtonAILN
-              variant={selected ? "ratingActive" : "rating"}
-              size="rating"
-              width="full"
+            <label
               key={n}
-              type="button"
-              role="radio"
-              aria-checked={selected}
-              onClick={() => onChange(n)}
+              className="relative flex cursor-pointer items-center justify-center"
             >
-              {n}
-            </ButtonAILN>
+              <input
+                type="radio"
+                name={id}
+                value={n}
+                checked={selected}
+                onChange={() => onChange(n)}
+                className="peer sr-only"
+                aria-label={`${n} dari 5`}
+              />
+              <span
+                className={`flex min-h-11 w-full items-center justify-center rounded-lg border border-dashboard-border text-sm peer-focus-visible:ring-2 peer-focus-visible:ring-ring ${selected ? "bg-claude text-white" : "bg-card-2 text-foreground"}`}
+              >
+                {n}
+              </span>
+            </label>
           );
         })}
       </div>

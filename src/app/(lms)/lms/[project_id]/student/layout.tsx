@@ -1,3 +1,4 @@
+import { StudentIdentityProvider } from "@/contexts/StudentIdentityContext";
 import { checkSession } from "@/apis/auth";
 import AppPageState from "@/components/states/AppPageState";
 import { LOGIN_URL } from "@/lib/config";
@@ -17,7 +18,7 @@ export default async function StudentLayout({
   if (!session) redirect(LOGIN_URL);
 
   const projectAccess = session.project_access.find(
-    (project) => project.id === project_id
+    (project) => project.id === project_id,
   );
   if (
     !projectAccess ||
@@ -26,5 +27,12 @@ export default async function StudentLayout({
     return <AppPageState variant="FORBIDDEN" />;
   }
 
-  return <>{children}</>;
+  return (
+    <StudentIdentityProvider
+      key={`${session.user.id}:${project_id}`}
+      userId={session.user.id}
+    >
+      {children}
+    </StudentIdentityProvider>
+  );
 }

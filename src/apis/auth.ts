@@ -96,6 +96,9 @@ export const checkSession = cache(async (): Promise<LmsSession | null> => {
     token: sessionToken,
   });
 
+  if (!result.success && result.code !== 401 && result.code !== 403) {
+    throw new Error("Layanan masuk belum dapat dihubungi. Coba lagi.");
+  }
   return result.success && result.data ? result.data : null;
 });
 

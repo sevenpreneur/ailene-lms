@@ -16,6 +16,7 @@ import {
   Send,
 } from "lucide-react";
 import Link from "next/link";
+import ButtonAILN from "@/components/buttons/ButtonAILN";
 import { useRouter } from "next/navigation";
 import React, { useState } from "react";
 
@@ -104,106 +105,116 @@ export default function SkillPracticeCardAILN({
     if (ok) router.push(href);
   };
 
-  return (
-    <Link
-      href={href}
-      onClick={handleClick}
-      aria-disabled={isAssigning}
-      className={`block focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring ${
-        isAssigning ? "pointer-events-none opacity-70" : ""
-      }`}
-    >
-      <article className="relative flex min-h-64 flex-col gap-4 rounded-lg border border-dashboard-border bg-card-2 p-4 transition hover:border-hijau hover:bg-hijau-t/40 dark:hover:bg-claude/5">
-        {isAssigning && (
-          <div className="absolute inset-0 z-10 flex items-center justify-center rounded-lg bg-card-2/80">
-            <Loader2 className="size-5 animate-spin text-gray-500" />
-          </div>
-        )}
-        <div className="flex items-start justify-between gap-2">
-          <div className="flex flex-wrap items-center gap-2">
-            <GeneralLabelAILN variant="red">
-              Level {levelNumber}
-            </GeneralLabelAILN>
-            <GeneralLabelAILN
-              variant="white"
-              icon={<Puzzle className="size-3" />}
-            >
-              Use Case
-            </GeneralLabelAILN>
-          </div>
+  const card = (
+    <article className="relative flex min-h-64 flex-col gap-4 rounded-lg border border-dashboard-border bg-card-2 p-4 transition hover:border-hijau hover:bg-hijau-t/40 dark:hover:bg-claude/5">
+      {isAssigning && (
+        <div className="absolute inset-0 z-10 flex items-center justify-center rounded-lg bg-card-2/80">
+          <Loader2 className="size-5 animate-spin text-gray-500" />
+        </div>
+      )}
+      <div className="flex items-start justify-between gap-2">
+        <div className="flex flex-wrap items-center gap-2">
+          <GeneralLabelAILN variant="red">Level {levelNumber}</GeneralLabelAILN>
           <GeneralLabelAILN
-            variant={meta.variant}
-            icon={<StatusIcon className="size-3" />}
-            className="shrink-0"
+            variant="white"
+            icon={<Puzzle className="size-3" />}
           >
-            {meta.label}
+            Use Case
           </GeneralLabelAILN>
         </div>
+        <GeneralLabelAILN
+          variant={meta.variant}
+          icon={<StatusIcon className="size-3" />}
+          className="shrink-0"
+        >
+          {meta.label}
+        </GeneralLabelAILN>
+      </div>
 
-        <div className="flex flex-1 flex-col gap-2">
-          <h3 className="text-base font-medium text-foreground dark:text-white">
-            {title}
-          </h3>
-          <p className="text-sm leading-6 text-gray-500 line-clamp-3 dark:text-gray-400">
-            {body}
-          </p>
+      <div className="flex flex-1 flex-col gap-2">
+        <h3 className="text-base font-medium text-foreground dark:text-white">
+          {title}
+        </h3>
+        <p className="text-sm leading-6 text-gray-500 line-clamp-3 dark:text-gray-400">
+          {body}
+        </p>
+      </div>
+
+      {hasFooter && (
+        <div className="flex flex-col gap-2 border-t border-dashboard-border pt-3 text-xs text-gray-600 dark:text-gray-300">
+          {categories.length > 0 && (
+            <div className="flex flex-wrap items-center gap-1.5">
+              <span className="shrink-0 font-medium text-gray-500 dark:text-gray-400">
+                Category:
+              </span>
+              {categories.map((category) => (
+                <GeneralLabelAILN key={category.id} variant="white">
+                  {category.name}
+                </GeneralLabelAILN>
+              ))}
+            </div>
+          )}
+          {deadline && (
+            <div className="flex items-center gap-2">
+              <CalendarClock className="size-3.5 shrink-0" />
+              <span
+                className={
+                  deadlineOverdue
+                    ? "font-medium text-red-600 dark:text-red-400"
+                    : ""
+                }
+              >
+                Deadline: {dayjs(deadline).format("ddd, D MMM YYYY - HH:mm")}
+                {deadlineOverdue ? " (lewat)" : ""}
+              </span>
+            </div>
+          )}
+          {submittedAt && (
+            <div className="flex items-center gap-2">
+              <Send className="size-3.5 shrink-0" />
+              <span>
+                Submitted:{" "}
+                {dayjs(submittedAt).format("ddd, D MMM YYYY - HH:mm")}
+              </span>
+            </div>
+          )}
+          {championName && (
+            <div className="flex items-center gap-2">
+              <BookOpen className="size-3.5 shrink-0" />
+              <span>Dari: {championName}</span>
+            </div>
+          )}
+          {message && (
+            <div className="flex items-start gap-2">
+              <MessageSquare className="mt-0.5 size-3.5 shrink-0" />
+              <span className="italic line-clamp-2">
+                &ldquo;{message}&rdquo;
+              </span>
+            </div>
+          )}
         </div>
-
-        {hasFooter && (
-          <div className="flex flex-col gap-2 border-t border-dashboard-border pt-3 text-xs text-gray-600 dark:text-gray-300">
-            {categories.length > 0 && (
-              <div className="flex flex-wrap items-center gap-1.5">
-                <span className="shrink-0 font-medium text-gray-500 dark:text-gray-400">
-                  Category:
-                </span>
-                {categories.map((category) => (
-                  <GeneralLabelAILN key={category.id} variant="white">
-                    {category.name}
-                  </GeneralLabelAILN>
-                ))}
-              </div>
-            )}
-            {deadline && (
-              <div className="flex items-center gap-2">
-                <CalendarClock className="size-3.5 shrink-0" />
-                <span
-                  className={
-                    deadlineOverdue
-                      ? "font-medium text-red-600 dark:text-red-400"
-                      : ""
-                  }
-                >
-                  Deadline: {dayjs(deadline).format("ddd, D MMM YYYY - HH:mm")}
-                  {deadlineOverdue ? " (lewat)" : ""}
-                </span>
-              </div>
-            )}
-            {submittedAt && (
-              <div className="flex items-center gap-2">
-                <Send className="size-3.5 shrink-0" />
-                <span>
-                  Submitted:{" "}
-                  {dayjs(submittedAt).format("ddd, D MMM YYYY - HH:mm")}
-                </span>
-              </div>
-            )}
-            {championName && (
-              <div className="flex items-center gap-2">
-                <BookOpen className="size-3.5 shrink-0" />
-                <span>Dari: {championName}</span>
-              </div>
-            )}
-            {message && (
-              <div className="flex items-start gap-2">
-                <MessageSquare className="mt-0.5 size-3.5 shrink-0" />
-                <span className="italic line-clamp-2">
-                  &ldquo;{message}&rdquo;
-                </span>
-              </div>
-            )}
-          </div>
-        )}
-      </article>
+      )}
+      {onSelfAssign && (
+        <ButtonAILN
+          variant="forest"
+          disabled={isAssigning}
+          onClick={handleClick}
+        >
+          {isAssigning ? "Menyiapkan..." : "Ambil & buka latihan"}
+        </ButtonAILN>
+      )}
+    </article>
+  );
+  return onSelfAssign ? (
+    <div className="block" aria-busy={isAssigning}>
+      {card}
+    </div>
+  ) : (
+    <Link
+      href={href}
+      className="block rounded-lg focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+    >
+      {card}
     </Link>
   );
 }

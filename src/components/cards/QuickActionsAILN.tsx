@@ -29,8 +29,8 @@ export default function QuickActionsAILN() {
         <ActionTileAILN
           href={`/${projectId}/student/skill-practice`}
           icon={ClipboardList}
-          title="Latihan Prompt"
-          desc="Skill practice dari Champion"
+          title="Use Case"
+          desc="Penerapan AI dari Champion"
         />
         <ActionTileAILN
           href={`/${projectId}/student/my-progress`}

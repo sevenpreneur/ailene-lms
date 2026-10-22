@@ -28,7 +28,7 @@ export const NOTIFICATION_ICON: Record<NotificationType, LucideIcon> = {
 // ref_id is whatever id the target page takes, so the backend's type alone picks the route.
 export function notificationHref(
   projectId: string,
-  item: NotificationItem
+  item: NotificationItem,
 ): string | null {
   const ref = item.ref_id;
   switch (item.type) {
@@ -38,7 +38,7 @@ export function notificationHref(
     case "prompt_assigned":
     case "prompt_deadline":
     case "prompt_reviewed":
-      return ref ? `/${projectId}/student/skill-practice/prompts/${ref}` : null;
+      return null;
     case "use_case_assigned":
     case "use_case_deadline":
     case "use_case_reviewed":
@@ -48,7 +48,7 @@ export function notificationHref(
     case "coaching_note":
       return `/${projectId}/student`;
     case "prompt_submitted":
-      return ref ? `/${projectId}/champion/submissions/prompts/${ref}` : null;
+      return null;
     case "use_case_submitted":
       return ref ? `/${projectId}/champion/submissions/use-cases/${ref}` : null;
     default:

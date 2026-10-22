@@ -17,7 +17,7 @@ export type ReviewStatus = "AWAITING_REVIEW" | "NEEDS_REVISION" | "ACCEPTED";
 
 export interface SubmissionRow {
   id: number;
-  kind: "PROMPT" | "USE_CASE";
+  kind: "USE_CASE";
   href: string;
   level_number: number | null;
   title: string;
@@ -33,7 +33,7 @@ export interface SubmissionRow {
 }
 
 export function deriveStatus(
-  r: SubmissionRow
+  r: SubmissionRow,
 ): ReviewStatus | "PENDING_SUBMIT" {
   if (r.is_accepted) return "ACCEPTED";
   if (!r.submitted_at) return "PENDING_SUBMIT";
@@ -55,14 +55,17 @@ const KIND_META: Record<
   SubmissionRow["kind"],
   { label: string; variant: GeneralLabelVariantAILN }
 > = {
-  PROMPT: { label: "Prompt", variant: "yellow" },
   USE_CASE: { label: "Use Case", variant: "green" },
 };
 
 const fmt = (d: string) =>
   dayjs(d).locale("id").format("ddd, D MMM YYYY · HH:mm");
 
-export default function SubmissionItemChampion({ row }: { row: SubmissionRow }) {
+export default function SubmissionItemChampion({
+  row,
+}: {
+  row: SubmissionRow;
+}) {
   const status = deriveStatus(row);
   const meta = status === "PENDING_SUBMIT" ? null : STATUS_META[status];
   const kind = KIND_META[row.kind];

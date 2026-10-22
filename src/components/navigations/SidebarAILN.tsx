@@ -56,7 +56,7 @@ const VARIANT_CONFIG: Record<
         exact: true,
       },
       {
-        name: "Latihan Skill",
+        name: "Latihan AI",
         url: "/student/skill-practice",
         icon: ClipboardList,
       },
@@ -68,7 +68,7 @@ const VARIANT_CONFIG: Record<
     groupLabel: "Tim",
     menu: [
       {
-        name: "Team Overview",
+        name: "Ringkasan Tim",
         url: "/champion",
         icon: LayoutDashboard,
         exact: true,
@@ -78,7 +78,7 @@ const VARIANT_CONFIG: Record<
         url: "/champion/pre-assessment",
         icon: Gauge,
       },
-      { name: "Assignment", url: "/champion/assignment", icon: BookMarked },
+      { name: "Tugas", url: "/champion/assignment", icon: BookMarked },
       {
         name: "Review Tugas",
         url: "/champion/submissions",
@@ -125,7 +125,7 @@ export default function SidebarAILN({
   const hasNotifications = variant !== "SPONSOR";
   const { unreadCount, setUnreadCount } = useUnreadNotifications(
     projectId,
-    hasNotifications
+    hasNotifications,
   );
   const [isNotificationOpen, setIsNotificationOpen] = useState(false);
   const { closeMobile } = useSidebar();
@@ -133,7 +133,10 @@ export default function SidebarAILN({
     closeMobile();
     setIsNotificationOpen(true);
   };
-  const closeNotifications = useCallback(() => setIsNotificationOpen(false), []);
+  const closeNotifications = useCallback(
+    () => setIsNotificationOpen(false),
+    [],
+  );
 
   const switcher = (collapsed: boolean) => (
     <SidebarProjectSwitcherAILN
@@ -146,64 +149,64 @@ export default function SidebarAILN({
 
   return (
     <>
-    <SidebarShellAILN
-      mobileBrand={
-        <div className="min-w-0">
-          <div className="truncate text-sm font-medium text-sb-text-strong">
-            {project?.name ?? "Project"}
+      <SidebarShellAILN
+        mobileBrand={
+          <div className="min-w-0">
+            <div className="truncate text-sm font-medium text-sb-text-strong">
+              {project?.name ?? "Project"}
+            </div>
+            <div className="truncate text-xs text-sb-text">
+              {ROLE_LABEL[config.view]}
+            </div>
           </div>
-          <div className="truncate text-xs text-sb-text">
-            {ROLE_LABEL[config.view]}
-          </div>
-        </div>
-      }
-      header={switcher}
-      nav={(collapsed) => (
-        <>
-          {hasNotifications && (
-            <SidebarNotificationButtonAILN
-              unreadCount={unreadCount}
-              collapsed={collapsed}
-              onClick={openNotifications}
-            />
-          )}
-          <SidebarGroupLabelAILN collapsed={collapsed}>
-            {config.groupLabel}
-          </SidebarGroupLabelAILN>
-          {config.menu.map((item) => {
-            const url = `/${projectId}${item.url}`;
-            return (
-              <SidebarNavItemAILN
-                key={item.url}
-                href={url}
-                label={item.name}
-                icon={item.icon}
-                active={
-                  item.exact ? pathname === url : pathname.startsWith(url)
-                }
+        }
+        header={switcher}
+        nav={(collapsed) => (
+          <>
+            {hasNotifications && (
+              <SidebarNotificationButtonAILN
+                unreadCount={unreadCount}
                 collapsed={collapsed}
+                onClick={openNotifications}
               />
-            );
-          })}
-        </>
-      )}
-      footer={(collapsed) => (
-        <SidebarUserMenuAILN
-          user={session.user}
-          subtitle={session.user.job_title}
-          collapsed={collapsed}
+            )}
+            <SidebarGroupLabelAILN collapsed={collapsed}>
+              {config.groupLabel}
+            </SidebarGroupLabelAILN>
+            {config.menu.map((item) => {
+              const url = `/${projectId}${item.url}`;
+              return (
+                <SidebarNavItemAILN
+                  key={item.url}
+                  href={url}
+                  label={item.name}
+                  icon={item.icon}
+                  active={
+                    item.exact ? pathname === url : pathname.startsWith(url)
+                  }
+                  collapsed={collapsed}
+                />
+              );
+            })}
+          </>
+        )}
+        footer={(collapsed) => (
+          <SidebarUserMenuAILN
+            user={session.user}
+            subtitle={session.user.job_title}
+            collapsed={collapsed}
+          />
+        )}
+      />
+      {hasNotifications && (
+        <NotificationSheetAILN
+          projectId={projectId}
+          isOpen={isNotificationOpen}
+          onClose={closeNotifications}
+          unreadCount={unreadCount}
+          onUnreadChange={setUnreadCount}
         />
       )}
-    />
-    {hasNotifications && (
-      <NotificationSheetAILN
-        projectId={projectId}
-        isOpen={isNotificationOpen}
-        onClose={closeNotifications}
-        unreadCount={unreadCount}
-        onUnreadChange={setUnreadCount}
-      />
-    )}
     </>
   );
 }

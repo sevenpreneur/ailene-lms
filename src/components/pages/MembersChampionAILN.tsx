@@ -117,6 +117,7 @@ export default function MembersChampionAILN({
 
             {/* Search */}
             <InputAILN
+              aria-label="Cari anggota"
               inputId="member-search"
               inputType="text"
               variant="CHAMPION"
@@ -221,9 +222,17 @@ function MemberRow({
             className="size-8 shrink-0 rounded-full object-cover"
           />
           <div className="min-w-0">
-            <div className="truncate text-sm font-medium text-gray-900 dark:text-white">
+            <button
+              type="button"
+              onClick={(event) => {
+                event.stopPropagation();
+                onClick();
+              }}
+              aria-pressed={selected}
+              className="rounded-lg text-left text-sm font-medium hover:underline focus-visible:ring-2 focus-visible:ring-ring"
+            >
               {member.user.full_name}
-            </div>
+            </button>
             <div className="truncate text-xs text-gray-500 dark:text-gray-400">
               {member.user.email}
             </div>

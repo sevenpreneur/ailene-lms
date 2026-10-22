@@ -153,9 +153,7 @@ export default function AiDraftBatchesAILN({
         {selected ? (
           <div className="flex flex-col gap-3">
             <div className="flex flex-wrap items-center gap-1.5">
-              <GeneralLabelAILN variant="green">
-                {selected.kind === "PROMPT" ? "Prompt · L2" : "Use Case · L3"}
-              </GeneralLabelAILN>
+              <GeneralLabelAILN variant="green">Use Case · L3</GeneralLabelAILN>
               {selected.angle && (
                 <GeneralLabelAILN variant="blue">
                   {selected.angle}
@@ -170,10 +168,7 @@ export default function AiDraftBatchesAILN({
             <h2 className="text-base font-medium text-foreground">
               {selected.name}
             </h2>
-            <PreviewSection
-              label={selected.kind === "PROMPT" ? "Skenario" : "Deskripsi"}
-              text={selected.description}
-            />
+            <PreviewSection label="Deskripsi" text={selected.description} />
             {selected.expected_output && (
               <PreviewSection
                 label="Expected Output"

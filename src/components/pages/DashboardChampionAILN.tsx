@@ -1,4 +1,5 @@
 "use client";
+import LoadErrorAILN from "@/components/states/LoadErrorAILN";
 import ButtonAILN from "@/components/buttons/ButtonAILN";
 import ScorecardAILN from "@/components/cards/ScorecardAILN";
 import TeamScoreBannerAILN from "@/components/cards/TeamScoreBannerAILN";
@@ -84,12 +85,19 @@ export default function DashboardChampionAILN({
         MAX_SCORE
       : 0;
 
+  if (!teamMembers || !useCaseSubmissions)
+    return (
+      <PageContainerAILN>
+        <LoadErrorAILN />
+      </PageContainerAILN>
+    );
+
   return (
     <PageContainerAILN>
       <div className="flex w-full flex-col gap-6">
         <header className="sticky top-14 z-30 -mx-4 -mt-6 flex flex-wrap items-center justify-between gap-3 border-b lg:top-0 border-dashboard-border bg-background/80 px-4 py-4 backdrop-blur-md md:-mx-6 md:px-6 xl:-mx-8 xl:px-8">
           <h1 className="text-xl font-medium tracking-tight text-foreground">
-            Dashboard Team
+            Ringkasan Tim
           </h1>
           <div className="flex items-center gap-3">
             <MembersLabelChampionAILN count={stats.total} />

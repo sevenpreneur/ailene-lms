@@ -1,4 +1,5 @@
 "use client";
+import CompleteLearningButtonAILN from "@/components/buttons/CompleteLearningButtonAILN";
 import ButtonAILN from "@/components/buttons/ButtonAILN";
 import SectionContainerAILN from "@/components/cards/SectionContainerAILN";
 import GeneralLabelAILN from "@/components/labels/GeneralLabelAILN";
@@ -320,6 +321,11 @@ export default function MaterialDetailsAILN({
           </aside>
         </div>
 
+        <CompleteLearningButtonAILN
+          kind="materials"
+          id={material.id}
+          completed={material.completed}
+        />
         {/* Footer nav — move between materials without leaving the page */}
         {(prevMaterial || nextMaterial) && (
           <nav className="flex items-stretch justify-between gap-3 border-t border-dashboard-border pt-6">

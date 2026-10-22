@@ -1,4 +1,7 @@
 "use client";
+import LoadErrorAILN from "@/components/states/LoadErrorAILN";
+import ButtonAILN from "@/components/buttons/ButtonAILN";
+import type { Metapaging } from "@/apis/use-cases";
 import RecordUseCaseButtonAILN from "@/components/buttons/RecordUseCaseButtonAILN";
 import SectionContainerAILN from "@/components/cards/SectionContainerAILN";
 import SkillPracticeCardAILN, {
@@ -13,8 +16,8 @@ import type { AssignedUseCase, UseCaseLibraryItem } from "@/apis/use-cases";
 import dayjs from "dayjs";
 import "dayjs/locale/id";
 import { BookOpen, Clock, History, Library } from "lucide-react";
-import { useSearchParams } from "next/navigation";
-import { useEffect, useState } from "react";
+import { usePathname, useRouter, useSearchParams } from "next/navigation";
+
 import { toast } from "sonner";
 
 dayjs.locale("id");
@@ -57,7 +60,11 @@ async function selfAssign(id: number): Promise<boolean> {
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ use_case_id: id }),
     });
-    if (!res.ok) {
+    if (
+      !res.ok ||
+      res.redirected ||
+      !res.headers.get("content-type")?.includes("application/json")
+    ) {
       const data = await res.json().catch(() => null);
       toast.error(data?.message ?? "Gagal self-assign latihan.");
       return false;
@@ -139,20 +146,30 @@ function libraryToItem(
 export default function SkillPracticeStudentAILN({
   useCaseLibrary,
   assignedUseCases,
+  libraryPaging,
+  libraryFailed = false,
+  assignedFailed = false,
 }: {
   useCaseLibrary: UseCaseLibraryItem[];
   assignedUseCases: AssignedUseCase[];
+  libraryPaging: Metapaging | null;
+  libraryFailed?: boolean;
+  assignedFailed?: boolean;
 }) {
   const searchParams = useSearchParams();
   const projectId = useProjectId();
 
-  const [tab, setTab] = useState<PracticeTab>(() =>
-    tabFromParam(searchParams.get("tab")),
-  );
-
-  useEffect(() => {
-    setTab(tabFromParam(searchParams.get("tab")));
-  }, [searchParams]);
+  const router = useRouter();
+  const pathname = usePathname();
+  const tab = tabFromParam(searchParams.get("tab"));
+  function updateQuery(patch: Record<string, string>) {
+    const next = new URLSearchParams(searchParams.toString());
+    for (const [key, value] of Object.entries(patch)) {
+      if (value) next.set(key, value);
+      else next.delete(key);
+    }
+    router.push(`${pathname}?${next}`, { scroll: false });
+  }
 
   const assignedItems: PracticeItem[] = [
     ...assignedUseCases.map((r) => assignedToPracticeItem(r, projectId)),
@@ -176,26 +193,9 @@ export default function SkillPracticeStudentAILN({
     return a.title.localeCompare(b.title);
   });
 
-  // History = submitted assigned items + submitted library items not already counted as assigned.
-  const assignedIds = new Set(assignedItems.map((i) => i.id));
-  const historyItems: PracticeItem[] = [
-    ...assignedItems.filter((i) => i.submitted_at !== null),
-    ...libraryItems
-      .filter((i) => i.submission?.submitted_at && !assignedIds.has(i.id))
-      .map((i) => ({
-        id: i.id,
-        href: i.href,
-        title: i.title,
-        body: i.body,
-        level_number: i.level_number,
-        categories: i.categories,
-        champion_name: null,
-        deadline: i.submission!.deadline,
-        submitted_at: i.submission!.submitted_at,
-        reviewed_at: i.submission!.reviewed_at,
-        is_accepted: i.submission!.is_accepted,
-      })),
-  ];
+  const historyItems = assignedItems.filter(
+    (item) => item.submitted_at !== null,
+  );
 
   const pendingAssignedCount = assignedItems.filter(
     (item) => deriveStatus(item) === "PENDING_SUBMIT",
@@ -204,14 +204,26 @@ export default function SkillPracticeStudentAILN({
   return (
     <PageContainerAILN>
       <div className="flex w-full flex-col gap-6">
-        <PageHeaderAILN title="Use Case" desc="Terapkan AI di pekerjaanmu.">
+        <PageHeaderAILN
+          title="Latihan AI"
+          desc="Terapkan AI di pekerjaanmu lewat Use Case."
+        >
           <RecordUseCaseButtonAILN projectId={projectId} />
         </PageHeaderAILN>
 
         <Tabs<PracticeTab>
-          ariaLabel="Bagian latihan skill"
+          ariaLabel="Bagian latihan AI"
           value={tab}
-          onValueChange={setTab}
+          onValueChange={(value) =>
+            updateQuery({
+              tab:
+                value === "LIBRARY"
+                  ? "library"
+                  : value === "HISTORY"
+                    ? "history"
+                    : "",
+            })
+          }
           items={[
             {
               value: "ASSIGNED",
@@ -237,7 +249,9 @@ export default function SkillPracticeStudentAILN({
             title="Untukmu"
             contentClassName="flex flex-col gap-4"
           >
-            {assignedItems.length === 0 ? (
+            {assignedFailed ? (
+              <LoadErrorAILN message="Tugas dari Champion belum dapat dimuat. Kamu tetap bisa membuka Library." />
+            ) : assignedItems.length === 0 ? (
               <EmptyState label="Belum ada use case untukmu." />
             ) : (
               <>
@@ -274,8 +288,50 @@ export default function SkillPracticeStudentAILN({
             title="Use Case Library"
             contentClassName="flex flex-col gap-4"
           >
-            {libraryItems.length === 0 ? (
-              <EmptyState label="Belum ada use case di library." />
+            <form
+              key={searchParams.get("search") ?? ""}
+              className="flex flex-wrap gap-2"
+              onSubmit={(event) => {
+                event.preventDefault();
+                const data = new FormData(event.currentTarget);
+                updateQuery({
+                  search: String(data.get("search") ?? "").trim(),
+                  page: "1",
+                });
+              }}
+            >
+              <label className="sr-only" htmlFor="use-case-search">
+                Cari use case
+              </label>
+              <input
+                id="use-case-search"
+                name="search"
+                defaultValue={searchParams.get("search") ?? ""}
+                maxLength={255}
+                placeholder="Cari use case..."
+                className="min-w-0 flex-1 rounded-lg border border-dashboard-border bg-card-2 px-3 py-2 text-sm"
+              />
+              <ButtonAILN type="submit" variant="outline">
+                Cari
+              </ButtonAILN>
+            </form>
+            {libraryPaging && (
+              <p role="status" className="text-sm text-muted-foreground">
+                {libraryPaging.total_data} hasil · Halaman{" "}
+                {libraryPaging.current_page} dari{" "}
+                {Math.max(1, libraryPaging.total_page)}
+              </p>
+            )}
+            {libraryFailed ? (
+              <LoadErrorAILN message="Use Case Library belum dapat dimuat." />
+            ) : libraryItems.length === 0 ? (
+              <EmptyState
+                label={
+                  searchParams.get("search")
+                    ? "Tidak ada use case yang cocok. Coba kata lain."
+                    : "Belum ada use case di library."
+                }
+              />
             ) : (
               <div className="grid grid-cols-1 gap-3 md:grid-cols-2">
                 {libraryItems.map((item) => (
@@ -302,16 +358,50 @@ export default function SkillPracticeStudentAILN({
                 ))}
               </div>
             )}
+            {libraryPaging && libraryPaging.total_page > 1 && (
+              <nav
+                aria-label="Halaman katalog"
+                className="flex flex-wrap gap-2"
+              >
+                <ButtonAILN
+                  variant="outline"
+                  disabled={libraryPaging.current_page <= 1}
+                  onClick={() =>
+                    updateQuery({
+                      page: String(libraryPaging.current_page - 1),
+                    })
+                  }
+                >
+                  Sebelumnya
+                </ButtonAILN>
+                <ButtonAILN
+                  variant="outline"
+                  disabled={
+                    libraryPaging.current_page >= libraryPaging.total_page
+                  }
+                  onClick={() =>
+                    updateQuery({
+                      page: String(libraryPaging.current_page + 1),
+                    })
+                  }
+                >
+                  Berikutnya
+                </ButtonAILN>
+              </nav>
+            )}
           </SectionContainerAILN>
         )}
 
         {tab === "HISTORY" && (
           <SectionContainerAILN
-            title="Riwayat Use Case"
+            title="Riwayat Tugas Champion"
+            desc="Hasil latihan dari library dapat dibuka melalui pencarian Library. Riwayat catatan pribadi belum tersedia."
             contentClassName="flex flex-col gap-4"
           >
-            {historyItems.length === 0 ? (
-              <EmptyState label="Belum ada use case yang dikirim." />
+            {assignedFailed ? (
+              <LoadErrorAILN message="Riwayat tugas Champion belum dapat dimuat." />
+            ) : historyItems.length === 0 ? (
+              <EmptyState label="Belum ada tugas Champion yang dikirim." />
             ) : (
               <div className="grid grid-cols-1 gap-3 md:grid-cols-2">
                 {historyItems.map((item) => (

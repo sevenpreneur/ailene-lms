@@ -1,8 +1,4 @@
-import {
-  completeMaterial,
-  getLevelMaterials,
-  getMaterialDetails,
-} from "@/apis/learnings";
+import { getLevelMaterials, getMaterialDetails } from "@/apis/learnings";
 import MaterialDetailsAILN from "@/components/pages/MaterialDetailsAILN";
 import AppPageState from "@/components/states/AppPageState";
 import { Metadata } from "next";
@@ -44,20 +40,7 @@ export default async function MaterialPage({
   }
   const material = materialResult.data;
 
-  const completion = await completeMaterial(materialId);
-
-  const resolvedMaterial = completion
-    ? {
-        ...material,
-        completed: completion.completed,
-        completed_at: completion.completed_at,
-      }
-    : material;
-
   return (
-    <MaterialDetailsAILN
-      material={resolvedMaterial}
-      levelMaterials={levelMaterials}
-    />
+    <MaterialDetailsAILN material={material} levelMaterials={levelMaterials} />
   );
 }

@@ -1,7 +1,7 @@
 "use client";
-import { useEffect } from "react";
-import ButtonAILN from "../buttons/ButtonAILN";
-
+import ButtonAILN from "@/components/buttons/ButtonAILN";
+import { useRef } from "react";
+import { AlertDialog } from "radix-ui";
 interface AlertConfirmDialogAILNProps {
   isOpen: boolean;
   alertDialogHeader: string;
@@ -11,7 +11,6 @@ interface AlertConfirmDialogAILNProps {
   onClose: () => void;
   onConfirm: () => void;
 }
-
 export default function AlertConfirmDialogAILN({
   isOpen,
   alertDialogHeader,
@@ -21,43 +20,47 @@ export default function AlertConfirmDialogAILN({
   onClose,
   onConfirm,
 }: AlertConfirmDialogAILNProps) {
-  // Blocked scroll behind
-  useEffect(() => {
-    if (isOpen) {
-      document.body.style.overflow = "hidden";
-    }
-    return () => {
-      document.body.style.overflow = "auto";
-    };
-  }, [isOpen]);
-
-  if (!isOpen) return null;
+  const previousFocus = useRef<HTMLElement | null>(null);
   return (
-    <div
-      className="root  fixed inset-0 flex w-full h-full items-end justify-center bg-black/40 z-50 dark:bg-black/70"
-      onClick={onClose}
+    <AlertDialog.Root
+      open={isOpen}
+      onOpenChange={(open) => {
+        if (!open) onClose();
+      }}
     >
-      <div
-        className="container-alert-dialog fixed flex flex-col bg-white w-full max-w-[calc(100%-2rem)] p-6 gap-4 top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 rounded-lg shadow-md dark:bg-card-1 dark:border dark:border-dashboard-border dark:shadow-[0_0_24px_rgba(26,122,82,0.18)] sm:max-w-lg"
-        onClick={(e) => e.stopPropagation()}
-      >
-        <div className="dialog-text flex flex-col">
-          <h2 className="text-lg font-medium dark:text-white">
+      <AlertDialog.Portal>
+        <AlertDialog.Overlay className="fixed inset-0 z-[80] bg-black/40 dark:bg-black/70" />
+        <AlertDialog.Content
+          onOpenAutoFocus={() => {
+            previousFocus.current =
+              document.activeElement instanceof HTMLElement
+                ? document.activeElement
+                : null;
+          }}
+          onCloseAutoFocus={(event) => {
+            event.preventDefault();
+            previousFocus.current?.focus();
+          }}
+          className="fixed left-1/2 top-1/2 z-[81] flex max-h-[90dvh] w-[calc(100%-2rem)] max-w-lg -translate-x-1/2 -translate-y-1/2 flex-col gap-4 overflow-y-auto rounded-lg border border-dashboard-border bg-card-1 p-6 shadow-lg outline-none"
+        >
+          <AlertDialog.Title className="text-lg font-medium">
             {alertDialogHeader}
-          </h2>
-          <p className="text-emphasis text-sm font-medium dark:text-gray-400">
+          </AlertDialog.Title>
+          <AlertDialog.Description className="text-sm text-muted-foreground">
             {alertDialogMessage}
-          </p>
-        </div>
-        <div className="button-action flex gap-2 justify-end">
-          <ButtonAILN variant="neutral" size="medium" onClick={onClose}>
-            {alertCancelLabel}
-          </ButtonAILN>
-          <ButtonAILN size="medium" onClick={onConfirm}>
-            {alertConfirmLabel}
-          </ButtonAILN>
-        </div>
-      </div>
-    </div>
+          </AlertDialog.Description>
+          <div className="flex flex-wrap justify-end gap-2">
+            <AlertDialog.Cancel asChild>
+              <ButtonAILN variant="neutral" onClick={onClose}>
+                {alertCancelLabel}
+              </ButtonAILN>
+            </AlertDialog.Cancel>
+            <AlertDialog.Action asChild>
+              <ButtonAILN onClick={onConfirm}>{alertConfirmLabel}</ButtonAILN>
+            </AlertDialog.Action>
+          </div>
+        </AlertDialog.Content>
+      </AlertDialog.Portal>
+    </AlertDialog.Root>
   );
 }

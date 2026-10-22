@@ -66,8 +66,7 @@ export default function InputAILN({
   }
 
   const maxLength = characterLength ?? 128;
-  const characterLimitErrorMessage =
-    "Oops, you've reached the character limit.";
+  const characterLimitErrorMessage = "Batas karakter sudah tercapai.";
 
   // Character Limitation on Input
   const handleInputChange = (event: React.ChangeEvent<HTMLInputElement>) => {
@@ -114,7 +113,17 @@ export default function InputAILN({
           type={inputType}
           placeholder={inputPlaceholder}
           {...rest}
-          className={`input-placeholder flex w-full p-2 text-sm rounded-lg transform transition-all placeholder:text-emphasis/60 placeholder:text-sm focus:outline-4 invalid:border-destructive required:border-destructive ${styles.border} ${
+          required={required}
+          aria-invalid={computedError ? true : rest["aria-invalid"]}
+          aria-describedby={
+            [
+              rest["aria-describedby"],
+              computedError ? `${inputId}-error` : null,
+            ]
+              .filter(Boolean)
+              .join(" ") || undefined
+          }
+          className={`input-placeholder flex w-full p-2 text-sm rounded-lg transform transition-all placeholder:text-emphasis/60 placeholder:text-sm focus:outline-4 ${styles.border} ${
             computedError
               ? "border-destructive focus:outline-semi-destructive"
               : styles.focus
@@ -128,7 +137,11 @@ export default function InputAILN({
           suppressHydrationWarning
         />
         {computedError && (
-          <p className="input-error-message inline-flex text-red-600 text-xs">
+          <p
+            id={`${inputId}-error`}
+            role="alert"
+            className="input-error-message inline-flex text-red-600 text-xs"
+          >
             {computedError}
           </p>
         )}

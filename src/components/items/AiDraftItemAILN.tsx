@@ -29,9 +29,7 @@ export default function AiDraftItemAILN({
       onClick={onClick}
     >
       <div className="flex flex-wrap items-center gap-1.5">
-        <GeneralLabelAILN variant="green">
-          {draft.kind === "PROMPT" ? "Prompt · L2" : "Use Case · L3"}
-        </GeneralLabelAILN>
+        <GeneralLabelAILN variant="green">Use Case · L3</GeneralLabelAILN>
         {draft.angle && (
           <GeneralLabelAILN variant="blue">{draft.angle}</GeneralLabelAILN>
         )}

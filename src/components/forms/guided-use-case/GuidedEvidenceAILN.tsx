@@ -25,6 +25,7 @@ export default function GuidedEvidenceAILN({
   onChange,
   file,
   onFileChange,
+  onLinkChange,
   minutesWithoutAi,
   showName,
   uploading,
@@ -33,6 +34,7 @@ export default function GuidedEvidenceAILN({
   onChange: (patch: Partial<GuidedEvidence>) => void;
   file: File | null;
   onFileChange: (file: File | null) => void;
+  onLinkChange: (url: string) => void;
   minutesWithoutAi: number | null;
   showName: boolean;
   uploading: boolean;
@@ -72,14 +74,14 @@ export default function GuidedEvidenceAILN({
           </p>
         )}
         <InputAILN
+          characterLength={500}
           inputId="guided-outcome-link"
           aria-label="Tautan bukti hasil"
           inputType="url"
           inputPlaceholder="Atau tempel tautan: https://…"
           value={file ? "" : value.outcome_proof}
           onInputChange={(outcome_proof) => {
-            onChange({ outcome_proof });
-            if (outcome_proof) onFileChange(null);
+            onLinkChange(outcome_proof);
           }}
           errorMessage={
             !file &&
@@ -99,8 +101,8 @@ export default function GuidedEvidenceAILN({
           </span>
         </span>
         <GuidedHintAILN label="Tentang waktu">
-          Durasi untuk satu kali pengerjaan. Penghematan waktu dihitung
-          otomatis setelah kamu mengirim.
+          Durasi untuk satu kali pengerjaan. Penghematan waktu dihitung otomatis
+          setelah kamu mengirim.
         </GuidedHintAILN>
       </div>
       <NumberInputAILN

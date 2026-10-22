@@ -1,4 +1,11 @@
 "use client";
+import dayjs from "dayjs";
+import { useStudentIdentity } from "@/contexts/StudentIdentityContext";
+import {
+  browserDraftKey,
+  readBrowserDraft,
+  writeBrowserDraft,
+} from "@/lib/browser-draft";
 import ButtonAILN from "@/components/buttons/ButtonAILN";
 import AlertConfirmDialogAILN from "@/components/modals/AlertConfirmDialogAILN";
 import PageContainerAILN from "@/components/pages/PageContainerAILN";
@@ -45,12 +52,14 @@ interface QuizAttemptAILNProps {
   data: QuizDetailsData;
   initialAnswers: Record<string, string | null>;
   initialSecondsLeft: number;
+  attemptStartedAt: string | null;
 }
 
 export default function QuizAttemptAILN({
   data,
   initialAnswers,
   initialSecondsLeft,
+  attemptStartedAt,
 }: QuizAttemptAILNProps) {
   const router = useRouter();
   const projectId = useProjectId();
@@ -65,72 +74,155 @@ export default function QuizAttemptAILN({
   const [isExitDialogOpen, setIsExitDialogOpen] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
 
-  // Tiap detik, kurangi secondsLeft, berhenti di 0.
-  useEffect(() => {
-    if (secondsLeft <= 0 || isSubmitting) return;
-    const id = setTimeout(
-      () => setSecondsLeft((s) => Math.max(0, s - 1)),
-      1000,
-    );
-    return () => clearTimeout(id);
-  }, [secondsLeft, isSubmitting]);
+  const userId = useStudentIdentity();
+  const draftKey = browserDraftKey(
+    userId ?? "",
+    projectId,
+    `quiz:${quiz.id}:${attemptStartedAt ?? "active"}`,
+  );
+  const [draftLoaded, setDraftLoaded] = useState(false);
+  const [saveState, setSaveState] = useState<
+    "pending" | "saving" | "saved" | "failed"
+  >("saved");
+  const [localWarning, setLocalWarning] = useState(false);
+  const [isSubmitDialogOpen, setIsSubmitDialogOpen] = useState(false);
+  const answersRef = useRef(answers);
+  const saveQueue = useRef<Promise<void>>(Promise.resolve());
+  const submittingRef = useRef(false);
+  const autoSubmitted = useRef(false);
+  const deadline = useRef(dayjs().add(initialSecondsLeft, "second"));
 
-  const handleSubmit = useCallback(() => {
-    setIsSubmitting(true);
+  useEffect(() => {
+    try {
+      const local = readBrowserDraft<Record<string, string | null>>(
+        window.localStorage,
+        draftKey,
+      );
+      const valid = Object.fromEntries(
+        questions.flatMap((q) =>
+          typeof local?.[String(q.id)] === "string" &&
+          q.options.some((option) => option.option_code === local[String(q.id)])
+            ? [[String(q.id), local[String(q.id)]]]
+            : [],
+        ),
+      );
+      const restored = { ...initialAnswers, ...valid };
+      answersRef.current = restored;
+      setAnswers(restored);
+    } catch {
+      setLocalWarning(true);
+    }
+    setDraftLoaded(true);
+    // A new attempt mounts a new form; edits must not trigger restoration.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [draftKey]);
+
+  useEffect(() => {
+    const tick = () =>
+      setSecondsLeft(Math.max(0, deadline.current.diff(dayjs(), "second")));
+    const id = window.setInterval(tick, 1000);
+    document.addEventListener("visibilitychange", tick);
+    return () => {
+      clearInterval(id);
+      document.removeEventListener("visibilitychange", tick);
+    };
   }, []);
 
-  // Trigger the actual submit call once isSubmitting flips true.
-  useEffect(() => {
-    if (!isSubmitting) return;
-    let cancelled = false;
-
-    fetch("/api/quizzes/submit", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ quiz_id: quiz.id, answers }),
-    })
-      .then((res) => (res.ok ? res.json() : Promise.reject(res)))
-      .then(() => {
-        if (cancelled) return;
-        router.refresh();
-      })
-      .catch(() => {
-        if (cancelled) return;
-        toast.error("Gagal mengirim jawaban quiz. Coba lagi.");
-        setIsSubmitting(false);
+  const saveAnswers = useCallback(() => {
+    const snapshot = answersRef.current;
+    setSaveState("saving");
+    const next = saveQueue.current
+      .catch(() => undefined)
+      .then(async () => {
+        const response = await fetch("/api/quizzes/update", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ quiz_id: quiz.id, answers: snapshot }),
+          keepalive: true,
+        });
+        if (
+          !response.ok ||
+          response.redirected ||
+          !response.headers.get("content-type")?.includes("application/json")
+        )
+          throw new Error("Jawaban belum tersimpan ke server.");
+        const payload = await response.json();
+        if (payload?.status === "finalized") router.refresh();
       });
+    saveQueue.current = next;
+    return next.then(
+      () => {
+        if (answersRef.current === snapshot) setSaveState("saved");
+      },
+      (error: unknown) => {
+        setSaveState("failed");
+        throw error;
+      },
+    );
+  }, [quiz.id, router]);
 
-    return () => {
-      cancelled = true;
-    };
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [isSubmitting]);
-
-  // Auto-submit begitu waktu habis.
   useEffect(() => {
-    if (secondsLeft > 0) return;
-    handleSubmit();
-  }, [secondsLeft, handleSubmit]);
-
-  // Debounced autosave — kirim draft jawaban terbaru ~800ms setelah pilihan terakhir.
-  const isFirstAnswersRender = useRef(true);
-  useEffect(() => {
-    if (isFirstAnswersRender.current) {
-      isFirstAnswersRender.current = false;
-      return;
+    if (!draftLoaded || isSubmitting) return;
+    answersRef.current = answers;
+    try {
+      writeBrowserDraft(window.localStorage, draftKey, answers);
+      setLocalWarning(false);
+    } catch {
+      setLocalWarning(true);
     }
-    if (isSubmitting) return;
+    setSaveState("pending");
+    const id = window.setTimeout(() => {
+      void saveAnswers().catch(() => undefined);
+    }, UPDATE_DEBOUNCE_MS);
+    return () => clearTimeout(id);
+  }, [answers, draftLoaded, draftKey, isSubmitting, saveAnswers]);
 
-    const id = setTimeout(() => {
-      fetch("/api/quizzes/update", {
+  const handleSubmit = useCallback(async () => {
+    if (submittingRef.current) return;
+    submittingRef.current = true;
+    setIsSubmitDialogOpen(false);
+    setIsSubmitting(true);
+    try {
+      // Let queued draft writes finish before finalizing, so an old response cannot overwrite newer work.
+      await saveQueue.current.catch(() => undefined);
+      const response = await fetch("/api/quizzes/submit", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ quiz_id: quiz.id, answers }),
-      }).catch(() => {});
-    }, UPDATE_DEBOUNCE_MS);
+        body: JSON.stringify({ quiz_id: quiz.id, answers: answersRef.current }),
+      });
+      if (
+        !response.ok ||
+        response.redirected ||
+        !response.headers.get("content-type")?.includes("application/json")
+      )
+        throw new Error();
+      await response.json();
+      try {
+        writeBrowserDraft(window.localStorage, draftKey, null);
+      } catch {}
+      router.refresh();
+    } catch {
+      toast.error("Jawaban belum terkirim. Periksa koneksi lalu kirim lagi.");
+      submittingRef.current = false;
+      setIsSubmitting(false);
+    }
+  }, [quiz.id, draftKey, router]);
 
-    return () => clearTimeout(id);
-  }, [answers, quiz.id, isSubmitting]);
+  useEffect(() => {
+    if (!draftLoaded || secondsLeft > 0 || autoSubmitted.current) return;
+    autoSubmitted.current = true;
+    void handleSubmit();
+  }, [draftLoaded, secondsLeft, handleSubmit]);
+
+  useEffect(() => {
+    if (saveState === "saved" || isSubmitting) return;
+    const warn = (event: BeforeUnloadEvent) => {
+      event.preventDefault();
+      event.returnValue = "";
+    };
+    window.addEventListener("beforeunload", warn);
+    return () => window.removeEventListener("beforeunload", warn);
+  }, [saveState, isSubmitting]);
 
   // ===== DERIVED VALUES =====
   const currentQ = questions[currentIdx];
@@ -139,7 +231,9 @@ export default function QuizAttemptAILN({
   const handleSelect = (optionCode: string) => {
     if (!currentQ || isSubmitting) return;
     const qid = String(currentQ.id);
-    setAnswers((prev) => ({ ...prev, [qid]: optionCode }));
+    const next = { ...answersRef.current, [qid]: optionCode };
+    answersRef.current = next;
+    setAnswers(next);
   };
 
   // Navigasi antar soal
@@ -149,9 +243,16 @@ export default function QuizAttemptAILN({
 
   // Buka dialog konfirmasi dulu saat mau keluar
   const handleExit = () => setIsExitDialogOpen(true);
-  const handleConfirmExit = () => {
-    setIsExitDialogOpen(false);
-    router.push(`/${projectId}/student`);
+  const handleConfirmExit = async () => {
+    try {
+      await saveAnswers();
+      setIsExitDialogOpen(false);
+      router.push(`/${projectId}/student`);
+    } catch {
+      toast.error(
+        "Jawaban belum tersimpan ke server. Coba lagi sebelum keluar.",
+      );
+    }
   };
 
   const isLast = currentIdx === totalQuestions - 1;
@@ -160,6 +261,31 @@ export default function QuizAttemptAILN({
   return (
     <PageContainerAILN>
       <div className="flex w-full flex-col gap-4">
+        <div
+          role="status"
+          className="flex flex-wrap items-center gap-2 text-sm text-muted-foreground"
+        >
+          {saveState === "saved"
+            ? "Jawaban tersimpan ke server."
+            : saveState === "failed"
+              ? "Jawaban belum tersimpan ke server."
+              : "Menyimpan jawaban?"}
+          {saveState === "failed" && (
+            <ButtonAILN
+              variant="outline"
+              size="small"
+              onClick={() => void saveAnswers().catch(() => undefined)}
+            >
+              Coba simpan lagi
+            </ButtonAILN>
+          )}
+          {localWarning && (
+            <span>
+              Draft browser tidak tersedia. Tunggu penyimpanan server sebelum
+              keluar.
+            </span>
+          )}
+        </div>
         {/* Header */}
         <div className="flex flex-col gap-3 rounded-lg border bg-white p-4 dark:border-dashboard-border dark:bg-card-1 dark:shadow-[0_0_18px_rgba(26,122,82,0.08)]">
           <div className="flex flex-wrap items-center gap-3">
@@ -238,12 +364,13 @@ export default function QuizAttemptAILN({
                     const isSelected = answers[qid] === opt.option_code;
                     return (
                       <ButtonAILN
+                        aria-pressed={isSelected}
                         variant={isSelected ? "answerActive" : "answer"}
                         size="choice"
                         width="full"
                         key={opt.id}
                         type="button"
-                        disabled={isSubmitting}
+                        disabled={isSubmitting || !draftLoaded}
                         onClick={() => handleSelect(opt.option_code)}
                       >
                         <div
@@ -288,7 +415,7 @@ export default function QuizAttemptAILN({
           </div>
 
           {/* Right panel: navigation */}
-          <div className="order-first flex w-full shrink-0 flex-col gap-4 lg:order-none lg:w-72">
+          <div className="flex w-full shrink-0 flex-col gap-4 lg:w-72">
             <div className="flex flex-col gap-3 rounded-lg border bg-white p-4 dark:border-dashboard-border dark:bg-card-1 dark:shadow-[0_0_18px_rgba(26,122,82,0.08)]">
               <span className="text-[11px] font-medium uppercase tracking-widest text-gray-500 dark:text-gray-400">
                 NAVIGASI SOAL
@@ -311,6 +438,8 @@ export default function QuizAttemptAILN({
                       size="question"
                       key={q.id}
                       type="button"
+                      aria-label={`Soal ${idx + 1}, ${isAnswered ? "terjawab" : "belum dijawab"}`}
+                      aria-current={isCurrent ? "step" : undefined}
                       onClick={() => setCurrentIdx(idx)}
                     >
                       {idx + 1}
@@ -337,8 +466,8 @@ export default function QuizAttemptAILN({
             <ButtonAILN
               variant="lime"
               width="full"
-              disabled={isSubmitting}
-              onClick={handleSubmit}
+              disabled={isSubmitting || !draftLoaded}
+              onClick={() => setIsSubmitDialogOpen(true)}
             >
               {isSubmitting ? "Mengirim..." : "Submit jawaban"}
             </ButtonAILN>
@@ -346,13 +475,22 @@ export default function QuizAttemptAILN({
         </div>
       </div>
       <AlertConfirmDialogAILN
+        isOpen={isSubmitDialogOpen}
+        alertDialogHeader="Kirim jawaban quiz?"
+        alertDialogMessage={`${questions.filter((q) => answers[String(q.id)] != null).length} dari ${totalQuestions} soal terjawab. Setelah dikirim, jawaban tidak dapat diubah. Cek soal yang belum terjawab sebelum melanjutkan.`}
+        alertCancelLabel="Cek lagi"
+        alertConfirmLabel="Kirim sekarang"
+        onClose={() => setIsSubmitDialogOpen(false)}
+        onConfirm={() => void handleSubmit()}
+      />
+      <AlertConfirmDialogAILN
         isOpen={isExitDialogOpen}
         alertDialogHeader="Keluar dari quiz?"
-        alertDialogMessage="Waktu quiz tetap berjalan walau kamu keluar halaman. Jawaban yang sudah dipilih tersimpan otomatis, tapi quiz akan otomatis disubmit ketika waktu habis."
+        alertDialogMessage="Waktu quiz tetap berjalan. Saat memilih Keluar, kami menyimpan jawaban terakhir ke server terlebih dahulu. Jika gagal, halaman tetap terbuka agar kamu bisa mencoba lagi."
         alertCancelLabel="Batal"
         alertConfirmLabel="Tetap keluar"
         onClose={() => setIsExitDialogOpen(false)}
-        onConfirm={handleConfirmExit}
+        onConfirm={() => void handleConfirmExit()}
       />
     </PageContainerAILN>
   );

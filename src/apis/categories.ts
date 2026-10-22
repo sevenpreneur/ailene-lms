@@ -23,13 +23,8 @@ export async function getCategories(): Promise<Category[]> {
   });
 
   if (!result.success) {
-    await LogError(
-      "getCategories",
-      result.code,
-      result.status,
-      result.message
-    );
-    return [];
+    await LogError("getCategories", result.code, result.status, result.message);
+    throw new Error("Data belum dapat dimuat.");
   }
   return result.data ?? [];
 }

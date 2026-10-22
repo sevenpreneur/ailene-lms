@@ -77,7 +77,9 @@ function ChapterCard({
             Level {chapter.level.level_number} · Chapter{" "}
             {String(chapterNumber).padStart(2, "0")}
           </span>
-          <span className={`rounded-full bg-white/65 px-3 py-1 text-xs font-medium text-gray-800 dark:border dark:border-dashboard-border dark:bg-card-1 ${darkStatusTone}`}>
+          <span
+            className={`rounded-full bg-white/65 px-3 py-1 text-xs font-medium text-gray-800 dark:border dark:border-dashboard-border dark:bg-card-1 ${darkStatusTone}`}
+          >
             {status}
           </span>
         </div>
@@ -241,15 +243,15 @@ export default function LearningPathStudentAILN({
               Latihan di luar chapter
             </div>
             <h2 className="mt-1 font-headline text-lg font-medium text-gray-900 dark:text-white">
-              Terapkan skill lewat prompt &amp; use case
+              Terapkan skill lewat use case
             </h2>
             <p className="mt-1 text-sm text-gray-500 dark:text-gray-400">
-              Latihan dari Champion tersedia di halaman Latihan Skill.
+              Latihan dari Champion tersedia di halaman Latihan AI.
             </p>
           </div>
           <ButtonAILN asChild variant="outline" shrink={false}>
             <Link href={`/${projectId}/student/skill-practice`}>
-              Buka Latihan Skill
+              Buka Latihan AI
               <ArrowRight className="h-4 w-4" aria-hidden="true" />
             </Link>
           </ButtonAILN>

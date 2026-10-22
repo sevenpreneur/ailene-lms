@@ -77,22 +77,7 @@ const nextConfig: NextConfig = {
           },
         ],
         missing: [{ type: "cookie", key: SESSION_COOKIE_NAME }],
-        destination: "/auth/login",
-        permanent: false,
-      },
-      // Already signed in -> don't show the login page again.
-      {
-        source: "/auth(.*)",
-        has: [
-          {
-            type: "header",
-            key: "host",
-            value:
-              "(lms.ailene.id|(lms.)?example.com|ailene-lms(-[^.]+).vercel.app).*",
-          },
-          { type: "cookie", key: SESSION_COOKIE_NAME, value: undefined },
-        ],
-        destination: "/",
+        destination: "/auth/login?redirectTo=/:path",
         permanent: false,
       },
     ];

@@ -65,12 +65,11 @@ export default function TextAreaAILN({
   }
 
   const maxLength = characterLength ?? 520;
-  const characterLimitErrorMessage =
-    "Oops, you've reached the character limit.";
+  const characterLimitErrorMessage = "Batas karakter sudah tercapai.";
 
   // Character Limitation on Text Area
   const handleTextAreaChange = (
-    event: React.ChangeEvent<HTMLTextAreaElement>
+    event: React.ChangeEvent<HTMLTextAreaElement>,
   ) => {
     const newValue = event.target.value;
     if (newValue.length > maxLength) {
@@ -110,7 +109,17 @@ export default function TextAreaAILN({
           id={textAreaId}
           placeholder={textAreaPlaceholder}
           {...rest}
-          className={`text-area-placeholder flex w-full p-2 ${textAreaHeight} text-sm rounded-lg resize-none transform transition-all placeholder:text-emphasis/60 placeholder:text-sm focus:outline-4 invalid:border-destructive required:border-destructive ${styles.border} ${
+          required={required}
+          aria-invalid={computedError ? true : rest["aria-invalid"]}
+          aria-describedby={
+            [
+              rest["aria-describedby"],
+              computedError ? `${textAreaId}-error` : null,
+            ]
+              .filter(Boolean)
+              .join(" ") || undefined
+          }
+          className={`text-area-placeholder flex w-full p-2 ${textAreaHeight} text-sm rounded-lg resize-none transform transition-all placeholder:text-emphasis/60 placeholder:text-sm focus:outline-4 ${styles.border} ${
             computedError
               ? "border-destructive focus:outline-semi-destructive"
               : styles.focus
@@ -124,7 +133,11 @@ export default function TextAreaAILN({
           disabled={disabled}
         />
         {computedError && (
-          <p className="text-area-error-message inline-flex text-red-600 text-xs">
+          <p
+            id={`${textAreaId}-error`}
+            role="alert"
+            className="text-area-error-message inline-flex text-red-600 text-xs"
+          >
             {computedError}
           </p>
         )}

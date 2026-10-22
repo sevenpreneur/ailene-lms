@@ -1,4 +1,10 @@
 "use client";
+import { useStudentIdentity } from "@/contexts/StudentIdentityContext";
+import {
+  browserDraftKey,
+  readBrowserDraft,
+  writeBrowserDraft,
+} from "@/lib/browser-draft";
 import ButtonAILN from "@/components/buttons/ButtonAILN";
 import TextAreaAILN from "@/components/fields/TextAreaAILN";
 import AlertConfirmDialogAILN from "@/components/modals/AlertConfirmDialogAILN";
@@ -27,14 +33,10 @@ interface ChapterTestAttemptAILNProps {
 }
 
 // Unsent answers survive a refresh in this browser only; the backend has no draft endpoint for tests.
-function draftKey(testId: number) {
-  return `ailn-chapter-test-draft-${testId}`;
-}
-
-function readDraft(test: ChapterTestDetail): ChapterTestAnswers {
+function readDraft(test: ChapterTestDetail, key: string): ChapterTestAnswers {
   try {
-    const raw = window.localStorage.getItem(draftKey(test.id));
-    const saved = raw ? (JSON.parse(raw) as ChapterTestAnswers) : {};
+    const saved =
+      readBrowserDraft<ChapterTestAnswers>(window.localStorage, key) ?? {};
     return Object.fromEntries(
       test.questions.flatMap((question) => {
         const answer = saved[String(question.id)];
@@ -58,6 +60,13 @@ export default function ChapterTestAttemptAILN({
   const router = useRouter();
   const projectId = useProjectId();
   const { questions } = test;
+  const userId = useStudentIdentity();
+  const key = browserDraftKey(
+    userId ?? "",
+    projectId,
+    `chapter-test:${test.id}:${questions.map((q) => q.id).join("-")}`,
+  );
+  const [draftWarning, setDraftWarning] = useState(false);
   const kindLabel = CHAPTER_TEST_KIND_LABEL[test.kind];
 
   const [answers, setAnswers] = useState<ChapterTestAnswers>({});
@@ -68,21 +77,22 @@ export default function ChapterTestAttemptAILN({
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   useEffect(() => {
-    const draft = readDraft(test);
+    const draft = readDraft(test, key);
     queueMicrotask(() => {
       setAnswers(draft);
       setDraftLoaded(true);
     });
-  }, [test]);
+  }, [test, key]);
 
   useEffect(() => {
     if (!draftLoaded) return;
     try {
-      window.localStorage.setItem(draftKey(test.id), JSON.stringify(answers));
+      writeBrowserDraft(window.localStorage, key, answers);
+      queueMicrotask(() => setDraftWarning(false));
     } catch {
-      // Storage can be unavailable (private mode); the draft is only a convenience.
+      queueMicrotask(() => setDraftWarning(true));
     }
-  }, [answers, draftLoaded, test.id]);
+  }, [answers, draftLoaded, key]);
 
   const currentQ = questions[currentIdx];
   const totalQuestions = questions.length;
@@ -123,12 +133,17 @@ export default function ChapterTestAttemptAILN({
           ),
         }),
       });
-      const payload = res.headers.get("content-type")?.includes("application/json")
+      const payload = res.headers
+        .get("content-type")
+        ?.includes("application/json")
         ? await res.json().catch(() => null)
         : null;
-      if (!res.redirected && ((res.ok && payload?.submitted_at) || res.status === 409)) {
+      if (
+        !res.redirected &&
+        ((res.ok && payload?.submitted_at) || res.status === 409)
+      ) {
         try {
-          window.localStorage.removeItem(draftKey(test.id));
+          writeBrowserDraft(window.localStorage, key, null);
         } catch {}
         if (res.status === 409)
           toast.info(`${kindLabel} ini sudah pernah kamu kirim.`);
@@ -157,6 +172,11 @@ export default function ChapterTestAttemptAILN({
   return (
     <PageContainerAILN>
       <div className="flex w-full flex-col gap-4">
+        <p role="status" className="text-sm text-muted-foreground">
+          {draftWarning
+            ? "Draft belum tersimpan. Jangan tutup halaman sebelum jawaban terkirim."
+            : "Draft tersimpan di browser ini untuk akunmu, belum terkirim."}
+        </p>
         {/* Header */}
         <div className="flex flex-col gap-3 rounded-lg border bg-white p-4 dark:border-dashboard-border dark:bg-card-1">
           <div className="flex flex-wrap items-center gap-3">
@@ -229,6 +249,7 @@ export default function ChapterTestAttemptAILN({
                     <TextAreaAILN
                       key={currentQ.id}
                       textAreaId={`essay-${currentQ.id}`}
+                      textAreaName="Jawaban uraian"
                       textAreaHeight="h-48"
                       textAreaPlaceholder="Tulis jawaban di sini..."
                       characterLength={CHAPTER_TEST_ESSAY_MAX}
@@ -249,6 +270,7 @@ export default function ChapterTestAttemptAILN({
                           answers[String(currentQ.id)] === opt.option_code;
                         return (
                           <ButtonAILN
+                            aria-pressed={isSelected}
                             variant={isSelected ? "answerActive" : "answer"}
                             size="choice"
                             width="full"
@@ -303,7 +325,7 @@ export default function ChapterTestAttemptAILN({
           </div>
 
           {/* Navigation */}
-          <div className="order-first flex w-full shrink-0 flex-col gap-4 lg:order-none lg:w-72">
+          <div className="flex w-full shrink-0 flex-col gap-4 lg:w-72">
             <div className="flex flex-col gap-3 rounded-lg border bg-white p-4 dark:border-dashboard-border dark:bg-card-1">
               <span className="text-[11px] font-medium uppercase tracking-widest text-gray-500 dark:text-gray-400">
                 NAVIGASI SOAL
@@ -322,6 +344,8 @@ export default function ChapterTestAttemptAILN({
                       size="question"
                       key={q.id}
                       type="button"
+                      aria-label={`Soal ${idx + 1}, ${isAnswered(q.id) ? "terjawab" : "belum dijawab"}`}
+                      aria-current={idx === currentIdx ? "step" : undefined}
                       onClick={() => setCurrentIdx(idx)}
                     >
                       {idx + 1}
@@ -359,7 +383,11 @@ export default function ChapterTestAttemptAILN({
       <AlertConfirmDialogAILN
         isOpen={isExitDialogOpen}
         alertDialogHeader={`Keluar dari ${kindLabel.toLowerCase()}?`}
-        alertDialogMessage="Jawabanmu tersimpan sementara di browser ini dan bisa dilanjutkan nanti, tapi belum terkirim sampai kamu menekan Kirim jawaban."
+        alertDialogMessage={
+          draftWarning
+            ? "Draft belum dapat disimpan di browser ini. Tetap keluar akan menghilangkan jawaban yang belum terkirim."
+            : "Jawabanmu tersimpan sementara di browser ini untuk akunmu, tapi belum terkirim sampai kamu menekan Kirim jawaban."
+        }
         alertCancelLabel="Batal"
         alertConfirmLabel="Tetap keluar"
         onClose={() => setIsExitDialogOpen(false)}

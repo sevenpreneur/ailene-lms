@@ -21,10 +21,10 @@ const stackSansHeadline = Stack_Sans_Headline({
 
 export const metadata: Metadata = {
   title: {
-    template: "%s | AI LMS Sevenpreneur",
-    default: "AI LMS Sevenpreneur",
+    template: "%s | Ailene AI Learn",
+    default: "Ailene AI Learn",
   },
-  description: "Platform pelatihan AI Sevenpreneur",
+  description: "Platform pembelajaran dan penerapan AI Ailene",
   metadataBase: new URL("https://lms.ailene.id"),
   alternates: { canonical: "/" },
   openGraph: {
@@ -47,13 +47,13 @@ export const metadata: Metadata = {
 };
 
 export default function RootLayout(
-  props: Readonly<{ children: React.ReactNode }>
+  props: Readonly<{ children: React.ReactNode }>,
 ) {
   const googleOauthId = process.env.NEXT_PUBLIC_GOOGLE_OAUTH_ID;
 
   return (
     <html
-      lang="en"
+      lang="id"
       className={`scroll-smooth ${stackSansText.variable} ${stackSansHeadline.variable}`}
       suppressHydrationWarning
     >

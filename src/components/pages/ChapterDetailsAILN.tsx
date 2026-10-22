@@ -330,7 +330,11 @@ export default function ChapterDetailsAILN({
   initialSurveyOpen?: boolean;
 }) {
   const router = useRouter();
-  const activeVideo = learnings?.videos[0] ?? null;
+  const [activeVideoId, setActiveVideoId] = useState<number | null>(null);
+  const activeVideo =
+    learnings?.videos.find((video) => video.id === activeVideoId) ??
+    learnings?.videos[0] ??
+    null;
   const [completedVideoIds, setCompletedVideoIds] = useState<Set<number>>(
     new Set(),
   );
@@ -637,6 +641,34 @@ export default function ChapterDetailsAILN({
         ) : (
           <div className="grid min-w-0 gap-6 xl:grid-cols-[minmax(0,1.65fr)_minmax(340px,0.85fr)] xl:items-start">
             <div className="min-w-0 space-y-5">
+              {(learnings?.videos.length ?? 0) > 1 && (
+                <div className="flex flex-col gap-2 rounded-lg border border-dashboard-border bg-card-1 p-4">
+                  <label
+                    htmlFor="chapter-video"
+                    className="text-sm font-medium"
+                  >
+                    Pilih video chapter
+                  </label>
+                  <select
+                    id="chapter-video"
+                    value={activeVideo?.id ?? ""}
+                    onChange={(event) => {
+                      setActiveVideoId(Number(event.target.value));
+                      setCurrentTime(0);
+                    }}
+                    className="w-full rounded-lg border border-dashboard-border bg-card-2 p-3 text-sm"
+                  >
+                    {learnings?.videos.map((video) => (
+                      <option key={video.id} value={video.id}>
+                        {video.title}
+                        {video.completed || completedVideoIds.has(video.id)
+                          ? " · Sudah ditonton"
+                          : ""}
+                      </option>
+                    ))}
+                  </select>
+                </div>
+              )}
               <section className="overflow-hidden rounded-lg border border-dashboard-border bg-card-1">
                 <PanelHeading
                   icon={<MonitorPlay className="size-5" />}

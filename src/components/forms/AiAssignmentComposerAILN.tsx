@@ -22,7 +22,7 @@ export default function AiAssignmentComposerAILN({
   const handleGenerate = async () => {
     if (isGenerating) return;
     if (!instruction.trim()) {
-      toast.error("Tulis dulu assignment seperti apa yang Anda mau.");
+      toast.error("Tulis dulu use case seperti apa yang Anda mau.");
       return;
     }
 
@@ -33,7 +33,7 @@ export default function AiAssignmentComposerAILN({
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           project_id: projectId,
-          instruction: instruction.trim(),
+          instruction: `Buat hanya tugas USE_CASE (L3) untuk penerapan AI di pekerjaan. Jangan buat tugas PROMPT.\n${instruction.trim()}`,
         }),
       });
 
@@ -43,7 +43,15 @@ export default function AiAssignmentComposerAILN({
         return;
       }
 
-      onGenerated(payload as AssignmentDraftBatch);
+      const batch = payload as AssignmentDraftBatch;
+      const drafts = batch.drafts.filter((item) => item.kind === "USE_CASE");
+      if (!drafts.length) {
+        toast.error(
+          "AI belum menghasilkan Use Case. Coba perjelas pekerjaan yang ingin dilatih.",
+        );
+        return;
+      }
+      onGenerated({ ...batch, drafts });
       setInstruction("");
     } catch {
       toast.error("AI gagal membuat draft. Coba lagi.");
@@ -54,8 +62,8 @@ export default function AiAssignmentComposerAILN({
 
   return (
     <SectionContainerAILN
-      title="Buat Assignment dengan AI"
-      desc="Ceritakan latihan yang Anda mau. AI menentukan sendiri tipe dan jumlah variasinya, semuanya tersimpan sebagai draft pribadi Anda. Pilih satu, cek, lalu assign ke tim."
+      title="Buat Tugas dengan AI"
+      desc="Ceritakan latihan yang Anda mau. AI menyiapkan variasi Use Case, semuanya tersimpan sebagai draft pribadi Anda. Pilih satu, cek, lalu assign ke tim."
     >
       <div className="flex flex-col gap-3">
         <TextAreaAILN
@@ -64,8 +72,8 @@ export default function AiAssignmentComposerAILN({
           value={instruction}
           onTextAreaChange={setInstruction}
           textAreaHeight="h-24"
-          characterLength={2000}
-          textAreaPlaceholder="Contoh: Buatkan latihan prompt untuk tim HR menulis job description yang rapi dan menarik."
+          characterLength={1850}
+          textAreaPlaceholder="Contoh: Buatkan use case untuk tim HR menyusun dan memeriksa job description."
           disabled={isGenerating}
         />
         <div className="flex justify-end">

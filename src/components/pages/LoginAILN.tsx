@@ -1,5 +1,6 @@
 "use client";
 
+import { safeRedirect } from "@/lib/safe-redirect";
 import ButtonAILN from "@/components/buttons/ButtonAILN";
 import InputAILN from "@/components/fields/InputAILN";
 import { useGoogleLogin } from "@react-oauth/google";
@@ -7,13 +8,6 @@ import { Eye, EyeOff, Lock, Mail } from "lucide-react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { Suspense, useState, type FormEvent } from "react";
 import { toast } from "sonner";
-
-function getSafeRedirect(value: string | null) {
-  if (!value || !value.startsWith("/") || value.startsWith("//")) {
-    return "/";
-  }
-  return value;
-}
 
 type LoadingMethod = "GOOGLE" | "PASSWORD" | null;
 
@@ -25,11 +19,15 @@ function LoginForm() {
   const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
 
-  const redirectTo = getSafeRedirect(searchParams.get("redirectTo"));
+  const redirectTo = safeRedirect(searchParams.get("redirectTo"));
   const isLoading = loadingMethod !== null;
 
   const finishLogin = async (response: Response, fallback: string) => {
-    if (!response.ok) {
+    if (
+      !response.ok ||
+      response.redirected ||
+      !response.headers.get("content-type")?.includes("application/json")
+    ) {
       const body = await response.json().catch(() => null);
       toast.error(body?.message ?? fallback);
       setLoadingMethod(null);
@@ -157,6 +155,10 @@ function LoginForm() {
         <div className="h-px flex-1 bg-dashboard-border" />
       </div>
 
+      <p className="text-center text-sm text-muted-foreground">
+        Lupa password atau belum bisa masuk? Hubungi admin atau Champion program
+        untuk bantuan akses akun.
+      </p>
       <div className="-mt-4 w-full">
         <ButtonAILN
           type="button"

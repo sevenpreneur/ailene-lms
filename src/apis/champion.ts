@@ -354,7 +354,7 @@ async function championRead<T>(
 
   if (!result.success) {
     await LogError(name, result.code, result.status, result.message);
-    return null;
+    throw new Error("Data belum dapat dimuat.");
   }
   return result.data ?? null;
 }
@@ -418,25 +418,6 @@ export function getChampionReport(
   );
 }
 
-export function getPromptSubmissions(projectId: string) {
-  return championRead<ChampionSubmissions>(
-    "getPromptSubmissions",
-    "/api/v1/champion/prompts/submissions",
-    { project_id: projectId },
-  );
-}
-
-export function getPromptSubmissionDetails(
-  projectId: string,
-  submissionId: number,
-) {
-  return championRead<PromptSubmissionDetails>(
-    "getPromptSubmissionDetails",
-    "/api/v1/champion/prompts/submission-details",
-    { project_id: projectId, submission_id: submissionId },
-  );
-}
-
 export function getUseCaseSubmissions(projectId: string) {
   return championRead<ChampionSubmissions>(
     "getUseCaseSubmissions",
@@ -456,18 +437,6 @@ export function getUseCaseSubmissionDetails(
   );
 }
 
-export function assignPrompt(
-  projectId: string,
-  libraryId: number,
-  target: AssignmentTarget,
-) {
-  return championWrite<AssignResult>(
-    "assignPrompt",
-    "/api/v1/champion/prompts/assign",
-    { project_id: projectId, library_id: libraryId, ...target },
-  );
-}
-
 export function assignUseCase(
   projectId: string,
   libraryId: number,
@@ -477,24 +446,6 @@ export function assignUseCase(
     "assignUseCase",
     "/api/v1/champion/use-cases/assign",
     { project_id: projectId, library_id: libraryId, ...target },
-  );
-}
-
-export function createPromptAssignment(
-  projectId: string,
-  input: {
-    name: string;
-    description: string;
-    expected_output: string;
-    category_ids: number[];
-    assignment?: AssignmentTarget | null;
-    draft_id?: number | null;
-  },
-) {
-  return championWrite<CreatePromptAssignmentResult>(
-    "createPromptAssignment",
-    "/api/v1/champion/prompts/create-assignment",
-    { project_id: projectId, ...input },
   );
 }
 
@@ -559,26 +510,6 @@ export function deleteAssignmentDraft(projectId: string, draftId: number) {
     "deleteAssignmentDraft",
     "/api/v1/champion/assignments/drafts/delete",
     { project_id: projectId, draft_id: draftId },
-  );
-}
-
-export function reviewPrompt(
-  projectId: string,
-  input: {
-    submission_id: number;
-    is_accepted: boolean;
-    comment?: string | null;
-    rubric_specificity?: number | null;
-    rubric_context?: number | null;
-    rubric_constraints?: number | null;
-    rubric_examples?: number | null;
-    rubric_iteration?: number | null;
-  },
-) {
-  return championWrite<ReviewResult>(
-    "reviewPrompt",
-    "/api/v1/champion/prompts/review",
-    { project_id: projectId, ...input },
   );
 }
 

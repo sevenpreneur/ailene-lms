@@ -54,16 +54,18 @@ export default function GuidedUseCaseModalAILN({
                   </Dialog.Title>
                 </div>
                 <Dialog.Description className="sr-only">
-                  Catat use case dalam enam langkah. Isian tersimpan otomatis
-                  setiap pindah langkah.
+                  Catat use case dalam enam langkah. Draft isian tersimpan di
+                  browser ini. Proses juga disimpan ke server setiap pindah
+                  langkah.
                 </Dialog.Description>
               </div>
             </div>
             <div className="flex shrink-0 items-center gap-1 sm:gap-2">
               {progress}
               <GuidedHintAILN label="Tentang penyimpanan">
-                Isianmu tersimpan otomatis setiap pindah langkah, jadi kamu
-                bisa menutup dan melanjutkan nanti.
+                Draft isian tersimpan di browser ini untuk akunmu, bukan lintas
+                perangkat. Pindah langkah juga menyimpan intake dan proses ke
+                server. Tunggu unggahan selesai sebelum menutup.
               </GuidedHintAILN>
               <Dialog.Close asChild>
                 <ButtonAILN

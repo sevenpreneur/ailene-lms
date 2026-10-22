@@ -36,6 +36,11 @@ export default function NotificationItemAILN({
         >
           {item.title}
         </span>
+        {item.type.startsWith("prompt_") && (
+          <span className="text-xs text-muted-foreground">
+            Tugas lama · jalur Prompt sudah dinonaktifkan.
+          </span>
+        )}
         {item.body && (
           <span className="line-clamp-2 text-sm text-muted-foreground">
             {item.body}

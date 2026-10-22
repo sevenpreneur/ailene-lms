@@ -54,7 +54,6 @@ export default function MyProgressStudentAILN({
             currentLevelNumber={levelProgress?.current_level_number ?? null}
             currentLevelName={levelProgress?.current_level_name ?? null}
             useCaseApprovedCount={levelProgress?.use_case_approved_count ?? 0}
-            promptApprovedCount={levelProgress?.prompt_approved_count ?? 0}
             hoursSavedTotal={levelProgress?.hours_saved_total ?? 0}
             toolsMastered={levelProgress?.tools_mastered ?? []}
             className="h-full"

@@ -5,6 +5,12 @@ import type {
   GuidedStep,
   GuidedSubmitResult,
 } from "@/apis/use-cases";
+import { useStudentIdentity } from "@/contexts/StudentIdentityContext";
+import {
+  browserDraftKey,
+  readBrowserDraft,
+  writeBrowserDraft,
+} from "@/lib/browser-draft";
 import ButtonAILN from "@/components/buttons/ButtonAILN";
 import GuidedUseCaseReviewAILN from "@/components/cards/GuidedUseCaseReviewAILN";
 import GuidedIntakeAILN, {
@@ -82,7 +88,12 @@ async function postGuided<T>(
       body: JSON.stringify(body),
     });
     const payload = await response.json().catch(() => null);
-    if (!response.ok) {
+    if (
+      !response.ok ||
+      response.redirected ||
+      !response.headers.get("content-type")?.includes("application/json") ||
+      (action !== "details" && payload === null)
+    ) {
       return {
         ok: false,
         message: payload?.message ?? "Gagal menyimpan. Coba lagi.",
@@ -121,6 +132,7 @@ export default function GuidedUseCaseAILN({
   useCaseName,
   championName,
   initialSession,
+  submissionStatus,
   allowResubmit = false,
 }: {
   isOpen: boolean;
@@ -131,10 +143,19 @@ export default function GuidedUseCaseAILN({
   useCaseName?: string;
   championName?: string | null;
   initialSession?: GuidedSession | null;
+  submissionStatus?: "accepted" | "awaiting_review" | "needs_revision";
   allowResubmit?: boolean;
 }) {
   const router = useRouter();
   const reducedMotion = useReducedMotion();
+  const userId = useStudentIdentity();
+  const localKey = browserDraftKey(
+    userId ?? "",
+    projectId,
+    `guided:${useCaseId ?? "personal"}`,
+  );
+  const [draftWarning, setDraftWarning] = useState(false);
+  const [loadError, setLoadError] = useState<string | null>(null);
   const [session, setSession] = useState<GuidedSession | null>(null);
   const [loaded, setLoaded] = useState(false);
   const [step, setStep] = useState(1);
@@ -174,11 +195,54 @@ export default function GuidedUseCaseAILN({
     setVisitedStep((previous) => Math.max(previous, current));
   }
 
+  function restore(next: GuidedSession | null) {
+    if (next) hydrate(next);
+    try {
+      const draft = readBrowserDraft<{
+        sessionId: number | null;
+        serverUpdatedAt: string | null;
+        intake: GuidedIntake;
+        evidence: GuidedEvidence;
+        exampleFileUrl: string;
+        step: number;
+        accepted: boolean;
+      }>(window.localStorage, localKey);
+      if (
+        !draft ||
+        draft.sessionId !== (next?.id ?? null) ||
+        (next?.status === "submitted" && !allowResubmit)
+      )
+        return;
+      if (draft.evidence && typeof draft.evidence.outcome_proof === "string")
+        setEvidence({ ...EMPTY_EVIDENCE, ...draft.evidence });
+      if (
+        next?.status !== "submitted" &&
+        draft.serverUpdatedAt === (next?.updated_at ?? null) &&
+        draft.intake &&
+        typeof draft.intake.daily_task === "string"
+      ) {
+        setIntake({ ...EMPTY_INTAKE, ...draft.intake });
+        setExampleFileUrl(draft.exampleFileUrl || "");
+        setExampleMode(draft.exampleFileUrl ? "file" : "text");
+        // Navigation remains subject to current server prerequisites.
+        const restoredStep = Math.min(
+          Math.max(Number(draft.step) || 1, 1),
+          next?.current_step ?? 1,
+        );
+        setStep(restoredStep);
+        setVisitedStep(restoredStep);
+        setAccepted(!!draft.accepted && !!next?.steps.length);
+      }
+    } catch {
+      setDraftWarning(true);
+    }
+  }
+
   // Resume the latest draft once, the first time the modal opens.
   useEffect(() => {
-    if (!isOpen || loaded) return;
+    if (!isOpen || loaded || loadError) return;
     if (initialSession !== undefined) {
-      if (initialSession) hydrate(initialSession);
+      restore(initialSession);
       setLoaded(true);
       return;
     }
@@ -189,18 +253,69 @@ export default function GuidedUseCaseAILN({
       useCaseId ? { use_case_id: useCaseId } : { project_id: projectId },
     ).then((response) => {
       if (cancelled) return;
-      if (response.ok && response.data) hydrate(response.data);
-      if (!response.ok) toast.error(response.message);
-      setLoaded(true);
+      if (response.ok) {
+        restore(response.data);
+        setLoaded(true);
+      } else setLoadError(response.message);
       setBusy(null);
     });
     return () => {
       cancelled = true;
     };
-  }, [isOpen, loaded, initialSession, useCaseId, projectId]);
+    // Restoration runs only when opening an unloaded form; edits must not rehydrate it.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [isOpen, loaded, initialSession, useCaseId, projectId, loadError]);
 
   const submitted = session?.status === "submitted";
   const revising = submitted && allowResubmit && !result;
+  useEffect(() => {
+    if (!loaded || !userId || result || (submitted && !allowResubmit)) return;
+    try {
+      writeBrowserDraft(window.localStorage, localKey, {
+        sessionId: session?.id ?? null,
+        serverUpdatedAt: session?.updated_at ?? null,
+        intake,
+        evidence,
+        exampleFileUrl,
+        step,
+        accepted,
+      });
+      queueMicrotask(() => setDraftWarning(false));
+    } catch {
+      queueMicrotask(() => setDraftWarning(true));
+    }
+  }, [
+    loaded,
+    userId,
+    localKey,
+    session?.id,
+    session?.updated_at,
+    intake,
+    evidence,
+    exampleFileUrl,
+    step,
+    accepted,
+    result,
+    submitted,
+    allowResubmit,
+  ]);
+
+  useEffect(() => {
+    if (
+      !loaded ||
+      result ||
+      (submitted && !allowResubmit) ||
+      (!draftWarning && !uploading)
+    )
+      return;
+    const warn = (event: BeforeUnloadEvent) => {
+      event.preventDefault();
+      event.returnValue = "";
+    };
+    window.addEventListener("beforeunload", warn);
+    return () => window.removeEventListener("beforeunload", warn);
+  }, [loaded, result, submitted, allowResubmit, draftWarning, uploading]);
+
   const minutes = intake.minutes_without_ai;
   const hoursWithAi = Number(evidence.hours_with_ai.replace(",", "."));
 
@@ -386,12 +501,27 @@ export default function GuidedUseCaseAILN({
       toast.error(response.message);
       return;
     }
+    try {
+      writeBrowserDraft(window.localStorage, localKey, null);
+    } catch {}
     setResult(response.data);
     setSession(response.data.session);
     focusTop();
   }
 
   function handleClose() {
+    if (busy || uploading) {
+      toast.info("Tunggu penyimpanan atau unggahan selesai sebelum menutup.");
+      return;
+    }
+    if (
+      draftWarning &&
+      !result &&
+      !window.confirm(
+        "Draft belum tersimpan. Tutup sekarang dan kehilangan perubahan?",
+      )
+    )
+      return;
     onClose();
     if (result) {
       router.refresh();
@@ -441,7 +571,14 @@ export default function GuidedUseCaseAILN({
         ) : null
       }
     >
-      {busy === "load" ? (
+      {loadError ? (
+        <div className="flex flex-col gap-3 p-6">
+          <p role="alert">{loadError}</p>
+          <ButtonAILN variant="outline" onClick={() => setLoadError(null)}>
+            Coba lagi
+          </ButtonAILN>
+        </div>
+      ) : busy === "load" ? (
         <div className="flex flex-1 items-center justify-center gap-2 text-sm text-muted-foreground">
           <Loader2 className="size-4 animate-spin" />
           Memuat isianmu…
@@ -450,6 +587,7 @@ export default function GuidedUseCaseAILN({
         <SubmittedView
           headingRef={headingRef}
           result={result}
+          submissionStatus={submissionStatus}
           session={reviewSession}
           evidence={result ? evidence : null}
           onClose={handleClose}
@@ -494,7 +632,9 @@ export default function GuidedUseCaseAILN({
                   </h2>
                   {revising && !summary && (
                     <p className="rounded-lg bg-amber-50 px-3 py-2 text-xs text-amber-950 dark:bg-amber-500/10 dark:text-amber-200">
-                      Champion meminta revisi. Perbarui bukti dan ceritamu, lalu
+                      Champion meminta revisi. Catatan review dan hasil kiriman
+                      lama belum tersedia di halaman ini. Hubungi Champion untuk
+                      arahan perbaikan, lalu perbarui bukti dan ceritamu dan
                       kirim ulang.
                     </p>
                   )}
@@ -584,6 +724,13 @@ export default function GuidedUseCaseAILN({
                     }
                     file={outcomeFile}
                     onFileChange={(file) => void upload(file, "outcome")}
+                    onLinkChange={(outcome_proof) => {
+                      setOutcomeFile(null);
+                      setEvidence((previous) => ({
+                        ...previous,
+                        outcome_proof,
+                      }));
+                    }}
                     minutesWithoutAi={minutes}
                     showName={!useCaseId}
                     uploading={uploading === "outcome"}
@@ -656,6 +803,13 @@ export default function GuidedUseCaseAILN({
             </div>
           </div>
           <footer className="shrink-0 border-t border-dashboard-border bg-card-1 px-5 py-4 sm:px-8">
+            <p role="status" className="mb-2 text-xs text-muted-foreground">
+              {busy === "save"
+                ? "Menyimpan langkah ke server..."
+                : draftWarning
+                  ? "Draft belum tersimpan. Jangan tutup halaman."
+                  : "Draft isian tersimpan di browser ini untuk akunmu. Pindah langkah juga menyimpan proses ke server."}
+            </p>
             <div className="flex items-center justify-between gap-2">
               <ButtonAILN
                 variant="ghost"
@@ -714,17 +868,20 @@ export default function GuidedUseCaseAILN({
 function SubmittedView({
   headingRef,
   result,
+  submissionStatus,
   session,
   evidence,
   onClose,
 }: {
   headingRef: RefObject<HTMLHeadingElement | null>;
   result: GuidedSubmitResult | null;
+  submissionStatus?: "accepted" | "awaiting_review" | "needs_revision";
   session: GuidedSession | null;
   evidence: GuidedEvidence | null;
   onClose: () => void;
 }) {
-  const accepted = result?.submission_status === "accepted";
+  const accepted =
+    submissionStatus === "accepted" || result?.submission_status === "accepted";
   return (
     <>
       <div className="min-h-0 flex-1 overflow-y-auto px-5 py-8 sm:px-8">

@@ -4,7 +4,8 @@ import ButtonAILN from "@/components/buttons/ButtonAILN";
 import { useSidebar } from "@/contexts/SidebarContext";
 import { Menu, PanelLeft, X } from "lucide-react";
 import { usePathname } from "next/navigation";
-import { useEffect, type ReactNode } from "react";
+import { Dialog } from "radix-ui";
+import { useEffect, useRef, type ReactNode } from "react";
 
 // Small muted heading above a group of nav items; hidden on the collapsed rail.
 export function SidebarGroupLabelAILN({
@@ -37,6 +38,7 @@ export default function SidebarShellAILN({
   const { isCollapsed, toggleSidebar, isMobileOpen, openMobile, closeMobile } =
     useSidebar();
   const pathname = usePathname();
+  const menuTrigger = useRef<HTMLButtonElement>(null);
 
   // Navigating away should never leave the drawer covering the new page.
   useEffect(() => {
@@ -61,6 +63,7 @@ export default function SidebarShellAILN({
         <ButtonAILN
           variant="ghost"
           size="icon"
+          ref={menuTrigger}
           onClick={openMobile}
           aria-label="Buka menu"
           aria-expanded={isMobileOpen}
@@ -70,51 +73,42 @@ export default function SidebarShellAILN({
         <div className="min-w-0 flex-1">{mobileBrand}</div>
       </header>
 
-      {/* ---------- Mobile drawer (<lg) ---------- */}
-      <div
-        inert={!isMobileOpen}
-        className={`fixed inset-0 z-[60] transition-opacity duration-200 lg:hidden ${
-          isMobileOpen ? "opacity-100" : "pointer-events-none opacity-0"
-        }`}
+      <Dialog.Root
+        open={isMobileOpen}
+        onOpenChange={(open) => {
+          if (!open) closeMobile();
+        }}
       >
-        <ButtonAILN
-          variant="backdropAbsolute"
-          size="bare"
-          type="button"
-          tabIndex={-1}
-          aria-label="Tutup menu"
-          onClick={closeMobile}
-        />
-
-        <div
-          role="dialog"
-          aria-modal="true"
-          aria-label="Menu navigasi"
-          className={`absolute inset-y-0 left-0 flex w-[17rem] max-w-[85vw] flex-col border-r border-sb-border bg-sb-bg transition-transform duration-200 ease-out ${
-            isMobileOpen ? "translate-x-0" : "-translate-x-full"
-          }`}
-        >
-          <div className="flex h-full w-full flex-col gap-3 p-3">
+        <Dialog.Portal>
+          <Dialog.Overlay className="fixed inset-0 z-[60] bg-black/40 lg:hidden" />
+          <Dialog.Content
+            onCloseAutoFocus={(event) => {
+              event.preventDefault();
+              menuTrigger.current?.focus();
+            }}
+            className="fixed inset-y-0 left-0 z-[61] flex w-[17rem] max-w-[85vw] flex-col border-r border-sb-border bg-sb-bg p-3 outline-none lg:hidden"
+          >
+            <Dialog.Title className="sr-only">Menu navigasi</Dialog.Title>
+            <Dialog.Description className="sr-only">
+              Pilih halaman atau program.
+            </Dialog.Description>
             <div className="flex shrink-0 items-center gap-1">
               <div className="min-w-0 flex-1">{header(false)}</div>
-              <ButtonAILN
-                variant="ghost"
-                size="icon"
-                onClick={closeMobile}
-                aria-label="Tutup menu"
-              >
-                <X className="size-4" />
-              </ButtonAILN>
+              <Dialog.Close asChild>
+                <ButtonAILN variant="ghost" size="icon" aria-label="Tutup menu">
+                  <X className="size-4" />
+                </ButtonAILN>
+              </Dialog.Close>
             </div>
-            <nav className="flex flex-1 flex-col gap-0.5 overflow-y-auto">
+            <nav className="my-3 flex min-h-0 flex-1 flex-col gap-0.5 overflow-y-auto">
               {nav(false)}
             </nav>
             <div className="shrink-0 border-t border-sb-border pt-3">
               {footer(false)}
             </div>
-          </div>
-        </div>
-      </div>
+          </Dialog.Content>
+        </Dialog.Portal>
+      </Dialog.Root>
 
       {/* ---------- Desktop rail (lg+) ---------- */}
       <aside

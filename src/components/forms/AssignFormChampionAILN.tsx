@@ -12,12 +12,9 @@ import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { toast } from "sonner";
 
-export type AssignKind = "PROMPT" | "USE_CASE";
-
 interface AssignFormChampionAILNProps {
   isOpen: boolean;
   onClose: () => void;
-  kind: AssignKind;
   item: { id: number; name: string } | null;
   members: TeamMember[];
   group: { id: number; name: string } | null;
@@ -28,7 +25,6 @@ type TargetMode = "INDIVIDUAL" | "BULK";
 export default function AssignFormChampionAILN({
   isOpen,
   onClose,
-  kind,
   item,
   members,
   group,
@@ -78,10 +74,7 @@ export default function AssignFormChampionAILN({
 
     setIsSubmitting(true);
     try {
-      const endpoint =
-        kind === "PROMPT"
-          ? "/api/champion/prompts/assign"
-          : "/api/champion/use-cases/assign";
+      const endpoint = "/api/champion/use-cases/assign";
       const response = await fetch(endpoint, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -98,7 +91,11 @@ export default function AssignFormChampionAILN({
       });
 
       const payload = await response.json().catch(() => null);
-      if (!response.ok) {
+      if (
+        !response.ok ||
+        response.redirected ||
+        !response.headers.get("content-type")?.includes("application/json")
+      ) {
         toast.error(payload?.message ?? "Gagal assign. Coba lagi.");
         return;
       }
@@ -121,7 +118,7 @@ export default function AssignFormChampionAILN({
     <SheetAILN
       isOpen={isOpen}
       onClose={onClose}
-      sheetName={`Assign ${kind === "PROMPT" ? "Prompt" : "Use Case"}`}
+      sheetName="Berikan Use Case"
       sheetDescription={item?.name ?? ""}
     >
       <form className="relative flex h-full w-full flex-col">
@@ -282,9 +279,7 @@ export default function AssignFormChampionAILN({
             disabled={isSubmitting}
           >
             <Send className="size-4" />
-            {isSubmitting
-              ? "Mengirim…"
-              : `Assign ${kind === "PROMPT" ? "Prompt" : "Use Case"}`}
+            {isSubmitting ? "Mengirim…" : "Berikan Use Case"}
           </ButtonAILN>
           <p className="text-center text-[11px] text-gray-500 dark:text-gray-400">
             Anggota akan menerima notifikasi di dashboard mereka.

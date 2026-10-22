@@ -1,6 +1,10 @@
 "use client";
 
-import type { NotificationItem, NotificationList } from "@/apis/notifications";
+import type {
+  NotificationItem,
+  NotificationList,
+  NotificationReadResult,
+} from "@/apis/notifications";
 import ButtonAILN from "@/components/buttons/ButtonAILN";
 import NotificationItemAILN from "@/components/items/NotificationItemAILN";
 import SheetAILN from "@/components/modals/SheetAILN";
@@ -11,8 +15,7 @@ import {
 import { notificationHref } from "@/lib/notifications";
 import dayjs from "dayjs";
 import { useRouter } from "next/navigation";
-import { useCallback, useEffect, useState } from "react";
-import { createPortal } from "react-dom";
+import { useCallback, useEffect, useRef, useState } from "react";
 
 const JSON_HEADERS = { "Content-Type": "application/json" };
 
@@ -36,9 +39,14 @@ export default function NotificationSheetAILN({
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [isMarkingAll, setIsMarkingAll] = useState(false);
+  const readingIds = useRef(new Set<number>());
+  const readQueue = useRef<Promise<void>>(Promise.resolve());
+  const requestId = useRef(0);
 
   const load = useCallback(
     async (nextPage: number) => {
+      const request = ++requestId.current;
+      if (nextPage === 1) setItems([]);
       setIsLoading(true);
       setError(null);
       try {
@@ -49,46 +57,63 @@ export default function NotificationSheetAILN({
         });
         if (!response.ok) throw new Error("Gagal memuat notifikasi.");
         const data = (await response.json()) as NotificationList;
-        setItems((prev) => (nextPage === 1 ? data.list : [...prev, ...data.list]));
+        if (request !== requestId.current) return;
+        setItems((prev) =>
+          nextPage === 1 ? data.list : [...prev, ...data.list],
+        );
         setPage(data.metapaging.current_page);
         setTotalPage(data.metapaging.total_page);
         onUnreadChange(data.unread_count);
       } catch (err) {
-        setError(err instanceof Error ? err.message : "Gagal memuat notifikasi.");
+        if (request === requestId.current)
+          setError(
+            err instanceof Error ? err.message : "Gagal memuat notifikasi.",
+          );
       } finally {
-        setIsLoading(false);
+        if (request === requestId.current) setIsLoading(false);
       }
     },
-    [projectId, onUnreadChange]
+    [projectId, onUnreadChange],
   );
 
   useEffect(() => {
     if (isOpen) void load(1);
   }, [isOpen, load]);
 
-  useEffect(() => {
-    if (!isOpen) return;
-    const onEscape = (event: KeyboardEvent) => {
-      if (event.key === "Escape") onClose();
-    };
-    document.addEventListener("keydown", onEscape);
-    return () => document.removeEventListener("keydown", onEscape);
-  }, [isOpen, onClose]);
-
   const openItem = (item: NotificationItem) => {
-    if (item.read_at === null) {
-      const readAt = dayjs().toISOString();
-      setItems((prev) =>
-        prev.map((row) => (row.id === item.id ? { ...row, read_at: readAt } : row))
-      );
-      onUnreadChange(Math.max(0, unreadCount - 1));
-      // keepalive lets the request finish even when the click navigates away.
-      void fetch("/api/notifications/read", {
-        method: "POST",
-        headers: JSON_HEADERS,
-        body: JSON.stringify({ project_id: projectId, notification_ids: [item.id] }),
-        keepalive: true,
-      }).catch(() => undefined);
+    if (item.read_at === null && !readingIds.current.has(item.id)) {
+      readingIds.current.add(item.id);
+      readQueue.current = readQueue.current
+        .catch(() => undefined)
+        .then(async () => {
+          try {
+            const response = await fetch("/api/notifications/read", {
+              method: "POST",
+              headers: JSON_HEADERS,
+              body: JSON.stringify({
+                project_id: projectId,
+                notification_ids: [item.id],
+              }),
+              keepalive: true,
+            });
+            if (!response.ok || response.redirected)
+              throw new Error(
+                "Status baca belum tersimpan. Coba buka notifikasi lagi.",
+              );
+            const result = (await response.json()) as NotificationReadResult;
+            const readAt = dayjs().toISOString();
+            setItems((previous) =>
+              previous.map((row) =>
+                row.id === item.id ? { ...row, read_at: readAt } : row,
+              ),
+            );
+            onUnreadChange(result.unread_count);
+          } catch {
+            setError("Status baca belum tersimpan. Coba buka notifikasi lagi.");
+          } finally {
+            readingIds.current.delete(item.id);
+          }
+        });
     }
     const href = notificationHref(projectId, item);
     if (href) {
@@ -100,17 +125,23 @@ export default function NotificationSheetAILN({
   const markAllRead = async () => {
     setIsMarkingAll(true);
     try {
+      await readQueue.current;
       const response = await fetch("/api/notifications/read-all", {
         method: "POST",
         headers: JSON_HEADERS,
         body: JSON.stringify({ project_id: projectId }),
       });
       if (!response.ok) throw new Error("Gagal menandai notifikasi.");
+      const result = (await response.json()) as NotificationReadResult;
       const readAt = dayjs().toISOString();
-      setItems((prev) => prev.map((row) => ({ ...row, read_at: row.read_at ?? readAt })));
-      onUnreadChange(0);
+      setItems((prev) =>
+        prev.map((row) => ({ ...row, read_at: row.read_at ?? readAt })),
+      );
+      onUnreadChange(result.unread_count);
     } catch (err) {
-      setError(err instanceof Error ? err.message : "Gagal menandai notifikasi.");
+      setError(
+        err instanceof Error ? err.message : "Gagal menandai notifikasi.",
+      );
     } finally {
       setIsMarkingAll(false);
     }
@@ -118,7 +149,7 @@ export default function NotificationSheetAILN({
 
   if (!isOpen) return null;
 
-  return createPortal(
+  return (
     <SheetAILN
       sheetName="Notifikasi"
       sheetDescription={
@@ -141,17 +172,38 @@ export default function NotificationSheetAILN({
 
         <div className="flex min-h-0 flex-1 flex-col gap-1 overflow-y-auto">
           {error && (
-            <p className="px-3 text-sm text-destructive-foreground">{error}</p>
+            <div
+              role="alert"
+              className="flex flex-col items-start gap-2 px-3 text-sm"
+            >
+              <p>{error}</p>
+              <ButtonAILN
+                variant="outline"
+                size="small"
+                disabled={isLoading}
+                onClick={() => void load(1)}
+              >
+                Coba lagi
+              </ButtonAILN>
+            </div>
           )}
           {isLoading && items.length === 0 ? (
-            <SkeletonRowsAILN count={5} rowClassName="h-16" className="gap-2 px-3" />
+            <SkeletonRowsAILN
+              count={5}
+              rowClassName="h-16"
+              className="gap-2 px-3"
+            />
           ) : items.length === 0 && !error ? (
             <div className="px-3">
               <EmptyStateAILN>Belum ada notifikasi.</EmptyStateAILN>
             </div>
           ) : (
             items.map((item) => (
-              <NotificationItemAILN key={item.id} item={item} onClick={openItem} />
+              <NotificationItemAILN
+                key={item.id}
+                item={item}
+                onClick={openItem}
+              />
             ))
           )}
           {page < totalPage && (
@@ -168,7 +220,6 @@ export default function NotificationSheetAILN({
           )}
         </div>
       </div>
-    </SheetAILN>,
-    document.body
+    </SheetAILN>
   );
 }

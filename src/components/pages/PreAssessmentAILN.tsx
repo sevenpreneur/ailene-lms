@@ -1,4 +1,11 @@
 "use client";
+import AlertConfirmDialogAILN from "@/components/modals/AlertConfirmDialogAILN";
+import { useStudentIdentity } from "@/contexts/StudentIdentityContext";
+import {
+  browserDraftKey,
+  readBrowserDraft,
+  writeBrowserDraft,
+} from "@/lib/browser-draft";
 import ButtonAILN from "@/components/buttons/ButtonAILN";
 import PageContainerSVP from "@/components/pages/PageContainerSVP";
 import { CheckSession } from "@/lib/actions";
@@ -49,25 +56,20 @@ function toPayload(
 }
 
 // No server autosave exists, so an unsent draft lives in this browser only.
-function draftKey(projectId: string, versionId: number) {
-  return `ailene-pre-assessment-draft:${projectId}:${versionId}`;
-}
-
 function readDraft(key: string): AnswerMap {
   try {
-    const raw = window.localStorage.getItem(key);
-    const parsed = raw ? JSON.parse(raw) : null;
-    return parsed && typeof parsed === "object" ? parsed : {};
+    return readBrowserDraft<AnswerMap>(window.localStorage, key) ?? {};
   } catch {
     return {};
   }
 }
-
 function writeDraft(key: string, answers: AnswerMap | null) {
   try {
-    if (answers) window.localStorage.setItem(key, JSON.stringify(answers));
-    else window.localStorage.removeItem(key);
-  } catch {}
+    writeBrowserDraft(window.localStorage, key, answers);
+    return true;
+  } catch {
+    return false;
+  }
 }
 
 export default function PreAssessmentAILN({
@@ -80,7 +82,14 @@ export default function PreAssessmentAILN({
   const [mounted, setMounted] = useState(false);
   const projectId = useProjectId();
   const router = useRouter();
-  const key = draftKey(projectId, version.id);
+  const userId = useStudentIdentity();
+  const key = browserDraftKey(
+    userId ?? "",
+    projectId,
+    `pre-assessment:${version.id}`,
+  );
+  const [draftWarning, setDraftWarning] = useState(false);
+  const [confirmSubmit, setConfirmSubmit] = useState(false);
 
   const [answers, setAnswers] = useState<AnswerMap>({});
   const [currentIdx, setCurrentIdx] = useState(0);
@@ -90,12 +99,29 @@ export default function PreAssessmentAILN({
   useEffect(() => {
     // eslint-disable-next-line react-hooks/set-state-in-effect
     setMounted(true);
-    setAnswers(readDraft(key));
-  }, [key]);
+    const draft = readDraft(key);
+    setAnswers(
+      Object.fromEntries(
+        items.flatMap((item) => {
+          const answer = draft[item.id];
+          return item.type === "single_choice"
+            ? item.options.some((option) => option.id === answer)
+              ? [[item.id, answer]]
+              : []
+            : typeof answer === "string"
+              ? [[item.id, answer.slice(0, PRE_ASSESSMENT_TEXT_MAX)]]
+              : [];
+        }),
+      ),
+    );
+  }, [key, items]);
 
   useEffect(() => {
-    if (mounted) writeDraft(key, answers);
-  }, [mounted, key, answers]);
+    if (mounted && userId) {
+      const saved = writeDraft(key, answers);
+      queueMicrotask(() => setDraftWarning(!saved));
+    }
+  }, [mounted, key, answers, userId]);
 
   const isDark = mounted && resolvedTheme === "dark";
   const nextVariant = isDark ? "neutral" : "primary";
@@ -136,6 +162,7 @@ export default function PreAssessmentAILN({
   };
 
   const handleSubmit = async () => {
+    setConfirmSubmit(false);
     if (phase !== "idle") return;
     if (missing.length > 0) {
       toast.error(`Masih ada ${missing.length} pertanyaan yang belum dijawab.`);
@@ -187,7 +214,21 @@ export default function PreAssessmentAILN({
 
   return (
     <PageContainerSVP className="flex min-h-screen justify-center">
+      <AlertConfirmDialogAILN
+        isOpen={confirmSubmit}
+        alertDialogHeader="Kirim pre-assessment?"
+        alertDialogMessage={`${answeredCount} dari ${totalQuestions} pertanyaan terjawab. Jawaban hanya dapat dikirim satu kali dan tidak dapat diubah setelahnya.`}
+        alertCancelLabel="Cek lagi"
+        alertConfirmLabel="Kirim sekarang"
+        onClose={() => setConfirmSubmit(false)}
+        onConfirm={() => void handleSubmit()}
+      />
       <div className="flex w-full flex-col gap-4 my-10">
+        <p role="status" className="text-sm text-muted-foreground">
+          {draftWarning
+            ? "Draft belum tersimpan. Biarkan halaman terbuka dan coba lagi sebelum keluar."
+            : "Draft tersimpan di browser ini untuk akunmu, belum terkirim."}
+        </p>
         {/* Header */}
         <div className="flex flex-col gap-3 rounded-lg border bg-white p-4 dark:border-dashboard-border dark:bg-card-1">
           <div className="flex flex-wrap items-center gap-3">
@@ -236,7 +277,10 @@ export default function PreAssessmentAILN({
               </span>
             </div>
 
-            <p className="whitespace-pre-line text-[17px] font-medium leading-snug text-gray-900 dark:text-white">
+            <p
+              id={`pre-assessment-question-${currentItem.id}`}
+              className="whitespace-pre-line text-[17px] font-medium leading-snug text-gray-900 dark:text-white"
+            >
               {currentItem.question}
             </p>
 
@@ -268,7 +312,7 @@ export default function PreAssessmentAILN({
           </div>
 
           {/* Right: navigation panel */}
-          <div className="order-first flex w-full shrink-0 flex-col gap-4 lg:order-none lg:w-80">
+          <div className="flex w-full shrink-0 flex-col gap-4 lg:w-80">
             <div className="flex flex-col gap-3 rounded-lg border bg-white p-4 dark:border-dashboard-border dark:bg-card-1">
               <span className="text-[11px] font-medium uppercase tracking-widest text-gray-500 dark:text-gray-400">
                 NAVIGASI
@@ -291,6 +335,8 @@ export default function PreAssessmentAILN({
                       key={item.id}
                       type="button"
                       onClick={() => setCurrentIdx(idx)}
+                      aria-label={`Soal ${idx + 1}, ${ans ? "terjawab" : "belum dijawab"}`}
+                      aria-current={isCurrent ? "step" : undefined}
                       title={PRE_ASSESSMENT_SECTIONS[item.section].label}
                     >
                       {idx + 1}
@@ -343,7 +389,7 @@ export default function PreAssessmentAILN({
               type="button"
               variant="primary"
               width="full"
-              onClick={handleSubmit}
+              onClick={() => setConfirmSubmit(true)}
               disabled={phase !== "idle" || missing.length > 0}
             >
               {phase === "submitting" ? "Mengirim..." : "Kirim Jawaban"}
@@ -502,6 +548,7 @@ function QuestionBody({
           const selected = value === opt.id;
           return (
             <ButtonAILN
+              aria-pressed={selected}
               variant={selected ? "answerActive" : "answer"}
               size="choice"
               width="full"
@@ -531,6 +578,7 @@ function QuestionBody({
     <div className="flex flex-col gap-2">
       <p className="text-sm text-gray-500 dark:text-gray-400">{hint}</p>
       <textarea
+        aria-labelledby={`pre-assessment-question-${item.id}`}
         value={text}
         onChange={(e) => onChange(e.target.value)}
         maxLength={PRE_ASSESSMENT_TEXT_MAX}

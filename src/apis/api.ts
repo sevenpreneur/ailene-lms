@@ -10,10 +10,21 @@ export type ApiEnvelope<T = unknown> = {
   data?: T;
 };
 
+/** Retain section failure separately from a successful empty response. */
+export async function captureApiRead<T>(
+  request: Promise<T>,
+): Promise<{ data: T | null; failed: boolean }> {
+  try {
+    return { data: await request, failed: false };
+  } catch {
+    return { data: null, failed: true };
+  }
+}
+
 // Thin client for the ailene-lms-backend (Java/Spring) — see its docs/ for endpoint contracts.
 export async function callApi<T = unknown>(
   path: string,
-  options: { method?: string; body?: unknown; token?: string } = {}
+  options: { method?: string; body?: unknown; token?: string } = {},
 ): Promise<ApiEnvelope<T>> {
   const baseUrl = process.env.BASE_URL;
   if (!baseUrl) {
@@ -50,7 +61,7 @@ export async function callApi<T = unknown>(
     await LogError(
       `callApi ${method} ${path}`,
       `non-JSON response (${response.status})`,
-      rawBody.slice(0, 500)
+      rawBody.slice(0, 500),
     );
     return {
       success: false,

@@ -1,4 +1,4 @@
-import { completeVideo, getVideoDetails } from "@/apis/learnings";
+import { getVideoDetails } from "@/apis/learnings";
 import VideoDetailsAILN from "@/components/pages/VideoDetailsAILN";
 import AppPageState from "@/components/states/AppPageState";
 import { Metadata } from "next";
@@ -36,14 +36,5 @@ export default async function VideoPage({
     return <AppPageState variant="NOT_FOUND" />;
   }
 
-  const completion = await completeVideo(videoId);
-  const resolvedVideo = completion
-    ? {
-        ...result.data,
-        completed: completion.completed,
-        completed_at: completion.completed_at,
-      }
-    : result.data;
-
-  return <VideoDetailsAILN video={resolvedVideo} />;
+  return <VideoDetailsAILN video={result.data} />;
 }

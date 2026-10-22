@@ -10,6 +10,7 @@ import dayjs from "dayjs";
 import relativeTime from "dayjs/plugin/relativeTime";
 import { ChevronRight, ListFilter, Search } from "lucide-react";
 import Image from "next/image";
+import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useEffect, useRef, useState } from "react";
 
@@ -152,6 +153,7 @@ export default function ChampionTeamMembersAILN(props: { members: Member[] }) {
             <Search className="pointer-events-none absolute left-3 top-1/2 size-4 -translate-y-1/2 text-gray-400" />
             <input
               type="text"
+              aria-label="Cari anggota berdasarkan nama atau email"
               value={search}
               onChange={(e) => setSearch(e.target.value)}
               placeholder="Cari anggota…"
@@ -286,7 +288,10 @@ export default function ChampionTeamMembersAILN(props: { members: Member[] }) {
 
                     {/* Aksi */}
                     <td className="px-4 py-3 text-right">
-                      <span
+                      <Link
+                        href={href}
+                        onClick={(event) => event.stopPropagation()}
+                        aria-label={`Lihat detail ${m.user.full_name}`}
                         className={`inline-flex items-center gap-0.5 text-xs font-medium ${
                           m.status === "behind"
                             ? "text-amber-700 dark:text-amber-300"
@@ -295,7 +300,7 @@ export default function ChampionTeamMembersAILN(props: { members: Member[] }) {
                       >
                         Lihat detail
                         <ChevronRight className="size-3.5" />
-                      </span>
+                      </Link>
                     </td>
                   </tr>
                 );

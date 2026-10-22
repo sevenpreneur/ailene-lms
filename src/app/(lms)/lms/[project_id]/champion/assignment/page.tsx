@@ -1,13 +1,12 @@
 import { checkSession } from "@/apis/auth";
 import { getCategories } from "@/apis/categories";
 import { getAssignmentDrafts, getTeamMembers } from "@/apis/champion";
-import { getPrompts } from "@/apis/prompts";
 import { getUseCases } from "@/apis/use-cases";
 import AssignmentChampionAILN from "@/components/pages/AssignmentChampionAILN";
 import { Metadata } from "next";
 
 export const metadata: Metadata = {
-  title: "Assignment",
+  title: "Tugas",
 };
 
 export default async function ChampionAssignmentPage({
@@ -16,10 +15,9 @@ export default async function ChampionAssignmentPage({
   params: Promise<{ project_id: string }>;
 }) {
   const { project_id } = await params;
-  const [session, prompts, useCases, teamMembers, categories, drafts] =
+  const [session, useCases, teamMembers, categories, drafts] =
     await Promise.all([
       checkSession(),
-      getPrompts(project_id),
       getUseCases(project_id),
       getTeamMembers(project_id),
       getCategories(),
@@ -27,7 +25,7 @@ export default async function ChampionAssignmentPage({
     ]);
 
   const access = session?.project_access.find(
-    (project) => project.id === project_id
+    (project) => project.id === project_id,
   );
   const group =
     access?.group_id != null
@@ -36,11 +34,15 @@ export default async function ChampionAssignmentPage({
 
   return (
     <AssignmentChampionAILN
-      prompts={prompts.list}
       useCases={useCases.list}
       teamMembers={teamMembers}
       categories={categories}
-      draftBatches={drafts?.batches ?? []}
+      draftBatches={(drafts?.batches ?? [])
+        .map((batch) => ({
+          ...batch,
+          drafts: batch.drafts.filter((draft) => draft.kind === "USE_CASE"),
+        }))
+        .filter((batch) => batch.drafts.length > 0)}
       group={group}
     />
   );

@@ -10,7 +10,6 @@ import ButtonAILN from "@/components/buttons/ButtonAILN";
 import PageHeaderAILN from "@/components/titles/PageHeaderAILN";
 import InputAILN from "@/components/fields/InputAILN";
 import AssignmentItemChampion from "@/components/items/AssignmentItemChampion";
-import GeneralLabelAILN from "@/components/labels/GeneralLabelAILN";
 import AiDraftBatchesAILN from "@/components/indexes/AiDraftBatchesAILN";
 import type {
   AssignmentDraft,
@@ -18,30 +17,18 @@ import type {
   TeamMembers,
 } from "@/apis/champion";
 import type { Category } from "@/apis/categories";
-import type { PromptLibraryItem } from "@/apis/prompts";
 import type { UseCaseLibraryItem } from "@/apis/use-cases";
-import {
-  ArrowRight,
-  BookOpen,
-  Compass,
-  Plus,
-  Search,
-  Send,
-  Sparkles,
-} from "lucide-react";
+import { Compass, Plus, Search, Send, Sparkles } from "lucide-react";
 import { useState } from "react";
 
-type AssignmentTab = "AI" | "PROMPT" | "USE_CASE";
-
+type AssignmentTab = "AI" | "USE_CASE";
 export default function AssignmentChampionAILN({
-  prompts,
   useCases,
   teamMembers,
   categories,
   draftBatches,
   group,
 }: {
-  prompts: PromptLibraryItem[];
   useCases: UseCaseLibraryItem[];
   teamMembers: TeamMembers | null;
   categories: Category[];
@@ -50,357 +37,185 @@ export default function AssignmentChampionAILN({
 }) {
   const [tab, setTab] = useState<AssignmentTab>("AI");
   const [batches, setBatches] = useState(draftBatches);
-  const [prevDraftBatches, setPrevDraftBatches] = useState(draftBatches);
+  const [previous, setPrevious] = useState(draftBatches);
   const [freshBatchIds, setFreshBatchIds] = useState<string[]>([]);
-  const [selectedPromptId, setSelectedPromptId] = useState<number | null>(null);
-  const [selectedUseCaseId, setSelectedUseCaseId] = useState<number | null>(
-    null,
-  );
+  const [selectedId, setSelectedId] = useState<number | null>(null);
   const [assignOpen, setAssignOpen] = useState(false);
   const [createOpen, setCreateOpen] = useState(false);
   const [guidedOpen, setGuidedOpen] = useState(false);
   const [draft, setDraft] = useState<AssignmentDraft | null>(null);
   const [formKey, setFormKey] = useState(0);
   const [search, setSearch] = useState("");
-
-  // Re-sync after router.refresh() (e.g. a draft just got marked as used).
-  if (draftBatches !== prevDraftBatches) {
-    setPrevDraftBatches(draftBatches);
+  if (draftBatches !== previous) {
+    setPrevious(draftBatches);
     setBatches(draftBatches);
   }
-
   const members = teamMembers?.list ?? [];
-
-  const handleGenerated = (batch: AssignmentDraftBatch) => {
-    setBatches((prev) => [
-      batch,
-      ...prev.filter((b) => b.batch_id !== batch.batch_id),
-    ]);
-    setFreshBatchIds((prev) => [...prev, batch.batch_id]);
-  };
-
-  const handleDraftDeleted = (draftId: number) =>
-    setBatches((prev) =>
-      prev
-        .map((b) => ({
-          ...b,
-          drafts: b.drafts.filter((d) => d.id !== draftId),
-        }))
-        .filter((b) => b.drafts.length > 0),
-    );
-
-  const q = search.trim().toLowerCase();
-  const filteredPrompts = q
-    ? prompts.filter((p) => p.name.toLowerCase().includes(q))
-    : prompts;
-  const filteredUseCases = q
-    ? useCases.filter((u) => u.name.toLowerCase().includes(q))
-    : useCases;
-
-  // Remount the sheet so it re-seeds from the new draft (or a blank form).
-  const openCreate = (next: AssignmentDraft | null) => {
+  const selected =
+    useCases.find((item) => item.id === selectedId) ?? useCases[0];
+  const visible = useCases.filter((item) =>
+    item.name
+      .toLocaleLowerCase("id")
+      .includes(search.trim().toLocaleLowerCase("id")),
+  );
+  function openCreate(next: AssignmentDraft | null) {
+    if (next && next.kind !== "USE_CASE") return;
     setDraft(next);
-    setFormKey((k) => k + 1);
+    setFormKey((key) => key + 1);
     setCreateOpen(true);
-  };
-
-  const selectedPrompt =
-    selectedPromptId !== null
-      ? prompts.find((p) => p.id === selectedPromptId)
-      : prompts[0];
-  const selectedUseCase =
-    selectedUseCaseId !== null
-      ? useCases.find((u) => u.id === selectedUseCaseId)
-      : useCases[0];
-
+  }
   return (
     <PageContainerAILN>
       <div className="flex w-full flex-col gap-6">
         <PageHeaderAILN
-          title="Assignment"
-          desc="Kelola prompt & use case dan assign ke tim Anda."
+          title="Tugas"
+          desc="Siapkan dan berikan Use Case untuk tim."
         >
-          <ButtonAILN
-            type="button"
-            variant="outline"
-            onClick={() => setGuidedOpen(true)}
-          >
+          <ButtonAILN variant="outline" onClick={() => setGuidedOpen(true)}>
             <Compass className="size-4" />
-            Guided Use Case
+            Use Case Terpandu
           </ButtonAILN>
-          <ButtonAILN
-            type="button"
-            variant="champion"
-            onClick={() => openCreate(null)}
-          >
+          <ButtonAILN variant="champion" onClick={() => openCreate(null)}>
             <Plus className="size-4" />
             Buat Manual
           </ButtonAILN>
         </PageHeaderAILN>
-
-        {/* Tabs + search */}
-        <div className="flex flex-wrap items-center justify-between gap-3">
-          <Tabs<AssignmentTab>
-            ariaLabel="Jenis assignment"
-            value={tab}
-            onValueChange={setTab}
-            items={[
-              {
-                value: "AI",
-                label: "Generate AI",
-                icon: <Sparkles className="size-4" />,
-                badge: batches.length,
-              },
-              { value: "PROMPT", label: "Prompt", badge: prompts.length },
-              { value: "USE_CASE", label: "Use Case", badge: useCases.length },
-            ]}
-          />
-          {tab !== "AI" && (
-            <div className="w-full pb-2 sm:w-64">
-              <InputAILN
-                inputId="assignment-search"
-                inputType="text"
-                variant="CHAMPION"
-                inputIcon={<Search className="size-4" />}
-                inputPlaceholder="Cari assignment…"
-                value={search}
-                onInputChange={setSearch}
-              />
-            </div>
-          )}
-        </div>
-
+        <Tabs<AssignmentTab>
+          ariaLabel="Sumber tugas Use Case"
+          value={tab}
+          onValueChange={setTab}
+          items={[
+            {
+              value: "AI",
+              label: "Buat dengan AI",
+              icon: <Sparkles className="size-4" />,
+              badge: batches.length,
+            },
+            {
+              value: "USE_CASE",
+              label: "Use Case Library",
+              badge: useCases.length,
+            },
+          ]}
+        />
         {tab === "AI" ? (
-          <div className="flex flex-col gap-6">
-            <AiAssignmentComposerAILN onGenerated={handleGenerated} />
+          <>
+            <AiAssignmentComposerAILN
+              onGenerated={(batch) => {
+                const filtered = {
+                  ...batch,
+                  drafts: batch.drafts.filter(
+                    (item) => item.kind === "USE_CASE",
+                  ),
+                };
+                if (!filtered.drafts.length) return;
+                setBatches((items) => [
+                  filtered,
+                  ...items.filter((item) => item.batch_id !== batch.batch_id),
+                ]);
+                setFreshBatchIds((ids) => [...ids, batch.batch_id]);
+              }}
+            />
             <AiDraftBatchesAILN
               batches={batches}
               freshBatchIds={freshBatchIds}
               categories={categories}
               onUse={openCreate}
-              onDeleted={handleDraftDeleted}
+              onDeleted={(id) =>
+                setBatches((items) =>
+                  items
+                    .map((batch) => ({
+                      ...batch,
+                      drafts: batch.drafts.filter((item) => item.id !== id),
+                    }))
+                    .filter((batch) => batch.drafts.length > 0),
+                )
+              }
             />
-          </div>
+          </>
         ) : (
-          <div className="grid grid-cols-1 gap-6 xl:grid-cols-[1fr_360px]">
-            {/* Grid of items */}
-            <div className="flex flex-col gap-3">
-              {tab === "USE_CASE" && (
-                <button
-                  type="button"
-                  onClick={() => setGuidedOpen(true)}
-                  className="group relative flex items-center gap-4 overflow-hidden rounded-lg border border-dashboard-border bg-card-1 p-4 text-left transition hover:border-claude dark:hover:border-lime-bright/60"
-                >
-                  <span
-                    aria-hidden
-                    className="pointer-events-none absolute -right-10 -top-16 size-40 rounded-full bg-hijau-t blur-2xl dark:bg-claude/20"
-                  />
-                  <span className="relative flex size-10 shrink-0 items-center justify-center rounded-lg bg-claude text-white dark:bg-lime-bright dark:text-claude">
-                    <Compass className="size-5" />
-                  </span>
-                  <span className="relative min-w-0 flex-1">
-                    <span className="block text-sm font-medium dark:text-white">
-                      Siapkan Guided Use Case
-                    </span>
-                    <span className="mt-0.5 block text-xs text-gray-500 dark:text-gray-400">
-                      Isi pekerjaan, contoh, dan prosesnya. Anggota tinggal
-                      membuat workflow AI dan mencobanya.
-                    </span>
-                  </span>
-                  <ArrowRight className="relative size-4 shrink-0 text-gray-400 transition group-hover:translate-x-0.5 group-hover:text-claude dark:group-hover:text-lime-bright" />
-                </button>
-              )}
-              {tab === "PROMPT" ? (
-                filteredPrompts.length === 0 ? (
-                  <EmptyState label="Belum ada prompt." />
-                ) : (
-                  <div className="grid grid-cols-1 gap-3 md:grid-cols-2 2xl:grid-cols-3">
-                    {filteredPrompts.map((p) => (
-                      <AssignmentItemChampion
-                        key={p.id}
-                        levelNumber={p.level_number}
-                        name={p.name}
-                        body={p.description}
-                        categories={p.categories}
-                        isSelected={selectedPrompt?.id === p.id}
-                        onClick={() => setSelectedPromptId(p.id)}
-                      />
-                    ))}
-                  </div>
-                )
-              ) : filteredUseCases.length === 0 ? (
-                <EmptyState label="Belum ada use case." />
-              ) : (
-                <div className="grid grid-cols-1 gap-3 md:grid-cols-2 2xl:grid-cols-3">
-                  {filteredUseCases.map((u) => (
+          <>
+            <InputAILN
+              inputId="assignment-search"
+              inputName="Cari use case"
+              inputType="search"
+              variant="CHAMPION"
+              inputIcon={<Search className="size-4" />}
+              value={search}
+              onInputChange={setSearch}
+            />
+            <div className="grid gap-6 xl:grid-cols-[1fr_360px]">
+              <div className="grid content-start gap-3 md:grid-cols-2">
+                {visible.length ? (
+                  visible.map((item) => (
                     <AssignmentItemChampion
-                      key={u.id}
-                      levelNumber={u.level_number}
-                      name={u.name}
-                      body={u.description}
-                      categories={u.categories}
-                      isSelected={selectedUseCase?.id === u.id}
-                      onClick={() => setSelectedUseCaseId(u.id)}
+                      key={item.id}
+                      levelNumber={item.level_number}
+                      name={item.name}
+                      body={item.description}
+                      categories={item.categories}
+                      isSelected={selected?.id === item.id}
+                      onClick={() => setSelectedId(item.id)}
                     />
-                  ))}
-                </div>
-              )}
-            </div>
-
-            {/* Preview panel */}
-            <SectionContainerAILN
-              title={`Preview ${tab === "PROMPT" ? "Prompt" : "Use Case"}`}
-              className="lg:sticky lg:top-6 lg:self-start"
-            >
-              {tab === "PROMPT" ? (
-                selectedPrompt ? (
-                  <>
-                    <PreviewBody
-                      levelNumber={selectedPrompt.level_number}
-                      title={selectedPrompt.name}
-                      categories={selectedPrompt.categories}
-                      sections={[
-                        {
-                          label: "Skenario",
-                          text: selectedPrompt.description,
-                        },
-                      ]}
-                    />
-                    <div className="mt-4 border-t border-dashboard-border pt-4">
-                      <ButtonAILN
-                        type="button"
-                        variant="champion"
-                        width="full"
-                        onClick={() => setAssignOpen(true)}
-                      >
-                        <Send className="size-4" />
-                        Assign to Team
-                      </ButtonAILN>
-                    </div>
-                  </>
+                  ))
                 ) : (
-                  <PreviewEmpty />
-                )
-              ) : selectedUseCase ? (
-                <>
-                  <PreviewBody
-                    levelNumber={selectedUseCase.level_number}
-                    title={selectedUseCase.name}
-                    categories={selectedUseCase.categories}
-                    sections={[
-                      {
-                        label: "Deskripsi",
-                        text: selectedUseCase.description,
-                      },
-                    ]}
-                  />
-                  <div className="mt-4 border-t border-dashboard-border pt-4">
+                  <p role="status" className="text-sm text-muted-foreground">
+                    {search
+                      ? "Tidak ada use case yang cocok."
+                      : "Belum ada use case di library."}
+                  </p>
+                )}
+              </div>
+              <SectionContainerAILN
+                title="Detail Use Case"
+                className="xl:sticky xl:top-6 xl:self-start"
+              >
+                {selected ? (
+                  <div className="flex flex-col gap-4">
+                    <h2 className="text-base font-medium">{selected.name}</h2>
+                    <p className="whitespace-pre-wrap text-sm text-muted-foreground">
+                      {selected.description}
+                    </p>
                     <ButtonAILN
-                      type="button"
                       variant="champion"
-                      width="full"
                       onClick={() => setAssignOpen(true)}
                     >
                       <Send className="size-4" />
-                      Assign to Team
+                      Berikan ke Tim
                     </ButtonAILN>
                   </div>
-                </>
-              ) : (
-                <PreviewEmpty />
-              )}
-            </SectionContainerAILN>
-          </div>
+                ) : (
+                  <p className="text-sm text-muted-foreground">
+                    Pilih use case untuk melihat detail.
+                  </p>
+                )}
+              </SectionContainerAILN>
+            </div>
+          </>
         )}
+        <AssignFormChampionAILN
+          isOpen={assignOpen}
+          onClose={() => setAssignOpen(false)}
+          item={selected ? { id: selected.id, name: selected.name } : null}
+          members={members}
+          group={group}
+        />
+        <CreateGuidedUseCaseFormAILN
+          isOpen={guidedOpen}
+          onClose={() => setGuidedOpen(false)}
+          members={members}
+          categories={categories}
+        />
+        <CreateAssignmentFormAILN
+          key={formKey}
+          isOpen={createOpen}
+          onClose={() => setCreateOpen(false)}
+          members={members}
+          group={group}
+          categories={categories}
+          draft={draft}
+        />
       </div>
-
-      <AssignFormChampionAILN
-        isOpen={assignOpen}
-        onClose={() => setAssignOpen(false)}
-        kind={tab === "USE_CASE" ? "USE_CASE" : "PROMPT"}
-        item={
-          tab === "PROMPT"
-            ? selectedPrompt
-              ? { id: selectedPrompt.id, name: selectedPrompt.name }
-              : null
-            : selectedUseCase
-              ? { id: selectedUseCase.id, name: selectedUseCase.name }
-              : null
-        }
-        members={members}
-        group={group}
-      />
-
-      <CreateGuidedUseCaseFormAILN
-        isOpen={guidedOpen}
-        onClose={() => setGuidedOpen(false)}
-        members={members}
-        categories={categories}
-      />
-
-      <CreateAssignmentFormAILN
-        key={formKey}
-        isOpen={createOpen}
-        onClose={() => setCreateOpen(false)}
-        members={members}
-        group={group}
-        categories={categories}
-        draft={draft}
-      />
     </PageContainerAILN>
-  );
-}
-
-function PreviewBody({
-  levelNumber,
-  title,
-  categories,
-  sections,
-}: {
-  levelNumber: number;
-  title: string;
-  categories: Category[];
-  sections: { label: string; text: string }[];
-}) {
-  return (
-    <div className="flex flex-col gap-3">
-      <div className="flex flex-wrap items-center gap-1.5">
-        <GeneralLabelAILN variant="green">Level {levelNumber}</GeneralLabelAILN>
-        {categories.map((c) => (
-          <GeneralLabelAILN key={c.id} variant="white">
-            {c.name}
-          </GeneralLabelAILN>
-        ))}
-      </div>
-      <h2 className="text-base font-medium dark:text-white">{title}</h2>
-      {sections.map((s) => (
-        <div key={s.label} className="flex flex-col gap-1">
-          <div className="text-[11px] font-medium uppercase tracking-wide text-gray-500 dark:text-gray-400">
-            {s.label}
-          </div>
-          <p className="text-sm whitespace-pre-wrap text-gray-700 dark:text-gray-200">
-            {s.text}
-          </p>
-        </div>
-      ))}
-    </div>
-  );
-}
-
-function PreviewEmpty() {
-  return (
-    <div className="flex flex-col items-center gap-2 py-10 text-center text-gray-400 dark:text-gray-500">
-      <BookOpen className="size-8" />
-      <div className="text-sm">Pilih item untuk melihat detail</div>
-    </div>
-  );
-}
-
-function EmptyState({ label }: { label: string }) {
-  return (
-    <div className="flex flex-col items-center gap-2 rounded-lg border border-dashed border-dashboard-border py-12 text-center text-gray-500 dark:text-gray-400">
-      <BookOpen className="size-6" />
-      <div className="text-sm">{label}</div>
-    </div>
   );
 }

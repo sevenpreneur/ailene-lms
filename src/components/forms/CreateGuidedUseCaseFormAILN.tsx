@@ -152,7 +152,11 @@ export default function CreateGuidedUseCaseFormAILN({
         }),
       });
       const payload = await response.json().catch(() => null);
-      if (!response.ok) {
+      if (
+        !response.ok ||
+        response.redirected ||
+        !response.headers.get("content-type")?.includes("application/json")
+      ) {
         toast.error(payload?.message ?? "Gagal membuat guided use case.");
         return;
       }
