@@ -371,3 +371,101 @@ test("a failed assigned-task endpoint does not hide a successful library respons
   assert.equal(view.props.libraryFailed, false);
   assert.equal(view.props.useCaseLibrary[0].id, 7);
 });
+
+function renderHome(projects) {
+  const link = {
+    __esModule: true,
+    default: ({ children, ...props }) => {
+      delete props.prefetch;
+      return React.createElement("a", props, children);
+    },
+  };
+  const image = { __esModule: true, default: () => null };
+  const ProjectCard = loadSource(
+    "src/components/cards/ProjectJumpBackInCardAILN.tsx",
+    { "next/link": link, "next/image": image },
+  ).default;
+  const Home = loadSource("src/components/pages/HomeAILN.tsx", {
+    "next/link": link,
+    "next/image": image,
+    "next/navigation": { useRouter: () => ({ push() {}, refresh() {} }) },
+    "@/lib/actions": { DeleteSession: async () => {} },
+    "@/lib/config": { LOGIN_URL: "/auth/login" },
+    "@/components/buttons/ButtonAILN": {
+      __esModule: true,
+      default: ({ children }) => React.createElement("button", null, children),
+    },
+    "@/components/buttons/ThemeSwitcherAILN": {
+      __esModule: true,
+      default: () => null,
+    },
+    "@/components/elements/LogoAileneAILN": { LogoAileneAILN: () => null },
+    "@/components/cards/ProjectJumpBackInCardAILN": {
+      __esModule: true,
+      default: ProjectCard,
+    },
+  }).default;
+  return renderToStaticMarkup(
+    React.createElement(Home, {
+      session: {
+        user: { full_name: "Test Learner", avatar: null, job_title: "" },
+        project_access: projects,
+      },
+    }),
+  );
+}
+
+const homeProject = {
+  id: "program-one",
+  name: "Program AI untuk Tim",
+  company_name: "Example Company",
+  avatar: null,
+  group_name: "Operations",
+  role: "student",
+  has_pre_assessment: false,
+};
+
+test("single-program home keeps the assessment entry point with the Buka LMS action", () => {
+  const html = renderHome([homeProject]);
+  assert.ok(html.includes('href="/program-one/student/pre-assessment"'));
+  assert.ok(html.includes("Buka LMS"));
+  assert.ok(!html.includes('id="next-step-title"'));
+  assert.ok(!html.includes('id="shortcuts-title"'));
+  assert.ok(!html.includes('href="/program-one/student/learning-path"'));
+  assert.ok(!html.includes('href="/program-one/student/skill-practice"'));
+});
+
+test("assessment-complete students can open the LMS directly", () => {
+  const html = renderHome([{ ...homeProject, has_pre_assessment: true }]);
+  assert.ok(html.includes('href="/program-one/student"'));
+  assert.ok(html.includes("Buka LMS"));
+  assert.ok(html.includes("Pre-assessment selesai"));
+  assert.ok(!html.includes("Tersedia setelah pre-assessment selesai"));
+});
+
+test("Buka LMS preserves Champion and Sponsor role destinations", () => {
+  for (const role of ["champion", "sponsor"]) {
+    const html = renderHome([{ ...homeProject, role }]);
+    assert.ok(html.includes(`href="/program-one/${role}"`));
+    assert.ok(html.includes("Buka LMS"));
+    assert.ok(!html.includes('href="/program-one/student'));
+    assert.ok(!html.includes("Mulai pre-assessment"));
+  }
+});
+
+test("multiple-program home keeps each program destination without choosing one implicitly", () => {
+  const html = renderHome([
+    homeProject,
+    {
+      ...homeProject,
+      id: "program-two",
+      name: "Program kedua",
+      role: "sponsor",
+    },
+  ]);
+  assert.ok(html.includes('href="/program-one/student/pre-assessment"'));
+  assert.ok(html.includes('href="/program-two/sponsor"'));
+  assert.ok(html.includes("2 program"));
+  assert.ok(!html.includes('id="next-step-title"'));
+  assert.ok(!html.includes('id="shortcuts-title"'));
+});

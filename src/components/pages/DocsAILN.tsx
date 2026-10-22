@@ -9,6 +9,7 @@ import {
   Info,
 } from "lucide-react";
 import Link from "next/link";
+import Image from "next/image";
 import type { ReactNode } from "react";
 
 const chapters = [
@@ -278,7 +279,8 @@ export default function DocsAILN() {
                     email dan password sesuai akses akunmu.
                   </>,
                   <>
-                    Di halaman utama, pilih program yang ingin diikuti. Jika
+                    Di halaman utama, pilih <strong>Buka LMS</strong> pada
+                    program yang ingin diikuti. Jika
                     memiliki beberapa program atau peran, pastikan pilihan
                     program dan peran pada menu sudah sesuai.
                   </>,
@@ -303,6 +305,41 @@ export default function DocsAILN() {
                 Hubungi admin atau Champion program. Peserta yang belum mengirim
                 pre-assessment akan diarahkan ke assessment terlebih dahulu.
               </Note>
+              <figure className="mt-6 overflow-hidden rounded-lg border border-dashboard-border bg-card-2">
+                <a
+                  href="/images/docs/home-program.jpg"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  aria-label="Perbesar screenshot halaman home (buka di tab baru)"
+                  className="block rounded-lg focus-visible:outline-2 focus-visible:outline-offset-[-4px] focus-visible:outline-claude"
+                >
+                  <Image
+                    src="/images/docs/home-program.jpg"
+                    alt="Area Program kamu di halaman home, dengan nama program, badge peran di kanan atas, dan tombol Buka LMS di kiri bawah kartu."
+                    width={1100}
+                    height={467}
+                    sizes="(max-width: 1023px) 100vw, 768px"
+                    className="h-auto w-full"
+                  />
+                </a>
+                <figcaption className="space-y-2 border-t border-dashboard-border p-4 text-sm leading-6">
+                  <p className="font-medium">Pilih program, lalu tekan Buka LMS.</p>
+                  <p className="text-muted-foreground">
+                    Periksa nama program dan badge peran di kanan atas kartu.
+                    Contoh ini menampilkan peran Champion; peran yang muncul
+                    mengikuti akses akunmu.
+                  </p>
+                  <a
+                    href="/images/docs/home-program.jpg"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="inline-flex min-h-11 items-center gap-2 rounded-lg text-stakeholder-student-foreground underline underline-offset-4 focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-claude"
+                  >
+                    Buka gambar ukuran penuh (tab baru)
+                    <ArrowRight className="size-4" aria-hidden="true" />
+                  </a>
+                </figcaption>
+              </figure>
             </Section>
 
             <Section
