@@ -1,4 +1,5 @@
 "use client";
+import InputAILN from "@/components/fields/InputAILN";
 import ButtonAILN from "@/components/buttons/ButtonAILN";
 import SectionContainerAILN from "@/components/cards/SectionContainerAILN";
 import GeneralLabelAILN, {
@@ -150,14 +151,14 @@ export default function ChampionTeamMembersAILN(props: { members: Member[] }) {
       headerRight={
         <div className="flex flex-wrap items-center gap-2">
           <div className="relative w-56">
-            <Search className="pointer-events-none absolute left-3 top-1/2 size-4 -translate-y-1/2 text-gray-400" />
-            <input
+            <InputAILN
+              inputId="champion-team-search"
+              inputIcon={<Search />}
               type="text"
               aria-label="Cari anggota berdasarkan nama atau email"
               value={search}
               onChange={(e) => setSearch(e.target.value)}
               placeholder="Cari anggota…"
-              className="h-10 w-full rounded-lg border border-dashboard-border bg-white pl-9 pr-3 text-sm text-foreground placeholder:text-gray-400 focus:border-claude focus:outline-none dark:bg-card-1 dark:text-gray-200"
             />
           </div>
           <div className="relative" ref={filterRef}>

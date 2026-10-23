@@ -1,64 +1,9 @@
 "use client";
-import ButtonAILN from "@/components/buttons/ButtonAILN";
-import { NumberConfig, StakeholderVariant } from "@/lib/app-types";
+
+import type { NumberConfig } from "@/lib/app-types";
+import InputAILN, { type InputAILNProps } from "./InputAILN";
+import { Popover } from "radix-ui";
 import { ChevronDown } from "lucide-react";
-import Image from "next/image";
-import React, {
-  InputHTMLAttributes,
-  useEffect,
-  useMemo,
-  useRef,
-  useState,
-} from "react";
-
-const variantStyles: Record<
-  StakeholderVariant,
-  {
-    focus: string;
-    focusWithin: string;
-    border: string;
-    background: string;
-    disabled: string;
-  }
-> = {
-  STUDENT: {
-    focus:
-      "focus:outline-claude/15 focus:border-claude dark:focus:outline-claude/25 dark:focus:border-lime-bright",
-    focusWithin:
-      "focus-within:outline-claude/15 focus-within:border-claude dark:focus-within:outline-claude/25 dark:focus-within:border-lime-bright",
-    border: "border border-dashboard-border",
-    background: "bg-card-2",
-    disabled: "bg-card-2 text-muted-foreground dark:text-foreground/30",
-  },
-  CHAMPION: {
-    focus:
-      "focus:outline-claude/15 focus:border-claude dark:focus:outline-claude/25 dark:focus:border-lime-bright",
-    focusWithin:
-      "focus-within:outline-claude/15 focus-within:border-claude dark:focus-within:outline-claude/25 dark:focus-within:border-lime-bright",
-    border: "border border-dashboard-border",
-    background: "bg-card-2",
-    disabled: "bg-card-2 text-muted-foreground dark:text-foreground/30",
-  },
-  SPONSOR: {
-    focus:
-      "focus:outline-claude/15 focus:border-claude dark:focus:outline-claude/25 dark:focus:border-lime-bright",
-    focusWithin:
-      "focus-within:outline-claude/15 focus-within:border-claude dark:focus-within:outline-claude/25 dark:focus-within:border-lime-bright",
-    border: "border border-dashboard-border",
-    background: "bg-card-2",
-    disabled: "bg-card-2 text-muted-foreground dark:text-foreground/30",
-  },
-};
-
-const countryCodes = [
-  {
-    id: 1,
-    country_name: "Indonesia",
-    phone_code: "62",
-    emoji: "ID",
-    icon: "",
-  },
-];
 
 export const NumberVariant: Record<
   NumberConfig,
@@ -75,7 +20,7 @@ export const NumberVariant: Record<
   },
   decimal: {
     mode: "decimal",
-    pattern: "^[0-9]*[.,]?[0-9]*$",
+    pattern: "[0-9]*[.]?[0-9]*",
     sanitize: (raw) =>
       raw
         .replace(/[^0-9.,]/g, "")
@@ -89,234 +34,81 @@ export const NumberVariant: Record<
   },
 };
 
-interface NumberInputAILNProps extends InputHTMLAttributes<HTMLInputElement> {
-  inputId: string;
-  inputName?: string;
-  inputIcon?: string;
+export interface NumberInputAILNProps extends Omit<
+  InputAILNProps,
+  "type" | "inputType"
+> {
   inputConfig: NumberConfig;
-  inputPlaceholder?: string;
-  characterLength?: number;
-  errorMessage?: string;
-  value: string;
-  variant: StakeholderVariant;
   defaultCountryId?: number | null;
-  onInputChange?: (value: string) => void;
   onCountryChange?: (id: number, code: string) => void;
 }
 
 export default function NumberInputAILN({
-  inputId,
-  inputName,
-  inputIcon,
   inputConfig,
-  inputPlaceholder,
-  characterLength,
-  errorMessage,
+  inputIcon,
+  characterLength = 60,
+  defaultCountryId: _country,
+  onCountryChange: _onCountryChange,
+  onChange,
   onInputChange,
-  onCountryChange,
-  value,
-  variant,
-  defaultCountryId,
-  disabled,
-  required,
   ...rest
 }: NumberInputAILNProps) {
-  const [textValue, setTextValue] = useState(value);
-  const [internalError, setInternalError] = useState("");
-  const [countryOpen, setCountryOpen] = useState(false);
-  const [selectedCountryId, setSelectedCountryId] = useState<number | null>(
-    defaultCountryId ?? null,
-  );
-  const countryRef = useRef<HTMLDivElement>(null);
-  const styles = variantStyles[variant];
-  const isPhone = inputConfig === "phone_number";
-
-  // Derive selected country: default to Indonesia, fall back to first in list.
-  const selectedCountry = useMemo(() => {
-    const list = countryCodes;
-    if (selectedCountryId !== null) {
-      return list.find((c) => c.id === selectedCountryId) ?? null;
-    }
-    return list.find((c) => c.phone_code === "62") ?? list[0] ?? null;
-  }, [selectedCountryId]);
-
-  // Close dropdown on click outside
-  useEffect(() => {
-    function handleClickOutside(e: MouseEvent) {
-      if (
-        countryRef.current &&
-        !countryRef.current.contains(e.target as Node)
-      ) {
-        setCountryOpen(false);
-      }
-    }
-    document.addEventListener("mousedown", handleClickOutside);
-    return () => document.removeEventListener("mousedown", handleClickOutside);
-  }, []);
-
-  // Sync only when parent value changes AND it's different
-  if (textValue !== value) {
-    setTextValue(value ?? "");
-  }
-
-  const maxLength = characterLength ?? 60;
-  const characterLimitErrorMessage =
-    "Oops, you've reached the character limit.";
+  void _country; // Indonesia is currently the only supported country.
   const { mode, pattern, sanitize } = NumberVariant[inputConfig];
-
-  const handleInputChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-    const rawValue = event.target.value;
-    const sanitizedValue = sanitize(rawValue).slice(0, maxLength);
-    if (rawValue.length > maxLength) {
-      setInternalError(characterLimitErrorMessage);
-    } else {
-      setInternalError("");
-    }
-    setTextValue(sanitizedValue);
-    if (onInputChange) onInputChange(sanitizedValue);
-  };
-
-  if (errorMessage && internalError !== "") {
-    setInternalError("");
-  }
-
-  const computedError = errorMessage || internalError;
-
   return (
-    <div className="input-box flex flex-col gap-1">
-      {inputName && (
-        <label
-          htmlFor={inputId}
-          className={`label-input flex pl-1 gap-0.5 text-sm text-foreground font-medium`}
-        >
-          {inputName}
-          {required && (
-            <span className="label-required text-destructive">*</span>
-          )}
-        </label>
-      )}
-
-      <div
-        className={`input-container relative flex ${
-          isPhone
-            ? `rounded-lg ${styles.border} focus-within:outline-4 ${
-                computedError
-                  ? "border-destructive focus-within:outline-semi-destructive"
-                  : styles.focusWithin
-              } ${disabled ? styles.disabled : styles.background}`
-            : ""
-        }`}
-      >
-        {/* Country code selector — phone_number mode only */}
-        {isPhone && (
-          <div ref={countryRef} className="relative shrink-0">
-            <ButtonAILN
-              variant="outline"
-              size="medium"
+    <InputAILN
+      {...rest}
+      inputType={inputConfig === "phone_number" ? "tel" : "text"}
+      inputMode={mode}
+      pattern={pattern}
+      className={
+        inputConfig === "phone_number"
+          ? `pl-20 ${rest.className ?? ""}`
+          : rest.className
+      }
+      inputIcon={
+        inputConfig === "phone_number" ? (
+          <Popover.Root>
+            <Popover.Trigger
               type="button"
-              disabled={disabled as boolean}
-              onClick={() => setCountryOpen((p) => !p)}
+              disabled={rest.disabled}
+              aria-label="Kode negara: Indonesia +62"
+              className="pointer-events-auto flex h-9 items-center gap-1 rounded-lg text-sm focus-visible:outline-2 focus-visible:outline-claude disabled:cursor-not-allowed"
             >
-              {selectedCountry?.icon ? (
-                <Image
-                  src={selectedCountry.icon}
-                  alt={selectedCountry.country_name}
-                  width={20}
-                  height={14}
-                  className="object-cover"
-                />
-              ) : (
-                <span className="text-base leading-none">
-                  {selectedCountry?.emoji ?? "🌐"}
-                </span>
-              )}
-              <span className="text-xs text-emphasis">
-                +{selectedCountry?.phone_code}
-              </span>
-              <ChevronDown className="size-3 text-emphasis shrink-0" />
-            </ButtonAILN>
-
-            {countryOpen && (
-              <div className="absolute top-full left-0 z-50 mt-1 w-60 max-h-56 overflow-y-auto rounded-lg border border-dashboard-border bg-card-1 shadow-lg">
-                {countryCodes.map((c) => (
-                  <ButtonAILN
-                    variant={
-                      selectedCountry?.id === c.id ? "menuActive" : "menu"
-                    }
-                    size="row"
-                    width="full"
-                    key={c.id}
+              +62
+              <ChevronDown className="size-3" />
+            </Popover.Trigger>
+            <Popover.Portal>
+              <Popover.Content
+                sideOffset={8}
+                align="start"
+                className="z-[110] rounded-lg border border-dashboard-border bg-card-1 p-1 shadow-lg"
+              >
+                <Popover.Close asChild>
+                  <button
                     type="button"
-                    onClick={() => {
-                      setSelectedCountryId(c.id);
-                      onCountryChange?.(c.id, c.phone_code);
-                      setCountryOpen(false);
-                    }}
+                    onClick={() => _onCountryChange?.(1, "62")}
+                    className="cursor-pointer rounded-lg bg-stakeholder-student-soft px-3 py-2 text-sm text-stakeholder-student-foreground"
                   >
-                    {c.icon ? (
-                      <Image
-                        src={c.icon}
-                        alt={c.country_name}
-                        width={20}
-                        height={14}
-                        className="object-cover shrink-0"
-                      />
-                    ) : (
-                      <span className="text-base shrink-0">{c.emoji}</span>
-                    )}
-                    <span className="text-emphasis shrink-0">
-                      +{c.phone_code}
-                    </span>
-                    <span className="truncate font-normal">
-                      {c.country_name}
-                    </span>
-                  </ButtonAILN>
-                ))}
-              </div>
-            )}
-          </div>
-        )}
-
-        {/* Plain icon — non-phone mode */}
-        {!isPhone && inputIcon && (
-          <div className="input-icon absolute left-0 flex items-center p-[9px] pl-3 gap-1 pointer-events-none text-emphasis">
-            <p className="input-emoji text-sm">{inputIcon}</p>
-          </div>
-        )}
-
-        <input
-          id={inputId}
-          type="text"
-          inputMode={mode}
-          pattern={pattern}
-          placeholder={inputPlaceholder}
-          className={`input-placeholder flex w-full p-2 font-medium text-sm transform transition-all placeholder:text-emphasis/60 placeholder:font-medium placeholder:text-sm ${
-            isPhone
-              ? "flex-1 rounded-r-lg border-0 focus:outline-none bg-transparent"
-              : `rounded-lg focus:outline-4 invalid:border-destructive required:border-destructive ${styles.border} ${
-                  computedError
-                    ? "border-destructive focus:outline-semi-destructive"
-                    : styles.focus
-                } ${
-                  disabled
-                    ? `${styles.disabled} cursor-not-allowed`
-                    : styles.background
-                } ${inputIcon ? "pl-16" : ""}`
-          }`}
-          value={textValue}
-          onChange={handleInputChange}
-          {...rest}
-          suppressHydrationWarning
-        />
-
-        {computedError && (
-          <p
-            className={`input-error-message absolute -bottom-5 left-0 inline-flex text-red-600 text-xs `}
-          >
-            {computedError}
-          </p>
-        )}
-      </div>
-    </div>
+                    Indonesia (+62)
+                  </button>
+                </Popover.Close>
+              </Popover.Content>
+            </Popover.Portal>
+          </Popover.Root>
+        ) : (
+          inputIcon
+        )
+      }
+      characterLength={characterLength}
+      onChange={(event) => {
+        event.target.value = sanitize(event.target.value).slice(
+          0,
+          characterLength,
+        );
+        onChange?.(event);
+        onInputChange?.(event.target.value);
+      }}
+    />
   );
 }

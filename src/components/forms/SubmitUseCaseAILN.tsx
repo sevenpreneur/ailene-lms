@@ -754,7 +754,7 @@ export default function SubmitUseCaseAILN({
               {!isLocked && (
                 <ButtonAILN
                   type="button"
-                  variant="primary"
+                  variant="dark"
                   width="fit"
                   alignSelf="end"
                   disabled={isSubmitting}

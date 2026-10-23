@@ -83,7 +83,7 @@ export default function ImproveGuidedWorkflowModalAILN({
               Batal
             </ButtonAILN>
             <ButtonAILN
-              variant="student"
+              variant="primary"
               disabled={generating || !feedback.trim()}
               onClick={onSubmit}
             >

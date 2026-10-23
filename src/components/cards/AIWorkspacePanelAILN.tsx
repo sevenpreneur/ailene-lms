@@ -216,7 +216,7 @@ export default function AIWorkspacePanelAILN({
                 className="min-w-0 flex-1 bg-transparent text-sm text-foreground placeholder:text-muted-foreground focus:outline-none"
               />
               <ButtonAILN
-                variant="forest"
+                variant="dark"
                 size="iconRounded"
                 type="submit"
                 disabled={!draft.trim()}

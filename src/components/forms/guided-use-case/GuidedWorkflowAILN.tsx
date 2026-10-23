@@ -62,7 +62,7 @@ export default function GuidedWorkflowAILN({
               menyusun 3–7 langkah lengkap dengan prompt dan cara mengeceknya.
             </p>
           </div>
-          <ButtonAILN variant="student" onClick={() => void onGenerate()}>
+          <ButtonAILN variant="primary" onClick={() => void onGenerate()}>
             <Sparkles className="size-4" />
             Buat workflow
           </ButtonAILN>

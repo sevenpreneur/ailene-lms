@@ -160,12 +160,12 @@ export default function TodayFocusCardAILN({
           {/* Aksi */}
           <div className="mt-2 flex flex-wrap items-center gap-2">
             {focus.kind === "quiz" ? (
-              <ButtonAILN onClick={() => setIsQuizDialogOpen(true)}>
+              <ButtonAILN variant="dark" onClick={() => setIsQuizDialogOpen(true)}>
                 Mulai sekarang
                 <ArrowRight className="size-3.5" />
               </ButtonAILN>
             ) : (
-              <ButtonAILN asChild>
+              <ButtonAILN variant="dark" asChild>
                 <Link href={focusHref}>
                   Mulai sekarang
                   <ArrowRight className="size-3.5" />

@@ -121,11 +121,11 @@ export default function SkillPracticeItemAILN(
           : "Kerjakan";
 
   const cta = locked ? (
-    <ButtonAILN size="small" disabled width="full">
+    <ButtonAILN variant="dark" size="small" disabled width="full">
       Locked
     </ButtonAILN>
   ) : (
-    <ButtonAILN asChild size="small" width="full">
+    <ButtonAILN variant="dark" asChild size="small" width="full">
       <Link href={`/${projectId}${v.basePath}/${item.ref_id}`}>{ctaLabel}</Link>
     </ButtonAILN>
   );

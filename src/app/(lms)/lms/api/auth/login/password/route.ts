@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 import { loginWithPassword } from "@/apis/auth";
+import { authErrorMessage } from "@/lib/auth-messages";
 
 export async function POST(request: Request) {
   const body = await request.json().catch(() => null);
@@ -18,16 +19,24 @@ export async function POST(request: Request) {
     );
   }
 
-  const result = await loginWithPassword(email.trim(), password);
-
-  if (!result.success) {
-    // Match the message, not just 401: a wrong CLIENT_SECRET is also a 401 and must not read as a bad password.
-    const message =
-      result.message === "Invalid email or password"
-        ? "Email atau password salah."
-        : result.message;
-    return NextResponse.json({ message }, { status: result.code });
+  try {
+    const result = await loginWithPassword(email.trim(), password);
+    if (!result.success) {
+      return NextResponse.json(
+        {
+          message: authErrorMessage(
+            result.message,
+            "Login belum dapat diproses. Silakan coba lagi.",
+          ),
+        },
+        { status: result.code >= 400 ? result.code : 502 },
+      );
+    }
+    return NextResponse.json({ message: "Success", user: result.user });
+  } catch {
+    return NextResponse.json(
+      { message: "Layanan masuk belum dapat dihubungi. Silakan coba lagi." },
+      { status: 503 },
+    );
   }
-
-  return NextResponse.json({ message: "Success", user: result.user });
 }

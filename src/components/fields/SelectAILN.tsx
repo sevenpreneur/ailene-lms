@@ -1,214 +1,51 @@
 "use client";
-import { StakeholderVariant } from "@/lib/app-types";
-import { ChevronDown } from "lucide-react";
-import Image from "next/image";
-import React, { useState, useRef, useEffect } from "react";
 
-const variantStyles: Record<
-  StakeholderVariant,
-  {
-    focus: string;
-    border: string;
-    background: string;
-    disabled: string;
-    dropdown: string;
-    itemActive: string;
-    itemHover: string;
-  }
-> = {
-  STUDENT: {
-    focus: "outline-4 outline-claude/15 border-claude dark:border-lime-bright",
-    border: "border border-dashboard-border",
-    background: "bg-card-2",
-    disabled: "bg-card-2 text-muted-foreground dark:text-foreground/30",
-    dropdown: "bg-card-1 border border-dashboard-border",
-    itemActive:
-      "bg-claude/10 text-claude dark:text-lime-bright dark:bg-claude/15",
-    itemHover:
-      "hover:bg-claude/10 hover:text-claude dark:hover:text-lime-bright dark:hover:bg-claude/15",
-  },
-  CHAMPION: {
-    focus:
-      "outline-4 outline-claude/15 border-claude dark:border-lime-bright",
-    border: "border border-dashboard-border",
-    background: "bg-card-2",
-    disabled: "bg-card-2 text-muted-foreground dark:text-foreground/30",
-    dropdown: "bg-card-1 border border-dashboard-border",
-    itemActive:
-      "bg-claude/10 text-claude dark:text-lime-bright dark:bg-claude/15",
-    itemHover:
-      "hover:bg-claude/10 hover:text-claude dark:hover:text-lime-bright dark:hover:bg-claude/15",
-  },
-  SPONSOR: {
-    focus:
-      "outline-4 outline-claude/15 border-claude dark:border-lime-bright",
-    border: "border border-dashboard-border",
-    background: "bg-card-2",
-    disabled: "bg-card-2 text-muted-foreground dark:text-foreground/30",
-    dropdown: "bg-card-1 border border-dashboard-border",
-    itemActive:
-      "bg-claude/10 text-claude dark:text-lime-bright dark:bg-claude/15",
-    itemHover:
-      "hover:bg-claude/10 hover:text-claude dark:hover:text-lime-bright dark:hover:bg-claude/15",
-  },
-};
+import type { ReactNode } from "react";
+import type { StakeholderVariant } from "@/lib/app-types";
+import SelectControlAILN, { type OptionType } from "./SelectControlAILN";
+export type { OptionType } from "./SelectControlAILN";
 
-export interface OptionType {
-  label: string;
-  value: string | number | null;
-  image?: string;
-}
-
-interface SelectAILNProps {
+export interface SelectAILNProps {
   selectId: string;
   selectName?: string;
-  selectIcon?: React.ReactNode;
+  selectIcon?: ReactNode;
   selectPlaceholder: string;
   value: string | number | null;
-  variant: StakeholderVariant;
+  variant?: StakeholderVariant;
   onChange?: (value: string | number | null) => void;
   disabled?: boolean;
   required?: boolean;
   options?: OptionType[];
   onOpenChange?: (open: boolean) => void;
+  errorMessage?: string;
+  hint?: ReactNode;
+  name?: string;
+  className?: string;
+  "aria-label"?: string;
+  "aria-labelledby"?: string;
+  "aria-describedby"?: string;
 }
 
 export default function SelectAILN({
-  selectId,
-  selectName,
-  selectIcon,
   selectPlaceholder,
   value,
-  variant,
+  variant: _variant,
   onChange,
-  disabled,
-  required,
   options = [],
   onOpenChange,
+  ...rest
 }: SelectAILNProps) {
-  const [isOpen, setIsOpen] = useState(false);
-  const containerRef = useRef<HTMLDivElement>(null);
-  const styles = variantStyles[variant];
-
-  // Sent open state to parent
-  useEffect(() => {
-    onOpenChange?.(isOpen);
-  }, [isOpen, onOpenChange]);
-
-  // Handle click outside container
-  useEffect(() => {
-    function handleClickOutside(event: MouseEvent) {
-      if (
-        containerRef.current &&
-        !containerRef.current.contains(event.target as Node)
-      ) {
-        setIsOpen(false);
-      }
-    }
-    document.addEventListener("mousedown", handleClickOutside);
-    return () => {
-      document.removeEventListener("mousedown", handleClickOutside);
-    };
-  }, []);
-
-  // Finding selected value in Array dropdown
-  const selectedOption = options.find((opt) => opt.value === value);
-
+  void _variant;
   return (
-    <div className="select-box flex flex-col gap-1" ref={containerRef}>
-      {selectName && (
-        <label
-          htmlFor={selectId}
-          className={`select-label flex pl-1 gap-0.5 text-sm text-foreground font-medium`}
-        >
-          {selectName}
-          {required && (
-            <span className="label-required text-destructive">*</span>
-          )}
-        </label>
-      )}
-
-      <div
-        className={`select-container relative flex w-full p-2 font-medium text-sm rounded-lg transform transition-all ${styles.border} ${
-          isOpen ? styles.focus : ""
-        } ${
-          disabled
-            ? `${styles.disabled} cursor-not-allowed`
-            : `${styles.background} cursor-pointer`
-        } ${selectIcon ? "pl-10" : ""}`}
-        onClick={() => {
-          if (!disabled) setIsOpen((prev) => !prev);
-        }}
-      >
-        {selectIcon && (
-          <div className="select-icon absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none text-emphasis">
-            {selectIcon}
-          </div>
-        )}
-        <div className="selected-value flex items-center gap-2 truncate">
-          {selectedOption?.image && (
-            <div className="select-option-image flex aspect-square size-5 rounded-full overflow-hidden">
-              <Image
-                className="object-cover w-full h-full"
-                src={selectedOption.image}
-                alt={selectedOption.label}
-                width={100}
-                height={100}
-              />
-            </div>
-          )}
-          <span
-            className={`selected-option-placeholder block truncate text-sm font-medium ${
-              selectedOption ? "" : "text-emphasis"
-            }`}
-          >
-            {selectedOption?.label || selectPlaceholder}
-          </span>
-        </div>
-
-        {!disabled && (
-          <div className="dropdown-icon absolute right-2 top-1/2 transform -translate-y-1/2 pointer-events-none text-[#616F86]">
-            <ChevronDown className="size-5" />
-          </div>
-        )}
-
-        {isOpen && !disabled && (
-          <div
-            className={`dropdown-container absolute top-full mt-2 left-0 w-full z-30 rounded-lg shadow-md overflow-hidden ${styles.dropdown}`}
-          >
-            <ul
-              className={`dropdown-options flex flex-col text-sm font-medium max-h-60 overflow-auto`}
-            >
-              {options.map((opt, index) => (
-                <div
-                  key={index}
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    onChange?.(opt.value);
-                    setIsOpen(false);
-                  }}
-                  className={`dropdown-item-container flex items-center gap-2 px-3 py-2 cursor-pointer ${styles.itemHover} ${
-                    value === opt.value ? styles.itemActive : ""
-                  }`}
-                >
-                  {opt.image && (
-                    <div className="dropdown-item-image flex aspect-square size-[26px] rounded-full overflow-hidden">
-                      <Image
-                        className="object-cover w-full h-full"
-                        src={opt.image}
-                        alt={opt.label}
-                        width={100}
-                        height={100}
-                      />
-                    </div>
-                  )}
-                  <li className="dropdown-item-label">{opt.label}</li>
-                </div>
-              ))}
-            </ul>
-          </div>
-        )}
-      </div>
-    </div>
+    <SelectControlAILN
+      {...rest}
+      placeholder={selectPlaceholder}
+      value={options.find((option) => option.value === value) ?? null}
+      options={options}
+      isSearchable={false}
+      onChange={(option) => onChange?.(option?.value ?? null)}
+      onMenuOpen={() => onOpenChange?.(true)}
+      onMenuClose={() => onOpenChange?.(false)}
+    />
   );
 }

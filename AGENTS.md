@@ -44,7 +44,9 @@ Repo ini **khusus frontend**. Logika bisnis (skoring, kalkulasi, agregasi) adala
 
 ### Authentication
 
-Token-based (bukan NextAuth), lewat `ailene-lms-backend` — lihat `src/apis/auth.ts`'s `checkSession()`. Session token & role-per-project (`project_access`) berasal dari situ, identitas user selalu real (tidak di-mock).
+Token-based (bukan NextAuth), lewat backend Go v2 di `../ailene-lms-apis` — lihat `src/apis/auth.ts`'s `checkSession()`. Semua auth memakai `/api/v2/auth/*` dan `callApi(..., { backend: "lms" })` ke `LMS_BASE_URL`. Session token & role-per-project (`project_access`) berasal dari situ, identitas user selalu real (tidak di-mock). Payload backend mengembalikan `token` juga saat check-session; `checkSession()` hanya meneruskan `user` dan `project_access` ke UI supaya JWT tidak terserialisasi ke Client Component.
+
+Lupa password di `/auth/forget-password`; tautan email membuka `/reset-password/[session_id]` (NanoID 32 karakter). Halaman reset memeriksa link lewat API sebelum menampilkan form. Submit browser lewat Route Handler `/api/auth/forget-password` dan `/api/auth/reset-password`, lalu `src/apis/auth.ts` mengirim bearer `CLIENT_SECRET` dari server. Reset berhasil mengakhiri sesi di backend dan menghapus cookie lokal. Kontrak: `../ailene-lms-apis/docs/api/auth.md`.
 
 Cookie session: `SESSION_COOKIE_NAME` (`session_token_ailene_lms`, di `src/lib/constants.ts`) dipakai untuk Google login lewat `ailene-lms-backend`. Sinkronisasi cookie lintas-app dengan ailene-os (domain, dst.) belum di-handle, diabaikan dulu untuk sekarang.
 
@@ -52,7 +54,7 @@ Cookie session: `SESSION_COOKIE_NAME` (`session_token_ailene_lms`, di `src/lib/c
 
 Untuk komunikasi ke `ailene-lms-backend` (Java/Spring — akan menggantikan business logic yang sekarang di-mock), jangan `fetch` langsung dari component atau route handler. Ikuti pola ini:
 
-- `src/apis/api.ts` — `callApi()`, thin fetch wrapper ke `BASE_URL` dengan envelope typing (`ApiEnvelope<T>`). Jangan bikin wrapper fetch baru — reuse ini.
+- `src/apis/api.ts` — `callApi()`, thin fetch wrapper dengan envelope typing (`ApiEnvelope<T>`). Default memakai `BASE_URL` untuk endpoint bisnis v1; opsi `backend: "lms"` memakai `LMS_BASE_URL` untuk endpoint v2 yang sudah dimigrasikan (saat ini auth). Jangan mengubah semua endpoint v1 ke v2 sekaligus; jangan bikin wrapper fetch baru — reuse ini.
 - `src/apis/<resource>.ts` (mis. `auth.ts`) — satu file per resource, isi function-function yang manggil `callApi()`. File-file ini `import "server-only"` tapi **bukan** `"use server"` — jadi bisa dipanggil dari Server Component, Route Handler, maupun Server Action.
 - Endpoint yang belum punya auth per-user (mis. login) di-gate backend pakai static bearer `CLIENT_SECRET` (satu secret yang sama untuk semua client, dicek sebelum backend tahu siapa user-nya — lihat `docs/auth.md` di `ailene-lms-backend`). Pola-nya: lewatin `token: process.env.CLIENT_SECRET` ke `callApi()`, contoh di `src/apis/auth.ts`. Cek dokumentasi backend (`ailene-lms-backend/docs/<area>.md`) tiap kali nambah endpoint baru — request/response shape & auth gate bisa beda per endpoint.
 - Client Component yang butuh manggil ini dari browser: pakai Route Handler di `src/app/(<group>)/<subdomain>/api/...` (contoh: `src/app/(lms)/lms/api/auth/callback/google/route.ts`), bukan Server Action — path ini di-rewrite jadi `/api/...` di subdomain yang bersangkutan (lihat `next.config.mts`). Kalau logic-nya cukup dipanggil dari Server Component (redirect, dsb), `src/lib/actions.ts` (`"use server"`) boleh dipakai sebagai wrapper tipis ke `src/apis/*`.
@@ -127,6 +129,15 @@ File-file penting di `src/lib/`:
 | `utils.ts`                   | General utilities — `cn()` class merger, dll                        |
 
 ## Styling
+
+### Button
+
+- Semua pemakaian `ButtonAILN` dan wrapper-nya wajib mengikuti warna serta radius dari `variant` dan `size` di `src/components/buttons/ButtonAILN.tsx`.
+- Jangan menambahkan atau menimpa warna `bg`, `text`, `border` maupun `rounded` di tempat pemakaian, termasuk state hover/active/disabled dan light/dark. Larangan ini berlaku juga untuk inline `style`, child root saat `asChild`, serta selector parent yang menarget tombol.
+- `ButtonAILN` tidak menerima `className` atau `style`. Jika perlu tampilan baru, definisikan di komponen button pusat; jangan membuat layer styling tambahan di caller. Atur posisi dan jarak antar komponen melalui wrapper layout.
+- `primary` memakai warna lime; `dark` memakai tampilan primary hitam sebelumnya. Varian `lime`, `forest`, `student`, `champion`, dan `sponsor` sudah dihapus.
+
+### General
 
 - Tailwind CSS v4 — config di `src/app/globals.css` (bukan `tailwind.config.js`)
 - Brand color tokens didefinisikan di sana — masih pakai nama variabel `--color-sevenpreneur-*` (legacy, tetap pakai token yang sudah ada, jangan bikin token baru dengan nama beda untuk warna yang sama)

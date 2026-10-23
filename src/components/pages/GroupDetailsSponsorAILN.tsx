@@ -25,7 +25,8 @@ import type {
   GroupOverview,
   GroupTopUseCases,
 } from "@/apis/sponsor";
-import { ChevronDown, Download } from "lucide-react";
+import { Download } from "lucide-react";
+import SelectAILN from "@/components/fields/SelectAILN";
 import { useRouter } from "next/navigation";
 
 export default function GroupDetailsSponsorAILN({
@@ -66,7 +67,7 @@ export default function GroupDetailsSponsorAILN({
   const group = overview.group;
   const metrics = overview.metrics;
   const selectedDepartment = departments.departments.find(
-    (department) => department.id === groupId
+    (department) => department.id === groupId,
   );
 
   const groupKpis = [
@@ -195,24 +196,25 @@ export default function GroupDetailsSponsorAILN({
           desc={`${metrics.total_members} karyawan · Champion ${group.champion?.full_name ?? "-"} · ${metrics.beginner_percent}% masih di level pemula.`}
         >
           {metrics.needs_intervention && (
-            <GeneralLabelAILN variant="yellow">Perlu intervensi</GeneralLabelAILN>
+            <GeneralLabelAILN variant="yellow">
+              Perlu intervensi
+            </GeneralLabelAILN>
           )}
-          <label className="relative inline-flex items-center">
-            <select
+          <div className="w-full sm:w-56">
+            <SelectAILN
+              selectId="sponsor-group"
+              aria-label="Departemen"
+              selectPlaceholder="Pilih departemen"
               value={selectedDepartment?.id ?? groupId}
-              onChange={(event) =>
-                router.push(`/${projectId}/sponsor/groups/${event.target.value}`)
+              onChange={(value) =>
+                router.push(`/${projectId}/sponsor/groups/${value}`)
               }
-              className="h-9 appearance-none rounded-lg border border-dashboard-border bg-white pl-3 pr-8 text-xs font-medium text-gray-700 outline-none transition hover:bg-gray-50 dark:bg-card-1 dark:text-gray-200 dark:hover:bg-card-2"
-            >
-              {departments.departments.map((department) => (
-                <option key={department.id} value={department.id}>
-                  {department.name}
-                </option>
-              ))}
-            </select>
-            <ChevronDown className="pointer-events-none absolute right-2 size-4 text-gray-400" />
-          </label>
+              options={departments.departments.map((department) => ({
+                value: department.id,
+                label: department.name,
+              }))}
+            />
+          </div>
           <ButtonAILN
             variant="light"
             size="medium"
@@ -296,7 +298,10 @@ export default function GroupDetailsSponsorAILN({
             ) : (
               <div className="-mx-5 -mb-5 flex flex-col">
                 {attention.members.map((member) => (
-                  <AttentionMemberRowAILN key={member.access_id} member={member} />
+                  <AttentionMemberRowAILN
+                    key={member.access_id}
+                    member={member}
+                  />
                 ))}
               </div>
             )}

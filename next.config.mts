@@ -60,14 +60,29 @@ const nextConfig: NextConfig = {
           },
         ],
       },
+      {
+        source: "/auth/:path*",
+        headers: [{ key: "Cache-Control", value: "no-store" }],
+      },
+      {
+        source: "/api/auth/:path*",
+        headers: [{ key: "Cache-Control", value: "no-store" }],
+      },
+      {
+        source: "/reset-password/:path*",
+        headers: [
+          { key: "Cache-Control", value: "no-store" },
+          { key: "Referrer-Policy", value: "no-referrer" },
+        ],
+      },
     ];
   },
   async redirects() {
     return [
-      // Login, public guides and auth callbacks do not require a session cookie.
+      // Login, password recovery, public guides and auth callbacks are public.
       {
         source:
-          "/:path((?!docs(?:/|$)|auth/login|api/auth/callback/google|api/auth/login/password|_next/static|_next/image|favicon\\.ico|.*\\..*).*)",
+          "/:path((?!docs(?:/|$)|auth/(?:login|forget-password)(?:/|$)|reset-password(?:/|$)|api/auth/(?:callback/google|login/password|forget-password|reset-password)(?:/|$)|_next/static|_next/image|favicon\\.ico|.*\\..*).*)",
         has: [
           {
             type: "header",

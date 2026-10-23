@@ -1,4 +1,5 @@
 "use client";
+import SelectAILN from "@/components/fields/SelectAILN";
 import Tabs from "@/components/navigations/Tabs";
 import SectionContainerAILN from "@/components/cards/SectionContainerAILN";
 import GeneralLabelAILN, {
@@ -6,7 +7,7 @@ import GeneralLabelAILN, {
 } from "@/components/labels/GeneralLabelAILN";
 import { formatInt } from "@/lib/format";
 import type { WorkforceMember, WorkforceMembers } from "@/apis/sponsor";
-import { Check, ChevronDown, Minus } from "lucide-react";
+import { Check, Minus } from "lucide-react";
 import Image from "next/image";
 import { useMemo, useState } from "react";
 
@@ -183,7 +184,6 @@ export default function WorkforceMembersAILN({
   }, [data.list]);
 
   const visibleRows = rows.slice(0, ROW_LIMIT);
-  const activeSort = sortOptions.find((option) => option.key === sort);
 
   return (
     <SectionContainerAILN
@@ -191,24 +191,19 @@ export default function WorkforceMembersAILN({
       desc={`Menampilkan ${formatInt(visibleRows.length)} dari ${formatInt(rows.length)} karyawan · filter per departemen`}
       contentClassName="-mx-6 -mb-6"
       headerRight={
-        <label className="inline-flex items-center gap-2 text-[13px] font-medium text-muted-foreground">
-          Sortir:
-          <span className="relative inline-flex items-center">
-            <select
-              value={sort}
-              onChange={(event) => setSort(event.target.value as SortKey)}
-              className="appearance-none bg-transparent py-1 pl-1 pr-6 font-medium text-foreground outline-none"
-            >
-              {sortOptions.map((option) => (
-                <option key={option.key} value={option.key}>
-                  {option.label}
-                </option>
-              ))}
-            </select>
-            <ChevronDown className="pointer-events-none absolute right-0 size-4" />
-          </span>
-          <span className="sr-only">{activeSort?.label}</span>
-        </label>
+        <div className="flex items-center gap-2 text-sm text-muted-foreground">
+          <label htmlFor="workforce-sort">Sortir:</label>
+          <SelectAILN
+            selectId="workforce-sort"
+            selectPlaceholder="Urutkan"
+            value={sort}
+            onChange={(value) => setSort(value as SortKey)}
+            options={sortOptions.map((option) => ({
+              value: option.key,
+              label: option.label,
+            }))}
+          />
+        </div>
       }
     >
       <div className="px-6 pb-6">

@@ -21,14 +21,20 @@ export async function captureApiRead<T>(
   }
 }
 
-// Thin client for the ailene-lms-backend (Java/Spring) — see its docs/ for endpoint contracts.
+// v1 business endpoints use BASE_URL; migrated Go v2 endpoints use LMS_BASE_URL.
 export async function callApi<T = unknown>(
   path: string,
-  options: { method?: string; body?: unknown; token?: string } = {},
+  options: {
+    method?: string;
+    body?: unknown;
+    token?: string;
+    backend?: "legacy" | "lms";
+  } = {},
 ): Promise<ApiEnvelope<T>> {
-  const baseUrl = process.env.BASE_URL;
+  const envName = options.backend === "lms" ? "LMS_BASE_URL" : "BASE_URL";
+  const baseUrl = process.env[envName];
   if (!baseUrl) {
-    throw new Error("BASE_URL is not configured");
+    throw new Error(`${envName} is not configured`);
   }
 
   const { method = "POST", body, token } = options;

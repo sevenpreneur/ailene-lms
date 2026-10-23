@@ -1,4 +1,5 @@
 "use client";
+import TextAreaAILN from "@/components/fields/TextAreaAILN";
 
 import ButtonAILN from "@/components/buttons/ButtonAILN";
 import SectionContainerAILN from "@/components/cards/SectionContainerAILN";
@@ -60,12 +61,12 @@ function ReportContent({
   const [narrative, setNarrative] = useState(data.narrative);
   const maxMovement = Math.max(
     ...data.level_movements.map((movement) => movement.count),
-    1
+    1,
   );
 
   const generatedLabel = useMemo(
     () => dayjs(data.generated_at).locale("id").format("D MMMM YYYY, HH:mm"),
-    [data.generated_at]
+    [data.generated_at],
   );
 
   const handleDownload = async () => {
@@ -85,7 +86,7 @@ function ReportContent({
     doc.text(
       `Tim ${data.report.team_name} - Champion ${data.report.champion_name}`,
       16,
-      y
+      y,
     );
     y += 6;
     doc.text(`Generated: ${generatedLabel}`, 16, y);
@@ -99,12 +100,12 @@ function ReportContent({
     doc.text(
       `Anggota aktif: ${data.metrics.active_members}/${data.metrics.total_members}`,
       16,
-      y
+      y,
     );
     doc.text(
       `Submission diterima: ${data.metrics.accepted_submissions}`,
       75,
-      y
+      y,
     );
     y += 6;
     doc.text(`Jam dihemat: ${data.metrics.hours_saved}`, 16, y);
@@ -119,7 +120,7 @@ function ReportContent({
       doc.text(
         `${movement.from} -> ${movement.to}: ${movement.count} (${movement.note})`,
         16,
-        y
+        y,
       );
       y += 6;
     });
@@ -248,11 +249,12 @@ function ReportContent({
                   Auto-draft - bisa diedit
                 </span>
               </div>
-              <textarea
+              <TextAreaAILN
+                textAreaId="champion-narrative"
+                aria-label="Narasi Champion"
                 value={narrative}
                 onChange={(event) => setNarrative(event.target.value)}
                 rows={5}
-                className="w-full resize-none rounded-lg border border-dashboard-border bg-gray-50 px-4 py-3 text-sm leading-6 text-gray-900 outline-none focus:border-claude dark:bg-card-2 dark:text-white"
               />
             </div>
           </section>
@@ -263,7 +265,7 @@ function ReportContent({
               desc="Hasilkan ringkasan periode ini sebagai PDF untuk dibagikan manual ke sponsor / tim."
             >
               <ButtonAILN
-                variant="primary"
+                variant="dark"
                 size="medium"
                 width="full"
                 onClick={handleDownload}

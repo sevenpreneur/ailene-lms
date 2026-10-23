@@ -920,7 +920,7 @@ export default function GuidedUseCaseAILN({
                 )}
                 {summary ? (
                   <ButtonAILN
-                    variant="student"
+                    variant="primary"
                     disabled={busy === "submit"}
                     onClick={() => void submit()}
                   >
@@ -933,7 +933,7 @@ export default function GuidedUseCaseAILN({
                   </ButtonAILN>
                 ) : (
                   <ButtonAILN
-                    variant="student"
+                    variant="primary"
                     disabled={!canContinue || !!busy}
                     onClick={advance}
                   >
@@ -1087,7 +1087,7 @@ function SubmittedView({
       </div>
       <footer className="shrink-0 border-t border-dashboard-border bg-card-1 px-5 py-4 sm:px-8">
         <div className="flex justify-end">
-          <ButtonAILN variant="student" onClick={onClose}>
+          <ButtonAILN variant="primary" onClick={onClose}>
             Selesai
           </ButtonAILN>
         </div>

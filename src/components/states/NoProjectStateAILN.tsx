@@ -36,7 +36,7 @@ export default function NoProjectStateAILN() {
             Champion program kamu untuk ditambahkan.
           </p>
         </div>
-        <ButtonAILN onClick={handleLogout} disabled={isLoggingOut}>
+        <ButtonAILN variant="dark" onClick={handleLogout} disabled={isLoggingOut}>
           <LogOut className="size-4" />
           {isLoggingOut ? "Logging out..." : "Logout"}
         </ButtonAILN>

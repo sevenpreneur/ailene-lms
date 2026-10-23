@@ -130,7 +130,7 @@ export default function LevelDividerAILN(props: LevelDividerAILNProps) {
                     Semua quiz dan materi sudah selesai
                   </div>
                 </div>
-                <DisabledActionButtonAILN variant="primary" size="medium">
+                <DisabledActionButtonAILN variant="dark" size="medium">
                   Unlock Level
                 </DisabledActionButtonAILN>
               </div>

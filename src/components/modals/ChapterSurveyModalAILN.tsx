@@ -385,7 +385,7 @@ export default function ChapterSurveyModalAILN({
             {survey && !readOnly && (
               <ButtonAILN
                 type="submit"
-                variant="forest"
+                variant="dark"
                 disabled={isSubmitting}
               >
                 {isSubmitting ? "Mengirim..." : "Kirim survei"}

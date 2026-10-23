@@ -1,4 +1,5 @@
 "use client";
+import SelectAILN from "@/components/fields/SelectAILN";
 
 import type {
   ChapterLearnings,
@@ -196,7 +197,7 @@ function EvaluationCard({
 }) {
   const kindStyle = EVALUATION_KIND[kind];
   const locked = !!lockedReason;
-  const buttonVariant = done ? "outline" : isNext ? "forest" : "neutral";
+  const buttonVariant = done ? "outline" : isNext ? "dark" : "neutral";
   const buttonContent = (
     <>
       {actionLabel}
@@ -633,7 +634,7 @@ export default function ChapterDetailsAILN({
             <p className="mt-2 text-sm text-gray-500">
               Coba muat ulang halaman.
             </p>
-            <ButtonAILN variant="forest" onClick={() => router.refresh()}>
+            <ButtonAILN variant="dark" onClick={() => router.refresh()}>
               <RotateCcw className="size-4" />
               Muat ulang
             </ButtonAILN>
@@ -643,30 +644,20 @@ export default function ChapterDetailsAILN({
             <div className="min-w-0 space-y-5">
               {(learnings?.videos.length ?? 0) > 1 && (
                 <div className="flex flex-col gap-2 rounded-lg border border-dashboard-border bg-card-1 p-4">
-                  <label
-                    htmlFor="chapter-video"
-                    className="text-sm font-medium"
-                  >
-                    Pilih video chapter
-                  </label>
-                  <select
-                    id="chapter-video"
+                  <SelectAILN
+                    selectId="chapter-video"
+                    selectName="Pilih video chapter"
+                    selectPlaceholder="Pilih video"
                     value={activeVideo?.id ?? ""}
-                    onChange={(event) => {
-                      setActiveVideoId(Number(event.target.value));
+                    onChange={(value) => {
+                      setActiveVideoId(Number(value));
                       setCurrentTime(0);
                     }}
-                    className="w-full rounded-lg border border-dashboard-border bg-card-2 p-3 text-sm"
-                  >
-                    {learnings?.videos.map((video) => (
-                      <option key={video.id} value={video.id}>
-                        {video.title}
-                        {video.completed || completedVideoIds.has(video.id)
-                          ? " · Sudah ditonton"
-                          : ""}
-                      </option>
-                    ))}
-                  </select>
+                    options={learnings?.videos.map((video) => ({
+                      value: video.id,
+                      label: `${video.title}${video.completed || completedVideoIds.has(video.id) ? " · Sudah ditonton" : ""}`,
+                    }))}
+                  />
                 </div>
               )}
               <section className="overflow-hidden rounded-lg border border-dashboard-border bg-card-1">
@@ -953,7 +944,7 @@ export default function ChapterDetailsAILN({
                                   </span>
                                 ) : (
                                   <ButtonAILN
-                                    variant="forest"
+                                    variant="dark"
                                     size="small"
                                     disabled={savingMaterialId !== null}
                                     onClick={() =>

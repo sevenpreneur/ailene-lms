@@ -20,7 +20,7 @@ function Recovery({ retry }: { retry: () => void }) {
         kembali untuk melanjutkan.
       </p>
       <div className="flex flex-wrap gap-3">
-        <ButtonAILN onClick={retry}>Coba lagi</ButtonAILN>
+        <ButtonAILN variant="dark" onClick={retry}>Coba lagi</ButtonAILN>
         <ButtonAILN asChild variant="outline">
           <Link
             href={`/auth/login?redirectTo=${encodeURIComponent(destination)}`}

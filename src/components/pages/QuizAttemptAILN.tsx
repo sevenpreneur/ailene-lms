@@ -404,7 +404,7 @@ export default function QuizAttemptAILN({
                 Sebelumnya
               </ButtonAILN>
               <ButtonAILN
-                variant="forest"
+                variant="dark"
                 onClick={handleNext}
                 disabled={isLast}
               >
@@ -464,7 +464,7 @@ export default function QuizAttemptAILN({
             </div>
 
             <ButtonAILN
-              variant="lime"
+              variant="primary"
               width="full"
               disabled={isSubmitting || !draftLoaded}
               onClick={() => setIsSubmitDialogOpen(true)}

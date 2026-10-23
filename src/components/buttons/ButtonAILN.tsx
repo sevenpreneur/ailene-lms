@@ -5,14 +5,10 @@ import { cn } from "@/lib/utils";
 
 export type VariantType =
   | "primary"
+  | "dark"
   | "destructive"
-  | "student"
-  | "champion"
-  | "sponsor"
   | "neutral"
   | "light"
-  | "forest"
-  | "lime"
   | "ghost"
   | "ghostAccent"
   | "outline"
@@ -64,7 +60,7 @@ export type SizeType =
 
 export interface ButtonAILNProps extends Omit<
   ButtonHTMLAttributes<HTMLButtonElement>,
-  "className"
+  "className" | "style"
 > {
   children?: React.ReactNode;
   variant?: VariantType;
@@ -95,35 +91,23 @@ const ButtonAILN = forwardRef<HTMLButtonElement, ButtonAILNProps>(
     const baseClasses =
       "app-button relative inline-flex items-center justify-center gap-2 font-medium transition hover:cursor-pointer active:scale-95 focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:cursor-not-allowed";
 
-    const primaryClasses =
+    const darkClasses =
       "bg-black text-white hover:bg-[#140303] active:bg-[#140303] disabled:bg-gray-300 disabled:text-gray-500 dark:border dark:border-dashboard-border dark:bg-dashboard-bg dark:text-white dark:hover:bg-card-1 dark:active:bg-card-1 dark:disabled:bg-card-1/40 dark:disabled:text-red-100/40";
-    const studentClasses =
-      "bg-stakeholder-student text-white hover:bg-[color-mix(in_oklch,var(--stakeholder-student)_88%,black)] active:bg-[color-mix(in_oklch,var(--stakeholder-student)_78%,black)] disabled:bg-stakeholder-student-soft disabled:text-stakeholder-student-foreground/50";
-    const championClasses =
-      "bg-stakeholder-champion text-white hover:bg-[color-mix(in_oklch,var(--stakeholder-champion)_88%,black)] active:bg-[color-mix(in_oklch,var(--stakeholder-champion)_78%,black)] disabled:bg-stakeholder-champion-soft disabled:text-stakeholder-champion-foreground/50";
-    const sponsorClasses =
-      "bg-stakeholder-sponsor text-white hover:bg-[color-mix(in_oklch,var(--stakeholder-sponsor)_88%,black)] active:bg-[color-mix(in_oklch,var(--stakeholder-sponsor)_78%,black)] disabled:bg-stakeholder-sponsor-soft disabled:text-stakeholder-sponsor-foreground/50";
     const destructiveClasses =
       "bg-destructive-background text-destructive-foreground hover:bg-destructive-hover active:bg-destructive-active disabled:bg-destructive-muted dark:disabled:text-destructive-foreground/50";
     const lightClasses =
       "bg-light-background text-light-foreground border hover:bg-light-hover active:bg-light-active disabled:bg-light-muted disabled:text-light-foreground/30";
     const neutralClasses =
       "bg-light-background text-light-foreground border border-dashboard-border hover:bg-light-hover active:bg-light-active disabled:bg-light-muted disabled:text-light-foreground/30 dark:bg-dashboard-bg dark:text-white dark:hover:bg-card-1 dark:active:bg-card-1 dark:disabled:bg-card-1/40 dark:disabled:text-red-100/40";
-    const forestClasses =
-      "bg-forest-deep text-white hover:bg-forest-deep/90 active:bg-forest-deep/80 disabled:bg-forest-deep/40 disabled:text-white/40";
-    const limeClasses =
+    const primaryClasses =
       "bg-lime-bright text-forest-deep hover:bg-lime-bright/90 active:bg-lime-bright/80 disabled:bg-lime-bright/40 disabled:text-forest-deep/40";
 
     const variantClasses: Record<VariantType, string> = {
       primary: primaryClasses,
+      dark: darkClasses,
       destructive: destructiveClasses,
-      student: studentClasses,
-      champion: championClasses,
-      sponsor: sponsorClasses,
       neutral: neutralClasses,
       light: lightClasses,
-      forest: forestClasses,
-      lime: limeClasses,
       ghost:
         "bg-transparent text-muted-foreground hover:bg-dashboard-bg hover:text-foreground disabled:opacity-50",
       ghostAccent:

@@ -1,4 +1,5 @@
 "use client";
+import InputAILN from "@/components/fields/InputAILN";
 import ButtonAILN from "@/components/buttons/ButtonAILN";
 import AIWorkspacePanelAILN from "@/components/cards/AIWorkspacePanelAILN";
 import DisabledActionButtonAILN from "@/components/buttons/DisabledActionButtonAILN";
@@ -115,16 +116,14 @@ function SessionMedia({ program }: { program: ProgramPreviewMock }) {
       <section className="rounded-lg border border-dashboard-border bg-card-1 p-6">
         <div className="mb-4 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
           <h2 className="text-lg font-medium text-foreground">Transcript</h2>
-          <div className="relative">
-            <Search
-              size={14}
-              className="pointer-events-none absolute left-2.5 top-1/2 -translate-y-1/2 text-muted-foreground"
-            />
-            <input
+          <div className="w-full sm:w-56">
+            <InputAILN
+              inputId="transcript-search"
+              aria-label="Cari transcript"
+              inputIcon={<Search />}
               value={search}
               onChange={(e) => setSearch(e.target.value)}
               placeholder="Cari transcript"
-              className="w-52 rounded-lg border border-dashboard-border bg-background py-1.5 pl-8 pr-2.5 text-xs text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-claude/40"
             />
           </div>
         </div>
@@ -233,7 +232,7 @@ export default function ProgramPreviewAILN({
                 {program.location}
               </span>
               <div className="ml-1">
-                <DisabledActionButtonAILN size="small">
+                <DisabledActionButtonAILN variant="dark" size="small">
                   Ajukan Akses
                 </DisabledActionButtonAILN>
               </div>

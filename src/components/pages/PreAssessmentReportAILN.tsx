@@ -198,6 +198,7 @@ function ReportContent({
 
         <div className="flex justify-end">
           <ButtonAILN
+            variant="dark"
             onClick={() => router.push(`/${projectId}/student/learning-path`)}
           >
             Mulai Belajar

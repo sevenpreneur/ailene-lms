@@ -212,11 +212,11 @@ export default function ChapterTaskItemAILN(props: ChapterTaskItemAILNProps) {
             ? "blue"
             : "green";
     cta = !props.unlocked ? (
-      <ButtonAILN size="small" disabled width="full">
+      <ButtonAILN variant="dark" size="small" disabled width="full">
         Locked
       </ButtonAILN>
     ) : isActiveAndRunning ? (
-      <ButtonAILN asChild variant="lime" size="small" width="full">
+      <ButtonAILN asChild variant="primary" size="small" width="full">
         <Link href={`/${projectId}/student/quizzes/${props.quiz.id}`}>
           Lanjutkan Quiz (
           {activeAttemptSecondsLeft !== null
@@ -226,14 +226,14 @@ export default function ChapterTaskItemAILN(props: ChapterTaskItemAILNProps) {
         </Link>
       </ButtonAILN>
     ) : hasAttempt || timedOutWithoutRecord ? (
-      <ButtonAILN asChild variant="forest" size="small" width="full">
+      <ButtonAILN asChild variant="dark" size="small" width="full">
         <Link href={`/${projectId}/student/quizzes/${props.quiz.id}`}>
           Lihat Hasil
         </Link>
       </ButtonAILN>
     ) : (
       <ButtonAILN
-        variant="forest"
+        variant="dark"
         size="small"
         width="full"
         onClick={() => setIsStartQuizDialogOpen(true)}
@@ -253,11 +253,11 @@ export default function ChapterTaskItemAILN(props: ChapterTaskItemAILNProps) {
         : "Not watched yet";
     statusVariant = !props.unlocked ? "white" : v.completed ? "green" : "blue";
     cta = !props.unlocked ? (
-      <ButtonAILN size="small" disabled width="full">
+      <ButtonAILN variant="dark" size="small" disabled width="full">
         Locked
       </ButtonAILN>
     ) : (
-      <ButtonAILN asChild variant="forest" size="small" width="full">
+      <ButtonAILN asChild variant="dark" size="small" width="full">
         <Link href={`/${projectId}/student/videos/${props.video.id}`}>
           Lihat Recording
         </Link>
@@ -278,11 +278,11 @@ export default function ChapterTaskItemAILN(props: ChapterTaskItemAILNProps) {
           : "Terkirim";
     statusVariant = !props.unlocked ? "white" : t.submitted ? "green" : "blue";
     cta = !props.unlocked ? (
-      <ButtonAILN size="small" disabled width="full">
+      <ButtonAILN variant="dark" size="small" disabled width="full">
         Locked
       </ButtonAILN>
     ) : (
-      <ButtonAILN asChild variant="forest" size="small" width="full">
+      <ButtonAILN asChild variant="dark" size="small" width="full">
         <Link href={`/${projectId}/student/chapter-tests/${t.id}`}>
           {t.submitted ? "Lihat Hasil" : `Mulai ${label}`}
         </Link>
@@ -300,12 +300,12 @@ export default function ChapterTaskItemAILN(props: ChapterTaskItemAILNProps) {
         : "Belum diisi";
     statusVariant = !props.unlocked ? "white" : sv.submitted ? "green" : "blue";
     cta = !props.unlocked ? (
-      <ButtonAILN size="small" disabled width="full">
+      <ButtonAILN variant="dark" size="small" disabled width="full">
         Locked
       </ButtonAILN>
     ) : (
       <ButtonAILN
-        variant="forest"
+        variant="dark"
         size="small"
         width="full"
         onClick={() => setIsSurveyOpen(true)}
@@ -322,11 +322,11 @@ export default function ChapterTaskItemAILN(props: ChapterTaskItemAILNProps) {
     statusVariant = !props.unlocked ? "white" : m.completed ? "green" : "blue";
 
     cta = !props.unlocked ? (
-      <ButtonAILN size="small" disabled width="full">
+      <ButtonAILN variant="dark" size="small" disabled width="full">
         Locked
       </ButtonAILN>
     ) : (
-      <ButtonAILN asChild variant="forest" size="small" width="full">
+      <ButtonAILN asChild variant="dark" size="small" width="full">
         <Link
           href={`/${projectId}/student/materials/${props.material.id}`}
           target="_blank"

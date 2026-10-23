@@ -182,7 +182,7 @@ export default function MaterialDetailsAILN({
                       Materi ini berupa file. Buka di tab baru untuk melihat.
                     </p>
                     <div className="mt-3">
-                      <ButtonAILN asChild size="medium">
+                      <ButtonAILN variant="dark" asChild size="medium">
                         <a
                           href={fileUrl}
                           target="_blank"

@@ -75,7 +75,7 @@ export default function AssignmentChampionAILN({
             <Compass className="size-4" />
             Use Case Terpandu
           </ButtonAILN>
-          <ButtonAILN variant="champion" onClick={() => openCreate(null)}>
+          <ButtonAILN variant="primary" onClick={() => openCreate(null)}>
             <Plus className="size-4" />
             Buat Manual
           </ButtonAILN>
@@ -177,7 +177,7 @@ export default function AssignmentChampionAILN({
                       {selected.description}
                     </p>
                     <ButtonAILN
-                      variant="champion"
+                      variant="primary"
                       onClick={() => setAssignOpen(true)}
                     >
                       <Send className="size-4" />

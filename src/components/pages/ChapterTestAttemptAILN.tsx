@@ -312,7 +312,7 @@ export default function ChapterTestAttemptAILN({
                 Sebelumnya
               </ButtonAILN>
               <ButtonAILN
-                variant="forest"
+                variant="dark"
                 onClick={() =>
                   setCurrentIdx((i) => Math.min(totalQuestions - 1, i + 1))
                 }
@@ -361,7 +361,7 @@ export default function ChapterTestAttemptAILN({
             </div>
 
             <ButtonAILN
-              variant="lime"
+              variant="primary"
               width="full"
               disabled={isSubmitting || totalQuestions === 0}
               onClick={requestSubmit}

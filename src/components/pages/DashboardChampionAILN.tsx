@@ -101,7 +101,7 @@ export default function DashboardChampionAILN({
           </h1>
           <div className="flex items-center gap-3">
             <MembersLabelChampionAILN count={stats.total} />
-            <ButtonAILN asChild variant="champion" size="medium">
+            <ButtonAILN asChild variant="primary" size="medium">
               <Link href={`/${projectId}/champion/assignment`}>
                 <Plus className="size-4" />
                 Assign Tugas

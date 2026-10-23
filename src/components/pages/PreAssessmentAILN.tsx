@@ -1,4 +1,5 @@
 "use client";
+import TextAreaAILN from "@/components/fields/TextAreaAILN";
 import AlertConfirmDialogAILN from "@/components/modals/AlertConfirmDialogAILN";
 import { useStudentIdentity } from "@/contexts/StudentIdentityContext";
 import {
@@ -124,7 +125,7 @@ export default function PreAssessmentAILN({
   }, [mounted, key, answers, userId]);
 
   const isDark = mounted && resolvedTheme === "dark";
-  const nextVariant = isDark ? "neutral" : "primary";
+  const nextVariant = isDark ? "neutral" : "dark";
 
   const totalQuestions = items.length;
   const currentItem = items[currentIdx];
@@ -387,7 +388,7 @@ export default function PreAssessmentAILN({
 
             <ButtonAILN
               type="button"
-              variant="primary"
+              variant="dark"
               width="full"
               onClick={() => setConfirmSubmit(true)}
               disabled={phase !== "idle" || missing.length > 0}
@@ -501,7 +502,7 @@ function PreAssessmentWelcomeAILN({
           </div>
 
           <div className="mt-6">
-            <ButtonAILN variant="primary" onClick={onStart} width="full">
+            <ButtonAILN variant="dark" onClick={onStart} width="full">
               {hasDraft ? "Lanjutkan Assessment" : "Mulai Assessment"}
               <ArrowRight className="size-4" />
             </ButtonAILN>
@@ -577,13 +578,13 @@ function QuestionBody({
   return (
     <div className="flex flex-col gap-2">
       <p className="text-sm text-gray-500 dark:text-gray-400">{hint}</p>
-      <textarea
+      <TextAreaAILN
+        textAreaId={`pre-assessment-answer-${item.id}`}
         aria-labelledby={`pre-assessment-question-${item.id}`}
         value={text}
         onChange={(e) => onChange(e.target.value)}
         maxLength={PRE_ASSESSMENT_TEXT_MAX}
         rows={item.section === "practice" ? 10 : 6}
-        className="w-full resize-y rounded-lg border border-dashboard-border px-4 py-3 text-sm transition focus:border-claude focus:outline-none dark:bg-card-1 dark:text-white dark:placeholder:text-gray-500 dark:focus:border-claude/60"
       />
       <span className="self-end text-xs text-gray-400">
         {text.length} / {PRE_ASSESSMENT_TEXT_MAX}

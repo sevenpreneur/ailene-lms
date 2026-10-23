@@ -158,7 +158,7 @@ export default function ReviewUseCaseAILN({
               </ButtonAILN>
               <ButtonAILN
                 type="button"
-                variant="champion"
+                variant="primary"
                 onClick={() => submitReview(true)}
                 disabled={isSubmitting}
               >

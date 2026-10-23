@@ -287,7 +287,7 @@ export default function CreateGuidedUseCaseFormAILN({
                   Mereka mendapat notifikasi dan langsung mulai dari langkah 4.
                   Hasilnya akan masuk ke antrean review use case Anda.
                 </p>
-                <ButtonAILN variant="champion" onClick={handleClose}>
+                <ButtonAILN variant="primary" onClick={handleClose}>
                   Selesai
                 </ButtonAILN>
               </div>
@@ -541,7 +541,7 @@ export default function CreateGuidedUseCaseFormAILN({
                       )}
                       {step < 4 ? (
                         <ButtonAILN
-                          variant="champion"
+                          variant="primary"
                           disabled={!canContinue}
                           onClick={() => go(step + 1)}
                         >
@@ -550,7 +550,7 @@ export default function CreateGuidedUseCaseFormAILN({
                         </ButtonAILN>
                       ) : (
                         <ButtonAILN
-                          variant="champion"
+                          variant="primary"
                           disabled={!canContinue || submitting}
                           onClick={() => void submit()}
                         >

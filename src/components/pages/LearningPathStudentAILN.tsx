@@ -156,7 +156,7 @@ function ChapterCard({
         {locked ? (
           <ButtonAILN
             type="button"
-            variant="forest"
+            variant="dark"
             disabled
             title={
               chapter.locked_reason === "admin_locked"
@@ -168,7 +168,7 @@ function ChapterCard({
             Mulai chapter
           </ButtonAILN>
         ) : (
-          <ButtonAILN asChild variant="forest">
+          <ButtonAILN asChild variant="dark">
             <Link href={`/${projectId}/student/learning-path/${chapter.id}`}>
               {action}
               <ArrowRight className="h-4 w-4" aria-hidden="true" />

@@ -189,7 +189,7 @@ export default function AiDraftBatchesAILN({
             <div className="mt-2 flex flex-col gap-2 border-t border-dashboard-border pt-4">
               <ButtonAILN
                 type="button"
-                variant="champion"
+                variant="primary"
                 width="full"
                 onClick={() => onUse(selected)}
               >

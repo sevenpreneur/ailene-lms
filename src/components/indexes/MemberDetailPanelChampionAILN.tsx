@@ -192,7 +192,7 @@ export default function MemberDetailPanelChampionAILN({
           onTextAreaChange={setNoteText}
         />
         <DisabledActionButtonAILN
-          variant="champion"
+          variant="primary"
           size="medium"
           alignSelf="end"
         >

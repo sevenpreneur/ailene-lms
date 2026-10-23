@@ -79,7 +79,7 @@ export default function AiAssignmentComposerAILN({
         <div className="flex justify-end">
           <ButtonAILN
             type="button"
-            variant="champion"
+            variant="primary"
             onClick={handleGenerate}
             disabled={isGenerating}
           >

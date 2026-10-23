@@ -56,7 +56,7 @@ export default function AlertConfirmDialogAILN({
               </ButtonAILN>
             </AlertDialog.Cancel>
             <AlertDialog.Action asChild>
-              <ButtonAILN onClick={onConfirm}>{alertConfirmLabel}</ButtonAILN>
+              <ButtonAILN variant="dark" onClick={onConfirm}>{alertConfirmLabel}</ButtonAILN>
             </AlertDialog.Action>
           </div>
         </AlertDialog.Content>

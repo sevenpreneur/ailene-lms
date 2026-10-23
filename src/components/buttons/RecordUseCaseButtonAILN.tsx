@@ -27,7 +27,7 @@ export default function RecordUseCaseButtonAILN({
     <>
       <ButtonAILN
         ref={triggerRef}
-        variant="lime"
+        variant="primary"
         size="medium"
         aria-haspopup="dialog"
         aria-expanded={isOpen}

@@ -73,7 +73,7 @@ export default function AppPageState({ variant, message }: AppPageStateProps) {
             {resolvedMessage}
           </p>
         </div>
-        <ButtonAILN asChild>
+        <ButtonAILN variant="dark" asChild>
           <Link href="/">Back to Home</Link>
         </ButtonAILN>
       </div>

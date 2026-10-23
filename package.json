@@ -6,8 +6,7 @@
     "dev": "next dev --experimental-https",
     "build": "next build",
     "start": "next start",
-    "lint": "eslint .",
-    "test:ux": "node --test tests/ux-recovery.test.mjs"
+    "lint": "eslint ."
   },
   "dependencies": {
     "@cloudflare/stream-react": "^1.9.3",

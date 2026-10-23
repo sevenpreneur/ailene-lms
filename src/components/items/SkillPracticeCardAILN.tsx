@@ -196,7 +196,7 @@ export default function SkillPracticeCardAILN({
       )}
       {onSelfAssign && (
         <ButtonAILN
-          variant="forest"
+          variant="dark"
           disabled={isAssigning}
           onClick={handleClick}
         >

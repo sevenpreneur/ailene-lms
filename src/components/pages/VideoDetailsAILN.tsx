@@ -90,7 +90,7 @@ export default function VideoDetailsAILN({ video }: VideoDetailsAILNProps) {
               <p className="max-w-sm text-sm text-gray-500 dark:text-gray-400">
                 Video ini diputar di tab baru.
               </p>
-              <ButtonAILN asChild size="medium">
+              <ButtonAILN variant="dark" asChild size="medium">
                 <a
                   href={video.video_url}
                   target="_blank"

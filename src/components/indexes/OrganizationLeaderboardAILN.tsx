@@ -1,4 +1,5 @@
 "use client";
+import SelectAILN from "@/components/fields/SelectAILN";
 import SectionContainerAILN from "@/components/cards/SectionContainerAILN";
 import { formatDecimal, formatInt } from "@/lib/format";
 import { useProjectId } from "@/lib/use-project-id";
@@ -42,7 +43,8 @@ const AVATAR_TINTS = [
 
 function tintFor(name: string): string {
   let hash = 0;
-  for (let i = 0; i < name.length; i++) hash = (hash * 31 + name.charCodeAt(i)) | 0;
+  for (let i = 0; i < name.length; i++)
+    hash = (hash * 31 + name.charCodeAt(i)) | 0;
   return AVATAR_TINTS[Math.abs(hash) % AVATAR_TINTS.length];
 }
 
@@ -69,25 +71,24 @@ export default function OrganizationLeaderboardAILN({
   const [sortKey, setSortKey] = useState<SortKey>("avg_score");
 
   const sortControl = (
-    <label className="flex items-center gap-1.5 text-sm text-muted-foreground">
-      Sortir:
-      <select
+    <div className="flex items-center gap-2 text-sm text-muted-foreground">
+      <label htmlFor="leaderboard-sort">Sortir:</label>
+      <SelectAILN
+        selectId="leaderboard-sort"
+        selectPlaceholder="Urutkan"
         value={sortKey}
-        onChange={(e) => setSortKey(e.target.value as SortKey)}
-        className="cursor-pointer rounded-lg border border-dashboard-border bg-white px-2 py-1 text-xs font-medium text-foreground outline-none dark:bg-card-1"
-      >
-        {SORT_OPTIONS.map((o) => (
-          <option key={o.key} value={o.key}>
-            {o.label}
-          </option>
-        ))}
-      </select>
-    </label>
+        onChange={(value) => setSortKey(value as SortKey)}
+        options={SORT_OPTIONS.map((option) => ({
+          value: option.key,
+          label: option.label,
+        }))}
+      />
+    </div>
   );
 
   const maxScore = data?.max_score || 4;
   const list = [...((data?.list ?? []) as Department[])].sort(
-    (a, b) => b[sortKey] - a[sortKey] || a.name.localeCompare(b.name)
+    (a, b) => b[sortKey] - a[sortKey] || a.name.localeCompare(b.name),
   );
 
   return (
@@ -116,7 +117,9 @@ export default function OrganizationLeaderboardAILN({
                 return (
                   <tr
                     key={d.id}
-                    onClick={() => router.push(`/${projectId}/sponsor/groups/${d.id}`)}
+                    onClick={() =>
+                      router.push(`/${projectId}/sponsor/groups/${d.id}`)
+                    }
                     className="cursor-pointer border-b border-dashboard-border/60 transition-colors last:border-0 hover:bg-muted/50"
                   >
                     {/* Departemen */}

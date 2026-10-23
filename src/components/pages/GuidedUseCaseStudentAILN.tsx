@@ -202,7 +202,7 @@ export default function GuidedUseCaseStudentAILN({
                   <ArrowRight className="size-4" />
                 </RecordUseCaseButtonAILN>
               ) : (
-                <ButtonAILN asChild variant="lime" size="medium">
+                <ButtonAILN asChild variant="primary" size="medium">
                   <Link
                     href={`/${projectId}/student/skill-practice/guided?use_case_id=${useCase.id}`}
                   >
