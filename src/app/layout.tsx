@@ -4,19 +4,23 @@ import { SidebarProvider } from "@/contexts/SidebarContext";
 import { GoogleOAuthProvider } from "@react-oauth/google";
 import { Metadata } from "next";
 import { ThemeProvider } from "next-themes";
-import { Stack_Sans_Headline, Stack_Sans_Text } from "next/font/google";
+import localFont from "next/font/local";
 import { Toaster } from "sonner";
 
-// Two faces: Stack Sans Text for body copy, Stack Sans Headline for headings (wired up in globals.css).
-const stackSansText = Stack_Sans_Text({
+// Keep fonts local so builds do not depend on Google Fonts responses.
+const stackSansText = localFont({
+  src: "./fonts/stack-sans-text/StackSansText.ttf",
   variable: "--font-stack-text",
-  subsets: ["latin"],
-  weight: ["300", "400", "500"],
+  weight: "300 500",
+  style: "normal",
+  display: "swap",
 });
-const stackSansHeadline = Stack_Sans_Headline({
+const stackSansHeadline = localFont({
+  src: "./fonts/stack-sans-headline/StackSansHeadline.ttf",
   variable: "--font-stack-headline",
-  subsets: ["latin"],
-  weight: ["400", "500"],
+  weight: "400 500",
+  style: "normal",
+  display: "swap",
 });
 
 export const metadata: Metadata = {
@@ -47,7 +51,7 @@ export const metadata: Metadata = {
 };
 
 export default function RootLayout(
-  props: Readonly<{ children: React.ReactNode }>,
+  props: Readonly<{ children: React.ReactNode }>
 ) {
   const googleOauthId = process.env.NEXT_PUBLIC_GOOGLE_OAUTH_ID;
 

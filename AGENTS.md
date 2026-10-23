@@ -139,6 +139,8 @@ File-file penting di `src/lib/`:
 
 ### General
 
+- Muat Stack Sans Text dan Stack Sans Headline dari `src/app/fonts/` melalui `next/font/local` di root layout. Sertakan lisensi font; jangan mengembalikan unduhan `next/font/google` saat build karena URL font extensionless bisa menggagalkan Turbopack.
+
 - Tailwind CSS v4 — config di `src/app/globals.css` (bukan `tailwind.config.js`)
 - Brand color tokens didefinisikan di sana — masih pakai nama variabel `--color-sevenpreneur-*` (legacy, tetap pakai token yang sudah ada, jangan bikin token baru dengan nama beda untuk warna yang sama)
 - Dark mode via `next-themes`
