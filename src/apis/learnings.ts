@@ -2,58 +2,12 @@ import "server-only";
 
 import { cookies } from "next/headers";
 import { callApi } from "./api";
-import type { ChapterSurveyStatus } from "./chapter-surveys";
-import type { ChapterTestTask } from "./chapter-tests";
 import { SESSION_COOKIE_NAME } from "@/lib/constants";
 import LogError from "@/lib/log-error";
-
-export type LearningQuiz = {
-  id: string;
-  name: string;
-  description: string | null;
-  order_index: number;
-  question_count: number;
-  xp_reward: number;
-  xp_earned: number;
-  best_score: number | null;
-  attempts: number;
-  active_attempt_started_at: string | null;
-};
-
-export type LearningVideo = {
-  id: number;
-  title: string;
-  description: string | null;
-  video_url: string;
-  xp_reward: number;
-  order_index: number;
-  xp_earned: number;
-  completed: boolean;
-  timestamps: LearningVideoTimestamp[];
-};
 
 export type LearningVideoTimestamp = {
   start_seconds: number;
   title: string;
-};
-
-export type LearningMaterial = {
-  id: string;
-  title: string;
-  description: string | null;
-  xp_reward: number;
-  order_index: number;
-  completed: boolean;
-};
-
-export type ChapterLearnings = {
-  quizzes: LearningQuiz[];
-  videos: LearningVideo[];
-  materials: LearningMaterial[];
-  // Optional so an older backend without chapter tests/surveys still renders.
-  pre_test?: ChapterTestTask | null;
-  post_test?: ChapterTestTask | null;
-  survey?: ChapterSurveyStatus | null;
 };
 
 export type LearningChapterRef = { id: number; name: string };
@@ -62,23 +16,6 @@ export type StudentLevel = {
   id: number;
   level_number: number;
   name: string;
-};
-
-export type StudentChapter = {
-  id: number;
-  name: string;
-  description: string | null;
-  session_date: string;
-  duration_minutes: number;
-  location_name: string | null;
-  location_url: string | null;
-  method: "online" | "offline";
-  level: StudentLevel;
-  done_tasks: number;
-  total_tasks: number;
-  progress: "not_started" | "in_progress" | "completed";
-  locked: boolean;
-  locked_reason: "session_not_started" | "admin_locked" | null;
 };
 
 export type MaterialDetail = {
@@ -193,20 +130,6 @@ export type QuizResult = {
   xp_earned: number;
 };
 
-export type LevelMaterialItem = {
-  id: string;
-  title: string;
-  index: number;
-  completed: boolean;
-  locked: boolean;
-  is_current: boolean;
-};
-
-export type LevelMaterials = {
-  level_number: number;
-  materials: LevelMaterialItem[];
-};
-
 export type MaterialCompletion = {
   material_id: string;
   completed: boolean;
@@ -271,26 +194,6 @@ function toLearningDetailFailure<T>(
 async function getSessionToken(): Promise<string | null> {
   const cookieStore = await cookies();
   return cookieStore.get(SESSION_COOKIE_NAME)?.value ?? null;
-}
-
-// POST /api/v1/learnings/task needs the caller's own session JWT — see docs/api/learnings.md in ailene-lms-backend.
-export async function getLearnings(
-  chapterId: number,
-): Promise<ChapterLearnings | null> {
-  const sessionToken = await getSessionToken();
-  if (!sessionToken) return null;
-
-  const result = await callApi<ChapterLearnings>("/api/v1/learnings/task", {
-    method: "POST",
-    body: { chapter_id: chapterId },
-    token: sessionToken,
-  });
-
-  if (!result.success) {
-    await LogError("getLearnings", result.code, result.status, result.message);
-    throw new Error("Data belum dapat dimuat.");
-  }
-  return result.data ?? null;
 }
 
 // POST /api/v1/learnings/levels needs the caller's own session JWT — see docs/api/learnings.md in ailene-lms-backend.
@@ -370,71 +273,18 @@ export async function getChapterVideos(
   return result.data ?? [];
 }
 
-// POST /api/v1/materials/details needs the caller's own session JWT — see docs/api/materials.md in ailene-lms-backend.
-export async function getMaterialDetails(
-  materialId: string,
-): Promise<LearningDetailResult<MaterialDetail>> {
-  const sessionToken = await getSessionToken();
-  if (!sessionToken) return { kind: "not_found" };
-
-  const result = await callApi<MaterialDetail>("/api/v1/materials/details", {
-    method: "POST",
-    body: { material_id: materialId },
-    token: sessionToken,
-  });
-
-  if (!result.success) {
-    if (result.code !== 403 && result.code !== 404)
-      throw new Error("Data belum dapat dimuat.");
-    await LogError(
-      "getMaterialDetails",
-      result.code,
-      result.status,
-      result.message,
-    );
-    return toLearningDetailFailure(result.message, result.status);
-  }
-  return result.data
-    ? { kind: "ok", data: result.data }
-    : { kind: "not_found" };
-}
-
-// POST /api/v1/materials/in-level needs the caller's own session JWT — see docs/api/materials.md in ailene-lms-backend.
-export async function getLevelMaterials(
-  materialId: string,
-): Promise<LevelMaterials | null> {
-  const sessionToken = await getSessionToken();
-  if (!sessionToken) return null;
-
-  const result = await callApi<LevelMaterials>("/api/v1/materials/in-level", {
-    method: "POST",
-    body: { material_id: materialId },
-    token: sessionToken,
-  });
-
-  if (!result.success) {
-    await LogError(
-      "getLevelMaterials",
-      result.code,
-      result.status,
-      result.message,
-    );
-    throw new Error("Data belum dapat dimuat.");
-  }
-  return result.data ?? null;
-}
-
-// POST /api/v1/videos/details needs the caller's own session JWT — see docs/api/videos.md in ailene-lms-backend.
+// POST /api/v2/videos/details needs the caller's own session JWT — see docs/api/videos.md in ailene-lms-apis.
 export async function getVideoDetails(
   videoId: number,
 ): Promise<LearningDetailResult<VideoDetail>> {
   const sessionToken = await getSessionToken();
   if (!sessionToken) return { kind: "not_found" };
 
-  const result = await callApi<VideoDetail>("/api/v1/videos/details", {
+  const result = await callApi<VideoDetail>("/api/v2/videos/details", {
     method: "POST",
     body: { video_id: videoId },
     token: sessionToken,
+    backend: "lms",
   });
 
   if (!result.success) {

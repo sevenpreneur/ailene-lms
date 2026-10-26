@@ -267,7 +267,8 @@
 
   /* --- fonts --- Stack Sans Text for body (font-sans, the default), Stack Sans Headline for headings (font-headline). */
   --font-sans: var(--font-stack-text), ui-sans-serif, system-ui, sans-serif;
-  --font-headline: var(--font-stack-headline), ui-sans-serif, system-ui, sans-serif;
+  --font-headline:
+    var(--font-stack-headline), ui-sans-serif, system-ui, sans-serif;
 }
 
 @layer base {
@@ -300,28 +301,6 @@
 @keyframes cat-marquee {
   to {
     transform: translateX(-50%);
-  }
-}
-
-/* Radar-style pulsing ring for the "Lanjutkan" / isNext task
-   (ChapterTaskItemAILN). An expanding red ring that fades out, looping. */
-@keyframes ailn-ring-pulse {
-  0% {
-    box-shadow: 0 0 0 0 rgba(26, 122, 82, 0.45);
-  }
-  70% {
-    box-shadow: 0 0 0 6px rgba(26, 122, 82, 0);
-  }
-  100% {
-    box-shadow: 0 0 0 0 rgba(26, 122, 82, 0);
-  }
-}
-.ailn-ring-pulse {
-  animation: ailn-ring-pulse 1.8s ease-out infinite;
-}
-@media (prefers-reduced-motion: reduce) {
-  .ailn-ring-pulse {
-    animation: none;
   }
 }
 

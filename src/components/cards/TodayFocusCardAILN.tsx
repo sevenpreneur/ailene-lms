@@ -2,15 +2,12 @@
 import ButtonAILN from "@/components/buttons/ButtonAILN";
 import RecordUseCaseButtonAILN from "@/components/buttons/RecordUseCaseButtonAILN";
 import GeneralLabelAILN from "@/components/labels/GeneralLabelAILN";
-import AlertConfirmDialogAILN from "@/components/modals/AlertConfirmDialogAILN";
 import type { TodayFocus, TodayFocusKind } from "@/apis/learnings";
 import { useProjectId } from "@/lib/use-project-id";
 import dayjs from "dayjs";
 import "dayjs/locale/id";
 import { ArrowRight, CheckCircle2, Clock, Lightbulb } from "lucide-react";
 import Link from "next/link";
-import { useRouter } from "next/navigation";
-import { useState } from "react";
 
 dayjs.locale("id");
 
@@ -40,25 +37,9 @@ function formatDeadline(d: string) {
   return dayjs(d).format("ddd, D MMM YYYY · HH:mm");
 }
 
+// Chapter tasks (material, video, quiz) are worked on inside the chapter details page.
 function hrefForFocus(focus: TodayFocus, projectId: string) {
-  switch (focus.kind) {
-    case "material":
-      return `/${projectId}/student/materials/${focus.task_id}`;
-    case "video":
-      return focus.chapter_id != null
-        ? `/${projectId}/student/learning-path/${focus.chapter_id}`
-        : `/${projectId}/student/videos/${focus.task_id}`;
-    case "quiz":
-      return `/${projectId}/student/quizzes/${focus.task_id}`;
-    case "prompt_practice":
-      return `/${projectId}/student/skill-practice`;
-    case "use_case_practice":
-      return `/${projectId}/student/skill-practice`;
-  }
-}
-
-function detailHrefForFocus(focus: TodayFocus, projectId: string) {
-  if (focus.kind === "use_case_practice") {
+  if (focus.kind === "prompt_practice" || focus.kind === "use_case_practice") {
     return `/${projectId}/student/skill-practice`;
   }
   return focus.chapter_id != null
@@ -71,9 +52,7 @@ export default function TodayFocusCardAILN({
 }: {
   focus: TodayFocus | null;
 }) {
-  const router = useRouter();
   const projectId = useProjectId();
-  const [isQuizDialogOpen, setIsQuizDialogOpen] = useState(false);
 
   if (focus?.kind === "prompt_practice") {
     return (
@@ -105,7 +84,6 @@ export default function TodayFocusCardAILN({
   }
 
   const focusHref = hrefForFocus(focus, projectId);
-  const detailHref = detailHrefForFocus(focus, projectId);
 
   const jenisLabel =
     labelForKind(focus.kind) +
@@ -159,21 +137,11 @@ export default function TodayFocusCardAILN({
 
           {/* Aksi */}
           <div className="mt-2 flex flex-wrap items-center gap-2">
-            {focus.kind === "quiz" ? (
-              <ButtonAILN variant="dark" onClick={() => setIsQuizDialogOpen(true)}>
+            <ButtonAILN variant="dark" asChild>
+              <Link href={focusHref}>
                 Mulai sekarang
                 <ArrowRight className="size-3.5" />
-              </ButtonAILN>
-            ) : (
-              <ButtonAILN variant="dark" asChild>
-                <Link href={focusHref}>
-                  Mulai sekarang
-                  <ArrowRight className="size-3.5" />
-                </Link>
-              </ButtonAILN>
-            )}
-            <ButtonAILN asChild variant="neutral">
-              <Link href={detailHref}>Lihat detail</Link>
+              </Link>
             </ButtonAILN>
           </div>
         </div>
@@ -205,21 +173,6 @@ export default function TodayFocusCardAILN({
           </dl>
         </aside>
       </div>
-
-      {focus.kind === "quiz" && (
-        <AlertConfirmDialogAILN
-          isOpen={isQuizDialogOpen}
-          alertDialogHeader="Mulai Quiz Sekarang?"
-          alertDialogMessage="Waktu akan terus berjalan setelah quiz dimulai dan tidak bisa di-pause walaupun kamu keluar halaman."
-          alertCancelLabel="Batal"
-          alertConfirmLabel="Mulai sekarang"
-          onClose={() => setIsQuizDialogOpen(false)}
-          onConfirm={() => {
-            setIsQuizDialogOpen(false);
-            router.push(focusHref);
-          }}
-        />
-      )}
     </div>
   );
 }

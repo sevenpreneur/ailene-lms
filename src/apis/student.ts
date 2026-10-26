@@ -60,17 +60,18 @@ async function getSessionToken(): Promise<string | null> {
   return cookieStore.get(SESSION_COOKIE_NAME)?.value ?? null;
 }
 
-// POST /api/v1/student/status needs the caller's own session JWT — see docs/api/student.md in ailene-lms-backend.
+// POST /api/v2/student/status needs the caller's own session JWT — see docs/api/student.md in ailene-lms-apis.
 export async function getStudentStatus(
   projectId: string,
 ): Promise<StudentStatus | null> {
   const sessionToken = await getSessionToken();
   if (!sessionToken) return null;
 
-  const result = await callApi<StudentStatus>("/api/v1/student/status", {
+  const result = await callApi<StudentStatus>("/api/v2/student/status", {
     method: "POST",
     body: { project_id: projectId },
     token: sessionToken,
+    backend: "lms",
   });
 
   if (!result.success) {
@@ -85,7 +86,7 @@ export async function getStudentStatus(
   return result.data ?? null;
 }
 
-// POST /api/v1/student/level-progress needs the caller's own session JWT — see docs/api/student.md in ailene-lms-backend.
+// POST /api/v2/student/level-progress needs the caller's own session JWT — see docs/api/student.md in ailene-lms-apis.
 export async function getStudentLevelProgress(
   projectId: string,
 ): Promise<StudentLevelProgress | null> {
@@ -93,11 +94,12 @@ export async function getStudentLevelProgress(
   if (!sessionToken) return null;
 
   const result = await callApi<StudentLevelProgress>(
-    "/api/v1/student/level-progress",
+    "/api/v2/student/level-progress",
     {
       method: "POST",
       body: { project_id: projectId },
       token: sessionToken,
+      backend: "lms",
     },
   );
 
@@ -113,7 +115,7 @@ export async function getStudentLevelProgress(
   return result.data ?? null;
 }
 
-// POST /api/v1/student/competency needs the caller's own session JWT — see docs/api/student.md in ailene-lms-backend.
+// POST /api/v2/student/competency needs the caller's own session JWT — see docs/api/student.md in ailene-lms-apis.
 export async function getStudentCompetency(
   projectId: string,
 ): Promise<StudentCompetency | null> {
@@ -121,11 +123,12 @@ export async function getStudentCompetency(
   if (!sessionToken) return null;
 
   const result = await callApi<StudentCompetency>(
-    "/api/v1/student/competency",
+    "/api/v2/student/competency",
     {
       method: "POST",
       body: { project_id: projectId },
       token: sessionToken,
+      backend: "lms",
     },
   );
 
@@ -141,7 +144,7 @@ export async function getStudentCompetency(
   return result.data ?? null;
 }
 
-// POST /api/v1/student/leaderboard needs the caller's own session JWT — see docs/api/student.md in ailene-lms-backend.
+// POST /api/v2/student/leaderboard needs the caller's own session JWT — see docs/api/student.md in ailene-lms-apis.
 export async function getStudentLeaderboard(
   projectId: string,
 ): Promise<StudentLeaderboard | null> {
@@ -149,11 +152,12 @@ export async function getStudentLeaderboard(
   if (!sessionToken) return null;
 
   const result = await callApi<StudentLeaderboard>(
-    "/api/v1/student/leaderboard",
+    "/api/v2/student/leaderboard",
     {
       method: "POST",
       body: { project_id: projectId },
       token: sessionToken,
+      backend: "lms",
     },
   );
 
