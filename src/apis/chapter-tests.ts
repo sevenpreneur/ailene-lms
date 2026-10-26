@@ -13,7 +13,8 @@ export type ChapterTestQuestionType = "multiple_choice" | "essay";
 export type ChapterTestLockedReason =
   | "pre_test_required"
   | "materials_incomplete"
-  | "post_test_submitted";
+  | "post_test_submitted"
+  | "test_locked";
 
 export type ChapterTestTask = {
   id: number;
@@ -104,7 +105,33 @@ async function getSessionToken(): Promise<string | null> {
   return cookieStore.get(SESSION_COOKIE_NAME)?.value ?? null;
 }
 
-// POST /api/v1/chapter-tests/details needs the caller's own session JWT — see docs/api/chapter-tests.md in ailene-lms-backend.
+// POST /api/v2/chapter-tests needs the caller's own session JWT — see docs/api/chapter-tests.md in ailene-lms-apis.
+export async function getChapterTests(
+  chapterId: number,
+): Promise<ChapterTestTask[]> {
+  const sessionToken = await getSessionToken();
+  if (!sessionToken) return [];
+
+  const result = await callApi<ChapterTestTask[]>("/api/v2/chapter-tests", {
+    method: "POST",
+    body: { chapter_id: chapterId },
+    token: sessionToken,
+    backend: "lms",
+  });
+
+  if (!result.success) {
+    await LogError(
+      "getChapterTests",
+      result.code,
+      result.status,
+      result.message,
+    );
+    throw new Error("Data belum dapat dimuat.");
+  }
+  return result.data ?? [];
+}
+
+// POST /api/v2/chapter-tests/details needs the caller's own session JWT — see docs/api/chapter-tests.md in ailene-lms-apis.
 export async function getChapterTestDetails(
   testId: number,
 ): Promise<LearningDetailResult<ChapterTestDetail>> {
@@ -112,8 +139,13 @@ export async function getChapterTestDetails(
   if (!sessionToken) return { kind: "not_found" };
 
   const result = await callApi<ChapterTestDetail>(
-    "/api/v1/chapter-tests/details",
-    { method: "POST", body: { test_id: testId }, token: sessionToken },
+    "/api/v2/chapter-tests/details",
+    {
+      method: "POST",
+      body: { test_id: testId },
+      token: sessionToken,
+      backend: "lms",
+    },
   );
 
   if (!result.success) {
@@ -137,7 +169,7 @@ export async function getChapterTestDetails(
     : { kind: "not_found" };
 }
 
-// POST /api/v1/chapter-tests/submit needs the caller's own session JWT — see docs/api/chapter-tests.md in ailene-lms-backend.
+// POST /api/v2/chapter-tests/submit needs the caller's own session JWT — see docs/api/chapter-tests.md in ailene-lms-apis.
 export async function submitChapterTest(
   testId: number,
   answers: ChapterTestAnswers,
@@ -148,8 +180,13 @@ export async function submitChapterTest(
   }
 
   const result = await callApi<ChapterTestSubmitResult>(
-    "/api/v1/chapter-tests/submit",
-    { method: "POST", body: { test_id: testId, answers }, token: sessionToken },
+    "/api/v2/chapter-tests/submit",
+    {
+      method: "POST",
+      body: { test_id: testId, answers },
+      token: sessionToken,
+      backend: "lms",
+    },
   );
 
   if (!result.success || !result.data) {
@@ -164,7 +201,7 @@ export async function submitChapterTest(
   return { success: true, data: result.data };
 }
 
-// POST /api/v1/chapter-tests/result needs the caller's own session JWT — see docs/api/chapter-tests.md in ailene-lms-backend.
+// POST /api/v2/chapter-tests/result needs the caller's own session JWT — see docs/api/chapter-tests.md in ailene-lms-apis.
 export async function getChapterTestResult(
   testId: number,
 ): Promise<ChapterTestResult | null> {
@@ -172,8 +209,13 @@ export async function getChapterTestResult(
   if (!sessionToken) return null;
 
   const result = await callApi<ChapterTestResult>(
-    "/api/v1/chapter-tests/result",
-    { method: "POST", body: { test_id: testId }, token: sessionToken },
+    "/api/v2/chapter-tests/result",
+    {
+      method: "POST",
+      body: { test_id: testId },
+      token: sessionToken,
+      backend: "lms",
+    },
   );
 
   if (!result.success) {

@@ -1,9 +1,7 @@
-import {
-  getLearnings,
-  getMaterialDetails,
-  getStudentChapters,
-  type MaterialDetail,
-} from "@/apis/learnings";
+import { getChapterSurveyDetails } from "@/apis/chapter-surveys";
+import { getChapterTests } from "@/apis/chapter-tests";
+import { getChapterDetails } from "@/apis/chapters";
+import { getChapterMaterials, getChapterVideos } from "@/apis/learnings";
 import ChapterDetailsAILN from "@/components/pages/ChapterDetailsAILN";
 import AppPageState from "@/components/states/AppPageState";
 import type { Metadata } from "next";
@@ -20,41 +18,38 @@ export default async function ChapterDetailPage({
   searchParams: Promise<{ survey?: string }>;
 }) {
   const { project_id: projectId, chapter_id: chapterIdParam } = await params;
-  const { survey } = await searchParams;
+  const { survey: surveyParam } = await searchParams;
   const chapterId = Number(chapterIdParam);
 
   if (!Number.isInteger(chapterId) || chapterId <= 0) {
     return <AppPageState variant="NOT_FOUND" />;
   }
 
-  const chapters = await getStudentChapters(projectId);
-  const chapterIndex = chapters.findIndex((item) => item.id === chapterId);
-  if (chapterIndex === -1) {
+  const chapter = await getChapterDetails(projectId, chapterId);
+  if (!chapter) {
     return <AppPageState variant="NOT_FOUND" />;
   }
-  const chapter = chapters[chapterIndex];
   const unlocked = !chapter.locked;
-  const learnings = unlocked ? await getLearnings(chapterId) : null;
-  const materialResults = await Promise.all(
-    (learnings?.materials ?? []).map((material) =>
-      getMaterialDetails(material.id),
-    ),
-  );
-  const materialDetails: Record<string, MaterialDetail> = Object.fromEntries(
-    materialResults.flatMap((result) =>
-      result.kind === "ok" ? [[result.data.id, result.data]] : [],
-    ),
-  );
+  const [tests, videos, materials, surveyResult] = unlocked
+    ? await Promise.all([
+        getChapterTests(chapterId),
+        getChapterVideos(chapterId),
+        getChapterMaterials(chapterId),
+        getChapterSurveyDetails(chapterId),
+      ])
+    : [[], [], [], null];
+  const survey = surveyResult?.kind === "ok" ? surveyResult.data : null;
 
   return (
     <ChapterDetailsAILN
       chapter={chapter}
-      learnings={learnings}
-      materialDetails={materialDetails}
+      tests={tests}
+      videos={videos}
+      materials={materials}
+      survey={survey}
       unlocked={unlocked}
       projectId={projectId}
-      nextChapter={chapters[chapterIndex + 1] ?? null}
-      initialSurveyOpen={survey === "1" && unlocked && !!learnings?.survey}
+      initialSurveyOpen={surveyParam === "1" && unlocked && !!survey}
     />
   );
 }

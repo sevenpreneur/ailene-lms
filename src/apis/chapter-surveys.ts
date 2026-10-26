@@ -59,7 +59,7 @@ async function getSessionToken(): Promise<string | null> {
   return cookieStore.get(SESSION_COOKIE_NAME)?.value ?? null;
 }
 
-// POST /api/v1/chapter-surveys/details needs the caller's own session JWT — see docs/api/chapter-surveys.md in ailene-lms-backend.
+// POST /api/v2/chapter-surveys/details needs the caller's own session JWT — see docs/api/chapter-surveys.md in ailene-lms-apis.
 export async function getChapterSurveyDetails(
   chapterId: number,
 ): Promise<LearningDetailResult<ChapterSurveyDetail>> {
@@ -67,8 +67,13 @@ export async function getChapterSurveyDetails(
   if (!sessionToken) return { kind: "not_found" };
 
   const result = await callApi<ChapterSurveyDetail>(
-    "/api/v1/chapter-surveys/details",
-    { method: "POST", body: { chapter_id: chapterId }, token: sessionToken },
+    "/api/v2/chapter-surveys/details",
+    {
+      method: "POST",
+      body: { chapter_id: chapterId },
+      token: sessionToken,
+      backend: "lms",
+    },
   );
 
   if (!result.success) {
@@ -91,7 +96,7 @@ export async function getChapterSurveyDetails(
     : { kind: "not_found" };
 }
 
-// POST /api/v1/chapter-surveys/submit needs the caller's own session JWT — see docs/api/chapter-surveys.md in ailene-lms-backend.
+// POST /api/v2/chapter-surveys/submit needs the caller's own session JWT — see docs/api/chapter-surveys.md in ailene-lms-apis.
 export async function submitChapterSurvey(
   chapterId: number,
   input: ChapterSurveyInput,
@@ -102,11 +107,12 @@ export async function submitChapterSurvey(
   }
 
   const result = await callApi<ChapterSurveyAnswer>(
-    "/api/v1/chapter-surveys/submit",
+    "/api/v2/chapter-surveys/submit",
     {
       method: "POST",
       body: { chapter_id: chapterId, ...input },
       token: sessionToken,
+      backend: "lms",
     },
   );
 

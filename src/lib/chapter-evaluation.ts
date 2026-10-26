@@ -19,6 +19,7 @@ export const CHAPTER_TEST_LOCKED_MESSAGE: Record<
   pre_test_required: "Kerjakan pre-test chapter ini dulu",
   materials_incomplete: "Baca semua materi, sebelum memulai post-test",
   post_test_submitted: "Pre-test ditutup karena post-test sudah dikirim",
+  test_locked: "Tes ini belum dibuka oleh admin",
 };
 
 export type ChapterSurveyRatingKey =

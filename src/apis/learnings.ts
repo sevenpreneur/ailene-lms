@@ -111,6 +111,10 @@ export type VideoDetail = {
   updated_at: string;
 };
 
+export type ChapterVideo = VideoDetail & {
+  timestamps: LearningVideoTimestamp[];
+};
+
 export type QuizDetailOption = {
   id: number;
   option_code: string;
@@ -339,6 +343,58 @@ export async function getStudentLevels(
   return result.data ?? [];
 }
 
+// POST /api/v2/materials needs the caller's own session JWT — see docs/api/materials.md in ailene-lms-apis.
+export async function getChapterMaterials(
+  chapterId: number,
+): Promise<MaterialDetail[]> {
+  const sessionToken = await getSessionToken();
+  if (!sessionToken) return [];
+
+  const result = await callApi<MaterialDetail[]>("/api/v2/materials", {
+    method: "POST",
+    body: { chapter_id: chapterId },
+    token: sessionToken,
+    backend: "lms",
+  });
+
+  if (!result.success) {
+    await LogError(
+      "getChapterMaterials",
+      result.code,
+      result.status,
+      result.message,
+    );
+    throw new Error("Data belum dapat dimuat.");
+  }
+  return result.data ?? [];
+}
+
+// POST /api/v2/videos needs the caller's own session JWT — see docs/api/videos.md in ailene-lms-apis.
+export async function getChapterVideos(
+  chapterId: number,
+): Promise<ChapterVideo[]> {
+  const sessionToken = await getSessionToken();
+  if (!sessionToken) return [];
+
+  const result = await callApi<ChapterVideo[]>("/api/v2/videos", {
+    method: "POST",
+    body: { chapter_id: chapterId },
+    token: sessionToken,
+    backend: "lms",
+  });
+
+  if (!result.success) {
+    await LogError(
+      "getChapterVideos",
+      result.code,
+      result.status,
+      result.message,
+    );
+    throw new Error("Data belum dapat dimuat.");
+  }
+  return result.data ?? [];
+}
+
 // POST /api/v1/materials/details needs the caller's own session JWT — see docs/api/materials.md in ailene-lms-backend.
 export async function getMaterialDetails(
   materialId: string,
@@ -543,7 +599,7 @@ export async function getQuizResult(
   return result.data ?? null;
 }
 
-// POST /api/v1/materials/completion needs the caller's own session JWT — see docs/api/materials.md in ailene-lms-backend.
+// POST /api/v2/materials/completion needs the caller's own session JWT — see docs/api/materials.md in ailene-lms-apis.
 export async function completeMaterial(
   materialId: string,
 ): Promise<MaterialCompletion | null> {
@@ -551,11 +607,12 @@ export async function completeMaterial(
   if (!sessionToken) return null;
 
   const result = await callApi<MaterialCompletion>(
-    "/api/v1/materials/completion",
+    "/api/v2/materials/completion",
     {
       method: "POST",
       body: { material_id: materialId },
       token: sessionToken,
+      backend: "lms",
     },
   );
 
@@ -571,17 +628,18 @@ export async function completeMaterial(
   return result.data ?? null;
 }
 
-// POST /api/v1/videos/completion needs the caller's own session JWT — see docs/api/videos.md in ailene-lms-backend.
+// POST /api/v2/videos/completion needs the caller's own session JWT — see docs/api/videos.md in ailene-lms-apis.
 export async function completeVideo(
   videoId: number,
 ): Promise<VideoCompletion | null> {
   const sessionToken = await getSessionToken();
   if (!sessionToken) return null;
 
-  const result = await callApi<VideoCompletion>("/api/v1/videos/completion", {
+  const result = await callApi<VideoCompletion>("/api/v2/videos/completion", {
     method: "POST",
     body: { video_id: videoId },
     token: sessionToken,
+    backend: "lms",
   });
 
   if (!result.success) {
