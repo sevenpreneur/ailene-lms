@@ -6,9 +6,7 @@ import type { ChapterTestKind, ChapterTestTask } from "@/apis/chapter-tests";
 import type { ChapterDetail } from "@/apis/chapters";
 import type { ChapterVideo, MaterialDetail } from "@/apis/learnings";
 import ButtonAILN from "@/components/buttons/ButtonAILN";
-import ChapterHeroAILN, {
-  type ChapterJourneyStep,
-} from "@/components/heroes/ChapterHeroAILN";
+import ChapterHeroAILN from "@/components/heroes/ChapterHeroAILN";
 import ChapterSurveyModalAILN from "@/components/modals/ChapterSurveyModalAILN";
 import styles from "@/components/css/MaterialDetails.module.css";
 import PageContainerAILN from "@/components/pages/PageContainerAILN";
@@ -93,7 +91,7 @@ function PanelHeading({
 }) {
   return (
     <div className="flex flex-wrap items-center gap-3 border-b border-dashboard-border px-5 py-4 sm:px-6">
-      <span className="flex size-10 shrink-0 items-center justify-center rounded-lg bg-hijau-t text-claude dark:bg-claude/15 dark:text-lime-bright">
+      <span className="flex size-10 shrink-0 items-center justify-center rounded-lg bg-sevenpreneur-coal text-white dark:bg-white dark:text-sevenpreneur-coal">
         {icon}
       </span>
       <div className="min-w-0 flex-1">
@@ -347,48 +345,6 @@ export default function ChapterDetailsAILN({
   const nextEvaluationKey = evaluations.find(
     (evaluation) => !evaluation.done && !evaluation.lockedReason,
   )?.key;
-  const postTest = tests.find((test) => test.kind === "post_test") ?? null;
-  const journey: ChapterJourneyStep[] = [];
-  if (preTest)
-    journey.push({
-      key: "pre",
-      label: "Pre-test",
-      done: preTest.submitted,
-      href: "#evaluasi",
-    });
-  if (videos.length)
-    journey.push({
-      key: "video",
-      label: "Video",
-      done: videos.every(
-        (video) => video.completed || completedVideoIds.has(video.id),
-      ),
-      href: "#video",
-    });
-  if (materials.length)
-    journey.push({
-      key: "materi",
-      label: "Materi",
-      done: materials.every(
-        (material) =>
-          material.completed || completedMaterialIds.has(material.id),
-      ),
-      href: "#materi",
-    });
-  if (postTest)
-    journey.push({
-      key: "post",
-      label: "Post-test",
-      done: postTest.submitted,
-      href: "#evaluasi",
-    });
-  if (survey)
-    journey.push({
-      key: "survei",
-      label: "Survei",
-      done: surveySubmitted,
-      href: "#survei",
-    });
   const embedUrl = youtubeEmbedUrl(activeVideo?.video_url ?? "");
   // Admins can save any HTTP(S) video link; non-YouTube ones open in a new tab.
   const externalVideoUrl = embedUrl
@@ -495,11 +451,7 @@ export default function ChapterDetailsAILN({
           </ButtonAILN>
         </div>
 
-        <ChapterHeroAILN
-          chapter={chapter}
-          unlocked={unlocked}
-          steps={journey}
-        />
+        <ChapterHeroAILN chapter={chapter} unlocked={unlocked} />
 
         {!unlocked ? (
           <div className="rounded-lg border border-dashboard-border bg-card-1 p-8 text-center">
@@ -649,7 +601,7 @@ export default function ChapterDetailsAILN({
                   )}
                 </div>
                 {videoVisible && activeVideo && embedUrl && (
-                  <div className="border-t border-dashboard-border bg-dashboard-bg/60 px-3 py-4 sm:px-5">
+                  <div className="border-t border-dashboard-border bg-sb-bg/60 px-3 py-4 sm:px-5">
                     <p className="mb-3 px-1 text-[11px] font-medium uppercase tracking-[0.14em] text-gray-600 dark:text-gray-400">
                       {videoTimestamps.length
                         ? "Lompat ke bagian"
@@ -782,7 +734,7 @@ export default function ChapterDetailsAILN({
                                 />
                               )}
                               <div
-                                className={`flex flex-wrap items-center justify-between gap-3 rounded-lg border px-4 py-3 ${done ? "border-claude/30 bg-hijau-t dark:bg-claude/10" : "border-dashboard-border bg-dashboard-bg/60"}`}
+                                className={`flex flex-wrap items-center justify-between gap-3 rounded-lg border px-4 py-3 ${done ? "border-claude/30 bg-hijau-t dark:bg-claude/10" : "border-dashboard-border bg-sb-bg/60"}`}
                               >
                                 <p className="text-xs text-gray-700 dark:text-gray-300">
                                   {done
@@ -833,7 +785,7 @@ export default function ChapterDetailsAILN({
                   title="Uji pemahamanmu"
                   detail="Kerjakan sesuai urutan untuk membuka tahap berikutnya."
                 />
-                <div className="bg-dashboard-bg/60 p-4 sm:p-5">
+                <div className="bg-sb-bg/60 p-4 sm:p-5">
                   {evaluations.length ? (
                     <ol className="space-y-3">
                       {evaluations.map(({ key, ...evaluation }, index) => (

@@ -13,6 +13,9 @@ export type ChapterDetail = {
   level_name: string;
   name: string;
   description: string | null;
+  project_name: string;
+  company_name: string | null;
+  company_image_url: string | null;
   session_date: string;
   duration_minutes: number;
   location_name: string;
