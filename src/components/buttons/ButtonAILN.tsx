@@ -21,6 +21,8 @@ export type VariantType =
   | "cardActive"
   | "answer"
   | "answerActive"
+  | "option"
+  | "optionActive"
   | "rating"
   | "ratingActive"
   | "question"
@@ -51,6 +53,7 @@ export type SizeType =
   | "largeIconRounded"
   | "chip"
   | "choice"
+  | "option"
   | "card"
   | "row"
   | "rating"
@@ -129,6 +132,10 @@ const ButtonAILN = forwardRef<HTMLButtonElement, ButtonAILNProps>(
         "border border-dashboard-border bg-card-1 text-foreground hover:border-claude/40 hover:bg-card-2 disabled:opacity-60",
       answerActive:
         "border border-claude bg-hijau-t text-foreground dark:bg-claude/10 dark:text-white disabled:opacity-60",
+      option:
+        "border border-gray-200 bg-card-1 text-foreground hover:border-gray-400 hover:bg-sb-bg dark:border-white/10 dark:hover:border-white/30 dark:hover:bg-white/5 disabled:opacity-60",
+      optionActive:
+        "border border-sevenpreneur-coal bg-sevenpreneur-coal/[0.06] text-foreground dark:border-white dark:bg-white/10 disabled:opacity-60",
       rating:
         "border border-dashboard-border bg-card-2 text-gray-700 hover:border-claude/40 dark:text-gray-300 disabled:opacity-60",
       ratingActive:
@@ -165,6 +172,8 @@ const ButtonAILN = forwardRef<HTMLButtonElement, ButtonAILNProps>(
       largeIconRounded: "size-10 rounded-full",
       chip: "min-h-8 px-3 py-1 text-xs rounded-full",
       choice: "min-h-11 px-4 py-3 text-sm rounded-lg",
+      option:
+        "min-h-11 justify-start gap-3 px-4 py-3 text-left text-sm rounded-lg",
       card: "flex-col items-start gap-3 p-4 text-sm text-left rounded-lg",
       row: "justify-start px-5 py-4 text-left text-sm rounded-lg",
       rating: "h-11 min-w-10 text-sm rounded-lg",

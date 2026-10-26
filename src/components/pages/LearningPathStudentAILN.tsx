@@ -1,6 +1,6 @@
 "use client";
 
-import type { StudentChapter, StudentLevel } from "@/apis/learnings";
+import type { ChapterDetail } from "@/apis/chapters";
 import ButtonAILN from "@/components/buttons/ButtonAILN";
 import Tabs from "@/components/navigations/Tabs";
 import PageContainerAILN from "@/components/pages/PageContainerAILN";
@@ -38,7 +38,7 @@ function ChapterCard({
   chapterNumber,
   projectId,
 }: {
-  chapter: StudentChapter;
+  chapter: ChapterDetail;
   chapterNumber: number;
   projectId: string;
 }) {
@@ -74,7 +74,7 @@ function ChapterCard({
         <div className="pointer-events-none absolute -right-9 -top-10 h-44 w-44 rounded-full border border-black/5 bg-white/20 dark:hidden" />
         <div className="relative z-10 flex items-start justify-between gap-3">
           <span className="rounded-full bg-black/5 px-3 py-1 text-xs font-medium text-gray-800 dark:border dark:border-dashboard-border dark:bg-card-1 dark:text-gray-300">
-            Level {chapter.level.level_number} · Chapter{" "}
+            Level {chapter.level_number} · Chapter{" "}
             {String(chapterNumber).padStart(2, "0")}
           </span>
           <span
@@ -148,9 +148,7 @@ function ChapterCard({
             <ListChecks className="h-4 w-4" />
           )}
           {locked
-            ? chapter.locked_reason === "admin_locked"
-              ? "Dikunci oleh admin"
-              : "Sesi belum dimulai"
+            ? "Dikunci oleh admin"
             : `${chapter.done_tasks} dari ${chapter.total_tasks} selesai`}
         </span>
         {locked ? (
@@ -158,11 +156,7 @@ function ChapterCard({
             type="button"
             variant="dark"
             disabled
-            title={
-              chapter.locked_reason === "admin_locked"
-                ? "Chapter dikunci oleh admin"
-                : "Chapter dibuka saat sesi dimulai"
-            }
+            title="Chapter dikunci oleh admin"
           >
             <LockKeyhole className="h-4 w-4" aria-hidden="true" />
             Mulai chapter
@@ -181,21 +175,22 @@ function ChapterCard({
 }
 
 export default function LearningPathStudentAILN({
-  levels,
   chapters,
   projectId,
 }: {
-  levels: StudentLevel[];
-  chapters: StudentChapter[];
+  chapters: ChapterDetail[];
   projectId: string;
 }) {
   const [levelFilter, setLevelFilter] = useState<number | "all">("all");
+  const levels = [
+    ...new Map(
+      chapters.map((chapter) => [chapter.level_number, chapter.level_name]),
+    ),
+  ].sort(([a], [b]) => a - b);
   const visibleChapters =
     levelFilter === "all"
       ? chapters
-      : chapters.filter(
-          (chapter) => chapter.level.level_number === levelFilter,
-        );
+      : chapters.filter((chapter) => chapter.level_number === levelFilter);
 
   return (
     <PageContainerAILN>
@@ -211,9 +206,9 @@ export default function LearningPathStudentAILN({
           onValueChange={setLevelFilter}
           items={[
             { value: "all", label: "Semua chapter" },
-            ...levels.map((level) => ({
-              value: level.level_number,
-              label: `Level ${level.level_number} · ${level.name}`,
+            ...levels.map(([levelNumber, levelName]) => ({
+              value: levelNumber,
+              label: `Level ${levelNumber} · ${levelName}`,
             })),
           ]}
         />
@@ -233,7 +228,7 @@ export default function LearningPathStudentAILN({
           </div>
         ) : (
           <div className="rounded-lg border border-dashboard-border bg-card-1 px-6 py-12 text-center text-sm text-gray-500">
-            Belum ada chapter di level ini.
+            Belum ada chapter yang dijadwalkan untuk group kamu.
           </div>
         )}
 

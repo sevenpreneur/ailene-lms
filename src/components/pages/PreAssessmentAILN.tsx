@@ -550,8 +550,8 @@ function QuestionBody({
           return (
             <ButtonAILN
               aria-pressed={selected}
-              variant={selected ? "answerActive" : "answer"}
-              size="choice"
+              variant={selected ? "optionActive" : "option"}
+              size="option"
               width="full"
               key={opt.id}
               type="button"
@@ -560,8 +560,8 @@ function QuestionBody({
               <div
                 className={`flex size-6 shrink-0 items-center justify-center rounded-full text-xs font-medium ${
                   selected
-                    ? "bg-claude text-white"
-                    : "bg-gray-200 text-gray-700 dark:bg-dashboard-border dark:text-gray-300"
+                    ? "bg-sevenpreneur-coal text-white dark:bg-white dark:text-sevenpreneur-coal"
+                    : "bg-gray-100 text-gray-700 dark:bg-white/10 dark:text-gray-300"
                 }`}
               >
                 {String.fromCharCode(65 + idx)}

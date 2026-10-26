@@ -271,8 +271,8 @@ export default function ChapterTestAttemptAILN({
                         return (
                           <ButtonAILN
                             aria-pressed={isSelected}
-                            variant={isSelected ? "answerActive" : "answer"}
-                            size="choice"
+                            variant={isSelected ? "optionActive" : "option"}
+                            size="option"
                             width="full"
                             key={opt.id}
                             type="button"
@@ -282,8 +282,8 @@ export default function ChapterTestAttemptAILN({
                             <div
                               className={`flex size-6 shrink-0 items-center justify-center rounded-full text-xs font-medium ${
                                 isSelected
-                                  ? "bg-claude text-white"
-                                  : "bg-gray-200 text-gray-700 dark:bg-dashboard-border dark:text-gray-300"
+                                  ? "bg-sevenpreneur-coal text-white dark:bg-white dark:text-sevenpreneur-coal"
+                                  : "bg-gray-100 text-gray-700 dark:bg-white/10 dark:text-gray-300"
                               }`}
                             >
                               {opt.option_code.toUpperCase()}

@@ -293,31 +293,6 @@ export async function getLearnings(
   return result.data ?? null;
 }
 
-// POST /api/v1/learnings/chapters needs the caller's own session JWT — see docs/api/learnings.md in ailene-lms-backend.
-export async function getStudentChapters(
-  projectId: string,
-): Promise<StudentChapter[]> {
-  const sessionToken = await getSessionToken();
-  if (!sessionToken) return [];
-
-  const result = await callApi<StudentChapter[]>("/api/v1/learnings/chapters", {
-    method: "POST",
-    body: { project_id: projectId },
-    token: sessionToken,
-  });
-
-  if (!result.success) {
-    await LogError(
-      "getStudentChapters",
-      result.code,
-      result.status,
-      result.message,
-    );
-    throw new Error("Data belum dapat dimuat.");
-  }
-  return result.data ?? [];
-}
-
 // POST /api/v1/learnings/levels needs the caller's own session JWT — see docs/api/learnings.md in ailene-lms-backend.
 export async function getStudentLevels(
   projectId: string,

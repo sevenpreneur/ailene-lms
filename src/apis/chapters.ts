@@ -34,6 +34,25 @@ async function getSessionToken(): Promise<string | null> {
   return cookieStore.get(SESSION_COOKIE_NAME)?.value ?? null;
 }
 
+// POST /api/v2/chapters returns the caller's scheduled chapters in session order — see docs/api/chapters.md in ailene-lms-apis.
+export async function getChapters(projectId: string): Promise<ChapterDetail[]> {
+  const sessionToken = await getSessionToken();
+  if (!sessionToken) return [];
+
+  const result = await callApi<ChapterDetail[]>("/api/v2/chapters", {
+    method: "POST",
+    body: { project_id: projectId },
+    token: sessionToken,
+    backend: "lms",
+  });
+
+  if (!result.success) {
+    await LogError("getChapters", result.code, result.status, result.message);
+    throw new Error("Data belum dapat dimuat.");
+  }
+  return result.data ?? [];
+}
+
 // POST /api/v2/chapters/details needs the caller's session JWT; 403/404 both render as not found — see docs/api/chapters.md in ailene-lms-apis.
 export async function getChapterDetails(
   projectId: string,

@@ -16,12 +16,6 @@ import {
 import Image from "next/image";
 import type { ReactNode } from "react";
 
-const PROGRESS_LABEL: Record<ChapterDetail["progress"], string> = {
-  not_started: "Belum dimulai",
-  in_progress: "Sedang berjalan",
-  completed: "Selesai",
-};
-
 function HeroCard({
   icon,
   label,
@@ -82,8 +76,8 @@ export default function ChapterHeroAILN({
 
       <div className="grid gap-5 px-6 py-5 sm:px-8 sm:py-6 lg:grid-cols-[minmax(0,1fr)_19rem] lg:items-end lg:gap-8 lg:px-10">
         <div className="min-w-0">
-          <div className="flex min-w-0 items-center gap-3">
-            <span className="relative flex size-11 shrink-0 items-center justify-center overflow-hidden rounded-lg bg-white">
+          <div className="flex min-w-0 items-center gap-5 pl-2 pt-2">
+            <span className="relative flex size-11 shrink-0 items-center justify-center overflow-hidden rounded-lg bg-white outline-8 outline-white/15">
               {logo ? (
                 <Image
                   src={logo}
@@ -109,29 +103,14 @@ export default function ChapterHeroAILN({
             </div>
           </div>
 
-          <div className="mt-5 flex flex-wrap items-center gap-2">
-            <span className="rounded-full bg-white px-2.5 py-1 text-xs font-medium text-sevenpreneur-coal">
-              Level {chapter.level_number} · {chapter.level_name}
-            </span>
-            <span className="inline-flex items-center gap-1.5 rounded-full border border-white/25 px-2.5 py-1 text-xs font-medium text-white/85">
-              {unlocked ? (
-                <span
-                  className={`size-1.5 rounded-full ${chapter.progress === "completed" ? "bg-white" : "bg-white/45"}`}
-                />
-              ) : (
-                <LockKeyhole className="size-3" />
-              )}
-              {unlocked ? PROGRESS_LABEL[chapter.progress] : "Terkunci"}
-            </span>
-            <span className="rounded-full border border-white/25 px-2.5 py-1 text-xs font-medium text-white/85">
-              {chapter.method === "online" ? "Online" : "Tatap muka"}
-            </span>
-          </div>
-          <h1 className="mt-3 max-w-3xl font-headline text-3xl font-medium leading-tight tracking-tight text-white sm:text-4xl">
+          <h1 className="mt-6 max-w-3xl font-headline text-3xl font-medium leading-tight tracking-tight text-white sm:text-4xl">
             {chapter.name}
           </h1>
+          <span className="mt-3 inline-flex rounded-full bg-white px-2.5 py-1 text-xs font-medium text-sevenpreneur-coal">
+            Level {chapter.level_number} · {chapter.level_name}
+          </span>
           {chapter.description && (
-            <p className="mt-2 max-w-2xl text-sm leading-6 text-white/75">
+            <p className="mt-3 max-w-2xl text-sm leading-6 text-white/75">
               {chapter.description}
             </p>
           )}
