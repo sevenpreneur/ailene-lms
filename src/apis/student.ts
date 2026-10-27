@@ -54,6 +54,25 @@ export type StudentLeaderboard = {
   leaderboard: StudentLeaderboardEntry[];
 };
 
+export type TodayFocusKind = "pre_test" | "post_test" | "upcoming_session";
+
+export type TodayFocus = {
+  kind: TodayFocusKind;
+  task_id: string;
+  task_title: string;
+  chapter_id: number;
+  chapter_name: string;
+  level_id: number;
+  level_number: number;
+  session_id: number;
+  session_date: string;
+  duration_minutes: number;
+  location_name: string;
+  location_url: string;
+  method: "online" | "offline";
+  locked: boolean;
+};
+
 async function getSessionToken(): Promise<string | null> {
   const cookieStore = await cookies();
   return cookieStore.get(SESSION_COOKIE_NAME)?.value ?? null;
@@ -170,4 +189,28 @@ export async function getStudentLeaderboard(
     throw new Error("Data belum dapat dimuat.");
   }
   return result.data ?? null;
+}
+
+// POST /api/v2/student/today-focus returns the caller's next actionable test or upcoming session.
+export async function getTodayFocus(
+  projectId: string,
+): Promise<TodayFocus | null> {
+  const sessionToken = await getSessionToken();
+  if (!sessionToken) return null;
+
+  const result = await callApi<{ focus: TodayFocus | null }>(
+    "/api/v2/student/today-focus",
+    {
+      method: "POST",
+      body: { project_id: projectId },
+      token: sessionToken,
+      backend: "lms",
+    },
+  );
+
+  if (!result.success) {
+    await LogError("getTodayFocus", result.code, result.status, result.message);
+    throw new Error("Data belum dapat dimuat.");
+  }
+  return result.data?.focus ?? null;
 }

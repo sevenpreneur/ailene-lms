@@ -21,20 +21,25 @@ async function getSessionToken(): Promise<string | null> {
   return cookieStore.get(SESSION_COOKIE_NAME)?.value ?? null;
 }
 
-// POST /api/v1/announcement/details needs the caller's own session JWT — see docs/api/announcement.md in ailene-lms-backend.
+// POST /api/v2/announcements/details needs the caller's own session JWT — see docs/api/announcements.md in ailene-lms-apis.
 export async function getAnnouncementDetails(
   projectId: string,
 ): Promise<Announcement | null> {
   const sessionToken = await getSessionToken();
   if (!sessionToken) return null;
 
-  const result = await callApi<Announcement>("/api/v1/announcement/details", {
-    method: "POST",
-    body: { project_id: projectId },
-    token: sessionToken,
-  });
+  const result = await callApi<Announcement>(
+    "/api/v2/announcements/details",
+    {
+      method: "POST",
+      body: { project_id: projectId },
+      token: sessionToken,
+      backend: "lms",
+    },
+  );
 
   if (!result.success) {
+    if (result.message === "Announcement not found") return null;
     await LogError(
       "getAnnouncementDetails",
       result.code,

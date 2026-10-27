@@ -6,8 +6,8 @@ import {
   getStudentCompetency,
   getStudentLevelProgress,
   getStudentStatus,
+  getTodayFocus,
 } from "@/apis/student";
-import { getTodayFocus } from "@/apis/learnings";
 import DashboardStudentAILN from "@/components/pages/DashboardStudentAILN";
 import { Metadata } from "next";
 

@@ -23,7 +23,7 @@ async function getSessionToken(): Promise<string | null> {
   return cookieStore.get(SESSION_COOKIE_NAME)?.value ?? null;
 }
 
-// POST /api/v1/coaching-notes needs the caller's own session JWT — see docs/api/coaching-notes.md in ailene-lms-backend.
+// POST /api/v2/coaching-notes needs the caller's own session JWT — see docs/api/coaching-notes.md in ailene-lms-apis.
 export async function getCoachingNotes(
   projectId: string,
   role: "student" | "champion",
@@ -31,10 +31,11 @@ export async function getCoachingNotes(
   const sessionToken = await getSessionToken();
   if (!sessionToken) return [];
 
-  const result = await callApi<CoachingNote[]>("/api/v1/coaching-notes", {
+  const result = await callApi<CoachingNote[]>("/api/v2/coaching-notes", {
     method: "POST",
     body: { project_id: projectId, role },
     token: sessionToken,
+    backend: "lms",
   });
 
   if (!result.success) {

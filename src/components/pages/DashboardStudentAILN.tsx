@@ -9,8 +9,11 @@ import StudentHeaderAILN from "@/components/navigations/StudentHeaderAILN";
 import PageContainerAILN from "@/components/pages/PageContainerAILN";
 import type { Announcement } from "@/apis/announcement";
 import type { CoachingNote } from "@/apis/coaching-notes";
-import type { StudentCompetency, StudentLevelProgress } from "@/apis/student";
-import type { TodayFocus } from "@/apis/learnings";
+import type {
+  StudentCompetency,
+  StudentLevelProgress,
+  TodayFocus,
+} from "@/apis/student";
 
 export default function DashboardStudentAILN({
   failedSections = [],
