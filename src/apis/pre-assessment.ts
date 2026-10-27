@@ -5,7 +5,7 @@ import { callApi } from "./api";
 import { SESSION_COOKIE_NAME } from "@/lib/constants";
 import LogError from "@/lib/log-error";
 
-// Shapes follow ailene-lms-api docs/api/pre-assessment.md (the CFTE AIPF item bank).
+// Shapes follow ailene-lms-apis docs/api/pre-assessment.md (the CFTE AIPF item bank).
 export type PreAssessmentSection =
   | "profile"
   | "scenario"
@@ -89,7 +89,7 @@ export async function getPreAssessmentQuestions(
 ): Promise<PreAssessmentResult<PreAssessmentQuestions>> {
   return preAssessmentCall<PreAssessmentQuestions>(
     "getPreAssessmentQuestions",
-    "/api/v1/pre-assessment/questions",
+    "/api/v2/pre-assessment/questions",
     { project_id: projectId },
     "Gagal memuat pertanyaan pre-assessment.",
   );
@@ -102,7 +102,7 @@ export async function submitPreAssessment(
 ): Promise<PreAssessmentResult<{ attempt_id: number; status: string }>> {
   return preAssessmentCall(
     "submitPreAssessment",
-    "/api/v1/pre-assessment/submit",
+    "/api/v2/pre-assessment/submit",
     { project_id: projectId, answers },
     "Gagal mengirim pre-assessment.",
   );
@@ -114,7 +114,7 @@ export async function getPreAssessmentScore(
 ): Promise<PreAssessmentResult<PreAssessmentScore | null>> {
   return preAssessmentCall<PreAssessmentScore | null>(
     "getPreAssessmentScore",
-    "/api/v1/pre-assessment/score",
+    "/api/v2/pre-assessment/score",
     { project_id: projectId },
     "Gagal menghitung hasil pre-assessment.",
   );
@@ -136,6 +136,7 @@ async function preAssessmentCall<T>(
     method: "POST",
     body,
     token: sessionToken,
+    backend: "lms",
   });
 
   if (!result.success) {

@@ -429,23 +429,8 @@ function PreAssessmentWelcomeAILN({
   ];
 
   return (
-    <PageContainerSVP className="relative flex min-h-screen items-center justify-center overflow-hidden">
-      {/* Full-page background image */}
-      <Image
-        src="https://www.hutamakarya.com/storage/whatsapp-image-2024-06-20-at-45600-pm-1.jpeg"
-        alt=""
-        fill
-        priority
-        aria-hidden
-        className="pointer-events-none z-0 object-cover"
-      />
-      {/* Dark overlay for contrast */}
-      <div
-        aria-hidden
-        className="pointer-events-none absolute inset-0 z-0 bg-black/50"
-      />
-
-      <div className="relative z-10 mx-auto flex w-full max-w-2xl flex-col py-12">
+    <PageContainerSVP className="flex min-h-screen items-center justify-center">
+      <div className="mx-auto flex w-full max-w-2xl flex-col py-12">
         <div className="rounded-lg border bg-white p-8 shadow-xl dark:border-dashboard-border dark:bg-card-1">
           <h1 className="text-center text-3xl font-medium leading-tight text-gray-900 dark:text-white">
             Halo {firstName}, selamat datang 👋

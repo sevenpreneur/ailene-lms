@@ -34,11 +34,6 @@ const nextConfig: NextConfig = {
         hostname: "tskubmriuclmbcfmaiur.supabase.co",
         port: "",
       },
-      {
-        protocol: "https",
-        hostname: "www.hutamakarya.com",
-        port: "",
-      },
     ],
   },
   async headers() {
