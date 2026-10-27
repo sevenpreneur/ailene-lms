@@ -18,9 +18,11 @@ export default function ProjectJumpBackInCardAILN({
 }) {
   const needsAssessment =
     project.role === "student" && !project.has_pre_assessment;
+  // Champion sementara masuk lewat mode student dulu dari home.
+  const landingView = project.role === "champion" ? "student" : project.role;
   const href = needsAssessment
     ? `/${project.id}/student/pre-assessment`
-    : `/${project.id}/${project.role}`;
+    : `/${project.id}/${landingView}`;
   const description =
     "Transformasikan cara kerjamu dengan AI untuk menyelesaikan pekerjaan lebih efisien dan menghasilkan dampak yang lebih besar.";
 
