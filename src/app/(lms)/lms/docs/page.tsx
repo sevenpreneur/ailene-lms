@@ -4,7 +4,7 @@ import type { Metadata } from "next";
 export const metadata: Metadata = {
   title: "Panduan Penggunaan LMS",
   description:
-    "Panduan Ailene AI Learn: masuk program, pre-assessment, sesi belajar, pre-test, materi, quiz, post-test, survei, dan praktik Use Case.",
+    "Panduan Ailene AI Learn: masuk program, pre-assessment, sesi belajar, pre-test, materi, post-test, survei, dan praktik Use Case.",
   alternates: { canonical: "/docs" },
 };
 

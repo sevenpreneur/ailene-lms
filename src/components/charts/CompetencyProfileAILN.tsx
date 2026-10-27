@@ -63,7 +63,7 @@ export default function CompetencyProfileAILN({
   return (
     <SectionContainerAILN
       title="Profil Kompetensi AI"
-      desc={<>Radar 6 dimensi adalah diagnosa kompetensi AI</>}
+      desc={<>Radar 5 dimensi adalah diagnosa kompetensi AI</>}
       className={className}
     >
       <div className="flex flex-col gap-4">

@@ -2,7 +2,6 @@ export type NumberConfig = "numeric" | "decimal" | "phone_number";
 
 // AILENE related
 export type TaskVariant =
-  | "Quiz"
   | "Video"
   | "Material"
   | "PreTest"

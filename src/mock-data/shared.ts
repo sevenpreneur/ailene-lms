@@ -48,10 +48,9 @@ export function levelByNumber(levelNumber: number): LevelMock {
   return LEVELS.find((l) => l.level_number === levelNumber) ?? LEVELS[0];
 }
 
-// Six competency pillars; keys match the pillar keys ailene-lms-api returns.
+// Five competency pillars, mirroring the dimensions of /api/v2/student/competency.
 export const PILLAR_DEFS: { key: string; name: string }[] = [
   { key: "ai_foundation", name: "AI Foundation" },
-  { key: "prompting", name: "Prompting" },
   { key: "tool_fluency", name: "Tool Fluency" },
   { key: "use_case_diversity", name: "Use Case" },
   { key: "ai_habit", name: "AI Habit" },

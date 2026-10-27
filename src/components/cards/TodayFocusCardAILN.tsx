@@ -1,6 +1,5 @@
 "use client";
 import ButtonAILN from "@/components/buttons/ButtonAILN";
-import RecordUseCaseButtonAILN from "@/components/buttons/RecordUseCaseButtonAILN";
 import GeneralLabelAILN from "@/components/labels/GeneralLabelAILN";
 import type { TodayFocus, TodayFocusKind } from "@/apis/learnings";
 import { useProjectId } from "@/lib/use-project-id";
@@ -16,7 +15,6 @@ const SURFACE =
   "rounded-lg border border-hijau-t bg-gradient-to-br from-hijau-t via-white to-hijau-t/60 p-5 dark:border-claude/25 dark:from-claude/10 dark:via-card-1 dark:to-claude/10";
 
 function labelForKind(kind: TodayFocusKind) {
-  if (kind === "quiz") return "Quiz";
   if (kind === "video") return "Video";
   if (kind === "use_case_practice") return "Use Case";
   return "Materi";
@@ -37,9 +35,9 @@ function formatDeadline(d: string) {
   return dayjs(d).format("ddd, D MMM YYYY · HH:mm");
 }
 
-// Chapter tasks (material, video, quiz) are worked on inside the chapter details page.
+// Chapter tasks (material, video) are worked on inside the chapter details page.
 function hrefForFocus(focus: TodayFocus, projectId: string) {
-  if (focus.kind === "prompt_practice" || focus.kind === "use_case_practice") {
+  if (focus.kind === "use_case_practice") {
     return `/${projectId}/student/skill-practice`;
   }
   return focus.chapter_id != null
@@ -53,18 +51,6 @@ export default function TodayFocusCardAILN({
   focus: TodayFocus | null;
 }) {
   const projectId = useProjectId();
-
-  if (focus?.kind === "prompt_practice") {
-    return (
-      <div className={`${SURFACE} flex flex-col items-start gap-4`}>
-        <span className="text-xs font-medium uppercase tracking-widest text-claude dark:text-lime-bright">
-          Fokus Hari Ini
-        </span>
-        <h2 className="text-2xl font-medium">Coba AI di pekerjaanmu.</h2>
-        <RecordUseCaseButtonAILN projectId={projectId} />
-      </div>
-    );
-  }
 
   if (!focus) {
     return (

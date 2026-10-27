@@ -18,7 +18,6 @@ const chapters = [
   { id: "sesi", label: "Ikuti sesi belajar" },
   { id: "pre-test", label: "Kerjakan pre-test" },
   { id: "materi", label: "Pelajari materi & video" },
-  { id: "quiz", label: "Jawab quiz" },
   { id: "post-test", label: "Kerjakan post-test" },
   { id: "survei", label: "Isi survei chapter" },
   { id: "use-case", label: "Praktik & kirim Use Case" },
@@ -126,9 +125,9 @@ const questions = [
       "Peserta perlu mengirim pre-assessment terlebih dahulu sebelum membuka halaman belajar. Draft yang tersimpan belum dianggap selesai. Buka Pre Assessment, lengkapi semua pertanyaan, lalu kirim dan tunggu konfirmasi hasil.",
   },
   {
-    question: "Chapter, materi, quiz, atau post-test masih terkunci.",
+    question: "Chapter, materi, atau post-test masih terkunci.",
     answer:
-      "Baca alasan yang tampil. Chapter dibuka oleh admin; materi membutuhkan pre-test jika tersedia; quiz dan post-test dapat mensyaratkan semua materi selesai. Tandai materi yang benar-benar sudah dipelajari, lalu muat ulang. Jika syarat sudah terpenuhi tetapi masih terkunci, hubungi Champion.",
+      "Baca alasan yang tampil. Chapter dibuka oleh admin; materi membutuhkan pre-test jika tersedia; post-test dapat mensyaratkan semua materi selesai. Tandai materi yang benar-benar sudah dipelajari, lalu muat ulang. Jika syarat sudah terpenuhi tetapi masih terkunci, hubungi Champion.",
   },
   {
     question: "Tautan sesi atau rekaman belum ada.",
@@ -138,7 +137,7 @@ const questions = [
   {
     question: "Apakah draft bisa dilanjutkan dari perangkat lain?",
     answer:
-      "Draft pre-assessment dan pre-test/post-test disimpan di browser untuk akun dan program yang sama, bukan disinkronkan ke semua perangkat. Draft quiz memiliki status penyimpanan ke server. Pada guided Use Case, perhatikan keterangan penyimpanan tiap bagian: bukti dan cerita yang belum dikirim dapat hanya tersimpan di browser. Jangan menghapus data browser, berganti perangkat, atau memakai mode privat untuk mengandalkan draft lokal. File yang belum selesai diunggah perlu dipilih ulang.",
+      "Draft pre-assessment dan pre-test/post-test disimpan di browser untuk akun dan program yang sama, bukan disinkronkan ke semua perangkat. Pada guided Use Case, perhatikan keterangan penyimpanan tiap bagian: bukti dan cerita yang belum dikirim dapat hanya tersimpan di browser. Jangan menghapus data browser, berganti perangkat, atau memakai mode privat untuk mengandalkan draft lokal. File yang belum selesai diunggah perlu dipilih ulang.",
   },
   {
     question: "Jawaban atau tugas gagal dikirim. Haruskah mengisi ulang?",
@@ -247,7 +246,7 @@ export default function DocsAILN() {
                 <h2 className="text-lg font-medium">Urutan belajar sekilas</h2>
                 <p className="mt-3 text-sm leading-7">
                   Masuk & pilih program → Pre-assessment → Buka chapter & cek
-                  sesi → Pre-test → Sesi, materi & video → Quiz → Post-test →
+                  sesi → Pre-test → Sesi, materi & video → Post-test →
                   Survei → Praktik Use Case.
                 </p>
                 <p className="mt-3 text-sm leading-6 text-muted-foreground">
@@ -542,62 +541,15 @@ export default function DocsAILN() {
                 ]}
               />
               <Note>
-                Materi dan video dapat terbuka setelah pre-test selesai. Quiz
-                atau post-test dapat tetap terkunci sampai semua materi yang
+                Materi dan video dapat terbuka setelah pre-test selesai.
+                Post-test dapat tetap terkunci sampai semua materi yang
                 disyaratkan ditandai selesai.
               </Note>
             </Section>
 
             <Section
-              id="quiz"
-              number="06 / CEK PEMAHAMAN"
-              title="Jawab quiz chapter"
-              intro="Quiz merupakan evaluasi tersendiri. Perhatikan petunjuk dan batas waktu yang tampil sebelum memulai."
-            >
-              <Steps
-                items={[
-                  <>
-                    Di detail chapter, pilih <strong>Mulai quiz</strong> dan
-                    baca konfirmasi sebelum memulai percobaan. Jika sudah mulai
-                    sebelumnya, gunakan <strong>Lanjutkan quiz</strong>.
-                  </>,
-                  <>
-                    Pilih jawaban dan gunakan nomor soal untuk meninjau ulang.
-                    Perhatikan sisa waktu: keluar atau memuat ulang halaman
-                    tidak berarti waktu percobaan dimulai kembali.
-                  </>,
-                  <>
-                    Perhatikan status autosave. Tunggu{" "}
-                    <strong>Jawaban tersimpan ke server</strong>. Jika
-                    penyimpanan gagal, gunakan coba lagi; saat keluar lewat
-                    tombol pada halaman, LMS akan mencoba menyimpan terlebih
-                    dahulu.
-                  </>,
-                  <>
-                    Sebelum waktu habis, periksa jawaban dan pilih tombol kirim,
-                    lalu konfirmasi. Saat waktu habis, sistem mencoba mengirim
-                    jawaban yang tersedia secara otomatis; tetap periksa hasil
-                    atau pesan kesalahan.
-                  </>,
-                  <>
-                    Baca <strong>Hasil Quiz</strong>, skor, XP yang tercatat,
-                    dan pembahasan jawaban. Ikuti pilihan yang tersedia pada
-                    LMS; ketersediaan percobaan berikutnya mengikuti aturan
-                    program.
-                  </>,
-                ]}
-              />
-              <Note>
-                Autosave menyimpan jawaban selama percobaan, tetapi belum
-                menyelesaikan quiz. Pastikan pengiriman berhasil dan halaman
-                hasil tampil. Hindari membuka percobaan yang sama di beberapa
-                tab sekaligus.
-              </Note>
-            </Section>
-
-            <Section
               id="post-test"
-              number="07 / SETELAH MATERI"
+              number="06 / SETELAH MATERI"
               title="Kerjakan post-test chapter"
               intro="Post-test digunakan untuk melihat pemahamanmu setelah mengikuti pembelajaran pada chapter tersebut."
             >
@@ -634,7 +586,7 @@ export default function DocsAILN() {
 
             <Section
               id="survei"
-              number="08 / MASUKAN UNTUK SESI"
+              number="07 / MASUKAN UNTUK SESI"
               title="Isi survei chapter"
               intro="Berikan masukan tentang pengalaman belajarmu agar sesi berikutnya dapat diperbaiki."
             >
@@ -665,7 +617,7 @@ export default function DocsAILN() {
 
             <Section
               id="use-case"
-              number="09 / TERAPKAN DI PEKERJAAN"
+              number="08 / TERAPKAN DI PEKERJAAN"
               title="Praktik dan kirim Use Case"
               intro="Gunakan Latihan AI untuk menerapkan AI pada pekerjaan nyata, lalu laporkan proses dan hasilnya dengan bukti yang bisa diperiksa."
             >
@@ -758,7 +710,7 @@ export default function DocsAILN() {
 
             <Section
               id="progres"
-              number="10 / LANJUTKAN KEBIASAAN"
+              number="09 / LANJUTKAN KEBIASAAN"
               title="Pantau progres dan notifikasi"
               intro="Gunakan status di LMS untuk menentukan langkah berikutnya, bukan hanya mengandalkan halaman yang pernah dibuka."
             >
@@ -789,7 +741,7 @@ export default function DocsAILN() {
               />
               <Note>
                 Menandai notifikasi dibaca hanya mengubah status notifikasinya.
-                Tugas, quiz, atau materi tetap perlu diselesaikan pada halaman
+                Tugas atau materi tetap perlu diselesaikan pada halaman
                 masing-masing.
               </Note>
               <div className="mt-6 rounded-lg border border-dashboard-border p-5">
@@ -817,7 +769,7 @@ export default function DocsAILN() {
 
             <Section
               id="champion-sponsor"
-              number="11 / PENDAMPING PROGRAM"
+              number="10 / PENDAMPING PROGRAM"
               title="Untuk Champion dan Sponsor"
               intro="Menu mengikuti peran pada program yang dipilih. Champion dapat berpindah antara Mode Champion dan Mode Student melalui pemilih program; akun Student tidak memiliki akses ke Mode Champion."
             >
@@ -886,7 +838,7 @@ export default function DocsAILN() {
 
             <Section
               id="bantuan"
-              number="12 / SAAT BUTUH BANTUAN"
+              number="11 / SAAT BUTUH BANTUAN"
               title="Kendala dan pertanyaan umum"
               intro="Mulai dari pesan yang tampil pada halaman. Jika belum teratasi, hubungi Champion atau admin program dengan konteks yang jelas."
             >

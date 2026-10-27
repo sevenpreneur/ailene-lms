@@ -19,7 +19,6 @@ export type StudentLevelProgress = {
   tasks_done: number;
   next_level_unlockable: boolean;
   use_case_approved_count: number;
-  prompt_approved_count: number;
   hours_saved_total: number;
   tools_mastered: string[];
 };

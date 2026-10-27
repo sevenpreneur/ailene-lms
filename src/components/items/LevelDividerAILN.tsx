@@ -115,8 +115,7 @@ export default function LevelDividerAILN(props: LevelDividerAILNProps) {
                   {props.level.name}
                 </div>
                 <div className="text-sm text-gray-300 dark:text-gray-400">
-                  Selesaikan semua quiz dan materi di level sebelumnya untuk
-                  membuka
+                  Selesaikan semua materi di level sebelumnya untuk membuka
                 </div>
               </div>
             </div>
@@ -127,7 +126,7 @@ export default function LevelDividerAILN(props: LevelDividerAILNProps) {
                     Ready to unlock!
                   </div>
                   <div className="text-sm text-gray-600 dark:text-gray-300">
-                    Semua quiz dan materi sudah selesai
+                    Semua materi sudah selesai
                   </div>
                 </div>
                 <DisabledActionButtonAILN variant="dark" size="medium">
@@ -141,7 +140,7 @@ export default function LevelDividerAILN(props: LevelDividerAILNProps) {
                     Keep going!
                   </div>
                   <div className="text-sm text-gray-300 dark:text-gray-400">
-                    Selesaikan semua quiz dan materi di level sebelumnya
+                    Selesaikan semua materi di level sebelumnya
                   </div>
                 </div>
                 <FontAwesomeIcon

@@ -219,34 +219,6 @@ export type ChampionReviewerRef = {
   avatar: string | null;
 };
 
-export type PromptSubmissionDetails = {
-  id: number;
-  prompt: {
-    id: number;
-    name: string;
-    scenario: string | null;
-    expected_output: string | null;
-    level: ChampionLevel | null;
-  };
-  member: {
-    access_id: string;
-    full_name: string;
-    email: string;
-    avatar: string | null;
-  };
-  reviewed_by: ChampionReviewerRef | null;
-  deadline: string | null;
-  message: string | null;
-  input: string | null;
-  output: string | null;
-  submitted_at: string | null;
-  reviewed_at: string | null;
-  comment: string | null;
-  is_accepted: boolean;
-  evaluation: PromptEvaluation | null;
-  categories: ChampionCategory[];
-};
-
 export type UseCaseSubmissionDetails = {
   id: number;
   use_case: {
@@ -296,7 +268,6 @@ export type AssignResult = {
   skipped: number;
 };
 
-export type CreatePromptAssignmentResult = AssignResult & { prompt_id: number };
 export type CreateUseCaseAssignmentResult = AssignResult & {
   use_case_id: number;
 };
