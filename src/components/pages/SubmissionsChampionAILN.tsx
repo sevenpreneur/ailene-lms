@@ -1,4 +1,7 @@
 "use client";
+import ChapterTaskReviewQueueAILN, {
+  type ChapterTaskQueueSearch,
+} from "@/components/indexes/ChapterTaskReviewQueueAILN";
 import Tabs from "@/components/navigations/Tabs";
 import SubmissionItemChampion, {
   deriveStatus,
@@ -9,9 +12,13 @@ import PageContainerAILN from "@/components/pages/PageContainerAILN";
 import PageHeaderAILN from "@/components/titles/PageHeaderAILN";
 import { useProjectId } from "@/lib/use-project-id";
 import type { ChampionSubmissions } from "@/apis/champion";
+import type { ChapterTaskQueue } from "@/apis/chapter-tasks";
 import dayjs from "dayjs";
 import { ClipboardList } from "lucide-react";
+import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { useState } from "react";
+
+export type SubmissionKind = "use_cases" | "tasks";
 
 const FILTERS: { key: ReviewStatus; label: string }[] = [
   { key: "AWAITING_REVIEW", label: "Belum direview" },
@@ -21,10 +28,29 @@ const FILTERS: { key: ReviewStatus; label: string }[] = [
 
 export default function SubmissionsChampionAILN({
   useCaseSubmissions,
+  kind,
+  chapterTasks,
 }: {
   useCaseSubmissions: ChampionSubmissions | null;
+  kind: SubmissionKind;
+  chapterTasks: {
+    queue: ChapterTaskQueue | null;
+    failed: boolean;
+    chapters: { id: number; name: string }[];
+    search: ChapterTaskQueueSearch;
+  };
 }) {
   const projectId = useProjectId();
+  const router = useRouter();
+  const pathname = usePathname();
+  const searchParams = useSearchParams();
+
+  const switchKind = (next: SubmissionKind) => {
+    const params = new URLSearchParams(searchParams.toString());
+    if (next === "tasks") params.set("tab", "tasks");
+    else params.delete("tab");
+    router.push(`${pathname}?${params.toString()}`, { scroll: false });
+  };
 
   const [filter, setFilter] = useState<ReviewStatus>("AWAITING_REVIEW");
 
@@ -78,33 +104,77 @@ export default function SubmissionsChampionAILN({
           desc="Klik untuk membuka review detail dan menilai semua isian student."
         />
 
-        {/* Status filters */}
-        <Tabs<ReviewStatus>
-          ariaLabel="Status review tugas"
-          value={filter}
-          onValueChange={setFilter}
-          items={FILTERS.map((item) => ({
-            value: item.key,
-            label: item.label,
-            badge: counts[item.key],
-          }))}
+        <Tabs<SubmissionKind>
+          ariaLabel="Jenis tugas"
+          value={kind}
+          onValueChange={switchKind}
+          items={[
+            { value: "use_cases", label: "Use case" },
+            {
+              value: "tasks",
+              label: "Tugas praktik",
+              badge:
+                chapterTasks.search.status === "on_review"
+                  ? (chapterTasks.queue?.metapaging.total_data ?? null)
+                  : null,
+            },
+          ]}
         />
 
-        {visible.length === 0 ? (
-          <EmptyState
-            label={`Tidak ada tugas dengan status "${
-              FILTERS.find((f) => f.key === filter)?.label
-            }".`}
-          />
+        {kind === "tasks" ? (
+          <ChapterTaskReviewQueueAILN {...chapterTasks} />
         ) : (
-          <div className="grid grid-cols-1 gap-4 lg:grid-cols-2">
-            {visible.map((r) => (
-              <SubmissionItemChampion key={`${r.kind}-${r.id}`} row={r} />
-            ))}
-          </div>
+          <UseCaseQueue
+            filter={filter}
+            setFilter={setFilter}
+            counts={counts}
+            visible={visible}
+          />
         )}
       </div>
     </PageContainerAILN>
+  );
+}
+
+function UseCaseQueue({
+  filter,
+  setFilter,
+  counts,
+  visible,
+}: {
+  filter: ReviewStatus;
+  setFilter: (filter: ReviewStatus) => void;
+  counts: Record<ReviewStatus, number>;
+  visible: SubmissionRow[];
+}) {
+  return (
+    <>
+      {/* Status filters */}
+      <Tabs<ReviewStatus>
+        ariaLabel="Status review tugas"
+        value={filter}
+        onValueChange={setFilter}
+        items={FILTERS.map((item) => ({
+          value: item.key,
+          label: item.label,
+          badge: counts[item.key],
+        }))}
+      />
+
+      {visible.length === 0 ? (
+        <EmptyState
+          label={`Tidak ada tugas dengan status "${
+            FILTERS.find((f) => f.key === filter)?.label
+          }".`}
+        />
+      ) : (
+        <div className="grid grid-cols-1 gap-4 lg:grid-cols-2">
+          {visible.map((r) => (
+            <SubmissionItemChampion key={`${r.kind}-${r.id}`} row={r} />
+          ))}
+        </div>
+      )}
+    </>
   );
 }
 

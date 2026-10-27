@@ -2,11 +2,13 @@
 import SelectAILN from "@/components/fields/SelectAILN";
 
 import type { ChapterSurveyDetail } from "@/apis/chapter-surveys";
+import type { ChapterTask } from "@/apis/chapter-tasks";
 import type { ChapterTestKind, ChapterTestTask } from "@/apis/chapter-tests";
 import type { ChapterDetail } from "@/apis/chapters";
 import type { ChapterVideo, MaterialDetail } from "@/apis/learnings";
 import ButtonAILN from "@/components/buttons/ButtonAILN";
 import ChapterHeroAILN from "@/components/heroes/ChapterHeroAILN";
+import ChapterTasksStudentAILN from "@/components/indexes/ChapterTasksStudentAILN";
 import ChapterSurveyModalAILN from "@/components/modals/ChapterSurveyModalAILN";
 import styles from "@/components/css/MaterialDetails.module.css";
 import PageContainerAILN from "@/components/pages/PageContainerAILN";
@@ -274,6 +276,8 @@ export default function ChapterDetailsAILN({
   tests,
   videos,
   materials,
+  practiceTasks,
+  chapterOrder,
   survey,
   unlocked,
   projectId,
@@ -283,6 +287,8 @@ export default function ChapterDetailsAILN({
   tests: ChapterTestTask[];
   videos: ChapterVideo[];
   materials: MaterialDetail[];
+  practiceTasks: ChapterTask[];
+  chapterOrder: number[];
   survey: ChapterSurveyDetail | null;
   unlocked: boolean;
   projectId: string;
@@ -773,6 +779,15 @@ export default function ChapterDetailsAILN({
                   </p>
                 )}
               </section>
+
+              {practiceTasks.length > 0 && (
+                <div id="tugas-praktik" className="scroll-mt-6">
+                  <ChapterTasksStudentAILN
+                    tasks={practiceTasks}
+                    chapterOrder={chapterOrder}
+                  />
+                </div>
+              )}
             </div>
 
             <aside className="min-w-0 space-y-5 xl:sticky xl:top-6">

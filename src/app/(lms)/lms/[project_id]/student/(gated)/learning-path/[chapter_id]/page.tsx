@@ -1,6 +1,7 @@
 import { getChapterSurveyDetails } from "@/apis/chapter-surveys";
+import { getChapterTasks } from "@/apis/chapter-tasks";
 import { getChapterTests } from "@/apis/chapter-tests";
-import { getChapterDetails } from "@/apis/chapters";
+import { getChapterDetails, getChapters } from "@/apis/chapters";
 import { getChapterMaterials, getChapterVideos } from "@/apis/learnings";
 import ChapterDetailsAILN from "@/components/pages/ChapterDetailsAILN";
 import AppPageState from "@/components/states/AppPageState";
@@ -25,19 +26,23 @@ export default async function ChapterDetailPage({
     return <AppPageState variant="NOT_FOUND" />;
   }
 
-  const chapter = await getChapterDetails(projectId, chapterId);
+  const [chapter, chapters] = await Promise.all([
+    getChapterDetails(projectId, chapterId),
+    getChapters(projectId),
+  ]);
   if (!chapter) {
     return <AppPageState variant="NOT_FOUND" />;
   }
   const unlocked = !chapter.locked;
-  const [tests, videos, materials, surveyResult] = unlocked
+  const [tests, videos, materials, practiceTasks, surveyResult] = unlocked
     ? await Promise.all([
         getChapterTests(chapterId),
         getChapterVideos(chapterId),
         getChapterMaterials(chapterId),
+        getChapterTasks({ chapterId }),
         getChapterSurveyDetails(chapterId),
       ])
-    : [[], [], [], null];
+    : [[], [], [], [], null];
   const survey = surveyResult?.kind === "ok" ? surveyResult.data : null;
 
   return (
@@ -46,6 +51,8 @@ export default async function ChapterDetailPage({
       tests={tests}
       videos={videos}
       materials={materials}
+      practiceTasks={practiceTasks}
+      chapterOrder={chapters.map((item) => item.id)}
       survey={survey}
       unlocked={unlocked}
       projectId={projectId}

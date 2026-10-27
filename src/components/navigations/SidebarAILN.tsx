@@ -49,7 +49,6 @@ const VARIANT_CONFIG: Record<
     groupLabel: "Belajar",
     menu: [
       { name: "Hari Ini", url: "/student", icon: CalendarDays, exact: true },
-      { name: "Pre Assessment", url: "/student/pre-assessment", icon: Gauge },
       {
         name: "Alur Belajar",
         url: "/student/learning-path",
@@ -62,6 +61,7 @@ const VARIANT_CONFIG: Record<
         icon: ClipboardList,
       },
       { name: "Progress Saya", url: "/student/my-progress", icon: LineChart },
+      { name: "Pre Assessment", url: "/student/pre-assessment", icon: Gauge },
     ],
   },
   CHAMPION: {
