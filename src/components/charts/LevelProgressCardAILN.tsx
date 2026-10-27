@@ -1,9 +1,14 @@
 "use client";
 import SectionContainerAILN from "@/components/cards/SectionContainerAILN";
 import GeneralLabelAILN from "@/components/labels/GeneralLabelAILN";
-import type { StudentLevel } from "@/apis/learnings";
 import { Star } from "lucide-react";
 import { Fragment } from "react";
+
+type StudentLevel = {
+  id: number;
+  level_number: number;
+  name: string;
+};
 
 interface LevelProgressCardAILNProps {
   levels: StudentLevel[];

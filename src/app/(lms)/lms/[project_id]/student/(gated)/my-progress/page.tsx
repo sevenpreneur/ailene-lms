@@ -1,4 +1,4 @@
-import { getStudentLevels } from "@/apis/learnings";
+import { getChapters } from "@/apis/chapters";
 import {
   getStudentCompetency,
   getStudentLeaderboard,
@@ -17,12 +17,24 @@ export default async function StudentMyProgressPage({
   params: Promise<{ project_id: string }>;
 }) {
   const { project_id } = await params;
-  const [levels, levelProgress, competency, leaderboard] = await Promise.all([
-    getStudentLevels(project_id),
+  const [chapters, levelProgress, competency, leaderboard] = await Promise.all([
+    getChapters(project_id),
     getStudentLevelProgress(project_id),
     getStudentCompetency(project_id),
     getStudentLeaderboard(project_id),
   ]);
+  const levels = Array.from(
+    new Map(
+      chapters.map((chapter) => [
+        chapter.level_id,
+        {
+          id: chapter.level_id,
+          level_number: chapter.level_number,
+          name: chapter.level_name,
+        },
+      ]),
+    ).values(),
+  ).sort((a, b) => a.level_number - b.level_number);
 
   return (
     <MyProgressStudentAILN

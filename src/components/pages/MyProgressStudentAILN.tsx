@@ -7,7 +7,6 @@ import LeaderboardPanelStudentAILN from "@/components/indexes/LeaderboardPanelSt
 import PageContainerAILN from "@/components/pages/PageContainerAILN";
 import PageHeaderAILN from "@/components/titles/PageHeaderAILN";
 import { useProjectId } from "@/lib/use-project-id";
-import type { StudentLevel } from "@/apis/learnings";
 import type {
   StudentCompetency,
   StudentLeaderboard,
@@ -17,7 +16,7 @@ import { ArrowRight, ClipboardCheck } from "lucide-react";
 import Link from "next/link";
 
 interface MyProgressStudentAILNProps {
-  levels: StudentLevel[];
+  levels: { id: number; level_number: number; name: string }[];
   levelProgress: StudentLevelProgress | null;
   competency: StudentCompetency | null;
   leaderboard: StudentLeaderboard | null;

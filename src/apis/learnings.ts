@@ -12,12 +12,6 @@ export type LearningVideoTimestamp = {
 
 export type LearningChapterRef = { id: number; name: string };
 
-export type StudentLevel = {
-  id: number;
-  level_number: number;
-  name: string;
-};
-
 export type MaterialDetail = {
   id: string;
   title: string;
@@ -89,31 +83,6 @@ function toLearningDetailFailure<T>(
 async function getSessionToken(): Promise<string | null> {
   const cookieStore = await cookies();
   return cookieStore.get(SESSION_COOKIE_NAME)?.value ?? null;
-}
-
-// POST /api/v1/learnings/levels needs the caller's own session JWT — see docs/api/learnings.md in ailene-lms-backend.
-export async function getStudentLevels(
-  projectId: string,
-): Promise<StudentLevel[]> {
-  const sessionToken = await getSessionToken();
-  if (!sessionToken) return [];
-
-  const result = await callApi<StudentLevel[]>("/api/v1/learnings/levels", {
-    method: "POST",
-    body: { project_id: projectId },
-    token: sessionToken,
-  });
-
-  if (!result.success) {
-    await LogError(
-      "getStudentLevels",
-      result.code,
-      result.status,
-      result.message,
-    );
-    throw new Error("Data belum dapat dimuat.");
-  }
-  return result.data ?? [];
 }
 
 // POST /api/v2/materials needs the caller's own session JWT — see docs/api/materials.md in ailene-lms-apis.
