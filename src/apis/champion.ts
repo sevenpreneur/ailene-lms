@@ -76,7 +76,7 @@ export type MemberDetails = {
     gate_percent: number;
     streak_days: number;
     submission_total: number;
-    avg_quiz: number;
+    avg_test: number;
   };
   radar: {
     total_submissions: number;
@@ -251,7 +251,8 @@ export type UseCaseSubmissionDetails = {
   guided_session?: GuidedSession | null;
   testimonial?: string | null;
   helpfulness_rating?: number | null;
-  share_consent?: boolean;
+  share_consent?: boolean | null;
+  hours_saved?: number | null;
 };
 
 export type AssignmentTarget = {
@@ -308,7 +309,7 @@ async function getSessionToken(): Promise<string | null> {
   return cookieStore.get(SESSION_COOKIE_NAME)?.value ?? null;
 }
 
-// Every /api/v1/champion/* endpoint: session JWT + project_id, champion-only — see docs/api/champion.md.
+// Champion v2 endpoints use the caller's LMS session JWT and project_id.
 async function championRead<T>(
   name: string,
   path: string,
@@ -321,6 +322,7 @@ async function championRead<T>(
     method: "POST",
     body,
     token: sessionToken,
+    backend: "lms",
   });
 
   if (!result.success) {
@@ -345,6 +347,7 @@ async function championWrite<T>(
     method: "POST",
     body,
     token: sessionToken,
+    backend: "lms",
   });
 
   if (!result.success || !result.data) {
@@ -357,7 +360,7 @@ async function championWrite<T>(
 export function getTeamMembers(projectId: string) {
   return championRead<TeamMembers>(
     "getTeamMembers",
-    "/api/v1/champion/members",
+    "/api/v2/groups/members",
     { project_id: projectId },
   );
 }
@@ -365,7 +368,7 @@ export function getTeamMembers(projectId: string) {
 export function getMemberDetails(projectId: string, memberAccessId: string) {
   return championRead<MemberDetails>(
     "getMemberDetails",
-    "/api/v1/champion/member-details",
+    "/api/v2/groups/member-details",
     { project_id: projectId, member_access_id: memberAccessId },
   );
 }
@@ -373,7 +376,7 @@ export function getMemberDetails(projectId: string, memberAccessId: string) {
 export function getPreAssessmentTeam(projectId: string) {
   return championRead<PreAssessmentTeam>(
     "getPreAssessmentTeam",
-    "/api/v1/champion/pre-assessment-team",
+    "/api/v2/pre-assessment/team",
     { project_id: projectId },
   );
 }
@@ -384,7 +387,7 @@ export function getChampionReport(
 ) {
   return championRead<ChampionReport>(
     "getChampionReport",
-    "/api/v1/champion/report",
+    "/api/v2/stats/report",
     { project_id: projectId, period },
   );
 }
@@ -392,7 +395,7 @@ export function getChampionReport(
 export function getUseCaseSubmissions(projectId: string) {
   return championRead<ChampionSubmissions>(
     "getUseCaseSubmissions",
-    "/api/v1/champion/use-cases/submissions",
+    "/api/v2/use-cases/submissions",
     { project_id: projectId },
   );
 }
@@ -403,7 +406,7 @@ export function getUseCaseSubmissionDetails(
 ) {
   return championRead<UseCaseSubmissionDetails>(
     "getUseCaseSubmissionDetails",
-    "/api/v1/champion/use-cases/submission-details",
+    "/api/v2/use-cases/submission-details",
     { project_id: projectId, submission_id: submissionId },
   );
 }
@@ -415,7 +418,7 @@ export function assignUseCase(
 ) {
   return championWrite<AssignResult>(
     "assignUseCase",
-    "/api/v1/champion/use-cases/assign",
+    "/api/v2/use-cases/assign",
     { project_id: projectId, library_id: libraryId, ...target },
   );
 }
@@ -432,7 +435,7 @@ export function createUseCaseAssignment(
 ) {
   return championWrite<CreateUseCaseAssignmentResult>(
     "createUseCaseAssignment",
-    "/api/v1/champion/use-cases/create-assignment",
+    "/api/v2/use-cases/create-assignment",
     { project_id: projectId, ...input },
   );
 }
@@ -452,7 +455,7 @@ export function createGuidedUseCase(
 ) {
   return championWrite<CreateUseCaseAssignmentResult>(
     "createGuidedUseCase",
-    "/api/v1/champion/use-cases/create-guided",
+    "/api/v2/use-cases/create-guided",
     { project_id: projectId, ...input },
   );
 }
@@ -463,7 +466,7 @@ export function generateAssignmentDrafts(
 ) {
   return championWrite<AssignmentDraftBatch>(
     "generateAssignmentDrafts",
-    "/api/v1/champion/assignments/generate",
+    "/api/v2/assignment-drafts/generate",
     { project_id: projectId, ...input },
   );
 }
@@ -471,7 +474,7 @@ export function generateAssignmentDrafts(
 export function getAssignmentDrafts(projectId: string) {
   return championRead<{ batches: AssignmentDraftBatch[] }>(
     "getAssignmentDrafts",
-    "/api/v1/champion/assignments/drafts",
+    "/api/v2/assignment-drafts",
     { project_id: projectId },
   );
 }
@@ -479,7 +482,7 @@ export function getAssignmentDrafts(projectId: string) {
 export function deleteAssignmentDraft(projectId: string, draftId: number) {
   return championWrite<{ deleted: boolean }>(
     "deleteAssignmentDraft",
-    "/api/v1/champion/assignments/drafts/delete",
+    "/api/v2/assignment-drafts/delete",
     { project_id: projectId, draft_id: draftId },
   );
 }
@@ -494,7 +497,7 @@ export function reviewUseCase(
 ) {
   return championWrite<ReviewResult>(
     "reviewUseCase",
-    "/api/v1/champion/use-cases/review",
+    "/api/v2/use-cases/review",
     { project_id: projectId, ...input },
   );
 }
