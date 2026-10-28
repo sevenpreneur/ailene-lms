@@ -26,15 +26,13 @@ import {
   ArrowRight,
   BookOpen,
   Check,
-  ClipboardCheck,
-  ClipboardList,
   ExternalLink,
   FileText,
   ListChecks,
   LockKeyhole,
   MessageSquareHeart,
   MonitorPlay,
-  SquareCheckBig,
+  TicTacToe,
   Trophy,
 } from "lucide-react";
 import Link from "next/link";
@@ -72,14 +70,12 @@ function youtubeEmbedUrl(raw: string): string | null {
     return null;
   }
 }
-
 const YOUTUBE_EMBED_ORIGIN = "https://www.youtube-nocookie.com";
 
 function formatMinute(seconds: number): string {
   const minutes = Math.floor(seconds / 60);
   return `${String(Math.floor(minutes / 60)).padStart(2, "0")}:${String(minutes % 60).padStart(2, "0")}`;
 }
-
 function PanelHeading({
   icon,
   title,
@@ -110,31 +106,45 @@ function PanelHeading({
     </div>
   );
 }
-
-const EVALUATION_KIND: Record<
-  ChapterTestKind,
-  { icon: ReactNode; tile: string }
-> = {
-  pre_test: {
-    icon: <ClipboardList className="size-[18px]" />,
-    tile: "bg-hijau-t text-claude dark:bg-claude/15 dark:text-lime-bright",
-  },
-  post_test: {
-    icon: <ClipboardCheck className="size-[18px]" />,
-    tile: "bg-forest-deep text-lime-bright dark:bg-lime-bright/15",
-  },
-};
+function SectionHeading({
+  id,
+  title,
+  detail,
+  action,
+}: {
+  id: string;
+  title: string;
+  detail: string;
+  action?: ReactNode;
+}) {
+  return (
+    <div className="flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
+      <div>
+        <h2
+          id={id}
+          className="font-headline text-2xl font-medium text-gray-950 dark:text-white"
+        >
+          {title}
+        </h2>
+        <p className="mt-1 text-sm text-gray-600 dark:text-gray-400">
+          {detail}
+        </p>
+      </div>
+      {action && <div className="w-full shrink-0 sm:w-64">{action}</div>}
+    </div>
+  );
+}
 
 function EvaluationChip({
   icon,
   children,
 }: {
-  icon: ReactNode;
+  icon?: ReactNode;
   children: ReactNode;
 }) {
   return (
-    <span className="inline-flex items-center gap-1 rounded-full border border-dashboard-border bg-card-2 px-2 py-0.5 text-[11px] font-medium text-gray-600 dark:text-gray-300">
-      {icon}
+    <span className="inline-flex items-center gap-1 rounded-full border border-dashboard-border bg-card-2 px-2 py-0.5 text-[13px] font-medium text-gray-600 dark:text-gray-300">
+      {icon && icon}
       {children}
     </span>
   );
@@ -142,12 +152,9 @@ function EvaluationChip({
 
 function EvaluationCard({
   kind,
-  step,
-  isLast,
   isNext,
   label,
   title,
-  description,
   questionCount,
   score,
   done,
@@ -156,12 +163,9 @@ function EvaluationCard({
   href,
 }: {
   kind: ChapterTestKind;
-  step: number;
-  isLast: boolean;
   isNext: boolean;
   label: string;
   title: string;
-  description?: string | null;
   questionCount: number;
   score: number | null;
   done: boolean;
@@ -169,8 +173,11 @@ function EvaluationCard({
   actionLabel: string;
   href: string;
 }) {
-  const kindStyle = EVALUATION_KIND[kind];
   const locked = !!lockedReason;
+  const description =
+    kind === "pre_test"
+      ? "Ukur pemahaman awal sebelum sesi dimulai."
+      : "Ukur pemahaman setelah materi selesai.";
   const buttonVariant = done ? "outline" : isNext ? "dark" : "neutral";
   const buttonContent = (
     <>
@@ -180,62 +187,26 @@ function EvaluationCard({
   );
 
   return (
-    <li className="relative flex gap-3">
-      {!isLast && (
+    <li className="overflow-hidden rounded-lg border border-dashboard-border bg-gray-50 dark:bg-card-1">
+      <div className="flex flex-col gap-4 p-4 sm:flex-row sm:items-center sm:p-5">
         <span
-          aria-hidden
-          className={`absolute bottom-[-12px] left-[13px] top-8 w-0.5 ${done ? "bg-claude/50" : "bg-dashboard-border"}`}
-        />
-      )}
-      <span
-        className={`relative z-10 mt-4 flex size-7 shrink-0 items-center justify-center rounded-full text-[11px] font-medium ${done ? "bg-claude text-white" : locked ? "border border-dashboard-border bg-card-1 text-gray-400" : isNext ? "bg-forest-deep text-lime-bright ring-4 ring-claude/15 dark:bg-lime-bright dark:text-forest-deep" : "border border-claude/40 bg-card-1 text-claude dark:text-lime-bright"}`}
-      >
-        {done ? (
-          <Check className="size-3.5" />
-        ) : locked ? (
-          <LockKeyhole className="size-3" />
-        ) : (
-          step
-        )}
-      </span>
-      <div
-        className={`min-w-0 flex-1 overflow-hidden rounded-lg border bg-card-1 ${isNext ? "border-claude" : done ? "border-claude/40" : "border-dashboard-border"}`}
-      >
-        <div className="p-4">
-          <div className="flex items-start gap-3">
-            <span
-              className={`flex size-9 shrink-0 items-center justify-center rounded-lg ${locked ? "bg-card-2 text-gray-400" : kindStyle.tile}`}
-            >
-              {kindStyle.icon}
-            </span>
-            <div className="min-w-0 flex-1">
-              <div className="flex flex-wrap items-center justify-between gap-x-2 gap-y-1">
-                <p className="whitespace-nowrap text-[11px] font-medium uppercase tracking-[0.14em] text-gray-500 dark:text-gray-400">
-                  {label}
-                </p>
-                <span
-                  className={`inline-flex shrink-0 items-center gap-1.5 rounded-full px-2 py-0.5 text-[11px] font-medium ${done ? "bg-hijau-t text-claude dark:bg-claude/15 dark:text-lime-bright" : locked ? "bg-card-2 text-gray-500 dark:text-gray-400" : "bg-amber-50 text-amber-700 dark:bg-amber-400/10 dark:text-amber-300"}`}
-                >
-                  {!done && !locked && (
-                    <span className="size-1.5 rounded-full bg-amber-500" />
-                  )}
-                  {done ? "Selesai" : locked ? "Terkunci" : "Siap dikerjakan"}
-                </span>
-              </div>
-              <h3 className="mt-0.5 font-headline text-[15px] font-medium leading-snug text-gray-950 dark:text-white">
-                {title}
-              </h3>
-            </div>
-          </div>
-          {description && (
-            <p className="mt-2.5 line-clamp-2 text-xs leading-5 text-gray-600 dark:text-gray-400">
-              {description}
-            </p>
-          )}
-          <div className="mt-3 flex flex-wrap gap-1.5">
+          className={`flex size-10 shrink-0 items-center justify-center rounded-lg border border-dashboard-border bg-white dark:bg-white/10 ${locked ? "text-gray-400" : "text-claude dark:text-lime-bright"}`}
+        >
+          <TicTacToe className="size-5" />
+        </span>
+
+        <div className="min-w-0 flex-1">
+          <h3 className="font-headline text-lg font-medium leading-snug text-gray-950 dark:text-white">
+            {title}
+          </h3>
+          <p className="mt-1 line-clamp-2 text-[13px] leading-5 text-gray-600 dark:text-gray-400">
+            {description}
+          </p>
+          <div className="mt-2.5 flex flex-wrap gap-1.5">
             <EvaluationChip icon={<ListChecks className="size-3" />}>
               {questionCount} soal
             </EvaluationChip>
+            <EvaluationChip>{label}</EvaluationChip>
             {done && score !== null && (
               <EvaluationChip
                 icon={
@@ -247,26 +218,26 @@ function EvaluationCard({
             )}
           </div>
         </div>
-        <div
-          className={`border-t px-4 py-3 ${locked ? "border-amber-200 bg-amber-50 dark:border-amber-400/20 dark:bg-amber-400/10" : "border-dashboard-border bg-card-2"}`}
-        >
-          {locked ? (
-            <p className="flex items-start gap-2 text-xs leading-5 text-amber-800 dark:text-amber-300">
-              <LockKeyhole className="mt-0.5 size-3.5 shrink-0" />
-              {lockedReason}
-            </p>
-          ) : (
-            <ButtonAILN
-              asChild
-              variant={buttonVariant}
-              size="small"
-              width="full"
-            >
+
+        <div className="flex shrink-0 flex-wrap items-center gap-2 sm:flex-col sm:items-end">
+          <span
+            className={`inline-flex h-8 items-center rounded-full px-3 text-[13px] font-medium ${done ? "bg-hijau-t text-claude dark:bg-claude/15 dark:text-lime-bright" : locked ? "bg-card-2 text-gray-500 dark:text-gray-400" : "bg-amber-50 text-amber-700 dark:bg-amber-400/10 dark:text-amber-300"}`}
+          >
+            {done ? "Selesai" : locked ? "Terkunci" : "Siap dikerjakan"}
+          </span>
+          {!locked && (
+            <ButtonAILN asChild variant={buttonVariant} size="small">
               <Link href={href}>{buttonContent}</Link>
             </ButtonAILN>
           )}
         </div>
       </div>
+      {locked && (
+        <p className="flex items-start gap-2 border-t border-dashboard-border px-4 py-3 text-[13px] leading-5 text-amber-800 dark:text-amber-300 sm:px-5">
+          <LockKeyhole className="mt-0.5 size-3.5 shrink-0" />
+          {lockedReason}
+        </p>
+      )}
     </li>
   );
 }
@@ -332,7 +303,6 @@ export default function ChapterDetailsAILN({
       kind: test.kind,
       label,
       title: test.name,
-      description: test.description,
       questionCount: test.question_count,
       score: test.score,
       done: test.submitted,
@@ -470,15 +440,28 @@ export default function ChapterDetailsAILN({
             </p>
           </div>
         ) : (
-          <div className="grid min-w-0 gap-6 xl:grid-cols-[minmax(0,1.65fr)_minmax(340px,0.85fr)] xl:items-start">
-            <div className="min-w-0 space-y-5">
-              <section
-                id="video"
-                className="scroll-mt-6 overflow-hidden rounded-lg border border-dashboard-border bg-card-1"
-              >
-                <PanelHeading
-                  icon={<MonitorPlay className="size-5" />}
-                  title="Video pembelajaran"
+          <div
+            className={`grid min-w-0 gap-6 xl:items-start ${evaluations.length > 0 || survey ? "xl:grid-cols-[minmax(0,1.65fr)_minmax(340px,0.85fr)]" : ""}`}
+          >
+            <div className="min-w-0 space-y-10">
+              {practiceTasks.length > 0 && (
+                <div id="tugas-praktik" className="scroll-mt-6">
+                  <ChapterTasksStudentAILN
+                    tasks={practiceTasks}
+                    chapterOrder={chapterOrder}
+                  />
+                </div>
+              )}
+
+              {videos.length > 0 && (
+                <section
+                  id="video"
+                  aria-labelledby="video-title"
+                  className="flex scroll-mt-6 flex-col gap-4"
+                >
+                <SectionHeading
+                  id="video-title"
+                  title="Video Pembelajaran"
                   detail={
                     videoTimestamps.length
                       ? `${videoTimestamps.length} bagian · pilih bagian untuk melompat`
@@ -503,7 +486,8 @@ export default function ChapterDetailsAILN({
                     ) : undefined
                   }
                 />
-                <div className="p-3 sm:p-5">
+                <div className="overflow-hidden rounded-lg border border-dashboard-border bg-gray-50 dark:bg-card-1">
+                  <div className="p-3 sm:p-5">
                   {videoVisible ? (
                     <div className="overflow-hidden rounded-lg border border-dashboard-border bg-neutral-900">
                       {!activeVideo || !embedUrl ? (
@@ -605,9 +589,9 @@ export default function ChapterDetailsAILN({
                       )}
                     </div>
                   )}
-                </div>
-                {videoVisible && activeVideo && embedUrl && (
-                  <div className="border-t border-dashboard-border bg-sb-bg/60 px-3 py-4 sm:px-5">
+                  </div>
+                  {videoVisible && activeVideo && embedUrl && (
+                    <div className="border-t border-dashboard-border bg-sb-bg/60 px-3 py-4 sm:px-5">
                     <p className="mb-3 px-1 text-[11px] font-medium uppercase tracking-[0.14em] text-gray-600 dark:text-gray-400">
                       {videoTimestamps.length
                         ? "Lompat ke bagian"
@@ -658,20 +642,22 @@ export default function ChapterDetailsAILN({
                         ))}
                       </div>
                     )}
-                  </div>
-                )}
-              </section>
+                    </div>
+                  )}
+                </div>
+                </section>
+              )}
 
-              <section
-                id="materi"
-                className="scroll-mt-6 overflow-hidden rounded-lg border border-dashboard-border bg-card-1"
-              >
-                <PanelHeading
-                  icon={<BookOpen className="size-5" />}
-                  title="Materi chapter"
-                  detail={`${materials.length} materi untuk dipelajari`}
-                />
-                {materials.length ? (
+              {materials.length > 0 && (
+                <section
+                  id="materi"
+                  className="scroll-mt-6 overflow-hidden rounded-lg border border-dashboard-border bg-card-1"
+                >
+                  <PanelHeading
+                    icon={<BookOpen className="size-5" />}
+                    title="Materi chapter"
+                    detail={`${materials.length} materi untuk dipelajari`}
+                  />
                   <div className="divide-y divide-dashboard-border">
                     {materials.map((material) => {
                       const locked = !contentUnlocked && !material.completed;
@@ -773,55 +759,37 @@ export default function ChapterDetailsAILN({
                       );
                     })}
                   </div>
-                ) : (
-                  <p className="p-6 text-sm text-gray-600 dark:text-gray-400">
-                    Belum ada materi untuk chapter ini.
-                  </p>
-                )}
-              </section>
-
-              {practiceTasks.length > 0 && (
-                <div id="tugas-praktik" className="scroll-mt-6">
-                  <ChapterTasksStudentAILN
-                    tasks={practiceTasks}
-                    chapterOrder={chapterOrder}
-                  />
-                </div>
+                </section>
               )}
+
             </div>
 
-            <aside className="min-w-0 space-y-5 xl:sticky xl:top-6">
-              <section
-                id="evaluasi"
-                className="scroll-mt-6 overflow-hidden rounded-lg border border-dashboard-border bg-card-1"
-              >
-                <PanelHeading
-                  icon={<SquareCheckBig className="size-5" />}
-                  title="Uji pemahamanmu"
-                  detail="Kerjakan sesuai urutan untuk membuka tahap berikutnya."
-                />
-                <div className="bg-sb-bg/60 p-4 sm:p-5">
-                  {evaluations.length ? (
-                    <ol className="space-y-3">
-                      {evaluations.map(({ key, ...evaluation }, index) => (
-                        <EvaluationCard
-                          key={key}
-                          {...evaluation}
-                          step={index + 1}
-                          isLast={index === evaluations.length - 1}
-                          isNext={key === nextEvaluationKey}
-                        />
-                      ))}
-                    </ol>
-                  ) : (
-                    <p className="rounded-lg border border-dashboard-border bg-card-1 p-4 text-sm text-gray-600 dark:text-gray-400">
-                      Belum ada evaluasi untuk chapter ini.
-                    </p>
-                  )}
-                </div>
-              </section>
-              {survey && (
-                <section
+            {(evaluations.length > 0 || survey) && (
+              <aside className="min-w-0 space-y-5 xl:sticky xl:top-6">
+                {evaluations.length > 0 && (
+                  <section
+                    id="evaluasi"
+                    aria-labelledby="evaluasi-title"
+                    className="flex scroll-mt-6 flex-col gap-4"
+                  >
+                    <SectionHeading
+                      id="evaluasi-title"
+                      title="Uji Pemahaman"
+                      detail="Kerjakan sesuai urutan untuk membuka tahap berikutnya."
+                    />
+                  <ul className="space-y-3">
+                    {evaluations.map(({ key, ...evaluation }) => (
+                      <EvaluationCard
+                        key={key}
+                        {...evaluation}
+                        isNext={key === nextEvaluationKey}
+                      />
+                    ))}
+                    </ul>
+                  </section>
+                )}
+                {survey && (
+                  <section
                   id="survei"
                   className="scroll-mt-6 rounded-lg border border-forest-deep bg-forest-deep p-5 text-white dark:border-white/10"
                 >
@@ -885,9 +853,10 @@ export default function ChapterDetailsAILN({
                       )}
                     </div>
                   </div>
-                </section>
-              )}
-            </aside>
+                  </section>
+                )}
+              </aside>
+            )}
           </div>
         )}
 
