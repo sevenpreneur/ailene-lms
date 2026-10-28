@@ -1,5 +1,4 @@
 import type { NotificationItem } from "@/apis/notifications";
-import { formatRelativeTime } from "@/lib/date-time-manipulation";
 import { NOTIFICATION_ICON, notificationEventLabel } from "@/lib/notifications";
 
 export default function NotificationItemAILN({
@@ -36,20 +35,14 @@ export default function NotificationItemAILN({
         >
           {item.title}
         </span>
-        {item.type.startsWith("prompt_") && (
-          <span className="text-xs text-muted-foreground">
-            Tugas lama · jalur Prompt sudah dinonaktifkan.
-          </span>
-        )}
         {item.body && (
           <span className="line-clamp-2 text-sm text-muted-foreground">
             {item.body}
           </span>
         )}
-        <span className="text-xs text-muted-foreground">
-          {eventLabel ? `${eventLabel} · ` : ""}
-          {formatRelativeTime(item.created_at)}
-        </span>
+        {eventLabel && (
+          <span className="text-xs text-muted-foreground">{eventLabel}</span>
+        )}
       </span>
       {unread && (
         <span

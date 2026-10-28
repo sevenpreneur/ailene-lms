@@ -5,18 +5,7 @@ import { callApi } from "./api";
 import { SESSION_COOKIE_NAME } from "@/lib/constants";
 import LogError from "@/lib/log-error";
 
-export type NotificationType =
-  | "chapter_reminder"
-  | "chapter_unlocked"
-  | "prompt_assigned"
-  | "use_case_assigned"
-  | "prompt_deadline"
-  | "use_case_deadline"
-  | "prompt_reviewed"
-  | "use_case_reviewed"
-  | "coaching_note"
-  | "prompt_submitted"
-  | "use_case_submitted";
+export type NotificationType = "session_reminder" | "post_test_reminder";
 
 export type NotificationItem = {
   id: number;
@@ -50,7 +39,7 @@ async function getSessionToken(): Promise<string | null> {
   return cookieStore.get(SESSION_COOKIE_NAME)?.value ?? null;
 }
 
-// POST /api/v1/notifications needs the caller's own session JWT — see docs/api/notifications.md in ailene-lms-backend.
+// Notification v2 endpoints use the caller's active LMS session JWT.
 export async function getNotifications(
   projectId: string,
   options: { unreadOnly?: boolean; page?: number; pageSize?: number } = {}
@@ -58,7 +47,7 @@ export async function getNotifications(
   const sessionToken = await getSessionToken();
   if (!sessionToken) return null;
 
-  const result = await callApi<NotificationList>("/api/v1/notifications", {
+  const result = await callApi<NotificationList>("/api/v2/notifications", {
     method: "POST",
     body: {
       project_id: projectId,
@@ -67,6 +56,7 @@ export async function getNotifications(
       page_size: options.pageSize ?? 20,
     },
     token: sessionToken,
+    backend: "lms",
   });
 
   if (!result.success || !result.data) {
@@ -83,8 +73,13 @@ export async function getUnreadNotificationCount(
   if (!sessionToken) return null;
 
   const result = await callApi<{ unread_count: number }>(
-    "/api/v1/notifications/unread-count",
-    { method: "POST", body: { project_id: projectId }, token: sessionToken }
+    "/api/v2/notifications/unread-count",
+    {
+      method: "POST",
+      body: { project_id: projectId },
+      token: sessionToken,
+      backend: "lms",
+    }
   );
 
   if (!result.success || !result.data) {
@@ -107,11 +102,12 @@ export async function markNotificationsRead(
   if (!sessionToken) return null;
 
   const result = await callApi<NotificationReadResult>(
-    "/api/v1/notifications/read",
+    "/api/v2/notifications/read",
     {
       method: "POST",
       body: { project_id: projectId, notification_ids: notificationIds },
       token: sessionToken,
+      backend: "lms",
     }
   );
 
@@ -134,8 +130,13 @@ export async function markAllNotificationsRead(
   if (!sessionToken) return null;
 
   const result = await callApi<NotificationReadResult>(
-    "/api/v1/notifications/read-all",
-    { method: "POST", body: { project_id: projectId }, token: sessionToken }
+    "/api/v2/notifications/read-all",
+    {
+      method: "POST",
+      body: { project_id: projectId },
+      token: sessionToken,
+      backend: "lms",
+    }
   );
 
   if (!result.success || !result.data) {
