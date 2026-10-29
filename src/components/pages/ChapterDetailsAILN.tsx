@@ -294,7 +294,6 @@ export default function ChapterDetailsAILN({
   const surveySubmitted = !!survey?.response;
   const nextChapter = chapter.next_chapter;
   const contentUnlocked = unlocked && (!preTest || preTest.submitted);
-  const videoVisible = contentUnlocked || !!activeVideo?.completed;
   const base = `/${projectId}/student`;
   const evaluations = tests.map((test) => {
     const label = CHAPTER_TEST_KIND_LABEL[test.kind];
@@ -459,192 +458,182 @@ export default function ChapterDetailsAILN({
                   aria-labelledby="video-title"
                   className="flex scroll-mt-6 flex-col gap-4"
                 >
-                <SectionHeading
-                  id="video-title"
-                  title="Video Pembelajaran"
-                  detail={
-                    videoTimestamps.length
-                      ? `${videoTimestamps.length} bagian · pilih bagian untuk melompat`
-                      : (activeVideo?.title ?? "Rekaman chapter")
-                  }
-                  action={
-                    videos.length > 1 ? (
-                      <SelectAILN
-                        selectId="chapter-video"
-                        selectName="Pilih video chapter"
-                        selectPlaceholder="Pilih video"
-                        value={activeVideo?.id ?? ""}
-                        onChange={(value) => {
-                          setActiveVideoId(Number(value));
-                          setCurrentTime(0);
-                        }}
-                        options={videos.map((video) => ({
-                          value: video.id,
-                          label: `${video.title}${video.completed || completedVideoIds.has(video.id) ? " · Sudah ditonton" : ""}`,
-                        }))}
-                      />
-                    ) : undefined
-                  }
-                />
-                <div className="overflow-hidden rounded-lg border border-dashboard-border bg-gray-50 dark:bg-card-1">
-                  <div className="p-3 sm:p-5">
-                  {videoVisible ? (
-                    <div className="overflow-hidden rounded-lg border border-dashboard-border bg-neutral-900">
-                      {!activeVideo || !embedUrl ? (
-                        <div className="flex aspect-video flex-col items-center justify-center gap-3 px-6 text-center text-white">
-                          <MonitorPlay className="size-10 text-white/70" />
-                          {externalVideoUrl ? (
-                            <>
-                              <p className="font-headline text-lg font-medium">
-                                Video diputar di tab baru
-                              </p>
-                              <ButtonAILN
-                                asChild
-                                variant="outline"
-                                size="small"
-                              >
-                                <a
-                                  href={externalVideoUrl}
-                                  target="_blank"
-                                  rel="noopener noreferrer"
-                                >
-                                  Tonton video
-                                  <ExternalLink className="size-3.5" />
-                                </a>
-                              </ButtonAILN>
-                            </>
-                          ) : (
-                            <>
-                              <p className="font-headline text-lg font-medium">
-                                Video YouTube belum tersedia
-                              </p>
-                              <p className="text-sm text-white/60">
-                                Lanjutkan dengan materi chapter di bawah.
-                              </p>
-                            </>
-                          )}
-                        </div>
-                      ) : (
-                        <iframe
-                          ref={playerRef}
-                          key={activeVideo.id}
-                          src={`${embedUrl}?enablejsapi=1`}
-                          onLoad={() =>
-                            postToPlayer({
-                              event: "listening",
-                              channel: "widget",
-                            })
-                          }
-                          title={activeVideo.title}
-                          allow="accelerometer; autoplay; encrypted-media; gyroscope; picture-in-picture; web-share"
-                          allowFullScreen
-                          loading="lazy"
-                          className="aspect-video w-full"
-                          referrerPolicy="strict-origin-when-cross-origin"
+                  <SectionHeading
+                    id="video-title"
+                    title="Video Pembelajaran"
+                    detail={
+                      videoTimestamps.length
+                        ? `${videoTimestamps.length} bagian · pilih bagian untuk melompat`
+                        : (activeVideo?.title ?? "Rekaman chapter")
+                    }
+                    action={
+                      videos.length > 1 ? (
+                        <SelectAILN
+                          selectId="chapter-video"
+                          selectName="Pilih video chapter"
+                          selectPlaceholder="Pilih video"
+                          value={activeVideo?.id ?? ""}
+                          onChange={(value) => {
+                            setActiveVideoId(Number(value));
+                            setCurrentTime(0);
+                          }}
+                          options={videos.map((video) => ({
+                            value: video.id,
+                            label: `${video.title}${video.completed || completedVideoIds.has(video.id) ? " · Sudah ditonton" : ""}`,
+                          }))}
                         />
-                      )}
-                    </div>
-                  ) : (
-                    <div className="flex aspect-video flex-col items-center justify-center gap-3 rounded-lg bg-neutral-900 px-6 text-center text-white">
-                      <LockKeyhole className="size-8 text-white/70" />
-                      <p className="font-headline text-lg font-medium">
-                        Video belum terbuka
-                      </p>
-                      <p className="text-sm text-white/65">
-                        Kerjakan pre-test terlebih dahulu.
-                      </p>
-                    </div>
-                  )}
-                  {activeVideo && videoVisible && (
-                    <div className="mt-4 flex flex-wrap items-center justify-between gap-3">
-                      <div className="min-w-0">
-                        <p className="text-sm font-medium text-gray-950 dark:text-white">
-                          {activeVideo.title}
-                        </p>
-                        {activeVideo.description && (
-                          <p className="mt-0.5 text-xs text-gray-600 dark:text-gray-400">
-                            {activeVideo.description}
-                          </p>
+                      ) : undefined
+                    }
+                  />
+                  <div className="overflow-hidden rounded-lg border border-dashboard-border bg-gray-50 dark:bg-card-1">
+                    <div className="p-3 sm:p-5">
+                      <div className="overflow-hidden rounded-lg border border-dashboard-border bg-neutral-900">
+                        {!activeVideo || !embedUrl ? (
+                          <div className="flex aspect-video flex-col items-center justify-center gap-3 px-6 text-center text-white">
+                            <MonitorPlay className="size-10 text-white/70" />
+                            {externalVideoUrl ? (
+                              <>
+                                <p className="font-headline text-lg font-medium">
+                                  Video diputar di tab baru
+                                </p>
+                                <ButtonAILN
+                                  asChild
+                                  variant="outline"
+                                  size="small"
+                                >
+                                  <a
+                                    href={externalVideoUrl}
+                                    target="_blank"
+                                    rel="noopener noreferrer"
+                                  >
+                                    Tonton video
+                                    <ExternalLink className="size-3.5" />
+                                  </a>
+                                </ButtonAILN>
+                              </>
+                            ) : (
+                              <>
+                                <p className="font-headline text-lg font-medium">
+                                  Video YouTube belum tersedia
+                                </p>
+                                <p className="text-sm text-white/60">
+                                  Lanjutkan dengan materi chapter di bawah.
+                                </p>
+                              </>
+                            )}
+                          </div>
+                        ) : (
+                          <iframe
+                            ref={playerRef}
+                            key={activeVideo.id}
+                            src={`${embedUrl}?enablejsapi=1`}
+                            onLoad={() =>
+                              postToPlayer({
+                                event: "listening",
+                                channel: "widget",
+                              })
+                            }
+                            title={activeVideo.title}
+                            allow="accelerometer; autoplay; encrypted-media; gyroscope; picture-in-picture; web-share"
+                            allowFullScreen
+                            loading="lazy"
+                            className="aspect-video w-full"
+                            referrerPolicy="strict-origin-when-cross-origin"
+                          />
                         )}
                       </div>
-                      {activeVideo.completed ||
-                      completedVideoIds.has(activeVideo.id) ? (
-                        <span className="inline-flex items-center gap-1.5 rounded-full bg-hijau-t px-2.5 py-1 text-xs font-medium text-claude dark:bg-claude/15 dark:text-lime-bright">
-                          <Check className="size-3.5" />
-                          Sudah ditonton
-                        </span>
-                      ) : (
-                        (embedUrl || externalVideoUrl) && (
-                          <ButtonAILN
-                            variant="outline"
-                            size="small"
-                            disabled={savingVideoId !== null}
-                            onClick={() => void markVideoComplete(activeVideo)}
-                          >
-                            {savingVideoId === activeVideo.id
-                              ? "Menyimpan..."
-                              : "Tandai sudah ditonton"}
-                          </ButtonAILN>
-                        )
+                      {activeVideo && (
+                        <div className="mt-4 flex flex-wrap items-center justify-between gap-3">
+                          <div className="min-w-0">
+                            <p className="text-sm font-medium text-gray-950 dark:text-white">
+                              {activeVideo.title}
+                            </p>
+                            {activeVideo.description && (
+                              <p className="mt-0.5 text-xs text-gray-600 dark:text-gray-400">
+                                {activeVideo.description}
+                              </p>
+                            )}
+                          </div>
+                          {activeVideo.completed ||
+                          completedVideoIds.has(activeVideo.id) ? (
+                            <span className="inline-flex items-center gap-1.5 rounded-full bg-hijau-t px-2.5 py-1 text-xs font-medium text-claude dark:bg-claude/15 dark:text-lime-bright">
+                              <Check className="size-3.5" />
+                              Sudah ditonton
+                            </span>
+                          ) : (
+                            (embedUrl || externalVideoUrl) && (
+                              <ButtonAILN
+                                variant="outline"
+                                size="small"
+                                disabled={savingVideoId !== null}
+                                onClick={() =>
+                                  void markVideoComplete(activeVideo)
+                                }
+                              >
+                                {savingVideoId === activeVideo.id
+                                  ? "Menyimpan..."
+                                  : "Tandai sudah ditonton"}
+                              </ButtonAILN>
+                            )
+                          )}
+                        </div>
                       )}
                     </div>
-                  )}
-                  </div>
-                  {videoVisible && activeVideo && embedUrl && (
-                    <div className="border-t border-dashboard-border bg-sb-bg/60 px-3 py-4 sm:px-5">
-                    <p className="mb-3 px-1 text-[11px] font-medium uppercase tracking-[0.14em] text-gray-600 dark:text-gray-400">
-                      {videoTimestamps.length
-                        ? "Lompat ke bagian"
-                        : "Lompat ke menit · setiap 5 menit"}
-                    </p>
-                    {videoTimestamps.length ? (
-                      <ol className="grid gap-1.5 sm:grid-cols-2">
-                        {videoTimestamps.map((timestamp, index) => {
-                          const active = index === activeTimestampIndex;
-                          return (
-                            <li key={timestamp.start_seconds}>
+                    {activeVideo && embedUrl && (
+                      <div className="border-t border-dashboard-border bg-sb-bg/60 px-3 py-4 sm:px-5">
+                        <p className="mb-3 px-1 text-[11px] font-medium uppercase tracking-[0.14em] text-gray-600 dark:text-gray-400">
+                          {videoTimestamps.length
+                            ? "Lompat ke bagian"
+                            : "Lompat ke menit · setiap 5 menit"}
+                        </p>
+                        {videoTimestamps.length ? (
+                          <ol className="grid gap-1.5 sm:grid-cols-2">
+                            {videoTimestamps.map((timestamp, index) => {
+                              const active = index === activeTimestampIndex;
+                              return (
+                                <li key={timestamp.start_seconds}>
+                                  <button
+                                    type="button"
+                                    onClick={() =>
+                                      seekVideo(timestamp.start_seconds)
+                                    }
+                                    aria-current={active ? "true" : undefined}
+                                    className={`group flex w-full items-start gap-3 rounded-lg border px-2.5 py-2 text-left transition-colors focus-visible:outline-2 focus-visible:outline-claude ${active ? "border-claude bg-hijau-t dark:bg-claude/15" : "border-dashboard-border bg-card-1 hover:border-claude/50"}`}
+                                  >
+                                    <span
+                                      className={`shrink-0 rounded-lg px-2 py-0.5 text-xs font-medium tabular-nums ${active ? "bg-claude text-white" : "bg-hijau-t text-claude dark:bg-claude/15 dark:text-lime-bright"}`}
+                                    >
+                                      {getDurationFromSeconds(
+                                        timestamp.start_seconds,
+                                      )}
+                                    </span>
+                                    <span
+                                      className={`min-w-0 text-sm leading-5 ${active ? "font-medium text-gray-950 dark:text-white" : "text-gray-700 dark:text-gray-300"}`}
+                                    >
+                                      {timestamp.title}
+                                    </span>
+                                  </button>
+                                </li>
+                              );
+                            })}
+                          </ol>
+                        ) : (
+                          <div className="flex max-h-32 flex-wrap gap-2 overflow-y-auto">
+                            {shortcuts.map((seconds) => (
                               <button
+                                key={seconds}
                                 type="button"
-                                onClick={() =>
-                                  seekVideo(timestamp.start_seconds)
-                                }
-                                aria-current={active ? "true" : undefined}
-                                className={`group flex w-full items-start gap-3 rounded-lg border px-2.5 py-2 text-left transition-colors focus-visible:outline-2 focus-visible:outline-claude ${active ? "border-claude bg-hijau-t dark:bg-claude/15" : "border-dashboard-border bg-card-1 hover:border-claude/50"}`}
+                                onClick={() => seekVideo(seconds)}
+                                className={`rounded-lg border px-3 py-1.5 text-xs font-medium tabular-nums transition-colors focus-visible:outline-2 focus-visible:outline-claude ${Math.floor(currentTime / 300) * 300 === seconds ? "border-claude bg-claude text-white" : "border-dashboard-border bg-card-1 text-gray-700 hover:border-claude hover:text-claude dark:text-gray-200"}`}
                               >
-                                <span
-                                  className={`shrink-0 rounded-lg px-2 py-0.5 text-xs font-medium tabular-nums ${active ? "bg-claude text-white" : "bg-hijau-t text-claude dark:bg-claude/15 dark:text-lime-bright"}`}
-                                >
-                                  {getDurationFromSeconds(
-                                    timestamp.start_seconds,
-                                  )}
-                                </span>
-                                <span
-                                  className={`min-w-0 text-sm leading-5 ${active ? "font-medium text-gray-950 dark:text-white" : "text-gray-700 dark:text-gray-300"}`}
-                                >
-                                  {timestamp.title}
-                                </span>
+                                {formatMinute(seconds)}
                               </button>
-                            </li>
-                          );
-                        })}
-                      </ol>
-                    ) : (
-                      <div className="flex max-h-32 flex-wrap gap-2 overflow-y-auto">
-                        {shortcuts.map((seconds) => (
-                          <button
-                            key={seconds}
-                            type="button"
-                            onClick={() => seekVideo(seconds)}
-                            className={`rounded-lg border px-3 py-1.5 text-xs font-medium tabular-nums transition-colors focus-visible:outline-2 focus-visible:outline-claude ${Math.floor(currentTime / 300) * 300 === seconds ? "border-claude bg-claude text-white" : "border-dashboard-border bg-card-1 text-gray-700 hover:border-claude hover:text-claude dark:text-gray-200"}`}
-                          >
-                            {formatMinute(seconds)}
-                          </button>
-                        ))}
+                            ))}
+                          </div>
+                        )}
                       </div>
                     )}
-                    </div>
-                  )}
-                </div>
+                  </div>
                 </section>
               )}
 
@@ -761,7 +750,6 @@ export default function ChapterDetailsAILN({
                   </div>
                 </section>
               )}
-
             </div>
 
             {(evaluations.length > 0 || survey) && (
@@ -777,82 +765,82 @@ export default function ChapterDetailsAILN({
                       title="Uji Pemahaman"
                       detail="Kerjakan sesuai urutan untuk membuka tahap berikutnya."
                     />
-                  <ul className="space-y-3">
-                    {evaluations.map(({ key, ...evaluation }) => (
-                      <EvaluationCard
-                        key={key}
-                        {...evaluation}
-                        isNext={key === nextEvaluationKey}
-                      />
-                    ))}
+                    <ul className="space-y-3">
+                      {evaluations.map(({ key, ...evaluation }) => (
+                        <EvaluationCard
+                          key={key}
+                          {...evaluation}
+                          isNext={key === nextEvaluationKey}
+                        />
+                      ))}
                     </ul>
                   </section>
                 )}
                 {survey && (
                   <section
-                  id="survei"
-                  className="scroll-mt-6 rounded-lg border border-forest-deep bg-forest-deep p-5 text-white dark:border-white/10"
-                >
-                  <div>
-                    <div className="flex items-start gap-3">
-                      <span className="flex size-11 shrink-0 items-center justify-center rounded-lg bg-lime-bright text-black">
-                        <MessageSquareHeart className="size-5" />
-                      </span>
-                      <div className="min-w-0">
-                        <p className="text-[11px] font-medium uppercase tracking-[0.14em] text-white/80">
-                          Survei chapter
-                        </p>
-                        <h2 className="mt-0.5 font-headline text-lg font-medium leading-snug text-white">
-                          Bagikan pengalamanmu
-                        </h2>
+                    id="survei"
+                    className="scroll-mt-6 rounded-lg border border-forest-deep bg-forest-deep p-5 text-white dark:border-white/10"
+                  >
+                    <div>
+                      <div className="flex items-start gap-3">
+                        <span className="flex size-11 shrink-0 items-center justify-center rounded-lg bg-lime-bright text-black">
+                          <MessageSquareHeart className="size-5" />
+                        </span>
+                        <div className="min-w-0">
+                          <p className="text-[11px] font-medium uppercase tracking-[0.14em] text-white/80">
+                            Survei chapter
+                          </p>
+                          <h2 className="mt-0.5 font-headline text-lg font-medium leading-snug text-white">
+                            Bagikan pengalamanmu
+                          </h2>
+                        </div>
                       </div>
-                    </div>
-                    <p className="mt-3 text-xs leading-5 text-white/75">
-                      Nilai trainer dan materi sesi ini. Masukanmu dipakai untuk
-                      menyiapkan sesi berikutnya.
-                    </p>
-                    <div className="mt-3 flex flex-wrap gap-1.5">
-                      <span className="rounded-full bg-white/10 px-2 py-0.5 text-[11px] font-medium text-white/80">
-                        {CHAPTER_SURVEY_RATING_KEYS.length} penilaian bintang
-                      </span>
-                      <span className="rounded-full bg-white/10 px-2 py-0.5 text-[11px] font-medium text-white/80">
-                        {CHAPTER_SURVEY_TEXT_KEYS.length} pertanyaan terbuka
-                      </span>
-                    </div>
-                    <div className="mt-4">
-                      {!survey.available && !surveySubmitted ? (
-                        <p className="flex items-start gap-2 rounded-lg bg-white/10 px-3 py-2 text-xs leading-5 text-white/80">
-                          <LockKeyhole className="mt-0.5 size-3.5 shrink-0" />
-                          Survei belum dibuka oleh admin.
-                        </p>
-                      ) : surveySubmitted ? (
-                        <div className="flex flex-wrap items-center justify-between gap-3">
-                          <span className="inline-flex items-center gap-1.5 text-xs font-medium text-white">
-                            <Check className="size-4" />
-                            Terima kasih, survei terkirim
-                          </span>
+                      <p className="mt-3 text-xs leading-5 text-white/75">
+                        Nilai trainer dan materi sesi ini. Masukanmu dipakai
+                        untuk menyiapkan sesi berikutnya.
+                      </p>
+                      <div className="mt-3 flex flex-wrap gap-1.5">
+                        <span className="rounded-full bg-white/10 px-2 py-0.5 text-[11px] font-medium text-white/80">
+                          {CHAPTER_SURVEY_RATING_KEYS.length} penilaian bintang
+                        </span>
+                        <span className="rounded-full bg-white/10 px-2 py-0.5 text-[11px] font-medium text-white/80">
+                          {CHAPTER_SURVEY_TEXT_KEYS.length} pertanyaan terbuka
+                        </span>
+                      </div>
+                      <div className="mt-4">
+                        {!survey.available && !surveySubmitted ? (
+                          <p className="flex items-start gap-2 rounded-lg bg-white/10 px-3 py-2 text-xs leading-5 text-white/80">
+                            <LockKeyhole className="mt-0.5 size-3.5 shrink-0" />
+                            Survei belum dibuka oleh admin.
+                          </p>
+                        ) : surveySubmitted ? (
+                          <div className="flex flex-wrap items-center justify-between gap-3">
+                            <span className="inline-flex items-center gap-1.5 text-xs font-medium text-white">
+                              <Check className="size-4" />
+                              Terima kasih, survei terkirim
+                            </span>
+                            <ButtonAILN
+                              variant="light"
+                              size="small"
+                              onClick={() => setIsSurveyOpen(true)}
+                            >
+                              Lihat jawaban
+                              <ArrowRight className="size-3.5" />
+                            </ButtonAILN>
+                          </div>
+                        ) : (
                           <ButtonAILN
                             variant="light"
-                            size="small"
+                            size="medium"
+                            width="full"
                             onClick={() => setIsSurveyOpen(true)}
                           >
-                            Lihat jawaban
-                            <ArrowRight className="size-3.5" />
+                            Isi survei sekarang
+                            <ArrowRight className="size-4" />
                           </ButtonAILN>
-                        </div>
-                      ) : (
-                        <ButtonAILN
-                          variant="light"
-                          size="medium"
-                          width="full"
-                          onClick={() => setIsSurveyOpen(true)}
-                        >
-                          Isi survei sekarang
-                          <ArrowRight className="size-4" />
-                        </ButtonAILN>
-                      )}
+                        )}
+                      </div>
                     </div>
-                  </div>
                   </section>
                 )}
               </aside>
