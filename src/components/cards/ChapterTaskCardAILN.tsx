@@ -8,6 +8,7 @@ import type {
 import ButtonAILN from "@/components/buttons/ButtonAILN";
 import GeneralLabelAILN from "@/components/labels/GeneralLabelAILN";
 import ChapterTaskSubmissionModalAILN from "@/components/modals/ChapterTaskSubmissionModalAILN";
+import ImageLightboxAILN from "@/components/modals/ImageLightboxAILN";
 import {
   CheckCircle2,
   ChevronDown,
@@ -17,7 +18,7 @@ import {
   RotateCcw,
 } from "lucide-react";
 import { Accordion } from "radix-ui";
-import { useRef, useState } from "react";
+import { useCallback, useRef, useState } from "react";
 
 function TaskState({ status }: { status: ChapterTaskStatus }) {
   if (status === "approved") {
@@ -38,6 +39,11 @@ function TaskState({ status }: { status: ChapterTaskStatus }) {
 }
 
 function TaskSteps({ task }: { task: ChapterTaskDetail }) {
+  const [preview, setPreview] = useState<{ src: string; alt: string } | null>(
+    null,
+  );
+  const closePreview = useCallback(() => setPreview(null), []);
+
   return (
     <div className="p-5 sm:p-6">
       {task.my_status === "rejected" && task.my_submission?.review_comment && (
@@ -78,18 +84,36 @@ function TaskSteps({ task }: { task: ChapterTaskDetail }) {
                 {step.instruction}
               </p>
               {step.image_url && (
-                // eslint-disable-next-line @next/next/no-img-element
-                <img
-                  src={step.image_url}
-                  alt={`Contoh langkah ${step.step_number}`}
-                  loading="lazy"
-                  className="mt-3 max-h-72 w-full rounded-lg border border-dashboard-border bg-card-2 object-contain"
-                />
+                <button
+                  type="button"
+                  onClick={() =>
+                    setPreview({
+                      src: step.image_url!,
+                      alt: `Contoh langkah ${step.step_number}`,
+                    })
+                  }
+                  className="mt-3 block max-w-full cursor-zoom-in overflow-hidden rounded-lg border border-dashboard-border bg-card-2 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-claude"
+                  aria-label={`Perbesar contoh langkah ${step.step_number}`}
+                >
+                  {/* eslint-disable-next-line @next/next/no-img-element */}
+                  <img
+                    src={step.image_url}
+                    alt={`Contoh langkah ${step.step_number}`}
+                    loading="lazy"
+                    className="block h-auto max-h-72 w-auto max-w-full object-contain"
+                  />
+                </button>
               )}
             </div>
           </li>
         ))}
       </ol>
+
+      <ImageLightboxAILN
+        src={preview?.src ?? null}
+        alt={preview?.alt ?? ""}
+        onClose={closePreview}
+      />
     </div>
   );
 }
