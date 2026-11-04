@@ -30,6 +30,7 @@ export type MaterialDetail = {
 
 export type VideoDetail = {
   id: number;
+  type: "recording" | "short";
   title: string;
   description: string | null;
   video_url: string;

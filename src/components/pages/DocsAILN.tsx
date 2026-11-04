@@ -529,8 +529,9 @@ export default function DocsAILN() {
                   </>,
                   <>
                     Tonton video atau rekaman yang tersedia. Jika ada beberapa
-                    video, gunakan pilihan video chapter. Penanda waktu atau
-                    shortcut, jika tersedia, membantu kembali ke bagian
+                    video, rekaman sesi tampil lebih dulu dan kamu bisa berpindah
+                    lewat kartu pilihan video di bawah pemutar. Penanda waktu
+                    atau shortcut, jika tersedia, membantu kembali ke bagian
                     tertentu.
                   </>,
                   <>
