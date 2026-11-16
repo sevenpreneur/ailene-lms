@@ -6,6 +6,7 @@ import TextAreaAILN from "@/components/fields/TextAreaAILN";
 import WorkflowStepCardAILN, {
   workflowStepTitleId,
 } from "@/components/forms/workflow-map/WorkflowStepCardAILN";
+import WorkflowAttachmentsFieldAILN from "@/components/fields/WorkflowAttachmentsFieldAILN";
 import WorkflowFeedbackItemAILN from "@/components/items/WorkflowFeedbackItemAILN";
 import AlertConfirmDialogAILN from "@/components/modals/AlertConfirmDialogAILN";
 import PageContainerAILN from "@/components/pages/PageContainerAILN";
@@ -25,6 +26,7 @@ import {
 } from "@/lib/workflow-map";
 import type {
   Workflow,
+  WorkflowAttachment,
   WorkflowFrequency,
   WorkflowNodeInput,
 } from "@/apis/workflows";
@@ -43,7 +45,13 @@ import {
 } from "lucide-react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { type ReactNode, useEffect, useRef, useState } from "react";
+import {
+  type ReactNode,
+  useCallback,
+  useEffect,
+  useRef,
+  useState,
+} from "react";
 import { toast } from "sonner";
 
 const STATUS_ICON = {
@@ -121,6 +129,11 @@ export default function WorkflowMapStudentAILN({
   const [nodes, setNodes] = useState(() =>
     initialMap ? toNodeInputs(initialMap.nodes) : WORKFLOW_STARTER_NODES,
   );
+  const [outcome, setOutcome] = useState(initialMap?.result ?? "");
+  const [attachments, setAttachments] = useState<WorkflowAttachment[]>(
+    initialMap?.attachments ?? [],
+  );
+  const [uploading, setUploading] = useState(false);
   const [showExample, setShowExample] = useState(false);
   const [dirty, setDirty] = useState(false);
   const [pending, setPending] = useState<Pending>(null);
@@ -197,11 +210,28 @@ export default function WorkflowMapStudentAILN({
       ?.focus({ preventScroll: true });
   };
 
+  const addAttachment = (attachment: WorkflowAttachment) => {
+    setDirty(true);
+    setAttachments((current) => [...current, attachment]);
+  };
+
+  const removeAttachment = (index: number) => {
+    setDirty(true);
+    setAttachments((current) => current.filter((_, i) => i !== index));
+  };
+
+  const trackUploading = useCallback(
+    (value: boolean) => setUploading(value),
+    [],
+  );
+
   const applySaved = (workflow: Workflow) => {
     setSaved(workflow);
     setTitle(workflow.title ?? "");
     setProblem(workflow.problem ?? "");
     setFrequency(workflow.frequency);
+    setOutcome(workflow.result ?? "");
+    setAttachments(workflow.attachments);
     setNodes(toNodeInputs(workflow.nodes));
     setDirty(false);
   };
@@ -209,7 +239,15 @@ export default function WorkflowMapStudentAILN({
   // Persists the editor and returns the stored workflow, or null after showing an error.
   const persist = async (): Promise<Workflow | null> => {
     if (saved && !dirty) return saved;
-    const content = { project_id: projectId, title, problem, frequency, nodes };
+    const content = {
+      project_id: projectId,
+      title,
+      problem,
+      frequency,
+      result: outcome,
+      nodes,
+      attachments,
+    };
     const result = saved
       ? await postWorkflow("update", { ...content, workflow_id: saved.id })
       : await postWorkflow("create", content);
@@ -443,6 +481,10 @@ export default function WorkflowMapStudentAILN({
                   </li>
                 ))}
               </ol>
+              <p>
+                <span className="font-medium">Hasil akhir:</span>{" "}
+                {WORKFLOW_EXAMPLE.result}
+              </p>
             </div>
           )}
 
@@ -493,6 +535,55 @@ export default function WorkflowMapStudentAILN({
                 sekali kerja
               </span>
             </p>
+          </div>
+        </section>
+
+        <section
+          aria-labelledby="workflow-result"
+          className="flex flex-col gap-4"
+        >
+          <SectionHeading
+            id="workflow-result"
+            number={3}
+            title="Hasil akhirnya"
+          />
+          <div className="flex flex-col gap-5 rounded-lg border border-dashboard-border bg-card-1 p-4 sm:p-5">
+            <TextAreaAILN
+              textAreaId="workflow-result-text"
+              textAreaName="Apa hasil akhirnya, dan dikirim ke siapa?"
+              textAreaPlaceholder="Contoh: Slide progres mingguan, dikirim ke atasan setiap Jumat"
+              value={outcome}
+              rows={3}
+              characterLength={400}
+              onTextAreaChange={(value) => {
+                setDirty(true);
+                setOutcome(value);
+              }}
+              required
+            />
+            <div className="flex flex-col gap-2">
+              <div className="flex flex-col gap-1">
+                <span className="text-sm font-medium text-foreground">
+                  Contoh hasil akhir{" "}
+                  <span className="font-normal text-muted-foreground">
+                    (opsional)
+                  </span>
+                </span>
+                <p className="text-xs leading-5 text-muted-foreground">
+                  Lampirkan contoh output supaya kami lebih paham bentuknya.
+                  Gunakan template kosong atau versi yang angka dan namanya
+                  sudah disamarkan. Jangan lampirkan dokumen rahasia atau data
+                  pribadi.
+                </p>
+              </div>
+              <WorkflowAttachmentsFieldAILN
+                id="workflow-attachments"
+                attachments={attachments}
+                onAdd={addAttachment}
+                onRemove={removeAttachment}
+                onUploadingChange={trackUploading}
+              />
+            </div>
           </div>
         </section>
 
@@ -562,9 +653,11 @@ export default function WorkflowMapStudentAILN({
             className="max-w-xl text-sm text-muted-foreground"
             aria-live="polite"
           >
-            {dirty
-              ? "Ada perubahan yang belum disimpan."
-              : "Setelah submit, fasilitator memilih beberapa peta alur untuk dibedah bersama."}
+            {uploading
+              ? "Tunggu sampai file selesai diunggah."
+              : dirty
+                ? "Ada perubahan yang belum disimpan."
+                : "Setelah submit, fasilitator memilih beberapa peta alur untuk dibedah bersama."}
           </p>
           <div className="flex flex-wrap items-center gap-2">
             {saved && (
@@ -585,7 +678,7 @@ export default function WorkflowMapStudentAILN({
             <ButtonAILN
               variant="outline"
               size="medium"
-              disabled={pending !== null || (!!saved && !dirty)}
+              disabled={pending !== null || uploading || (!!saved && !dirty)}
               onClick={save}
             >
               {pending === "save" && (
@@ -596,7 +689,7 @@ export default function WorkflowMapStudentAILN({
             <ButtonAILN
               variant="primary"
               size="medium"
-              disabled={pending !== null}
+              disabled={pending !== null || uploading}
               onClick={submit}
             >
               {pending === "submit" && (

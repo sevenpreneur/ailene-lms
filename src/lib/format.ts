@@ -39,3 +39,9 @@ export function formatCompactIdr(value: number): {
   }
   return { value: value.toLocaleString("id-ID"), suffix: "" };
 }
+
+/** File size in KB or MB with id-ID decimals, e.g. 1,2 MB. */
+export function formatFileSize(bytes: number): string {
+  if (bytes < 1024 * 1024) return `${Math.max(1, Math.round(bytes / 1024))} KB`;
+  return `${formatDecimal(bytes / (1024 * 1024))} MB`;
+}

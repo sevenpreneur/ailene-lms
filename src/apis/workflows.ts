@@ -31,6 +31,14 @@ export type WorkflowNodeInput = {
   pain_point: boolean;
 };
 
+// An example output the learner already uploaded to storage.
+export type WorkflowAttachment = {
+  url: string;
+  name: string;
+  mime_type: string;
+  size_bytes: number;
+};
+
 export type WorkflowFeedback = {
   id: number;
   node_id: string | null;
@@ -52,6 +60,7 @@ export type WorkflowListItem = {
   title: string | null;
   problem: string | null;
   frequency: WorkflowFrequency | null;
+  result: string | null;
   status: WorkflowStatus;
   summary: WorkflowSummary;
   submitted_at: string | null;
@@ -62,6 +71,7 @@ export type WorkflowListItem = {
 
 export type Workflow = WorkflowListItem & {
   nodes: WorkflowNode[];
+  attachments: WorkflowAttachment[];
   feedback: WorkflowFeedback[];
 };
 
@@ -69,7 +79,9 @@ export type WorkflowContent = {
   title: string;
   problem: string;
   frequency: WorkflowFrequency | null;
+  result: string;
   nodes: WorkflowNodeInput[];
+  attachments: WorkflowAttachment[];
 };
 
 export type WorkflowMutationResult<T> =

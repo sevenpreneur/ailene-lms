@@ -117,7 +117,8 @@ File-file penting di `src/lib/`:
 | `date-time-manipulation.ts`  | Date/time manipulation dan formatting (dayjs)                       |
 | `feature-tracking.ts`        | Client-side hook untuk track feature usage                          |
 | `guided-use-case.ts`         | Heading/tahap guided use case (student & champion), opsi frekuensi/tipe, contoh isian, validasi link bukti (presentasi saja) |
-| `format.ts`                  | Number/score formatting (locale `id-ID`) untuk dashboard laporan     |
+| `format.ts`                  | Number/score/ukuran file formatting (locale `id-ID`) untuk dashboard laporan dan lampiran |
+| `image-compression.ts`       | `compressImage(file)` — kecilkan foto (maks. 1920px, WebP/JPEG) di browser sebelum upload |
 | `level-colors.ts`            | Mapping level (`L0`–`L4`) ke warna UI                                |
 | `log-error.ts`               | Helper log error yang konsisten (console-only)                      |
 | `notifications.ts`           | Ikon + tujuan link per `type` notifikasi (dari `ref_id`) dan label sesi/deadline (presentasi saja) |
@@ -126,7 +127,7 @@ File-file penting di `src/lib/`:
 | `status_code.ts`             | HTTP status code constants                                           |
 | `supabase.ts`                | Supabase Storage upload — `uploadPublicFile(file, folder)` mengembalikan public URL |
 | `use-unread-notifications.ts` | Hook badge notifikasi di sidebar — refresh saat navigasi & tab kembali aktif, sengaja tanpa polling interval supaya tab idle tidak membangunkan Neon |
-| `workflow-map.ts`            | Label isian langkah/status/masukan peta alur kerja, batas 3–8 langkah, contoh pengisian, langkah awal draft, pesan error backend dalam Bahasa Indonesia (presentasi saja) |
+| `workflow-map.ts`            | Label isian langkah/status/masukan peta alur kerja, batas 3–8 langkah dan 3 lampiran (tipe file, folder upload), contoh pengisian, langkah awal draft, pesan error backend dalam Bahasa Indonesia (presentasi saja) |
 | `utils.ts`                   | General utilities — `cn()` class merger, dll                        |
 
 ## Styling

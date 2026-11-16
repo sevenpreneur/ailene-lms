@@ -17,7 +17,9 @@ export async function POST(request: Request) {
     title: typeof body.title === "string" ? body.title : "",
     problem: typeof body.problem === "string" ? body.problem : "",
     frequency: typeof body.frequency === "string" ? body.frequency : null,
+    result: typeof body.result === "string" ? body.result : "",
     nodes: body.nodes,
+    attachments: Array.isArray(body.attachments) ? body.attachments : [],
   });
   if (!result.success) {
     return NextResponse.json(

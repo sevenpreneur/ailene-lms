@@ -8,6 +8,25 @@ import type {
 export const WORKFLOW_MIN_STEPS = 3;
 export const WORKFLOW_MAX_STEPS = 8;
 
+export const WORKFLOW_MAX_ATTACHMENTS = 3;
+export const WORKFLOW_ATTACHMENT_MAX_MB = 10;
+export const WORKFLOW_ATTACHMENT_FOLDER = "workflow-maps";
+
+// Extension → MIME type the backend accepts; images are compressed before upload.
+export const WORKFLOW_ATTACHMENT_TYPES: Record<string, string> = {
+  pdf: "application/pdf",
+  doc: "application/msword",
+  docx: "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
+  xls: "application/vnd.ms-excel",
+  xlsx: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+  ppt: "application/vnd.ms-powerpoint",
+  pptx: "application/vnd.openxmlformats-officedocument.presentationml.presentation",
+  jpg: "image/jpeg",
+  jpeg: "image/jpeg",
+  png: "image/png",
+  webp: "image/webp",
+};
+
 export const WORKFLOW_STEP_FIELDS = {
   title: {
     label: "Apa yang dikerjakan?",
@@ -38,6 +57,7 @@ export const WORKFLOW_EXAMPLE = {
   problem:
     "Laporan dari tiap pengawas formatnya beda-beda, jadi rekapnya sering telat dan salah ketik.",
   frequency: "Harian",
+  result: "Ringkasan produksi harian di grup WhatsApp kepala pabrik",
   steps: [
     {
       title: "Kumpulkan laporan harian dari tiap pengawas",
@@ -98,8 +118,10 @@ const WORKFLOW_ERROR_MESSAGES: Record<string, string> = {
   "Workflow must have 3-8 steps": "Peta alur harus berisi 3–8 langkah.",
   "Node IDs must be unique within a workflow":
     "Ada langkah ganda. Muat ulang halaman lalu coba lagi.",
-  "Fill in the title, problem, frequency, and every step title before submitting":
-    "Lengkapi nama pekerjaan, masalahnya, seberapa sering dikerjakan, dan isi setiap langkah sebelum submit.",
+  "Fill in the title, problem, frequency, result, and every step title before submitting":
+    "Lengkapi nama pekerjaan, masalahnya, seberapa sering dikerjakan, isi setiap langkah, dan hasil akhirnya sebelum submit.",
+  "Attach at most 3 PDF, Office, or image files of up to 10 MB each":
+    "Lampiran maksimal 3 file PDF, Office, atau gambar, masing-masing maksimal 10 MB.",
   "Workflow not found": "Peta alur tidak ditemukan atau sudah dihapus.",
   "Invalid request body": "Ada isian yang terlalu panjang atau tidak valid.",
 };
