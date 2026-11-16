@@ -10,14 +10,12 @@ import ScorecardAILN from "@/components/cards/ScorecardAILN";
 import SectionContainerAILN from "@/components/cards/SectionContainerAILN";
 import LevelDistributionSponsorAILN from "@/components/charts/LevelDistributionSponsorAILN";
 import ProficiencyTrendsSponsorAILN from "@/components/charts/ProficiencyTrendsSponsorAILN";
-import HeadlineAILN from "@/components/heroes/HeadlineAILN";
 import OrganizationLeaderboardAILN from "@/components/indexes/OrganizationLeaderboardAILN";
 import RecentActivityAILN from "@/components/indexes/RecentActivityAILN";
 import HealthMetricAILN from "@/components/items/HealthMetricAILN";
 import SponsorStatLabelAILN from "@/components/labels/SponsorStatLabelAILN";
 import PageContainerAILN from "@/components/pages/PageContainerAILN";
 import TransformationJourneyAILN from "@/components/steppers/TransformationJourneyAILN";
-import { formatCompactIdr } from "@/lib/format";
 import type {
   ExecutiveView,
   LevelDistribution,
@@ -25,13 +23,12 @@ import type {
   OrganizationStats,
   ProficiencyTrends,
   ProgramHealth,
-  SponsorHeadline,
   SponsorRecentActivity,
 } from "@/apis/sponsor";
 import dayjs from "dayjs";
 import "dayjs/locale/id";
 import relativeTime from "dayjs/plugin/relativeTime";
-import { Building2, Clock, Coins, Download, Gauge, Users } from "lucide-react";
+import { Building2, Download, Gauge, Users } from "lucide-react";
 import type { LucideIcon } from "lucide-react";
 
 dayjs.extend(relativeTime);
@@ -52,8 +49,6 @@ function tierLabel(level: number): string {
 const EMPTY_METRICS: ExecutiveView["metrics"] = {
   avg_level: 0,
   member_count: 0,
-  hours_saved_total: 0,
-  roi_cohort_to_date: 0,
   staff_active_weekly_count: 0,
   staff_active_weekly_percent: 0,
 };
@@ -62,7 +57,6 @@ const EMPTY_METRICS: ExecutiveView["metrics"] = {
 
 export default function DashboardSponsorAILN({
   executiveView,
-  headline,
   orgStats,
   programHealth,
   recentActivity,
@@ -73,7 +67,6 @@ export default function DashboardSponsorAILN({
   program,
 }: {
   executiveView: ExecutiveView | null;
-  headline: SponsorHeadline | null;
   orgStats: OrganizationStats | null;
   programHealth: ProgramHealth | null;
   recentActivity: SponsorRecentActivity | null;
@@ -90,9 +83,6 @@ export default function DashboardSponsorAILN({
     metrics.member_count === 0
       ? "0"
       : metrics.staff_active_weekly_percent.toLocaleString("id-ID");
-  const roi = formatCompactIdr(metrics.roi_cohort_to_date);
-  const roiUnit = roi.suffix ? `${roi.suffix} Rp` : "Rp";
-  const workdaysSaved = Math.round(metrics.hours_saved_total / 8);
 
   const healthMetrics = programHealth?.metrics ?? [];
   const activity = recentActivity?.activity ?? [];
@@ -132,30 +122,6 @@ export default function DashboardSponsorAILN({
       footer: tierLabel(metrics.avg_level),
     },
     {
-      title: "Jam Dihemat (Kumulatif)",
-      icon: Clock,
-      accent: {
-        tile: "bg-sky-50 dark:bg-sky-500/15",
-        icon: "text-sky-600 dark:text-sky-300",
-      },
-      value: metrics.hours_saved_total.toLocaleString("id-ID", {
-        maximumFractionDigits: 1,
-      }),
-      unit: "jam",
-      footer: `≈ ${workdaysSaved.toLocaleString("id-ID")} hari kerja`,
-    },
-    {
-      title: "ROI (Cohort-to-date)",
-      icon: Coins,
-      accent: {
-        tile: "bg-emerald-50 dark:bg-emerald-500/15",
-        icon: "text-emerald-600 dark:text-emerald-300",
-      },
-      value: roi.value,
-      unit: roiUnit,
-      footer: `dari ${metrics.hours_saved_total.toLocaleString("id-ID")} jam dihemat`,
-    },
-    {
       title: "Staff Aktif Mingguan",
       icon: Users,
       accent: {
@@ -184,10 +150,6 @@ export default function DashboardSponsorAILN({
           {
             primary:
               "Waktu pembaruan sumber belum tersedia. Angka mengikuti periode pada setiap indikator.",
-          },
-          {
-            primary:
-              "Nilai rupiah merupakan estimasi penghematan waktu dari perhitungan backend, bukan konfirmasi penghematan kas.",
           },
         ],
       },
@@ -242,8 +204,8 @@ export default function DashboardSponsorAILN({
         ? [
             {
               type: "table" as const,
-              title: "Top Departemen (jam dihemat bulan ini)",
-              columns: ["#", "Departemen", "Anggota", "Jam"],
+              title: "Top Departemen",
+              columns: ["#", "Departemen", "Anggota", "Skor"],
               align: ["right", "left", "right", "right"] as (
                 | "left"
                 | "right"
@@ -252,7 +214,7 @@ export default function DashboardSponsorAILN({
                 g.rank,
                 g.name,
                 g.member_count.toLocaleString("id-ID"),
-                g.hours.toLocaleString("id-ID"),
+                g.avg_score.toLocaleString("id-ID"),
               ]),
             },
           ]
@@ -274,7 +236,6 @@ export default function DashboardSponsorAILN({
 
   if (
     !executiveView ||
-    !headline ||
     !orgStats ||
     !programHealth ||
     !recentActivity ||
@@ -325,29 +286,8 @@ export default function DashboardSponsorAILN({
           totalWeeks={PROGRAM_TOTAL_WEEKS}
         />
 
-        {/* Headline · bulan ini */}
-        <HeadlineAILN
-          productivePercent={headline?.productive_percent ?? 0}
-          hoursSavedLastWeek={headline?.hours_saved_last_week ?? 0}
-          roiAnnualized={headline?.roi_annualized ?? 0}
-          trend={headline?.trend ?? []}
-          updatedLabel="Waktu pembaruan sumber belum tersedia"
-        />
-
-        <details className="rounded-lg border border-dashboard-border bg-card-1 p-4 text-sm">
-          <summary className="cursor-pointer font-medium">
-            Cara membaca angka ini
-          </summary>
-          <p className="mt-2 text-muted-foreground">
-            Periode mengikuti label tiap indikator: mingguan, kumulatif program,
-            atau proyeksi tahunan. Nilai rupiah adalah estimasi nilai waktu dari
-            perhitungan backend, bukan penghematan kas yang sudah terealisasi.
-            Waktu pembaruan sumber dan rincian cakupan submission belum
-            tersedia.
-          </p>
-        </details>
         {/* KPI strip — standardized ScorecardAILN cards */}
-        <div className="grid grid-cols-1 gap-4 md:grid-cols-2 xl:grid-cols-4">
+        <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
           {kpiCards.map((k, i) => (
             <ScorecardAILN
               key={i}

@@ -4,7 +4,6 @@ import {
   getGroupDepartments,
   getGroupLevelDistribution,
   getGroupOverview,
-  getGroupTopUseCases,
 } from "@/apis/sponsor";
 import GroupDetailsSponsorAILN from "@/components/pages/GroupDetailsSponsorAILN";
 import AppPageState from "@/components/states/AppPageState";
@@ -26,12 +25,11 @@ export default async function SponsorGroupPage({
     return <AppPageState variant="NOT_FOUND" />;
   }
 
-  const [departments, overview, distribution, topUseCases, attention, access] =
+  const [departments, overview, distribution, attention, access] =
     await Promise.all([
       getGroupDepartments(project_id),
       getGroupOverview(project_id, groupId),
       getGroupLevelDistribution(project_id, groupId),
-      getGroupTopUseCases(project_id, groupId),
       getGroupAttentionMembers(project_id, groupId),
       getProjectAccess(project_id),
     ]);
@@ -42,7 +40,6 @@ export default async function SponsorGroupPage({
       departments={departments}
       overview={overview}
       distribution={distribution}
-      topUseCases={topUseCases}
       attention={attention}
       org={access?.company_name ?? null}
       program={access?.name ?? ""}

@@ -21,20 +21,9 @@ export type ExecutiveView = {
   metrics: {
     avg_level: number;
     member_count: number;
-    hours_saved_total: number;
-    roi_cohort_to_date: number;
     staff_active_weekly_count: number;
     staff_active_weekly_percent: number;
   };
-};
-
-export type SponsorHeadline = {
-  productive_percent: number;
-  productive_count: number;
-  member_count: number;
-  hours_saved_last_week: number;
-  roi_annualized: number;
-  trend: { label: string; hours: number }[];
 };
 
 export type ProgramHealthMetric = {
@@ -63,15 +52,6 @@ export type SponsorActivityEntry = {
 };
 
 export type SponsorRecentActivity = { activity: SponsorActivityEntry[] };
-
-export type WeeklyTrends = {
-  weeks: {
-    label: string;
-    hours_saved: number;
-    adoption_percent: number;
-    highlight: boolean;
-  }[];
-};
 
 export type ProficiencyTrends = {
   weeks: {
@@ -131,7 +111,6 @@ export type WorkforceMember = {
   score: number;
   progress_percent: number;
   segment: "Promotor" | "Netral" | "Resistor";
-  hours_saved_weekly: number;
   status: {
     kind: "champion" | "up" | "pass" | "idle" | "stable";
     label: string;
@@ -150,9 +129,7 @@ export type OrganizationLeaderboardRow = {
   name: string;
   member_count: number;
   avg_score: number;
-  top_use_case: string | null;
   submission_count: number;
-  hours: number;
   trend_percent: number | null;
 };
 
@@ -212,9 +189,6 @@ export type GroupOverview = {
     avg_level: number;
     beginner_count: number;
     beginner_percent: number;
-    hours_saved_total: number;
-    accepted_use_cases: number;
-    accepted_use_cases_this_month: number;
     needs_intervention: boolean;
   };
 };
@@ -231,18 +205,6 @@ export type GroupLevelDistribution = {
   }[];
 };
 
-export type GroupTopUseCases = {
-  total: number;
-  use_cases: {
-    id: number;
-    name: string;
-    level_code: string | null;
-    level_name: string | null;
-    count: number;
-    percent: number;
-  }[];
-};
-
 export type GroupAttentionMember = {
   access_id: string;
   full_name: string;
@@ -250,7 +212,6 @@ export type GroupAttentionMember = {
   job_title: string | null;
   level_number: number;
   level_name: string | null;
-  accepted_use_cases: number;
   inactive_days: number | null;
   status: string;
   needs_attention: boolean;
@@ -264,19 +225,6 @@ export type GroupAttentionMembers = {
 
 // ---------- Outcome report ----------
 
-export type OutcomeOverview = {
-  member_count: number;
-  department_count: number;
-  hours_saved_total: number;
-  fte_equivalent: number;
-  roi_total: number;
-  roi_rate_per_hour: number;
-  avg_level: number;
-  max_level_number: number;
-  certified_count: number;
-  certified_percent: number;
-};
-
 export type OutcomeLevelDistribution = {
   total: number;
   distribution: {
@@ -287,46 +235,6 @@ export type OutcomeLevelDistribution = {
     percent: number;
   }[];
 };
-
-export type RoiTrend = {
-  months: {
-    label: string;
-    month: string;
-    roi_value: number;
-    roi_billion: number;
-    projected: boolean;
-  }[];
-};
-
-export type DepartmentRoi = {
-  total_roi_annualized: number;
-  departments: {
-    id: number;
-    name: string;
-    member_count: number;
-    hours_saved_weekly: number;
-    hours_saved_total: number;
-    roi_annualized: number;
-    contribution_percent: number;
-  }[];
-};
-
-export type TopPerformer = {
-  rank: number;
-  access_id: string;
-  full_name: string;
-  avatar: string | null;
-  department: string;
-  level_number: number;
-  level_code: string | null;
-  level_name: string | null;
-  xp: number;
-  use_case_count: number;
-  hours: number;
-  composite: number;
-};
-
-export type TopPerformers = { total: number; list: TopPerformer[] };
 
 // ---------- Calls ----------
 
@@ -373,14 +281,6 @@ export function getExecutiveView(projectId: string) {
   );
 }
 
-export function getSponsorHeadline(projectId: string) {
-  return sponsorCall<SponsorHeadline>(
-    "getSponsorHeadline",
-    "/api/v1/sponsor/headline",
-    { project_id: projectId },
-  );
-}
-
 export function getProgramHealth(projectId: string) {
   return sponsorCall<ProgramHealth>(
     "getProgramHealth",
@@ -393,14 +293,6 @@ export function getSponsorRecentActivity(projectId: string) {
   return sponsorCall<SponsorRecentActivity>(
     "getSponsorRecentActivity",
     "/api/v1/sponsor/recent-activity",
-    { project_id: projectId },
-  );
-}
-
-export function getWeeklyTrends(projectId: string) {
-  return sponsorCall<WeeklyTrends>(
-    "getWeeklyTrends",
-    "/api/v1/sponsor/weekly-trends",
     { project_id: projectId },
   );
 }
@@ -469,27 +361,11 @@ export function getGroupLevelDistribution(projectId: string, groupId: number) {
   );
 }
 
-export function getGroupTopUseCases(projectId: string, groupId: number) {
-  return sponsorCall<GroupTopUseCases>(
-    "getGroupTopUseCases",
-    "/api/v1/sponsor/groups/top-use-cases",
-    { project_id: projectId, group_id: groupId },
-  );
-}
-
 export function getGroupAttentionMembers(projectId: string, groupId: number) {
   return sponsorCall<GroupAttentionMembers>(
     "getGroupAttentionMembers",
     "/api/v1/sponsor/groups/attention-members",
     { project_id: projectId, group_id: groupId },
-  );
-}
-
-export function getOutcomeOverview(projectId: string) {
-  return sponsorCall<OutcomeOverview>(
-    "getOutcomeOverview",
-    "/api/v1/sponsor/outcome/overview",
-    { project_id: projectId },
   );
 }
 
@@ -501,28 +377,3 @@ export function getOutcomeLevelDistribution(projectId: string) {
   );
 }
 
-export function getRoiTrend(projectId: string) {
-  return sponsorCall<RoiTrend>(
-    "getRoiTrend",
-    "/api/v1/sponsor/outcome/roi-trend",
-    {
-      project_id: projectId,
-    },
-  );
-}
-
-export function getDepartmentRoi(projectId: string) {
-  return sponsorCall<DepartmentRoi>(
-    "getDepartmentRoi",
-    "/api/v1/sponsor/outcome/department-roi",
-    { project_id: projectId },
-  );
-}
-
-export function getTopPerformers(projectId: string) {
-  return sponsorCall<TopPerformers>(
-    "getTopPerformers",
-    "/api/v1/sponsor/outcome/top-performers",
-    { project_id: projectId },
-  );
-}

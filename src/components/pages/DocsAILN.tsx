@@ -792,11 +792,11 @@ export default function DocsAILN() {
                     awal peserta.
                   </>,
                   <>
-                    Buka <strong>Tugas</strong> untuk menyiapkan Use Case.
-                    Gunakan bantuan AI atau pembuatan Use Case yang tersedia,
-                    periksa draft, tentukan anggota penerima dan deadline, lalu
-                    kirim penugasan. Draft belum menjadi tugas peserta sampai
-                    aksi penugasan berhasil.
+                    Buka <strong>Tugas</strong> untuk menyiapkan Use Case
+                    terpandu. Mulai dari Use Case Library, draft AI, atau
+                    tombol <strong>Buat Use Case</strong>; semuanya membuka
+                    form terpandu yang sama. Tentukan anggota penerima dan
+                    deadline, lalu kirim penugasan.
                   </>,
                   <>
                     Buka <strong>Review Tugas</strong>, pilih kiriman Use Case,
@@ -826,12 +826,6 @@ export default function DocsAILN() {
                     Gunakan <strong>Pre Assessment</strong> dan{" "}
                     <strong>Workforce</strong> untuk meninjau kondisi awal serta
                     perkembangan kelompok atau anggota yang tersedia.
-                  </>,
-                  <>
-                    Buka <strong>ROI Productivity</strong> untuk membaca dampak
-                    penerapan AI dan unduh laporan jika opsi tersedia.
-                    Perhatikan asumsi serta periode metrik: estimasi nilai waktu
-                    berbeda dari penghematan biaya tunai yang sudah terealisasi.
                   </>,
                 ]}
               />

@@ -52,16 +52,25 @@ const REQUIREMENTS = [
   "Isi judul, pilih 1–2 kategori, minimal satu anggota, dan deadline di masa depan.",
 ];
 
+export type GuidedUseCaseSeed = {
+  name: string;
+  description: string;
+  category_ids: number[];
+};
+
+// Remount with a new `key` when `seed` changes; it only sets initial state.
 export default function CreateGuidedUseCaseFormAILN({
   isOpen,
   onClose,
   members,
   categories,
+  seed = null,
 }: {
   isOpen: boolean;
   onClose: () => void;
   members: TeamMember[];
   categories: Category[];
+  seed?: GuidedUseCaseSeed | null;
 }) {
   const projectId = useProjectId();
   const router = useRouter();
@@ -69,9 +78,14 @@ export default function CreateGuidedUseCaseFormAILN({
   const headingRef = useRef<HTMLHeadingElement>(null);
   const scrollRef = useRef<HTMLDivElement>(null);
   const [step, setStep] = useState(1);
-  const [intake, setIntake] = useState<GuidedIntake>(EMPTY_INTAKE);
-  const [name, setName] = useState("");
-  const [categoryIds, setCategoryIds] = useState<number[]>([]);
+  const [intake, setIntake] = useState<GuidedIntake>(() => ({
+    ...EMPTY_INTAKE,
+    daily_task: seed?.description ?? "",
+  }));
+  const [name, setName] = useState(seed?.name ?? "");
+  const [categoryIds, setCategoryIds] = useState<number[]>(
+    seed?.category_ids.slice(0, 2) ?? [],
+  );
   const [memberIds, setMemberIds] = useState<string[]>([]);
   const [deadlineDate, setDeadlineDate] = useState(
     dayjs().add(7, "day").format("YYYY-MM-DD"),

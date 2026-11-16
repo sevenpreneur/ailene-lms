@@ -7,7 +7,6 @@ type Member = {
   level_number: number;
   status: string;
   needs_attention: boolean;
-  accepted_use_cases: number;
 };
 
 /**
@@ -22,7 +21,7 @@ export default function AttentionMemberRowAILN({
   const lagging = member.needs_attention;
   return (
     <div
-      className={`grid grid-cols-[minmax(0,1fr)_3rem_4rem_5rem] items-center gap-3 border-t border-dashboard-border px-5 py-3 ${
+      className={`grid grid-cols-[minmax(0,1fr)_3rem_5rem] items-center gap-3 border-t border-dashboard-border px-5 py-3 ${
         lagging
           ? "border-l-4 border-l-amber-400 bg-amber-50/70 dark:bg-amber-500/10"
           : "bg-white dark:bg-card-1"
@@ -41,9 +40,6 @@ export default function AttentionMemberRowAILN({
       </div>
       <span className="text-center text-sm font-medium text-gray-900 dark:text-white">
         L{member.level_number}
-      </span>
-      <span className="text-center text-[11px] font-medium text-gray-500 dark:text-gray-400">
-        {member.accepted_use_cases} uc
       </span>
       <span
         className={`text-right text-[11px] font-medium ${

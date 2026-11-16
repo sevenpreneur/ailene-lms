@@ -1,5 +1,5 @@
 import { LEVELS, PILLAR_DEFS, levelByNumber } from "./shared";
-import { daysAgo, relativeDayStrip, round1 } from "./utils";
+import { relativeDayStrip, round1 } from "./utils";
 
 const CURRENT_LEVEL_NUMBER = 3;
 const CURRENT_XP = 1050;
@@ -34,18 +34,6 @@ export function getCompetencyProfileMock() {
     tier_number: 2,
     tier_name: "Practitioner",
     next_tier: { number: 3, name: "Expert", avg_needed: 4 },
-  };
-}
-
-export function getFirstWinMock() {
-  return {
-    first_win: {
-      kind: "use_case" as const,
-      name: "Otomatisasi Laporan Mingguan",
-      hours_with_ai: 2,
-      hours_without_ai: 6,
-      submitted_at: daysAgo(20),
-    },
   };
 }
 

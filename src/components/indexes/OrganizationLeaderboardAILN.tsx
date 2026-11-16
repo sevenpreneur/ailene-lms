@@ -13,20 +13,17 @@ type Department = {
   name: string;
   member_count: number;
   avg_score: number;
-  top_use_case: string | null;
   submission_count: number;
-  hours: number;
   trend_percent: number | null;
   rank: number;
 };
 
-type SortKey = "avg_score" | "member_count" | "submission_count" | "hours";
+type SortKey = "avg_score" | "member_count" | "submission_count";
 
 const SORT_OPTIONS: { key: SortKey; label: string }[] = [
   { key: "avg_score", label: "Skor" },
   { key: "member_count", label: "Jumlah" },
   { key: "submission_count", label: "Submit" },
-  { key: "hours", label: "Jam dihemat" },
 ];
 
 // Stable per-department avatar tint, picked from the name so each department
@@ -99,15 +96,13 @@ export default function OrganizationLeaderboardAILN({
         </div>
       ) : (
         <div className="-mx-5 overflow-x-auto">
-          <table className="w-full min-w-[720px] border-collapse text-sm">
+          <table className="w-full min-w-[560px] border-collapse text-sm">
             <thead>
               <tr className="border-y border-dashboard-border bg-muted/40 text-left text-[11px] font-medium uppercase tracking-wider text-muted-foreground">
                 <th className="py-2.5 pl-5 pr-3">Departemen</th>
                 <th className="py-2.5 pr-3 text-right">Jumlah</th>
                 <th className="py-2.5 pr-3">Rata-rata Skor</th>
-                <th className="py-2.5 pr-3">Use Case Teratas</th>
                 <th className="py-2.5 pr-3 text-right">Submit</th>
-                <th className="py-2.5 pr-3 text-right">Jam Dihemat</th>
                 <th className="py-2.5 pr-5 text-right">Tren</th>
               </tr>
             </thead>
@@ -156,21 +151,9 @@ export default function OrganizationLeaderboardAILN({
                       </div>
                     </td>
 
-                    {/* Use case teratas */}
-                    <td className="max-w-[180px] py-3 pr-3">
-                      <span className="line-clamp-2 text-muted-foreground">
-                        {d.top_use_case ?? "—"}
-                      </span>
-                    </td>
-
-                    {/* Submit (use case + prompt) */}
+                    {/* Submit */}
                     <td className="py-3 pr-3 text-right tabular-nums text-muted-foreground">
                       {formatInt(d.submission_count)}
-                    </td>
-
-                    {/* Jam dihemat */}
-                    <td className="py-3 pr-3 text-right tabular-nums font-medium text-foreground">
-                      {formatDecimal(d.hours)}
                     </td>
 
                     {/* Tren */}

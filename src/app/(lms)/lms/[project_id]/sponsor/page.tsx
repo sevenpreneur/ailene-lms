@@ -6,7 +6,6 @@ import {
   getOrganizationStats,
   getProficiencyTrends,
   getProgramHealth,
-  getSponsorHeadline,
   getSponsorRecentActivity,
 } from "@/apis/sponsor";
 import DashboardSponsorAILN from "@/components/pages/DashboardSponsorAILN";
@@ -24,7 +23,6 @@ export default async function SponsorPage({
   const { project_id } = await params;
   const [
     executiveView,
-    headline,
     orgStats,
     programHealth,
     recentActivity,
@@ -34,7 +32,6 @@ export default async function SponsorPage({
     access,
   ] = await Promise.all([
     getExecutiveView(project_id),
-    getSponsorHeadline(project_id),
     getOrganizationStats(project_id),
     getProgramHealth(project_id),
     getSponsorRecentActivity(project_id),
@@ -47,7 +44,6 @@ export default async function SponsorPage({
   return (
     <DashboardSponsorAILN
       executiveView={executiveView}
-      headline={headline}
       orgStats={orgStats}
       programHealth={programHealth}
       recentActivity={recentActivity}

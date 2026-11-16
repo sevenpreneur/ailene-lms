@@ -6,11 +6,10 @@ import TeamScoreBannerAILN from "@/components/cards/TeamScoreBannerAILN";
 import ChampionCoachingAlertAILN from "@/components/indexes/ChampionCoachingAlertAILN";
 import ChampionTeamMembersAILN from "@/components/indexes/ChampionTeamMembersAILN";
 import MembersLabelChampionAILN from "@/components/labels/MembersLabelChampionAILN";
-import RecentUseCasesAILN from "@/components/indexes/RecentUseCasesAILN";
 import PageContainerAILN from "@/components/pages/PageContainerAILN";
-import type { ChampionSubmissions, TeamMembers } from "@/apis/champion";
+import type { TeamMembers } from "@/apis/champion";
 import { useProjectId } from "@/lib/use-project-id";
-import { Activity, Clock, Plus, Send } from "lucide-react";
+import { Activity, Gauge, Plus } from "lucide-react";
 import Link from "next/link";
 
 // Platform tops out at L4 (L0 Assessment … L4 Advanced) — used to normalize
@@ -45,18 +44,13 @@ const EMPTY_STATS: TeamMembers["stats"] = {
   at_risk: 0,
   behind: 0,
   active_this_week: 0,
-  submissions_sent: 0,
-  members_submitted: 0,
-  hours_saved: 0,
 };
 
 export default function DashboardChampionAILN({
   teamMembers,
-  useCaseSubmissions,
   groupName,
 }: {
   teamMembers: TeamMembers | null;
-  useCaseSubmissions: ChampionSubmissions | null;
   groupName: string;
 }) {
   const projectId = useProjectId();
@@ -79,13 +73,12 @@ export default function DashboardChampionAILN({
   const teamScore =
     stats.total > 0
       ? ((ratio(avgLevel, MAX_LEVEL) +
-          ratio(stats.active_this_week, stats.total) +
-          ratio(stats.members_submitted, stats.total)) /
-          3) *
+          ratio(stats.active_this_week, stats.total)) /
+          2) *
         MAX_SCORE
       : 0;
 
-  if (!teamMembers || !useCaseSubmissions)
+  if (!teamMembers)
     return (
       <PageContainerAILN>
         <LoadErrorAILN />
@@ -120,7 +113,7 @@ export default function DashboardChampionAILN({
         />
 
         {/* Stat cards */}
-        <div className="grid grid-cols-1 gap-4 md:grid-cols-3">
+        <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
           <ScorecardAILN
             title="Aktif Minggu Ini"
             value={stats.active_this_week}
@@ -133,25 +126,14 @@ export default function DashboardChampionAILN({
             </p>
           </ScorecardAILN>
           <ScorecardAILN
-            title="Use Case Dikirim"
-            value={stats.submissions_sent}
-            unit="submission"
-            icon={Send}
+            title="Level 2 ke Atas"
+            value={level2Plus}
+            unit={`/ ${stats.total}`}
+            icon={Gauge}
             accent={ACCENT.emerald}
           >
             <p className="text-xs text-muted-foreground">
-              dari seluruh anggota grup
-            </p>
-          </ScorecardAILN>
-          <ScorecardAILN
-            title="Jam Dihemat"
-            value={stats.hours_saved}
-            unit="jam"
-            icon={Clock}
-            accent={ACCENT.amber}
-          >
-            <p className="text-xs text-muted-foreground">
-              akumulasi dari use case dikirim
+              {pct(level2Plus, stats.total)}% anggota tim
             </p>
           </ScorecardAILN>
         </div>
@@ -159,10 +141,7 @@ export default function DashboardChampionAILN({
           <div className="md:col-span-2">
             <ChampionTeamMembersAILN members={allMembers} />
           </div>
-          <div className="flex flex-col gap-4">
-            <ChampionCoachingAlertAILN members={allMembers} />
-            <RecentUseCasesAILN submissions={useCaseSubmissions} />
-          </div>
+          <ChampionCoachingAlertAILN members={allMembers} />
         </div>
       </div>
     </PageContainerAILN>

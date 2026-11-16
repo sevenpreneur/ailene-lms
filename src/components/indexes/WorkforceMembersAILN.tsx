@@ -11,13 +11,12 @@ import { Check, Minus } from "lucide-react";
 import Image from "next/image";
 import { useMemo, useState } from "react";
 
-type SortKey = "score" | "hours" | "level" | "name";
+type SortKey = "score" | "level" | "name";
 
 const ROW_LIMIT = 12;
 
 const sortOptions: { key: SortKey; label: string }[] = [
   { key: "score", label: "Skor" },
-  { key: "hours", label: "Jam" },
   { key: "level", label: "Level" },
   { key: "name", label: "Nama" },
 ];
@@ -131,12 +130,6 @@ function sortMembers(members: WorkforceMember[], sort: SortKey) {
         b.score - a.score || a.user.full_name.localeCompare(b.user.full_name)
       );
     }
-    if (sort === "hours") {
-      return (
-        b.hours_saved_weekly - a.hours_saved_weekly ||
-        a.user.full_name.localeCompare(b.user.full_name)
-      );
-    }
     if (sort === "level") {
       return (
         (b.current_level?.level_number ?? -1) -
@@ -232,7 +225,6 @@ export default function WorkforceMembersAILN({
               <th className="px-5 py-4">Level</th>
               <th className="px-5 py-4">Skor</th>
               <th className="px-5 py-4">Segmen</th>
-              <th className="px-5 py-4 text-right">Jam Dihemat/Mg</th>
               <th className="px-8 py-4">Status</th>
             </tr>
           </thead>
@@ -240,7 +232,7 @@ export default function WorkforceMembersAILN({
             {visibleRows.length === 0 ? (
               <tr>
                 <td
-                  colSpan={7}
+                  colSpan={6}
                   className="px-8 py-12 text-center text-[13px] text-muted-foreground"
                 >
                   Tidak ada karyawan pada filter ini.
@@ -283,9 +275,6 @@ export default function WorkforceMembersAILN({
                   </td>
                   <td className="px-5 py-5">
                     <SegmentLabel segment={member.segment} />
-                  </td>
-                  <td className="px-5 py-5 text-right text-[15px] font-medium tabular-nums text-foreground">
-                    {formatDecimal(member.hours_saved_weekly)}
                   </td>
                   <td className="px-8 py-5">
                     <StatusLabel status={member.status} />

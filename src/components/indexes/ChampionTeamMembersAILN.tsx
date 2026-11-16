@@ -207,9 +207,6 @@ export default function ChampionTeamMembersAILN(props: { members: Member[] }) {
               <th className="sticky top-0 z-10 border-y border-dashboard-border bg-gray-50 px-4 py-2.5 dark:bg-card-2">
                 Level
               </th>
-              <th className="sticky top-0 z-10 border-y border-dashboard-border bg-gray-50 px-4 py-2.5 text-center dark:bg-card-2">
-                Use Case
-              </th>
               <th className="sticky top-0 z-10 border-y border-dashboard-border bg-gray-50 px-4 py-2.5 dark:bg-card-2">
                 Status
               </th>
@@ -222,7 +219,7 @@ export default function ChampionTeamMembersAILN(props: { members: Member[] }) {
             {filtered.length === 0 ? (
               <tr>
                 <td
-                  colSpan={5}
+                  colSpan={4}
                   className="py-10 text-center text-gray-400 dark:text-gray-500"
                 >
                   Tidak ada anggota ditemukan.
@@ -270,10 +267,6 @@ export default function ChampionTeamMembersAILN(props: { members: Member[] }) {
                       </GeneralLabelAILN>
                     </td>
 
-                    {/* Use Case */}
-                    <td className="px-4 py-3 text-center text-sm font-medium text-gray-900 dark:text-white">
-                      {m.use_case_count}
-                    </td>
 
                     {/* Status */}
                     <td className="px-4 py-3">

@@ -181,38 +181,6 @@ export type GuidedResult<T> =
   | { success: true; data: T }
   | { success: false; code: number; message: string };
 
-export type SelfCreateUseCaseInput = {
-  project_id: string;
-  name: string;
-  category_ids: number[];
-  outcome_proof: string;
-  hours_with_ai: number;
-  hours_without_ai: number;
-  description: string;
-  ai_tool: string;
-  frequency: UseCaseFrequency;
-  type: UseCaseType;
-};
-
-export type SubmitUseCaseInput = {
-  use_case_id: number;
-  outcome_proof: string;
-  hours_with_ai: number;
-  hours_without_ai: number;
-  description: string;
-  ai_tool: string;
-  frequency: UseCaseFrequency;
-  type: UseCaseType;
-  guided_session_id?: number;
-  testimonial?: string;
-  helpfulness_rating?: number;
-  share_consent?: boolean;
-};
-
-export type UseCaseMutationResult =
-  | { success: true; data: UseCaseDetail }
-  | { success: false; code: number; message: string };
-
 async function getSessionToken(): Promise<string | null> {
   const cookieStore = await cookies();
   return cookieStore.get(SESSION_COOKIE_NAME)?.value ?? null;
@@ -297,82 +265,6 @@ export async function getUseCaseDetails(
   return result.data
     ? { kind: "ok", data: result.data }
     : { kind: "not_found" };
-}
-
-// POST /api/v1/use-cases/self-assign needs the caller's own session JWT — see docs/api/use-cases.md in ailene-lms-backend.
-export async function selfAssignUseCase(
-  useCaseId: number,
-): Promise<UseCaseMutationResult> {
-  const sessionToken = await getSessionToken();
-  if (!sessionToken) {
-    return { success: false, code: 401, message: "Not authenticated" };
-  }
-
-  const result = await callApi<UseCaseDetail>("/api/v1/use-cases/self-assign", {
-    method: "POST",
-    body: { use_case_id: useCaseId },
-    token: sessionToken,
-  });
-
-  if (!result.success || !result.data) {
-    await LogError(
-      "selfAssignUseCase",
-      result.code,
-      result.status,
-      result.message,
-    );
-    return { success: false, code: result.code, message: result.message };
-  }
-  return { success: true, data: result.data };
-}
-
-// POST /api/v1/use-cases/self-create needs the caller's own session JWT — see docs/api/use-cases.md in ailene-lms-backend.
-export async function selfCreateUseCase(
-  input: SelfCreateUseCaseInput,
-): Promise<UseCaseMutationResult> {
-  const sessionToken = await getSessionToken();
-  if (!sessionToken) {
-    return { success: false, code: 401, message: "Not authenticated" };
-  }
-
-  const result = await callApi<UseCaseDetail>("/api/v1/use-cases/self-create", {
-    method: "POST",
-    body: input,
-    token: sessionToken,
-  });
-
-  if (!result.success || !result.data) {
-    await LogError(
-      "selfCreateUseCase",
-      result.code,
-      result.status,
-      result.message,
-    );
-    return { success: false, code: result.code, message: result.message };
-  }
-  return { success: true, data: result.data };
-}
-
-// POST /api/v1/use-cases/submit needs the caller's own session JWT — see docs/api/use-cases.md in ailene-lms-backend.
-export async function submitUseCase(
-  input: SubmitUseCaseInput,
-): Promise<UseCaseMutationResult> {
-  const sessionToken = await getSessionToken();
-  if (!sessionToken) {
-    return { success: false, code: 401, message: "Not authenticated" };
-  }
-
-  const result = await callApi<UseCaseDetail>("/api/v1/use-cases/submit", {
-    method: "POST",
-    body: input,
-    token: sessionToken,
-  });
-
-  if (!result.success || !result.data) {
-    await LogError("submitUseCase", result.code, result.status, result.message);
-    return { success: false, code: result.code, message: result.message };
-  }
-  return { success: true, data: result.data };
 }
 
 // Every guided endpoint shares the student's JWT and envelope — see docs/api/use-cases.md in ailene-lms-backend.

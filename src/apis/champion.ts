@@ -32,7 +32,6 @@ export type TeamMember = {
   current_level: ChampionLevel | null;
   total_xp: number;
   progress_percent: number;
-  use_case_count: number;
   last_active_at: string | null;
   status: TeamMemberStatus;
 };
@@ -44,9 +43,6 @@ export type TeamMembers = {
     at_risk: number;
     behind: number;
     active_this_week: number;
-    submissions_sent: number;
-    members_submitted: number;
-    hours_saved: number;
   };
   list: TeamMember[];
 };
@@ -153,7 +149,6 @@ export type ChampionReport = {
     total_members: number;
     active_percent: number;
     accepted_submissions: number;
-    hours_saved: number;
     level_ups: number;
   };
   level_movements: {
@@ -277,7 +272,7 @@ export type ReviewResult = { xp_awarded: number };
 
 export type AssignmentDraftKind = "PROMPT" | "USE_CASE";
 
-// Private to the champion; becomes a library item only through create-assignment.
+// Private to the champion; becomes a library item only through create-guided.
 export type AssignmentDraft = {
   id: number;
   kind: AssignmentDraftKind;
@@ -408,35 +403,6 @@ export function getUseCaseSubmissionDetails(
     "getUseCaseSubmissionDetails",
     "/api/v2/use-cases/submission-details",
     { project_id: projectId, submission_id: submissionId },
-  );
-}
-
-export function assignUseCase(
-  projectId: string,
-  libraryId: number,
-  target: AssignmentTarget,
-) {
-  return championWrite<AssignResult>(
-    "assignUseCase",
-    "/api/v2/use-cases/assign",
-    { project_id: projectId, library_id: libraryId, ...target },
-  );
-}
-
-export function createUseCaseAssignment(
-  projectId: string,
-  input: {
-    name: string;
-    description: string;
-    category_ids: number[];
-    assignment?: AssignmentTarget | null;
-    draft_id?: number | null;
-  },
-) {
-  return championWrite<CreateUseCaseAssignmentResult>(
-    "createUseCaseAssignment",
-    "/api/v2/use-cases/create-assignment",
-    { project_id: projectId, ...input },
   );
 }
 

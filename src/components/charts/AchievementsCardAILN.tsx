@@ -1,13 +1,11 @@
 "use client";
 import SectionContainerAILN from "@/components/cards/SectionContainerAILN";
-import { Clock, Lightbulb, Star, Trophy } from "lucide-react";
+import { Star, Trophy } from "lucide-react";
 
 interface AchievementsCardAILNProps {
   totalXp: number;
   currentLevelNumber: number | null;
   currentLevelName: string | null;
-  useCaseApprovedCount: number;
-  hoursSavedTotal: number;
   toolsMastered: string[];
   className?: string;
 }
@@ -15,25 +13,17 @@ interface AchievementsCardAILNProps {
 const fmtCount = (n: number) =>
   n.toLocaleString("id-ID", { maximumFractionDigits: 0 });
 
-const fmtHours = (n: number) =>
-  n.toLocaleString("id-ID", {
-    minimumFractionDigits: n % 1 === 0 ? 0 : 1,
-    maximumFractionDigits: 1,
-  });
-
 export default function AchievementsCardAILN({
   totalXp,
   currentLevelNumber,
   currentLevelName,
-  useCaseApprovedCount,
-  hoursSavedTotal,
   toolsMastered,
   className,
 }: AchievementsCardAILNProps) {
   return (
     <SectionContainerAILN
       title="Capaian Kamu"
-      desc="Ringkasan level, XP, dan kontribusi kamu sejauh ini."
+      desc="Ringkasan level dan XP kamu sejauh ini."
       className={className}
       contentClassName="flex flex-col"
     >
@@ -65,22 +55,6 @@ export default function AchievementsCardAILN({
         </div>
       </div>
 
-      {/* Stat tiles */}
-      <div className="mt-4 grid grid-cols-2 gap-2.5">
-        <StatTile
-          icon={Lightbulb}
-          value={fmtCount(useCaseApprovedCount)}
-          label="Use Case"
-          color="blue"
-        />
-        <StatTile
-          icon={Clock}
-          value={fmtHours(hoursSavedTotal)}
-          label="Jam Hemat"
-          color="emerald"
-        />
-      </div>
-
       {toolsMastered.length > 0 && (
         <div className="mt-4">
           <div className="text-[10px] font-medium uppercase tracking-widest text-gray-500 dark:text-gray-400">
@@ -99,39 +73,5 @@ export default function AchievementsCardAILN({
         </div>
       )}
     </SectionContainerAILN>
-  );
-}
-
-const TILE_COLORS = {
-  blue: "bg-blue-100 text-blue-600 dark:bg-blue-500/10 dark:text-blue-300",
-  violet:
-    "bg-violet-100 text-violet-600 dark:bg-violet-500/10 dark:text-violet-300",
-  emerald:
-    "bg-emerald-100 text-emerald-600 dark:bg-emerald-500/10 dark:text-emerald-300",
-} as const;
-
-function StatTile({
-  icon: Icon,
-  value,
-  label,
-  color,
-}: {
-  icon: typeof Lightbulb;
-  value: string;
-  label: string;
-  color: keyof typeof TILE_COLORS;
-}) {
-  return (
-    <div className="flex flex-col items-center gap-1.5 rounded-lg border border-dashboard-border bg-white py-3 dark:bg-card-2">
-      <div
-        className={`flex size-8 items-center justify-center rounded-full ${TILE_COLORS[color]}`}
-      >
-        <Icon className="size-4" />
-      </div>
-      <div className="text-lg font-medium leading-none text-foreground dark:text-white">
-        {value}
-      </div>
-      <div className="text-xs text-gray-500 dark:text-gray-400">{label}</div>
-    </div>
   );
 }

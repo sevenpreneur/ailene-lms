@@ -43,15 +43,14 @@ function firstName(name: string): string {
 // optional pairing suggestion with the strongest on-track peer (a "mentor").
 function buildTalkingPoint(m: Member, mentor: Member | null): string {
   const lvl = (m.current_level?.level_number ?? 0);
-  const uc = m.use_case_count;
   const lastActive = m.last_active_at
     ? dayjs(m.last_active_at).fromNow()
     : "belum pernah aktif";
 
   const head =
     m.status === "behind"
-      ? `Tertahan di L${lvl}, baru ${uc} use case · terakhir aktif ${lastActive}.`
-      : `Mulai melambat di L${lvl}, ${uc} use case · terakhir aktif ${lastActive}.`;
+      ? `Tertahan di L${lvl} · terakhir aktif ${lastActive}.`
+      : `Mulai melambat di L${lvl} · terakhir aktif ${lastActive}.`;
 
   if (mentor && mentor.access_id !== m.access_id) {
     return `${head} Talking point: pasangkan dengan ${firstName(
@@ -99,7 +98,7 @@ export default function ChampionCoachingAlertAILN(props: {
       .sort(
         (a, b) =>
           (b.current_level?.level_number ?? 0) - (a.current_level?.level_number ?? 0) ||
-          b.use_case_count - a.use_case_count
+          b.total_xp - a.total_xp
       )[0] ?? null;
 
   const hasAlerts = alerts.length > 0;

@@ -25,7 +25,6 @@ import {
   CircleHelp,
   LayoutDashboard,
   LineChart,
-  Target,
   type LucideIcon,
 } from "lucide-react";
 import { usePathname } from "next/navigation";
@@ -103,7 +102,6 @@ const VARIANT_CONFIG: Record<
         icon: ClipboardCheck,
       },
       { name: "Workforce", url: "/sponsor/workforce", icon: BarChart3 },
-      { name: "ROI Productivity", url: "/sponsor/roi", icon: Target },
     ],
   },
 };

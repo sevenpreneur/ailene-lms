@@ -36,7 +36,6 @@ export type MemberRosterEntry = {
   current_level: LevelMock;
   total_xp: number;
   progress_percent: number;
-  use_case_count: number;
   last_active_at: Date | null;
   status: MemberStatus;
 };

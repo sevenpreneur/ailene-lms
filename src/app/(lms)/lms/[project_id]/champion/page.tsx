@@ -1,5 +1,5 @@
 import { checkSession } from "@/apis/auth";
-import { getTeamMembers, getUseCaseSubmissions } from "@/apis/champion";
+import { getTeamMembers } from "@/apis/champion";
 import DashboardChampionAILN from "@/components/pages/DashboardChampionAILN";
 import { Metadata } from "next";
 
@@ -13,10 +13,9 @@ export default async function ChampionPage({
   params: Promise<{ project_id: string }>;
 }) {
   const { project_id } = await params;
-  const [session, teamMembers, useCaseSubmissions] = await Promise.all([
+  const [session, teamMembers] = await Promise.all([
     checkSession(),
     getTeamMembers(project_id),
-    getUseCaseSubmissions(project_id),
   ]);
 
   const groupName =
@@ -26,7 +25,6 @@ export default async function ChampionPage({
   return (
     <DashboardChampionAILN
       teamMembers={teamMembers}
-      useCaseSubmissions={useCaseSubmissions}
       groupName={groupName}
     />
   );

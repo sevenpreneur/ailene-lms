@@ -1,8 +1,8 @@
 "use client";
-import AssignFormChampionAILN from "@/components/forms/AssignFormChampionAILN";
 import AiAssignmentComposerAILN from "@/components/forms/AiAssignmentComposerAILN";
-import CreateAssignmentFormAILN from "@/components/forms/CreateAssignmentFormAILN";
-import CreateGuidedUseCaseFormAILN from "@/components/forms/CreateGuidedUseCaseFormAILN";
+import CreateGuidedUseCaseFormAILN, {
+  type GuidedUseCaseSeed,
+} from "@/components/forms/CreateGuidedUseCaseFormAILN";
 import SectionContainerAILN from "@/components/cards/SectionContainerAILN";
 import PageContainerAILN from "@/components/pages/PageContainerAILN";
 import Tabs from "@/components/navigations/Tabs";
@@ -11,14 +11,10 @@ import PageHeaderAILN from "@/components/titles/PageHeaderAILN";
 import InputAILN from "@/components/fields/InputAILN";
 import AssignmentItemChampion from "@/components/items/AssignmentItemChampion";
 import AiDraftBatchesAILN from "@/components/indexes/AiDraftBatchesAILN";
-import type {
-  AssignmentDraft,
-  AssignmentDraftBatch,
-  TeamMembers,
-} from "@/apis/champion";
+import type { AssignmentDraftBatch, TeamMembers } from "@/apis/champion";
 import type { Category } from "@/apis/categories";
 import type { UseCaseLibraryItem } from "@/apis/use-cases";
-import { Compass, Plus, Search, Send, Sparkles } from "lucide-react";
+import { Plus, Search, Send, Sparkles } from "lucide-react";
 import { useState } from "react";
 
 type AssignmentTab = "AI" | "USE_CASE";
@@ -27,23 +23,19 @@ export default function AssignmentChampionAILN({
   teamMembers,
   categories,
   draftBatches,
-  group,
 }: {
   useCases: UseCaseLibraryItem[];
   teamMembers: TeamMembers | null;
   categories: Category[];
   draftBatches: AssignmentDraftBatch[];
-  group: { id: number; name: string } | null;
 }) {
   const [tab, setTab] = useState<AssignmentTab>("AI");
   const [batches, setBatches] = useState(draftBatches);
   const [previous, setPrevious] = useState(draftBatches);
   const [freshBatchIds, setFreshBatchIds] = useState<string[]>([]);
   const [selectedId, setSelectedId] = useState<number | null>(null);
-  const [assignOpen, setAssignOpen] = useState(false);
-  const [createOpen, setCreateOpen] = useState(false);
   const [guidedOpen, setGuidedOpen] = useState(false);
-  const [draft, setDraft] = useState<AssignmentDraft | null>(null);
+  const [seed, setSeed] = useState<GuidedUseCaseSeed | null>(null);
   const [formKey, setFormKey] = useState(0);
   const [search, setSearch] = useState("");
   if (draftBatches !== previous) {
@@ -58,11 +50,11 @@ export default function AssignmentChampionAILN({
       .toLocaleLowerCase("id")
       .includes(search.trim().toLocaleLowerCase("id")),
   );
-  function openCreate(next: AssignmentDraft | null) {
-    if (next && next.kind !== "USE_CASE") return;
-    setDraft(next);
+  // Every assignment is guided; library items and AI drafts only prefill it.
+  function openGuided(next: GuidedUseCaseSeed | null) {
+    setSeed(next);
     setFormKey((key) => key + 1);
-    setCreateOpen(true);
+    setGuidedOpen(true);
   }
   return (
     <PageContainerAILN>
@@ -71,13 +63,9 @@ export default function AssignmentChampionAILN({
           title="Tugas"
           desc="Siapkan dan berikan Use Case untuk tim."
         >
-          <ButtonAILN variant="outline" onClick={() => setGuidedOpen(true)}>
-            <Compass className="size-4" />
-            Use Case Terpandu
-          </ButtonAILN>
-          <ButtonAILN variant="primary" onClick={() => openCreate(null)}>
+          <ButtonAILN variant="primary" onClick={() => openGuided(null)}>
             <Plus className="size-4" />
-            Buat Manual
+            Buat Use Case
           </ButtonAILN>
         </PageHeaderAILN>
         <Tabs<AssignmentTab>
@@ -120,7 +108,14 @@ export default function AssignmentChampionAILN({
               batches={batches}
               freshBatchIds={freshBatchIds}
               categories={categories}
-              onUse={openCreate}
+              onUse={(draft) =>
+                draft.kind === "USE_CASE" &&
+                openGuided({
+                  name: draft.name,
+                  description: draft.description,
+                  category_ids: draft.category_ids,
+                })
+              }
               onDeleted={(id) =>
                 setBatches((items) =>
                   items
@@ -178,7 +173,15 @@ export default function AssignmentChampionAILN({
                     </p>
                     <ButtonAILN
                       variant="primary"
-                      onClick={() => setAssignOpen(true)}
+                      onClick={() =>
+                        openGuided({
+                          name: selected.name,
+                          description: selected.description,
+                          category_ids: selected.categories.map(
+                            (category) => category.id,
+                          ),
+                        })
+                      }
                     >
                       <Send className="size-4" />
                       Berikan ke Tim
@@ -193,27 +196,13 @@ export default function AssignmentChampionAILN({
             </div>
           </>
         )}
-        <AssignFormChampionAILN
-          isOpen={assignOpen}
-          onClose={() => setAssignOpen(false)}
-          item={selected ? { id: selected.id, name: selected.name } : null}
-          members={members}
-          group={group}
-        />
         <CreateGuidedUseCaseFormAILN
+          key={formKey}
           isOpen={guidedOpen}
           onClose={() => setGuidedOpen(false)}
           members={members}
           categories={categories}
-        />
-        <CreateAssignmentFormAILN
-          key={formKey}
-          isOpen={createOpen}
-          onClose={() => setCreateOpen(false)}
-          members={members}
-          group={group}
-          categories={categories}
-          draft={draft}
+          seed={seed}
         />
       </div>
     </PageContainerAILN>

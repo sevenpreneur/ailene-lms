@@ -10,7 +10,6 @@ import ScorecardAILN from "@/components/cards/ScorecardAILN";
 import SectionContainerAILN from "@/components/cards/SectionContainerAILN";
 import GroupLevelDistributionAILN from "@/components/charts/GroupLevelDistributionAILN";
 import AttentionMemberRowAILN from "@/components/items/AttentionMemberRowAILN";
-import GroupUseCaseRowAILN from "@/components/items/GroupUseCaseRowAILN";
 import GeneralLabelAILN from "@/components/labels/GeneralLabelAILN";
 import PageContainerAILN from "@/components/pages/PageContainerAILN";
 import AppErrorComponents from "@/components/states/AppErrorComponents";
@@ -23,7 +22,6 @@ import type {
   GroupDepartments,
   GroupLevelDistribution,
   GroupOverview,
-  GroupTopUseCases,
 } from "@/apis/sponsor";
 import { Download } from "lucide-react";
 import SelectAILN from "@/components/fields/SelectAILN";
@@ -34,7 +32,6 @@ export default function GroupDetailsSponsorAILN({
   departments: departmentsPayload,
   overview,
   distribution: distributionPayload,
-  topUseCases: topUseCasesPayload,
   attention: attentionPayload,
   org,
   program,
@@ -43,7 +40,6 @@ export default function GroupDetailsSponsorAILN({
   departments: GroupDepartments | null;
   overview: GroupOverview | null;
   distribution: GroupLevelDistribution | null;
-  topUseCases: GroupTopUseCases | null;
   attention: GroupAttentionMembers | null;
   org: string | null;
   program: string;
@@ -53,7 +49,6 @@ export default function GroupDetailsSponsorAILN({
   const pdf = usePdfReport();
   const departments = departmentsPayload ?? { departments: [] };
   const distribution = distributionPayload ?? { total_members: 0, levels: [] };
-  const topUseCases = topUseCasesPayload ?? { total: 0, use_cases: [] };
   const attention = attentionPayload ?? { lagging_count: 0, members: [] };
 
   if (!overview) {
@@ -85,20 +80,6 @@ export default function GroupDetailsSponsorAILN({
       sub: `${metrics.beginner_count} org L0-L1 atau bawah`,
       percent: (metrics.avg_level / 4) * 100,
     },
-    {
-      label: "Jam dihemat",
-      value: formatDecimal(metrics.hours_saved_total),
-      unit: "jam",
-      sub: "Estimasi dari use case diterima",
-      percent: Math.min(100, metrics.hours_saved_total / 5),
-    },
-    {
-      label: "Use case diterima",
-      value: `${metrics.accepted_use_cases}`,
-      unit: "total",
-      sub: `+${metrics.accepted_use_cases_this_month} bulan ini`,
-      percent: Math.min(100, metrics.accepted_use_cases * 4),
-    },
   ];
 
   const buildReport = (): ReportProps => {
@@ -119,17 +100,6 @@ export default function GroupDetailsSponsorAILN({
             unit: "/ 4",
             footer: `${metrics.beginner_count} org di L0–L1`,
           },
-          {
-            label: "Jam Dihemat",
-            value: formatDecimal(metrics.hours_saved_total),
-            unit: "jam",
-            footer: "kumulatif",
-          },
-          {
-            label: "Use Case Diterima",
-            value: `${metrics.accepted_use_cases}`,
-            footer: `+${metrics.accepted_use_cases_this_month} bulan ini`,
-          },
         ],
       },
     ];
@@ -147,34 +117,18 @@ export default function GroupDetailsSponsorAILN({
         ]),
       });
     }
-    const useCases = topUseCases.use_cases;
-    if (useCases.length > 0) {
-      sections.push({
-        type: "table",
-        title: "Top Use Case",
-        columns: ["Use case", "Level", "Submit", "%"],
-        align: ["left", "left", "right", "right"],
-        rows: useCases.map((u) => [
-          u.name,
-          u.level_name ?? "-",
-          formatDecimal(u.count),
-          `${u.percent}%`,
-        ]),
-      });
-    }
     const members = attention.members;
     if (members.length > 0) {
       sections.push({
         type: "table",
         title: "Karyawan Perlu Perhatian",
-        columns: ["Karyawan", "Jabatan", "Level", "Status", "UC"],
-        align: ["left", "left", "right", "left", "right"],
+        columns: ["Karyawan", "Jabatan", "Level", "Status"],
+        align: ["left", "left", "right", "left"],
         rows: members.map((m) => [
           m.full_name,
           m.job_title ?? "-",
           `L${m.level_number}`,
           m.status,
-          formatDecimal(m.accepted_use_cases),
         ]),
       });
     }
@@ -228,7 +182,7 @@ export default function GroupDetailsSponsorAILN({
           </ButtonAILN>
         </PageHeaderAILN>
 
-        <div className="grid grid-cols-1 gap-4 md:grid-cols-2 xl:grid-cols-4">
+        <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
           {groupKpis.map((kpi, index) => (
             <ScorecardAILN
               key={index}
@@ -257,56 +211,30 @@ export default function GroupDetailsSponsorAILN({
           <GroupLevelDistributionAILN levels={distribution.levels} />
         </SectionContainerAILN>
 
-        <div className="grid grid-cols-1 gap-4 xl:grid-cols-[minmax(0,1fr)_minmax(360px,0.9fr)]">
-          <SectionContainerAILN
-            title={`Top use case - ${group.name}`}
-            className="dark:shadow-[0_0_16px_rgba(26,122,82,0.06)]"
-          >
-            {topUseCases.use_cases.length === 0 ? (
-              <EmptyStateAILN>
-                Belum ada use case diterima di departemen ini.
-              </EmptyStateAILN>
-            ) : (
-              <div className="flex flex-col gap-3">
-                {topUseCases.use_cases.map((useCase, index) => (
-                  <GroupUseCaseRowAILN
-                    key={useCase.id}
-                    rank={index + 1}
-                    name={useCase.name}
-                    level={useCase.level_name ?? "-"}
-                    count={useCase.count}
-                    percent={useCase.percent}
-                  />
-                ))}
-              </div>
-            )}
-          </SectionContainerAILN>
-
-          <SectionContainerAILN
-            title="Anggota"
-            className="dark:shadow-[0_0_16px_rgba(26,122,82,0.06)]"
-            headerRight={
-              <GeneralLabelAILN variant="yellow">
-                {attention.lagging_count} ketinggalan
-              </GeneralLabelAILN>
-            }
-          >
-            {attention.members.length === 0 ? (
-              <EmptyStateAILN>
-                Belum ada anggota di departemen ini.
-              </EmptyStateAILN>
-            ) : (
-              <div className="-mx-5 -mb-5 flex flex-col">
-                {attention.members.map((member) => (
-                  <AttentionMemberRowAILN
-                    key={member.access_id}
-                    member={member}
-                  />
-                ))}
-              </div>
-            )}
-          </SectionContainerAILN>
-        </div>
+        <SectionContainerAILN
+          title="Anggota"
+          className="dark:shadow-[0_0_16px_rgba(26,122,82,0.06)]"
+          headerRight={
+            <GeneralLabelAILN variant="yellow">
+              {attention.lagging_count} ketinggalan
+            </GeneralLabelAILN>
+          }
+        >
+          {attention.members.length === 0 ? (
+            <EmptyStateAILN>
+              Belum ada anggota di departemen ini.
+            </EmptyStateAILN>
+          ) : (
+            <div className="-mx-5 -mb-5 flex flex-col">
+              {attention.members.map((member) => (
+                <AttentionMemberRowAILN
+                  key={member.access_id}
+                  member={member}
+                />
+              ))}
+            </div>
+          )}
+        </SectionContainerAILN>
       </div>
     </PageContainerAILN>
   );

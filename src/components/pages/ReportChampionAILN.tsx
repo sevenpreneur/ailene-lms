@@ -108,8 +108,7 @@ function ReportContent({
       y,
     );
     y += 6;
-    doc.text(`Jam dihemat: ${data.metrics.hours_saved}`, 16, y);
-    doc.text(`Naik level: ${data.metrics.level_ups}`, 75, y);
+    doc.text(`Naik level: ${data.metrics.level_ups}`, 16, y);
 
     y += 12;
     doc.setFont("helvetica", "bold");
@@ -180,7 +179,7 @@ function ReportContent({
               </p>
             </div>
 
-            <div className="grid grid-cols-2 border-b border-dashboard-border md:grid-cols-4">
+            <div className="grid grid-cols-1 border-b border-dashboard-border sm:grid-cols-3">
               <KpiTile
                 label="Anggota aktif"
                 value={`${data.metrics.active_members}`}
@@ -192,12 +191,6 @@ function ReportContent({
                 value={`${data.metrics.accepted_submissions}`}
                 unit="diterima"
                 sub="prompt + use case"
-              />
-              <KpiTile
-                label="Jam dihemat tim"
-                value={`${data.metrics.hours_saved}`}
-                unit="jam"
-                sub="estimasi dari use case"
               />
               <KpiTile
                 label="Naik level"
