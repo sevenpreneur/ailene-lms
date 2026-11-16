@@ -25,6 +25,7 @@ import {
   CircleHelp,
   LayoutDashboard,
   LineChart,
+  Workflow,
   type LucideIcon,
 } from "lucide-react";
 import { usePathname } from "next/navigation";
@@ -58,6 +59,11 @@ const VARIANT_CONFIG: Record<
         name: "Latihan AI",
         url: "/student/skill-practice",
         icon: ClipboardList,
+      },
+      {
+        name: "Peta Alur Kerja",
+        url: "/student/workflow-maps",
+        icon: Workflow,
       },
       { name: "Progress Saya", url: "/student/my-progress", icon: LineChart },
       { name: "Pre Assessment", url: "/student/pre-assessment", icon: Gauge },

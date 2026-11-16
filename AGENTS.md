@@ -126,6 +126,7 @@ File-file penting di `src/lib/`:
 | `status_code.ts`             | HTTP status code constants                                           |
 | `supabase.ts`                | Supabase Storage upload — `uploadPublicFile(file, folder)` mengembalikan public URL |
 | `use-unread-notifications.ts` | Hook badge notifikasi di sidebar — refresh saat navigasi & tab kembali aktif, sengaja tanpa polling interval supaya tab idle tidak membangunkan Neon |
+| `workflow-map.ts`            | Label kartu/status/masukan peta alur kerja, preset alat, kartu awal draft, pesan error backend dalam Bahasa Indonesia (presentasi saja) |
 | `utils.ts`                   | General utilities — `cn()` class merger, dll                        |
 
 ## Styling
