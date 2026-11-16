@@ -12,6 +12,7 @@ export async function POST(request: Request) {
   const result = await createWorkflow(body.project_id, {
     title: typeof body.title === "string" ? body.title : "",
     problem: typeof body.problem === "string" ? body.problem : "",
+    frequency: typeof body.frequency === "string" ? body.frequency : null,
     nodes: body.nodes,
   });
   if (!result.success) {

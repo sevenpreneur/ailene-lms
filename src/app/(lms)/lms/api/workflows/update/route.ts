@@ -16,6 +16,7 @@ export async function POST(request: Request) {
   const result = await updateWorkflow(body.project_id, body.workflow_id, {
     title: typeof body.title === "string" ? body.title : "",
     problem: typeof body.problem === "string" ? body.problem : "",
+    frequency: typeof body.frequency === "string" ? body.frequency : null,
     nodes: body.nodes,
   });
   if (!result.success) {

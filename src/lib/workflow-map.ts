@@ -2,45 +2,24 @@ import type {
   WorkflowFeedbackKind,
   WorkflowNode,
   WorkflowNodeInput,
-  WorkflowNodeKind,
   WorkflowStatus,
 } from "@/apis/workflows";
 
-export const WORKFLOW_NODE_LABELS: Record<WorkflowNodeKind, string> = {
-  trigger: "Pemicu",
-  step: "Langkah",
-  output: "Hasil",
-};
+export const WORKFLOW_MIN_STEPS = 3;
+export const WORKFLOW_MAX_STEPS = 8;
 
-export const WORKFLOW_NODE_QUESTIONS: Record<
-  WorkflowNodeKind,
-  { label: string; placeholder: string }
-> = {
-  trigger: {
-    label: "Apa yang memulai proses ini?",
-    placeholder: "Mis. Cabang mengirim file penjualan lewat email",
+export const WORKFLOW_STEP_FIELDS = {
+  title: {
+    label: "Apa yang dikerjakan?",
+    placeholder: "Contoh: Kumpulkan laporan harian dari tiap pengawas",
   },
-  step: {
-    label: "Apa yang kamu lakukan?",
-    placeholder: "Mis. Salin data ke satu sheet rekap",
+  source: {
+    label: "Bahan/data dari mana?",
+    placeholder: "Contoh: Email dari pengawas",
   },
-  output: {
-    label: "Hasil akhirnya apa?",
-    placeholder: "Mis. Slide laporan mingguan",
-  },
-};
-
-export const WORKFLOW_TOOL_PRESETS = [
-  "Excel",
-  "Google Sheets",
-  "Email",
-  "WhatsApp",
-  "Word",
-  "PowerPoint",
-  "Manual",
-];
-
-export const WORKFLOW_MAX_STEPS = 10;
+  tool: { label: "Pakai tool apa?", placeholder: "Contoh: Excel, Outlook" },
+  minutes: { label: "Kira-kira berapa lama?", placeholder: "30" },
+} as const;
 
 export const WORKFLOW_STATUS_LABELS: Record<WorkflowStatus, string> = {
   draft: "Draft",
@@ -54,56 +33,73 @@ export const WORKFLOW_FEEDBACK_LABELS: Record<WorkflowFeedbackKind, string> = {
   question: "Pertanyaan",
 };
 
-const BLANK_NODE = {
+export const WORKFLOW_EXAMPLE = {
+  title: "Rekap laporan produksi harian",
+  problem:
+    "Laporan dari tiap pengawas formatnya beda-beda, jadi rekapnya sering telat dan salah ketik.",
+  frequency: "Harian",
+  steps: [
+    {
+      title: "Kumpulkan laporan harian dari tiap pengawas",
+      source: "Email dari pengawas",
+      tool: "Outlook",
+      minutes: 15,
+    },
+    {
+      title: "Salin angka produksi ke satu sheet rekap",
+      source: "Lampiran Excel tiap pengawas",
+      tool: "Excel",
+      minutes: 45,
+    },
+    {
+      title: "Kirim ringkasan ke kepala pabrik",
+      source: "Sheet rekap",
+      tool: "WhatsApp",
+      minutes: 10,
+    },
+  ],
+};
+
+const blankStep = (id: string): WorkflowNodeInput => ({
+  id,
   title: "",
-  frequency: null,
+  source: "",
   tool: "",
   minutes: null,
   pain_point: false,
-  recipient: "",
-  note: "",
-} as const;
+});
 
 // Fixed IDs keep server and client renders identical for a new map.
-export const WORKFLOW_STARTER_NODES: WorkflowNodeInput[] = [
-  { ...BLANK_NODE, id: "new-trigger", kind: "trigger" },
-  { ...BLANK_NODE, id: "new-step-1", kind: "step" },
-  { ...BLANK_NODE, id: "new-output", kind: "output" },
-];
+export const WORKFLOW_STARTER_NODES: WorkflowNodeInput[] = Array.from(
+  { length: WORKFLOW_MIN_STEPS },
+  (_, index) => blankStep(`new-step-${index + 1}`),
+);
 
 export function createWorkflowStep(): WorkflowNodeInput {
-  return {
-    id: crypto.randomUUID(),
-    kind: "step",
-    title: "",
-    frequency: null,
-    tool: "",
-    minutes: null,
-    pain_point: false,
-    recipient: "",
-    note: "",
-  };
+  return blankStep(crypto.randomUUID());
 }
 
-// The editor works on strings; stored blanks come back as null.
-export function toNodeInput(node: WorkflowNode): WorkflowNodeInput {
-  return {
+// The editor works on strings; maps saved with fewer steps are padded to the minimum.
+export function toNodeInputs(nodes: WorkflowNode[]): WorkflowNodeInput[] {
+  const inputs = nodes.map((node) => ({
     ...node,
     title: node.title ?? "",
+    source: node.source ?? "",
     tool: node.tool ?? "",
-    recipient: node.recipient ?? "",
-    note: node.note ?? "",
-  };
+  }));
+  for (let index = inputs.length; index < WORKFLOW_MIN_STEPS; index++) {
+    inputs.push(blankStep(`padding-step-${index + 1}`));
+  }
+  return inputs;
 }
 
 // Backend messages (docs/api/workflows.md) shown to learners in Indonesian.
 const WORKFLOW_ERROR_MESSAGES: Record<string, string> = {
-  "Workflow must start with one trigger, end with one output, and have 1-10 steps in between":
-    "Alur harus diawali satu pemicu, diakhiri satu hasil, dan berisi 1–10 langkah.",
+  "Workflow must have 3-8 steps": "Peta alur harus berisi 3–8 langkah.",
   "Node IDs must be unique within a workflow":
-    "Ada kartu ganda. Muat ulang halaman lalu coba lagi.",
-  "Fill in the title, problem, trigger frequency, and every node title before submitting":
-    "Lengkapi nama pekerjaan, masalahnya, frekuensi pemicu, dan isi setiap kartu sebelum submit.",
+    "Ada langkah ganda. Muat ulang halaman lalu coba lagi.",
+  "Fill in the title, problem, frequency, and every step title before submitting":
+    "Lengkapi nama pekerjaan, masalahnya, seberapa sering dikerjakan, dan isi setiap langkah sebelum submit.",
   "Workflow not found": "Peta alur tidak ditemukan atau sudah dihapus.",
   "Invalid request body": "Ada isian yang terlalu panjang atau tidak valid.",
 };

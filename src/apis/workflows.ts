@@ -7,35 +7,28 @@ import LogError from "@/lib/log-error";
 
 // Contract: ../ailene-lms-apis/docs/api/workflows.md
 
-export type WorkflowNodeKind = "trigger" | "step" | "output";
 export type WorkflowFrequency = "daily" | "weekly" | "monthly" | "occasionally";
 export type WorkflowStatus = "draft" | "submitted" | "reviewed";
 export type WorkflowFeedbackKind = "automate" | "improve" | "question";
 
-// Response shape: blank text comes back as null.
+// One step of the map; blank text comes back as null.
 export type WorkflowNode = {
   id: string;
-  kind: WorkflowNodeKind;
   title: string | null;
-  frequency: WorkflowFrequency | null;
+  source: string | null;
   tool: string | null;
   minutes: number | null;
   pain_point: boolean;
-  recipient: string | null;
-  note: string | null;
 };
 
 // Request shape: text is always a string; the backend trims and stores blanks as null.
 export type WorkflowNodeInput = {
   id: string;
-  kind: WorkflowNodeKind;
   title: string;
-  frequency: WorkflowFrequency | null;
+  source: string;
   tool: string;
   minutes: number | null;
   pain_point: boolean;
-  recipient: string;
-  note: string;
 };
 
 export type WorkflowFeedback = {
@@ -58,6 +51,7 @@ export type WorkflowListItem = {
   id: number;
   title: string | null;
   problem: string | null;
+  frequency: WorkflowFrequency | null;
   status: WorkflowStatus;
   summary: WorkflowSummary;
   submitted_at: string | null;
@@ -74,6 +68,7 @@ export type Workflow = WorkflowListItem & {
 export type WorkflowContent = {
   title: string;
   problem: string;
+  frequency: WorkflowFrequency | null;
   nodes: WorkflowNodeInput[];
 };
 

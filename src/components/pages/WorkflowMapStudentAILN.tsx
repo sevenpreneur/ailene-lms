@@ -3,26 +3,31 @@
 import ButtonAILN from "@/components/buttons/ButtonAILN";
 import InputAILN from "@/components/fields/InputAILN";
 import TextAreaAILN from "@/components/fields/TextAreaAILN";
-import WorkflowCanvasAILN from "@/components/forms/workflow-map/WorkflowCanvasAILN";
-import WorkflowInspectorAILN, {
-  WORKFLOW_TITLE_INPUT_ID,
-} from "@/components/forms/workflow-map/WorkflowInspectorAILN";
+import WorkflowStepCardAILN, {
+  workflowStepTitleId,
+} from "@/components/forms/workflow-map/WorkflowStepCardAILN";
 import WorkflowFeedbackItemAILN from "@/components/items/WorkflowFeedbackItemAILN";
 import AlertConfirmDialogAILN from "@/components/modals/AlertConfirmDialogAILN";
 import PageContainerAILN from "@/components/pages/PageContainerAILN";
 import PageHeaderAILN from "@/components/titles/PageHeaderAILN";
+import { GUIDED_FREQUENCIES } from "@/lib/guided-use-case";
 import { cn } from "@/lib/utils";
 import { useProjectId } from "@/lib/use-project-id";
 import {
+  WORKFLOW_EXAMPLE,
   WORKFLOW_MAX_STEPS,
-  WORKFLOW_NODE_LABELS,
+  WORKFLOW_MIN_STEPS,
   WORKFLOW_STARTER_NODES,
   WORKFLOW_STATUS_LABELS,
   createWorkflowStep,
-  toNodeInput,
+  toNodeInputs,
   workflowErrorMessage,
 } from "@/lib/workflow-map";
-import type { Workflow, WorkflowNodeInput } from "@/apis/workflows";
+import type {
+  Workflow,
+  WorkflowFrequency,
+  WorkflowNodeInput,
+} from "@/apis/workflows";
 import dayjs from "dayjs";
 import "dayjs/locale/id";
 import {
@@ -38,7 +43,7 @@ import {
 } from "lucide-react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { useEffect, useRef, useState } from "react";
+import { type ReactNode, useEffect, useRef, useState } from "react";
 import { toast } from "sonner";
 
 const STATUS_ICON = {
@@ -50,6 +55,33 @@ const STATUS_ICON = {
 const EMPTY_FEEDBACK: Workflow["feedback"] = [];
 
 type Pending = "save" | "submit" | "delete" | null;
+
+function SectionHeading({
+  id,
+  number,
+  title,
+  children,
+}: {
+  id: string;
+  number: number;
+  title: string;
+  children?: ReactNode;
+}) {
+  return (
+    <div className="flex flex-wrap items-center justify-between gap-3">
+      <h2 id={id} className="flex items-center gap-3 text-lg font-medium">
+        <span
+          aria-hidden
+          className="flex size-7 shrink-0 items-center justify-center rounded-lg bg-sevenpreneur-coal text-sm text-white dark:bg-white dark:text-sevenpreneur-coal"
+        >
+          {number}
+        </span>
+        {title}
+      </h2>
+      {children}
+    </div>
+  );
+}
 
 async function postWorkflow(
   action: "create" | "update" | "submit" | "delete",
@@ -80,49 +112,33 @@ export default function WorkflowMapStudentAILN({
   const router = useRouter();
   const listHref = `/${projectId}/student/workflow-maps`;
   const [saved, setSaved] = useState(initialMap);
-  const initialNodes =
-    initialMap?.nodes.map(toNodeInput) ?? WORKFLOW_STARTER_NODES;
   const feedback = saved?.feedback ?? EMPTY_FEEDBACK;
   const [title, setTitle] = useState(initialMap?.title ?? "");
   const [problem, setProblem] = useState(initialMap?.problem ?? "");
-  const [nodes, setNodes] = useState(initialNodes);
-  const [selectedId, setSelectedId] = useState(initialNodes[0]?.id ?? null);
+  const [frequency, setFrequency] = useState<WorkflowFrequency | null>(
+    initialMap?.frequency ?? null,
+  );
+  const [nodes, setNodes] = useState(() =>
+    initialMap ? toNodeInputs(initialMap.nodes) : WORKFLOW_STARTER_NODES,
+  );
+  const [showExample, setShowExample] = useState(false);
   const [dirty, setDirty] = useState(false);
   const [pending, setPending] = useState<Pending>(null);
   const [confirmDelete, setConfirmDelete] = useState(false);
-  const inspectorRef = useRef<HTMLElement>(null);
-  const focusTitleRef = useRef(false);
+  const focusStepRef = useRef<string | null>(null);
 
-  const steps = nodes.filter((node) => node.kind === "step");
-  const stepNumbers = new Map(steps.map((node, index) => [node.id, index + 1]));
-  const totalMinutes = steps.reduce(
+  const totalMinutes = nodes.reduce(
     (sum, node) => sum + (node.minutes ?? 0),
     0,
   );
-  const painCount = steps.filter((node) => node.pain_point).length;
-  const selectedIndex = nodes.findIndex((node) => node.id === selectedId);
-  const selected = nodes[selectedIndex];
-
-  const feedbackCountByNode = new Map<string, number>();
-  for (const item of feedback) {
-    if (item.node_id) {
-      feedbackCountByNode.set(
-        item.node_id,
-        (feedbackCountByNode.get(item.node_id) ?? 0) + 1,
-      );
-    }
-  }
-  const generalFeedback = feedback.filter((item) => !item.node_id);
-  const nodeFeedback = feedback.filter(
-    (item) => item.node_id && nodes.some((node) => node.id === item.node_id),
+  const painCount = nodes.filter((node) => node.pain_point).length;
+  const stepNumbers = new Map(nodes.map((node, index) => [node.id, index + 1]));
+  const generalFeedback = feedback.filter(
+    (item) => !item.node_id || !stepNumbers.has(item.node_id),
   );
-
-  const nodeLabel = (id: string | null) => {
-    const node = nodes.find((item) => item.id === id);
-    if (!node) return "";
-    const number = stepNumbers.get(node.id);
-    return `${WORKFLOW_NODE_LABELS[node.kind]}${number ? ` ${number}` : ""}`;
-  };
+  const stepFeedback = feedback.filter(
+    (item) => item.node_id && stepNumbers.has(item.node_id),
+  );
 
   useEffect(() => {
     if (!dirty) return;
@@ -132,22 +148,11 @@ export default function WorkflowMapStudentAILN({
   }, [dirty]);
 
   useEffect(() => {
-    if (!focusTitleRef.current) return;
-    focusTitleRef.current = false;
-    document.getElementById(WORKFLOW_TITLE_INPUT_ID)?.focus();
-  }, [selectedId]);
-
-  const select = (id: string) => {
-    setSelectedId(id);
-    if (!window.matchMedia("(min-width: 1024px)").matches) {
-      requestAnimationFrame(() =>
-        inspectorRef.current?.scrollIntoView({
-          behavior: "smooth",
-          block: "start",
-        }),
-      );
-    }
-  };
+    const id = focusStepRef.current;
+    if (!id) return;
+    focusStepRef.current = null;
+    document.getElementById(workflowStepTitleId(id))?.focus();
+  }, [nodes]);
 
   const changeNodes = (
     update: (current: WorkflowNodeInput[]) => WorkflowNodeInput[],
@@ -156,54 +161,55 @@ export default function WorkflowMapStudentAILN({
     setNodes(update);
   };
 
-  const updateSelected = (patch: Partial<WorkflowNodeInput>) =>
+  const updateStep = (id: string, patch: Partial<WorkflowNodeInput>) =>
     changeNodes((current) =>
-      current.map((node) =>
-        node.id === selectedId ? { ...node, ...patch } : node,
-      ),
+      current.map((node) => (node.id === id ? { ...node, ...patch } : node)),
     );
 
-  const insertAfter = (index: number) => {
-    if (steps.length >= WORKFLOW_MAX_STEPS) return;
+  const addStep = () => {
+    if (nodes.length >= WORKFLOW_MAX_STEPS) return;
     const step = createWorkflowStep();
-    changeNodes((current) => [
-      ...current.slice(0, index + 1),
-      step,
-      ...current.slice(index + 1),
-    ]);
-    focusTitleRef.current = true;
-    select(step.id);
+    focusStepRef.current = step.id;
+    changeNodes((current) => [...current, step]);
   };
 
-  const move = (direction: -1 | 1) => {
-    const target = selectedIndex + direction;
-    if (nodes[target]?.kind !== "step") return;
+  const moveStep = (index: number, direction: -1 | 1) => {
+    const target = index + direction;
+    if (target < 0 || target >= nodes.length) return;
     changeNodes((current) => {
       const next = [...current];
-      [next[selectedIndex], next[target]] = [next[target], next[selectedIndex]];
+      [next[index], next[target]] = [next[target], next[index]];
       return next;
     });
   };
 
-  const remove = () => {
-    if (steps.length <= 1) return;
-    const fallback = nodes[selectedIndex - 1]?.id ?? nodes[0].id;
-    changeNodes((current) => current.filter((node) => node.id !== selectedId));
-    setSelectedId(fallback);
+  const removeStep = (id: string) => {
+    if (nodes.length <= WORKFLOW_MIN_STEPS) return;
+    changeNodes((current) => current.filter((node) => node.id !== id));
+  };
+
+  const showStep = (id: string) => {
+    document
+      .getElementById(`workflow-step-${id}`)
+      ?.scrollIntoView({ behavior: "smooth", block: "center" });
+    document
+      .getElementById(workflowStepTitleId(id))
+      ?.focus({ preventScroll: true });
   };
 
   const applySaved = (workflow: Workflow) => {
     setSaved(workflow);
     setTitle(workflow.title ?? "");
     setProblem(workflow.problem ?? "");
-    setNodes(workflow.nodes.map(toNodeInput));
+    setFrequency(workflow.frequency);
+    setNodes(toNodeInputs(workflow.nodes));
     setDirty(false);
   };
 
   // Persists the editor and returns the stored workflow, or null after showing an error.
   const persist = async (): Promise<Workflow | null> => {
     if (saved && !dirty) return saved;
-    const content = { project_id: projectId, title, problem, nodes };
+    const content = { project_id: projectId, title, problem, frequency, nodes };
     const result = saved
       ? await postWorkflow("update", { ...content, workflow_id: saved.id })
       : await postWorkflow("create", content);
@@ -292,7 +298,7 @@ export default function WorkflowMapStudentAILN({
 
   return (
     <PageContainerAILN>
-      <div className="mx-auto flex w-full max-w-[1500px] flex-col gap-6 pb-12">
+      <div className="mx-auto flex w-full max-w-4xl flex-col gap-8 pb-12">
         <div>
           <ButtonAILN variant="neutral" size="small" asChild>
             <Link href={`/${projectId}/student/workflow-maps`}>
@@ -323,107 +329,172 @@ export default function WorkflowMapStudentAILN({
 
         <section
           aria-labelledby="workflow-about"
-          className="grid gap-5 rounded-lg border border-dashboard-border bg-card-1 p-4 sm:p-5 lg:grid-cols-[minmax(0,2fr)_minmax(0,3fr)]"
+          className="flex flex-col gap-4"
         >
-          <h2 id="workflow-about" className="sr-only">
-            Tentang use case
-          </h2>
-          <InputAILN
-            inputId="workflow-title"
-            inputName="Nama pekerjaan"
-            inputPlaceholder="Mis. Rekap laporan penjualan mingguan"
-            value={title}
-            characterLength={100}
-            onInputChange={(value) => {
-              setDirty(true);
-              setTitle(value);
-            }}
-            required
+          <SectionHeading
+            id="workflow-about"
+            number={1}
+            title="Tentang pekerjaan ini"
           />
-          <TextAreaAILN
-            textAreaId="workflow-problem"
-            textAreaName="Apa masalahnya sekarang?"
-            textAreaPlaceholder="Mis. Sering telat karena datanya digabung manual."
-            value={problem}
-            rows={2}
-            characterLength={400}
-            onTextAreaChange={(value) => {
-              setDirty(true);
-              setProblem(value);
-            }}
-            required
-          />
+          <div className="flex flex-col gap-5 rounded-lg border border-dashboard-border bg-card-1 p-4 sm:p-5">
+            <InputAILN
+              inputId="workflow-title"
+              inputName="Nama pekerjaan"
+              inputPlaceholder="Contoh: Rekap laporan produksi harian"
+              value={title}
+              characterLength={100}
+              onInputChange={(value) => {
+                setDirty(true);
+                setTitle(value);
+              }}
+              required
+            />
+            <TextAreaAILN
+              textAreaId="workflow-problem"
+              textAreaName="Apa masalahnya sekarang?"
+              textAreaPlaceholder="Contoh: Sering telat karena datanya digabung manual."
+              value={problem}
+              rows={2}
+              characterLength={400}
+              onTextAreaChange={(value) => {
+                setDirty(true);
+                setProblem(value);
+              }}
+              required
+            />
+            <div className="flex flex-col gap-2">
+              <span
+                id="workflow-frequency"
+                className="text-sm font-medium text-foreground"
+              >
+                Seberapa sering dikerjakan?
+                <span className="text-destructive"> *</span>
+              </span>
+              <div
+                role="radiogroup"
+                aria-labelledby="workflow-frequency"
+                className="flex flex-wrap gap-2"
+              >
+                {GUIDED_FREQUENCIES.map((option) => (
+                  <ButtonAILN
+                    key={option.value}
+                    role="radio"
+                    aria-checked={frequency === option.value}
+                    variant={
+                      frequency === option.value ? "optionActive" : "option"
+                    }
+                    size="medium"
+                    onClick={() => {
+                      setDirty(true);
+                      setFrequency(option.value);
+                    }}
+                  >
+                    {option.label}
+                  </ButtonAILN>
+                ))}
+              </div>
+            </div>
+          </div>
         </section>
 
-        <div className="grid items-start gap-5 lg:grid-cols-[minmax(0,1fr)_22rem]">
-          <section
-            aria-labelledby="workflow-flow"
-            className="flex min-w-0 flex-col gap-3"
+        <section
+          aria-labelledby="workflow-steps"
+          className="flex flex-col gap-4"
+        >
+          <SectionHeading
+            id="workflow-steps"
+            number={2}
+            title="Langkah-langkahnya"
           >
-            <div className="flex flex-wrap items-end justify-between gap-3">
-              <div className="flex flex-col gap-1">
-                <h2 id="workflow-flow" className="text-base font-medium">
-                  Alur kerja saat ini
-                </h2>
-                <p className="flex flex-wrap items-center gap-x-3 gap-y-1 text-xs text-muted-foreground">
-                  <span>{steps.length} langkah</span>
-                  <span aria-hidden>·</span>
-                  <span>±{totalMinutes} menit sekali jalan</span>
-                  {painCount > 0 && (
-                    <>
-                      <span aria-hidden>·</span>
-                      <span className="inline-flex items-center gap-1">
-                        <Flame className="size-3" aria-hidden />
-                        {painCount} paling repot
-                      </span>
-                    </>
-                  )}
-                </p>
-              </div>
-              <ButtonAILN
-                variant="outline"
-                size="small"
-                disabled={steps.length >= WORKFLOW_MAX_STEPS}
-                onClick={() => insertAfter(nodes.length - 2)}
-              >
-                <Plus className="size-3.5" />
-                Tambah langkah
-              </ButtonAILN>
-            </div>
+            <ButtonAILN
+              variant="outline"
+              size="small"
+              aria-expanded={showExample}
+              aria-controls="workflow-example"
+              onClick={() => setShowExample((open) => !open)}
+            >
+              {showExample ? "Tutup contoh" : "Lihat contoh pengisian"}
+            </ButtonAILN>
+          </SectionHeading>
+          <p className="text-sm text-muted-foreground">
+            Tulis berurutan dari awal sampai pekerjaan selesai, apa adanya dan
+            bukan versi idealnya. Minimal {WORKFLOW_MIN_STEPS} langkah, maksimal{" "}
+            {WORKFLOW_MAX_STEPS}.
+          </p>
 
-            <WorkflowCanvasAILN
-              nodes={nodes}
-              selectedId={selectedId}
-              feedbackCountByNode={feedbackCountByNode}
-              onSelect={select}
-              onInsertAfter={insertAfter}
-            />
-
-            <p className="text-xs leading-5 text-muted-foreground">
-              Klik kartu untuk mengisi detail. Cukup 3–7 langkah, tulis apa
-              adanya, bukan versi idealnya.
-            </p>
-          </section>
-
-          {selected && (
-            <div className="lg:sticky lg:top-6 lg:max-h-[calc(100dvh-3rem)] lg:overflow-y-auto lg:overscroll-contain lg:rounded-lg">
-              <WorkflowInspectorAILN
-                ref={inspectorRef}
-                node={selected}
-                stepNumber={stepNumbers.get(selected.id) ?? null}
-                feedback={feedback.filter(
-                  (item) => item.node_id === selected.id,
-                )}
-                canMoveEarlier={nodes[selectedIndex - 1]?.kind === "step"}
-                canMoveLater={nodes[selectedIndex + 1]?.kind === "step"}
-                canDelete={steps.length > 1}
-                onChange={updateSelected}
-                onMove={move}
-                onDelete={remove}
-              />
+          {showExample && (
+            <div
+              id="workflow-example"
+              className="flex flex-col gap-3 rounded-lg border border-sb-border bg-sb-bg p-4 text-sm"
+            >
+              <p className="text-xs font-medium uppercase tracking-wide text-muted-foreground">
+                Contoh · {WORKFLOW_EXAMPLE.title} ({WORKFLOW_EXAMPLE.frequency})
+              </p>
+              <ol className="flex flex-col gap-3">
+                {WORKFLOW_EXAMPLE.steps.map((step, index) => (
+                  <li key={step.title} className="flex flex-col gap-0.5">
+                    <span>
+                      <span className="font-medium">Langkah {index + 1}:</span>{" "}
+                      {step.title}
+                    </span>
+                    <span className="text-xs text-muted-foreground">
+                      Dari {step.source} · {step.tool} · ±{step.minutes} menit
+                    </span>
+                  </li>
+                ))}
+              </ol>
             </div>
           )}
-        </div>
+
+          <ol className="flex flex-col gap-3">
+            {nodes.map((node, index) => (
+              <WorkflowStepCardAILN
+                key={node.id}
+                step={node}
+                number={index + 1}
+                feedback={feedback.filter((item) => item.node_id === node.id)}
+                canMoveEarlier={index > 0}
+                canMoveLater={index < nodes.length - 1}
+                canDelete={nodes.length > WORKFLOW_MIN_STEPS}
+                onChange={(patch) => updateStep(node.id, patch)}
+                onMove={(direction) => moveStep(index, direction)}
+                onDelete={() => removeStep(node.id)}
+              />
+            ))}
+          </ol>
+
+          <div className="flex flex-wrap items-center justify-between gap-3">
+            <ButtonAILN
+              variant="outline"
+              size="medium"
+              disabled={nodes.length >= WORKFLOW_MAX_STEPS}
+              onClick={addStep}
+            >
+              <Plus className="size-3.5" />
+              {nodes.length >= WORKFLOW_MAX_STEPS
+                ? `Maksimal ${WORKFLOW_MAX_STEPS} langkah`
+                : "Tambah langkah"}
+            </ButtonAILN>
+            <p
+              className="flex flex-wrap items-center gap-x-3 text-sm text-muted-foreground"
+              aria-live="polite"
+            >
+              {painCount > 0 && (
+                <span className="inline-flex items-center gap-1">
+                  <Flame className="size-3.5" aria-hidden />
+                  {painCount} paling repot
+                </span>
+              )}
+              <span>
+                Total waktu:{" "}
+                <span className="font-medium text-foreground">
+                  {totalMinutes} menit
+                </span>{" "}
+                sekali kerja
+              </span>
+            </p>
+          </div>
+        </section>
 
         {saved && (
           <section
@@ -442,7 +513,7 @@ export default function WorkflowMapStudentAILN({
                   <p className="text-sm text-muted-foreground">
                     {reviewedAt
                       ? `Dibahas ${dayjs(reviewedAt).locale("id").format("D MMMM YYYY")}`
-                      : "Masukan muncul di sini dan di kartu terkait setelah dibahas di kelas."}
+                      : "Masukan muncul di sini dan di langkah terkait setelah dibahas di kelas."}
                   </p>
                 </div>
               </div>
@@ -465,7 +536,7 @@ export default function WorkflowMapStudentAILN({
                     }
                   />
                 ))}
-                {nodeFeedback.map((item) => (
+                {stepFeedback.map((item) => (
                   <WorkflowFeedbackItemAILN
                     key={item.id}
                     feedback={item}
@@ -473,9 +544,10 @@ export default function WorkflowMapStudentAILN({
                       <ButtonAILN
                         variant="textAccent"
                         size="bare"
-                        onClick={() => item.node_id && select(item.node_id)}
+                        onClick={() => item.node_id && showStep(item.node_id)}
                       >
-                        · Lihat di {nodeLabel(item.node_id)}
+                        · Lihat di Langkah{" "}
+                        {item.node_id && stepNumbers.get(item.node_id)}
                       </ButtonAILN>
                     }
                   />
@@ -537,7 +609,7 @@ export default function WorkflowMapStudentAILN({
         <AlertConfirmDialogAILN
           isOpen={confirmDelete}
           alertDialogHeader="Hapus peta alur ini?"
-          alertDialogMessage="Peta alur beserta semua kartu dan masukan kelas akan dihapus permanen."
+          alertDialogMessage="Peta alur beserta semua langkah dan masukan kelas akan dihapus permanen."
           alertCancelLabel="Batal"
           alertConfirmLabel="Hapus permanen"
           onClose={() => setConfirmDelete(false)}
