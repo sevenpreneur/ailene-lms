@@ -11,7 +11,7 @@ export async function uploadPublicFile(
   folder: string
 ): Promise<string> {
   const safeName = file.name.replace(/[^a-zA-Z0-9._-]/g, "_");
-  const filePath = `ailene/${folder}/${Date.now()}-${safeName}`;
+  const filePath = `ailene/${folder}/${crypto.randomUUID()}-${safeName}`;
   const { error } = await supabase.storage
     .from("sevenpreneur")
     .upload(filePath, file, { cacheControl: "3600", upsert: false });

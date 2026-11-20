@@ -48,12 +48,14 @@ export default function WorkflowAttachmentsFieldAILN({
   onAdd,
   onRemove,
   onUploadingChange,
+  compact = false,
 }: {
   id: string;
   attachments: WorkflowAttachment[];
   onAdd: (attachment: WorkflowAttachment) => void;
   onRemove: (index: number) => void;
   onUploadingChange: (uploading: boolean) => void;
+  compact?: boolean;
 }) {
   const [uploads, setUploads] = useState<Upload[]>([]);
   const [dragging, setDragging] = useState(false);
@@ -91,6 +93,7 @@ export default function WorkflowAttachmentsFieldAILN({
     try {
       const url = await uploadPublicFile(file, WORKFLOW_ATTACHMENT_FOLDER);
       onAdd({
+        node_id: null,
         url,
         name: file.name,
         mime_type:
@@ -153,7 +156,8 @@ export default function WorkflowAttachmentsFieldAILN({
         onDragLeave={() => setDragging(false)}
         onDrop={drop}
         className={cn(
-          "flex min-h-32 flex-col items-center justify-center gap-1.5 rounded-lg border border-dashed p-5 text-center transition-colors duration-150 focus-within:outline-2 focus-within:outline-offset-2 focus-within:outline-sevenpreneur-coal dark:focus-within:outline-white",
+          "flex flex-col items-center justify-center gap-1.5 rounded-lg border border-dashed text-center transition-colors duration-150 focus-within:outline-2 focus-within:outline-offset-2 focus-within:outline-sevenpreneur-coal dark:focus-within:outline-white",
+          compact ? "min-h-20 p-3" : "min-h-32 p-5",
           full
             ? "cursor-not-allowed border-sb-border bg-sb-bg/50 text-muted-foreground"
             : "cursor-pointer border-sb-border bg-sb-bg hover:border-sevenpreneur-coal/40 dark:hover:border-white/40",
@@ -164,7 +168,7 @@ export default function WorkflowAttachmentsFieldAILN({
         <span className="text-sm font-medium">
           {full
             ? `Sudah ${WORKFLOW_MAX_ATTACHMENTS} file`
-            : "Pilih file atau tarik ke sini"}
+            : compact ? "Unggah dokumen langkah" : "Pilih file atau tarik ke sini"}
         </span>
         <span id={`${id}-help`} className="text-xs text-muted-foreground">
           PDF, Word, Excel, PowerPoint, atau gambar · maks.{" "}

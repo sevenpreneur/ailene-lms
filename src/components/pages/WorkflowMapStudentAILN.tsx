@@ -133,7 +133,8 @@ export default function WorkflowMapStudentAILN({
   const [attachments, setAttachments] = useState<WorkflowAttachment[]>(
     initialMap?.attachments ?? [],
   );
-  const [uploading, setUploading] = useState(false);
+  const [uploadingKeys, setUploadingKeys] = useState<Set<string>>(() => new Set());
+  const uploading = uploadingKeys.size > 0;
   const [showExample, setShowExample] = useState(false);
   const [dirty, setDirty] = useState(false);
   const [pending, setPending] = useState<Pending>(null);
@@ -197,8 +198,9 @@ export default function WorkflowMapStudentAILN({
   };
 
   const removeStep = (id: string) => {
-    if (nodes.length <= WORKFLOW_MIN_STEPS) return;
+    if (nodes.length <= WORKFLOW_MIN_STEPS || uploading) return;
     changeNodes((current) => current.filter((node) => node.id !== id));
+    setAttachments((current) => current.filter((attachment) => attachment.node_id !== id));
   };
 
   const showStep = (id: string) => {
@@ -210,18 +212,30 @@ export default function WorkflowMapStudentAILN({
       ?.focus({ preventScroll: true });
   };
 
-  const addAttachment = (attachment: WorkflowAttachment) => {
+  const addAttachment = (attachment: WorkflowAttachment, nodeId: string | null = null) => {
     setDirty(true);
-    setAttachments((current) => [...current, attachment]);
+    setAttachments((current) => [...current, { ...attachment, node_id: nodeId }]);
   };
 
-  const removeAttachment = (index: number) => {
+  const removeAttachment = (nodeId: string | null, index: number) => {
     setDirty(true);
-    setAttachments((current) => current.filter((_, i) => i !== index));
+    setAttachments((current) => {
+      let position = -1;
+      return current.filter((attachment) => {
+        if (attachment.node_id !== nodeId) return true;
+        position++;
+        return position !== index;
+      });
+    });
   };
 
   const trackUploading = useCallback(
-    (value: boolean) => setUploading(value),
+    (key: string, value: boolean) => setUploadingKeys((current) => {
+      if (current.has(key) === value) return current;
+      const next = new Set(current);
+      if (value) next.add(key); else next.delete(key);
+      return next;
+    }),
     [],
   );
 
@@ -495,12 +509,16 @@ export default function WorkflowMapStudentAILN({
                 step={node}
                 number={index + 1}
                 feedback={feedback.filter((item) => item.node_id === node.id)}
+                attachments={attachments.filter((item) => item.node_id === node.id)}
                 canMoveEarlier={index > 0}
                 canMoveLater={index < nodes.length - 1}
-                canDelete={nodes.length > WORKFLOW_MIN_STEPS}
+                canDelete={nodes.length > WORKFLOW_MIN_STEPS && !uploading}
                 onChange={(patch) => updateStep(node.id, patch)}
                 onMove={(direction) => moveStep(index, direction)}
                 onDelete={() => removeStep(node.id)}
+                onAddAttachment={(attachment) => addAttachment(attachment, node.id)}
+                onRemoveAttachment={(attachmentIndex) => removeAttachment(node.id, attachmentIndex)}
+                onUploadingChange={(value) => trackUploading(node.id, value)}
               />
             ))}
           </ol>
@@ -578,10 +596,10 @@ export default function WorkflowMapStudentAILN({
               </div>
               <WorkflowAttachmentsFieldAILN
                 id="workflow-attachments"
-                attachments={attachments}
+                attachments={attachments.filter((item) => item.node_id === null)}
                 onAdd={addAttachment}
-                onRemove={removeAttachment}
-                onUploadingChange={trackUploading}
+                onRemove={(index) => removeAttachment(null, index)}
+                onUploadingChange={(value) => trackUploading("workflow", value)}
               />
             </div>
           </div>

@@ -120,8 +120,8 @@ const WORKFLOW_ERROR_MESSAGES: Record<string, string> = {
     "Ada langkah ganda. Muat ulang halaman lalu coba lagi.",
   "Fill in the title, problem, frequency, result, and every step title before submitting":
     "Lengkapi nama pekerjaan, masalahnya, seberapa sering dikerjakan, isi setiap langkah, dan hasil akhirnya sebelum submit.",
-  "Attach at most 3 PDF, Office, or image files of up to 10 MB each":
-    "Lampiran maksimal 3 file PDF, Office, atau gambar, masing-masing maksimal 10 MB.",
+  "Attach at most 3 PDF, Office, or image files of up to 10 MB each per step":
+    "Lampiran maksimal 3 file per langkah atau hasil akhir; gunakan PDF, Office, atau gambar maksimal 10 MB per file.",
   "Workflow not found": "Peta alur tidak ditemukan atau sudah dihapus.",
   "Invalid request body": "Ada isian yang terlalu panjang atau tidak valid.",
 };

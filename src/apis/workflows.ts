@@ -33,6 +33,7 @@ export type WorkflowNodeInput = {
 
 // An example output the learner already uploaded to storage.
 export type WorkflowAttachment = {
+  node_id: string | null;
   url: string;
   name: string;
   mime_type: string;

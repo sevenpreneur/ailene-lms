@@ -2,10 +2,11 @@
 
 import ButtonAILN from "@/components/buttons/ButtonAILN";
 import InputAILN from "@/components/fields/InputAILN";
+import WorkflowAttachmentsFieldAILN from "@/components/fields/WorkflowAttachmentsFieldAILN";
 import WorkflowFeedbackItemAILN from "@/components/items/WorkflowFeedbackItemAILN";
 import { cn } from "@/lib/utils";
 import { WORKFLOW_STEP_FIELDS } from "@/lib/workflow-map";
-import type { WorkflowFeedback, WorkflowNodeInput } from "@/apis/workflows";
+import type { WorkflowAttachment, WorkflowFeedback, WorkflowNodeInput } from "@/apis/workflows";
 import { ArrowDown, ArrowUp, Check, Flame, Trash2 } from "lucide-react";
 
 export const workflowStepTitleId = (id: string) => `workflow-step-${id}-title`;
@@ -14,22 +15,30 @@ export default function WorkflowStepCardAILN({
   step,
   number,
   feedback,
+  attachments,
   canMoveEarlier,
   canMoveLater,
   canDelete,
   onChange,
   onMove,
   onDelete,
+  onAddAttachment,
+  onRemoveAttachment,
+  onUploadingChange,
 }: {
   step: WorkflowNodeInput;
   number: number;
   feedback: WorkflowFeedback[];
+  attachments: WorkflowAttachment[];
   canMoveEarlier: boolean;
   canMoveLater: boolean;
   canDelete: boolean;
   onChange: (patch: Partial<WorkflowNodeInput>) => void;
   onMove: (direction: -1 | 1) => void;
   onDelete: () => void;
+  onAddAttachment: (attachment: WorkflowAttachment) => void;
+  onRemoveAttachment: (index: number) => void;
+  onUploadingChange: (uploading: boolean) => void;
 }) {
   const fieldId = (field: string) => `workflow-step-${step.id}-${field}`;
   const heading = `Langkah ${number}`;
@@ -67,7 +76,7 @@ export default function WorkflowStepCardAILN({
             variant="ghost"
             size="mediumIcon"
             aria-label={`Hapus ${heading}`}
-            title={canDelete ? "Hapus langkah" : "Minimal 3 langkah"}
+            title={canDelete ? "Hapus langkah" : "Tunggu unggahan selesai atau pertahankan minimal 3 langkah"}
             disabled={!canDelete}
             onClick={onDelete}
           >
@@ -147,6 +156,21 @@ export default function WorkflowStepCardAILN({
         <Flame className="size-3.5" aria-hidden />
         Langkah ini paling repot
       </button>
+
+      <div className="flex flex-col gap-2 border-t border-dashboard-border pt-4">
+        <span className="text-sm font-medium">Dokumen langkah <span className="font-normal text-muted-foreground">(opsional)</span></span>
+        <p className="text-xs leading-5 text-muted-foreground">
+          Lampirkan bahan atau contoh dari langkah ini. Samarkan data pribadi dan rahasia sebelum mengunggah.
+        </p>
+        <WorkflowAttachmentsFieldAILN
+          id={`workflow-attachments-${step.id}`}
+          attachments={attachments}
+          onAdd={onAddAttachment}
+          onRemove={onRemoveAttachment}
+          onUploadingChange={onUploadingChange}
+          compact
+        />
+      </div>
 
       {feedback.length > 0 && (
         <div className="flex flex-col gap-2 border-t border-dashboard-border pt-4">
