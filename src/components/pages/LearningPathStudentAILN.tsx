@@ -49,7 +49,7 @@ function ChapterCard({
   const status = locked
     ? "Terkunci"
     : completed
-      ? "Konten selesai"
+      ? "Langkah selesai"
       : chapter.progress === "in_progress"
         ? "Sedang berjalan"
         : "Belum dimulai";
@@ -124,7 +124,7 @@ function ChapterCard({
 
         <div className="relative z-10 mt-5">
           <div className="mb-2 flex items-center justify-between text-xs text-gray-700 dark:text-gray-300">
-            <span>Progres konten utama</span>
+            <span>Progres langkah belajar</span>
             <span className="font-medium">
               {chapter.done_tasks}/{chapter.total_tasks}
             </span>
